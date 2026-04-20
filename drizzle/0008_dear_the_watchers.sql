@@ -1,0 +1,1 @@
+ALTER TYPE "public"."compound_type_enum" ADD VALUE 'MACRONUTRIENT' BEFORE 'VITAMIN';

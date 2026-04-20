@@ -1,0 +1,1 @@
+ALTER TYPE "public"."api_source_enum" ADD VALUE 'UK_COFID' BEFORE 'NUTRITIONIX';

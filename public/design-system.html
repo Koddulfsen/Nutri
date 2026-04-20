@@ -1,0 +1,1736 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nutri Design System</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      /* ============================================
+         NUTRI DESIGN TOKENS
+         Edit these values to change the entire system
+         ============================================ */
+
+      /* PRIMARY - Cyan (Main brand color) */
+      --primary: #22d3ee;
+      --primary-dark: #0891b2;
+      --primary-light: #67e8f9;
+
+      /* ACCENT - Magenta (Secondary brand color) */
+      --accent: #f472b6;
+      --accent-dark: #c026d3;
+      --accent-light: #f9a8d4;
+
+      /* BACKGROUNDS (Pitch black theme) */
+      --bg-base: #0a0a0a;
+      --bg-elevated: #1a1a1a;
+      --bg-subtle: #2a2a2a;
+      --bg-hover: #333333;
+
+      /* TEXT */
+      --text-primary: #f5f5f5;
+      --text-secondary: #a3a3a3;
+      --text-muted: #6b7280;
+
+      /* BORDERS */
+      --border: #3a3a3a;
+      --border-hover: #4a4a4a;
+
+      /* CONFIDENCE SCORES */
+      --confidence-high: #22d3ee;
+      --confidence-medium: #67e8f9;
+      --confidence-low: #f472b6;
+      --confidence-none: #6b7280;
+
+      /* RDA ZONES (Cyan-Magenta system) */
+      --rda-optimal: #22d3ee;       /* Cyan - you're good */
+      --rda-warning: #67e8f9;       /* Light cyan - getting close */
+      --rda-deficient: #f472b6;     /* Magenta - needs attention */
+      --rda-excess: #c026d3;        /* Dark magenta - too much */
+
+      /* SPACING SCALE (8px base) */
+      --space-1: 4px;
+      --space-2: 8px;
+      --space-3: 12px;
+      --space-4: 16px;
+      --space-6: 24px;
+      --space-8: 32px;
+      --space-12: 48px;
+      --space-16: 64px;
+
+      /* BORDER RADIUS */
+      --radius-sm: 4px;
+      --radius-md: 8px;
+      --radius-lg: 12px;
+      --radius-xl: 16px;
+      --radius-full: 9999px;
+
+      /* TYPOGRAPHY */
+      --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      --font-mono: 'SF Mono', Monaco, 'Cascadia Code', monospace;
+
+      /* TRANSITIONS */
+      --transition-fast: 150ms ease;
+      --transition-normal: 300ms ease;
+      --transition-slow: 500ms ease;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      background: var(--bg-base);
+      color: var(--text-primary);
+      line-height: 1.6;
+      padding: var(--space-8);
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    /* Header */
+    .header {
+      text-align: center;
+      margin-bottom: var(--space-12);
+      padding-bottom: var(--space-8);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .logo {
+      font-size: 3rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: var(--space-2);
+    }
+
+    .subtitle {
+      color: var(--text-secondary);
+      font-size: 1.125rem;
+    }
+
+    /* Sections */
+    .section {
+      margin-bottom: var(--space-12);
+    }
+
+    .section-title {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: var(--space-6);
+      padding-bottom: var(--space-3);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+    }
+
+    .section-title::before {
+      content: '';
+      width: 4px;
+      height: 24px;
+      background: linear-gradient(180deg, var(--primary), var(--accent));
+      border-radius: var(--radius-full);
+    }
+
+    /* Color Swatches */
+    .color-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: var(--space-4);
+    }
+
+    .color-swatch {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      transition: transform var(--transition-fast), border-color var(--transition-fast);
+    }
+
+    .color-swatch:hover {
+      transform: translateY(-2px);
+      border-color: var(--primary);
+    }
+
+    .color-preview {
+      height: 80px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 0.875rem;
+    }
+
+    .color-info {
+      padding: var(--space-3);
+    }
+
+    .color-name {
+      font-weight: 600;
+      font-size: 0.875rem;
+      margin-bottom: var(--space-1);
+    }
+
+    .color-value {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+    }
+
+    /* Color Categories */
+    .color-category {
+      margin-bottom: var(--space-8);
+    }
+
+    .color-category-title {
+      font-size: 1rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+      margin-bottom: var(--space-4);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    /* Typography Preview */
+    .type-scale {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-4);
+    }
+
+    .type-sample {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: var(--space-6);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-6);
+    }
+
+    .type-label {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      min-width: 100px;
+    }
+
+    .type-h1 { font-size: 2.5rem; font-weight: 700; }
+    .type-h2 { font-size: 2rem; font-weight: 600; }
+    .type-h3 { font-size: 1.5rem; font-weight: 600; }
+    .type-h4 { font-size: 1.25rem; font-weight: 500; }
+    .type-body { font-size: 1rem; }
+    .type-small { font-size: 0.875rem; color: var(--text-secondary); }
+    .type-tiny { font-size: 0.75rem; color: var(--text-muted); }
+
+    /* Spacing Demo */
+    .spacing-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-4);
+    }
+
+    .spacing-item {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: var(--space-4);
+      text-align: center;
+    }
+
+    .spacing-box {
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      margin: 0 auto var(--space-3);
+      border-radius: var(--radius-sm);
+    }
+
+    .spacing-label {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+    }
+
+    /* Component Previews */
+    .component-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: var(--space-6);
+    }
+
+    .component-card {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: var(--space-6);
+    }
+
+    .component-label {
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: var(--space-4);
+    }
+
+    /* Buttons */
+    .button-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-3);
+      margin-bottom: var(--space-4);
+    }
+
+    /* ==========================================
+       DEPTH PRESS BUTTONS - 3D Push Effect
+       Shadow stays fixed, button moves down into it
+       ========================================== */
+
+    .btn {
+      padding: 12px 24px;
+      border-radius: var(--radius-lg);
+      font-weight: 600;
+      font-size: 0.875rem;
+      border: none;
+      cursor: pointer;
+      position: relative;
+      font-family: var(--font-sans);
+      transition: transform 0.1s ease;
+      z-index: 1;
+    }
+
+    /* Shadow layer - stays fixed in place */
+    .btn-depth {
+      position: relative;
+      display: inline-block;
+    }
+
+    .btn-depth::before {
+      content: '';
+      position: absolute;
+      top: 8px;
+      left: 0;
+      right: 0;
+      bottom: -8px;
+      border-radius: var(--radius-lg);
+      z-index: 0;
+    }
+
+    .btn-depth .btn {
+      position: relative;
+      z-index: 1;
+    }
+
+    .btn-depth:hover .btn {
+      transform: translateY(2px);
+    }
+
+    .btn-depth:active .btn {
+      transform: translateY(6px);
+    }
+
+    /* PRIMARY - Cyan Ice (60-70% usage) */
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary-dark), var(--primary-light));
+      color: var(--bg-base);
+    }
+
+    .btn-depth-primary::before {
+      background: var(--primary-dark);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    }
+
+    /* SECONDARY - Magenta Frost (20-25% usage) */
+    .btn-secondary {
+      background: linear-gradient(135deg, var(--accent-dark), var(--accent-light));
+      color: var(--bg-base);
+    }
+
+    .btn-depth-secondary::before {
+      background: var(--accent-dark);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    }
+
+    /* TERTIARY - Cyan Ghost (10-15% usage) */
+    .btn-tertiary {
+      background: transparent;
+      border: 2px solid var(--primary);
+      color: var(--primary-light);
+    }
+
+    .btn-tertiary:hover {
+      background: rgba(34, 211, 238, 0.15);
+      border-color: var(--primary-light);
+    }
+
+    .btn-tertiary:active {
+      background: rgba(34, 211, 238, 0.25);
+    }
+
+    /* QUATERNARY - Magenta Ghost (<5% usage) */
+    .btn-quaternary {
+      background: transparent;
+      border: 2px solid var(--accent);
+      color: var(--accent-light);
+    }
+
+    .btn-quaternary:hover {
+      background: rgba(244, 114, 182, 0.15);
+      border-color: var(--accent-light);
+    }
+
+    .btn-quaternary:active {
+      background: rgba(244, 114, 182, 0.25);
+    }
+
+    /* SPECIAL - Gradient Frost (Premium features) */
+    .btn-special {
+      background: linear-gradient(135deg, var(--primary), #8b5cf6, var(--accent));
+      color: white;
+    }
+
+    .btn-depth-special::before {
+      background: #7c3aed;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    }
+
+    /* Frost Shimmer Animation */
+    @keyframes frost-shimmer {
+      0%, 100% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+    }
+
+    .btn-shimmer::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: var(--radius-lg);
+      padding: 2px;
+      background: linear-gradient(135deg, var(--primary-light) 0%, white 25%, var(--primary) 50%, white 75%, var(--primary-light) 100%);
+      background-size: 200% 200%;
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      animation: frost-shimmer 3s ease-in-out infinite;
+      pointer-events: none;
+    }
+
+    /* Input */
+    .input {
+      width: 100%;
+      padding: var(--space-3) var(--space-4);
+      background: var(--bg-subtle);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      color: var(--text-primary);
+      font-size: 0.875rem;
+      transition: border-color var(--transition-fast);
+    }
+
+    .input:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+
+    .input::placeholder {
+      color: var(--text-muted);
+    }
+
+    /* Cards */
+    .preview-card {
+      background: var(--bg-subtle);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: var(--space-4);
+      transition: border-color var(--transition-fast);
+    }
+
+    .preview-card:hover {
+      border-color: rgba(34, 211, 238, 0.5);
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: var(--space-3);
+    }
+
+    .card-title {
+      font-weight: 600;
+    }
+
+    .card-badge {
+      padding: 2px 8px;
+      border-radius: var(--radius-full);
+      font-size: 0.75rem;
+      font-weight: 500;
+    }
+
+    .badge-high { background: var(--confidence-high); color: var(--bg-base); }
+    .badge-medium { background: var(--confidence-medium); color: var(--bg-base); }
+    .badge-low { background: var(--confidence-low); color: var(--bg-base); }
+
+    .card-content {
+      color: var(--text-secondary);
+      font-size: 0.875rem;
+    }
+
+    /* Progress Bar */
+    .progress-container {
+      margin-top: var(--space-4);
+    }
+
+    .progress-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.75rem;
+      margin-bottom: var(--space-2);
+    }
+
+    .progress-bar {
+      height: 8px;
+      background: var(--bg-base);
+      border-radius: var(--radius-full);
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      border-radius: var(--radius-full);
+      transition: width var(--transition-normal);
+    }
+
+    .progress-optimal { background: var(--rda-optimal); }
+    .progress-warning { background: var(--rda-warning); }
+    .progress-deficient { background: var(--rda-deficient); }
+    .progress-excess { background: var(--rda-excess); }
+
+    /* Confidence Indicators */
+    .confidence-row {
+      display: flex;
+      gap: var(--space-4);
+      flex-wrap: wrap;
+    }
+
+    .confidence-item {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      padding: var(--space-2) var(--space-4);
+      background: var(--bg-subtle);
+      border-radius: var(--radius-md);
+    }
+
+    .confidence-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+    }
+
+    /* Gradient Preview */
+    .gradient-preview {
+      height: 60px;
+      border-radius: var(--radius-lg);
+      background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      margin-bottom: var(--space-4);
+    }
+
+    /* Nav Preview */
+    .nav-preview {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: var(--space-4);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .nav-logo {
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: var(--space-6);
+    }
+
+    .nav-link {
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 0.875rem;
+      transition: color var(--transition-fast);
+    }
+
+    .nav-link:hover, .nav-link.active {
+      color: var(--primary);
+    }
+
+    .nav-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+    }
+
+    /* Footer */
+    .footer {
+      text-align: center;
+      padding-top: var(--space-8);
+      border-top: 1px solid var(--border);
+      color: var(--text-muted);
+      font-size: 0.875rem;
+    }
+
+    /* Mobile Bottom Tabs Preview */
+    .bottom-tabs {
+      display: flex;
+      justify-content: space-around;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: var(--space-3);
+    }
+
+    .tab-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      padding: var(--space-2);
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: color var(--transition-fast);
+    }
+
+    .tab-item:hover, .tab-item.active {
+      color: var(--primary);
+    }
+
+    .tab-icon {
+      font-size: 1.25rem;
+    }
+
+    /* Icon Library Grid */
+    .icon-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+      gap: var(--space-4);
+    }
+
+    .icon-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: var(--space-2);
+      padding: var(--space-4);
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      transition: border-color var(--transition-fast), transform var(--transition-fast);
+    }
+
+    .icon-item:hover {
+      border-color: var(--primary);
+      transform: translateY(-2px);
+    }
+
+    .icon-preview {
+      width: 48px;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-primary);
+    }
+
+    .icon-label {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      text-align: center;
+    }
+
+    /* Tab SVG Icons */
+    .tab-icon svg {
+      width: 24px;
+      height: 24px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <header class="header">
+      <h1 class="logo">Nutri</h1>
+      <p class="subtitle">Design System & Token Reference</p>
+    </header>
+
+    <!-- Colors Section -->
+    <section class="section">
+      <h2 class="section-title">Colors</h2>
+
+      <div class="color-category">
+        <h3 class="color-category-title">Primary (Cyan)</h3>
+        <div class="color-grid">
+          <div class="color-swatch">
+            <div class="color-preview" style="background: var(--primary);">Aa</div>
+            <div class="color-info">
+              <div class="color-name">Primary</div>
+              <div class="color-value">#22d3ee</div>
+            </div>
+          </div>
+          <div class="color-swatch">
+            <div class="color-preview" style="background: var(--primary-dark);">Aa</div>
+            <div class="color-info">
+              <div class="color-name">Primary Dark</div>
+              <div class="color-value">#0891b2</div>
+            </div>
+          </div>
+          <div class="color-swatch">
+            <div class="color-preview" style="background: var(--primary-light);">Aa</div>
+            <div class="color-info">
+              <div class="color-name">Primary Light</div>
+              <div class="color-value">#67e8f9</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="color-category">
+        <h3 class="color-category-title">Accent (Magenta)</h3>
+        <div class="color-grid">
+          <div class="color-swatch">
+            <div class="color-preview" style="background: var(--accent);">Aa</div>
+            <div class="color-info">
+              <div class="color-name">Accent</div>
+              <div class="color-value">#f472b6</div>
+            </div>
+          </div>
+          <div class="color-swatch">
+            <div class="color-preview" style="background: var(--accent-dark);">Aa</div>
+            <div class="color-info">
+              <div class="color-name">Accent Dark</div>
+              <div class="color-value">#c026d3</div>
+            </div>
+          </div>
+          <div class="color-swatch">
+            <div class="color-preview" style="background: var(--accent-light);">Aa</div>
+            <div class="color-info">
+              <div class="color-name">Accent Light</div>
+              <div class="color-value">#f9a8d4</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="color-category">
+        <h3 class="color-category-title">Backgrounds</h3>
+        <div class="color-grid">
+          <div class="color-swatch">
+            <div class="color-preview" style="background: var(--bg-base); color: var(--text-primary);">Aa</div>
+            <div class="color-info">
+              <div class="color-name">Base</div>
+              <div class="color-value">#0a0a0a</div>
+            </div>
+          </div>
+          <div class="color-swatch">
+            <div class="color-preview" style="background: var(--bg-elevated); color: var(--text-primary);">Aa</div>
+            <div class="color-info">
+              <div class="color-name">Elevated</div>
+              <div class="color-value">#1a1a1a</div>
+            </div>
+          </div>
+          <div class="color-swatch">
+            <div class="color-preview" style="background: var(--bg-subtle); color: var(--text-primary);">Aa</div>
+            <div class="color-info">
+              <div class="color-name">Subtle</div>
+              <div class="color-value">#2a2a2a</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="color-category">
+        <h3 class="color-category-title">Confidence Scores</h3>
+        <div class="color-grid">
+          <div class="color-swatch">
+            <div class="color-preview" style="background: var(--confidence-high);">HIGH</div>
+            <div class="color-info">
+              <div class="color-name">High (Verified)</div>
+              <div class="color-value">#22d3ee</div>
+            </div>
+          </div>
+          <div class="color-swatch">
+            <div class="color-preview" style="background: var(--confidence-medium);">MED</div>
+            <div class="color-info">
+              <div class="color-name">Medium (Good)</div>
+              <div class="color-value">#67e8f9</div>
+            </div>
+          </div>
+          <div class="color-swatch">
+            <div class="color-preview" style="background: var(--confidence-low);">LOW</div>
+            <div class="color-info">
+              <div class="color-name">Low (Review)</div>
+              <div class="color-value">#f472b6</div>
+            </div>
+          </div>
+          <div class="color-swatch">
+            <div class="color-preview" style="background: var(--confidence-none); color: white;">NONE</div>
+            <div class="color-info">
+              <div class="color-name">None (No Data)</div>
+              <div class="color-value">#6b7280</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="color-category">
+        <h3 class="color-category-title">RDA Status Zones</h3>
+        <div class="color-grid">
+          <div class="color-swatch">
+            <div class="color-preview" style="background: var(--rda-optimal);">80-120%</div>
+            <div class="color-info">
+              <div class="color-name">Optimal</div>
+              <div class="color-value">#22d3ee (cyan)</div>
+            </div>
+          </div>
+          <div class="color-swatch">
+            <div class="color-preview" style="background: var(--rda-warning);">60-80%</div>
+            <div class="color-info">
+              <div class="color-name">Warning</div>
+              <div class="color-value">#67e8f9 (light cyan)</div>
+            </div>
+          </div>
+          <div class="color-swatch">
+            <div class="color-preview" style="background: var(--rda-deficient);">&lt;60%</div>
+            <div class="color-info">
+              <div class="color-name">Deficient</div>
+              <div class="color-value">#f472b6 (magenta)</div>
+            </div>
+          </div>
+          <div class="color-swatch">
+            <div class="color-preview" style="background: var(--rda-excess);">&gt;150%</div>
+            <div class="color-info">
+              <div class="color-name">Excess</div>
+              <div class="color-value">#c026d3 (dark magenta)</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Typography Section -->
+    <section class="section">
+      <h2 class="section-title">Typography</h2>
+      <div class="type-scale">
+        <div class="type-sample">
+          <span class="type-label">H1 / 2.5rem</span>
+          <span class="type-h1">Nutrition Intelligence</span>
+        </div>
+        <div class="type-sample">
+          <span class="type-label">H2 / 2rem</span>
+          <span class="type-h2">Track 280 Compounds</span>
+        </div>
+        <div class="type-sample">
+          <span class="type-label">H3 / 1.5rem</span>
+          <span class="type-h3">Daily Totals Overview</span>
+        </div>
+        <div class="type-sample">
+          <span class="type-label">H4 / 1.25rem</span>
+          <span class="type-h4">Vitamin C • Ascorbic Acid</span>
+        </div>
+        <div class="type-sample">
+          <span class="type-label">Body / 1rem</span>
+          <span class="type-body">Track your nutrition with context-aware filtering and bioavailability modeling.</span>
+        </div>
+        <div class="type-sample">
+          <span class="type-label">Small / 0.875rem</span>
+          <span class="type-small">Last updated 2 hours ago • Source: USDA FoodData Central</span>
+        </div>
+        <div class="type-sample">
+          <span class="type-label">Tiny / 0.75rem</span>
+          <span class="type-tiny">Confidence: HIGH (92%) • 47 research citations</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Spacing Section -->
+    <section class="section">
+      <h2 class="section-title">Spacing Scale (8px base)</h2>
+      <div class="spacing-grid">
+        <div class="spacing-item">
+          <div class="spacing-box" style="width: 4px; height: 4px;"></div>
+          <div class="spacing-label">space-1 (4px)</div>
+        </div>
+        <div class="spacing-item">
+          <div class="spacing-box" style="width: 8px; height: 8px;"></div>
+          <div class="spacing-label">space-2 (8px)</div>
+        </div>
+        <div class="spacing-item">
+          <div class="spacing-box" style="width: 12px; height: 12px;"></div>
+          <div class="spacing-label">space-3 (12px)</div>
+        </div>
+        <div class="spacing-item">
+          <div class="spacing-box" style="width: 16px; height: 16px;"></div>
+          <div class="spacing-label">space-4 (16px)</div>
+        </div>
+        <div class="spacing-item">
+          <div class="spacing-box" style="width: 24px; height: 24px;"></div>
+          <div class="spacing-label">space-6 (24px)</div>
+        </div>
+        <div class="spacing-item">
+          <div class="spacing-box" style="width: 32px; height: 32px;"></div>
+          <div class="spacing-label">space-8 (32px)</div>
+        </div>
+        <div class="spacing-item">
+          <div class="spacing-box" style="width: 48px; height: 48px;"></div>
+          <div class="spacing-label">space-12 (48px)</div>
+        </div>
+        <div class="spacing-item">
+          <div class="spacing-box" style="width: 64px; height: 64px;"></div>
+          <div class="spacing-label">space-16 (64px)</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Components Section -->
+    <section class="section">
+      <h2 class="section-title">Components</h2>
+
+      <div class="component-grid">
+        <!-- Buttons - Full 7-Variant System -->
+        <div class="component-card" style="grid-column: span 2;">
+          <div class="component-label">Depth Press Buttons (7 Variants)</div>
+
+          <p style="color: var(--text-secondary); font-size: 0.75rem; margin-bottom: var(--space-4);">
+            Click and hold to see the 3D press effect. Buttons "sink" 6px on click.
+          </p>
+
+          <div class="button-row">
+            <span class="btn-depth btn-depth-primary">
+              <button class="btn btn-primary">Primary</button>
+            </span>
+            <span class="btn-depth btn-depth-secondary">
+              <button class="btn btn-secondary">Secondary</button>
+            </span>
+            <span class="btn-depth btn-depth-special">
+              <button class="btn btn-special">Special ✨</button>
+            </span>
+          </div>
+          <div class="button-row">
+            <button class="btn btn-tertiary">Tertiary</button>
+            <button class="btn btn-quaternary">Quaternary</button>
+          </div>
+
+          <div style="margin-top: var(--space-6); padding-top: var(--space-4); border-top: 1px solid var(--border);">
+            <div class="component-label">Usage Guidelines</div>
+            <ul style="color: var(--text-secondary); font-size: 0.75rem; padding-left: var(--space-4); line-height: 1.8;">
+              <li><strong style="color: var(--primary);">Primary (60-70%)</strong> — Main CTAs, high-emphasis actions</li>
+              <li><strong style="color: var(--accent);">Secondary (20-25%)</strong> — Alternative actions, medium emphasis</li>
+              <li><strong style="color: var(--primary-light);">Tertiary (10-15%)</strong> — Low-emphasis, ghost buttons</li>
+              <li><strong style="color: var(--accent-light);">Quaternary (&lt;5%)</strong> — Subtle actions, cancel/dismiss</li>
+              <li><strong style="color: #8b5cf6;">Special (&lt;5%)</strong> — Premium features, upgrades</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Input -->
+        <div class="component-card">
+          <div class="component-label">Input</div>
+          <input type="text" class="input" placeholder="Search foods...">
+        </div>
+
+        <!-- Card with Badge -->
+        <div class="component-card">
+          <div class="component-label">Compound Card</div>
+          <div class="preview-card">
+            <div class="card-header">
+              <span class="card-title">Vitamin C</span>
+              <span class="card-badge badge-high">HIGH</span>
+            </div>
+            <div class="card-content">
+              Essential antioxidant • Immune support • Iron absorption enhancer
+            </div>
+            <div class="progress-container">
+              <div class="progress-label">
+                <span>120mg</span>
+                <span style="color: var(--rda-optimal);">133% Optimal</span>
+              </div>
+              <div class="progress-bar">
+                <div class="progress-fill progress-optimal" style="width: 100%;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Progress Bars -->
+        <div class="component-card">
+          <div class="component-label">RDA Progress Bars</div>
+          <div class="progress-container">
+            <div class="progress-label">
+              <span>Vitamin D</span>
+              <span style="color: var(--rda-optimal);">95% Optimal</span>
+            </div>
+            <div class="progress-bar">
+              <div class="progress-fill progress-optimal" style="width: 95%;"></div>
+            </div>
+          </div>
+          <div class="progress-container">
+            <div class="progress-label">
+              <span>Iron</span>
+              <span style="color: var(--rda-warning);">72% Warning</span>
+            </div>
+            <div class="progress-bar">
+              <div class="progress-fill progress-warning" style="width: 72%;"></div>
+            </div>
+          </div>
+          <div class="progress-container">
+            <div class="progress-label">
+              <span>Calcium</span>
+              <span style="color: var(--rda-deficient);">45% Deficient</span>
+            </div>
+            <div class="progress-bar">
+              <div class="progress-fill progress-deficient" style="width: 45%;"></div>
+            </div>
+          </div>
+          <div class="progress-container">
+            <div class="progress-label">
+              <span>Vitamin A</span>
+              <span style="color: var(--rda-excess);">165% Excess</span>
+            </div>
+            <div class="progress-bar">
+              <div class="progress-fill progress-excess" style="width: 100%;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Confidence Indicators -->
+        <div class="component-card">
+          <div class="component-label">Confidence Indicators</div>
+          <div class="confidence-row">
+            <div class="confidence-item">
+              <div class="confidence-dot" style="background: var(--confidence-high);"></div>
+              <span>High</span>
+            </div>
+            <div class="confidence-item">
+              <div class="confidence-dot" style="background: var(--confidence-medium);"></div>
+              <span>Medium</span>
+            </div>
+            <div class="confidence-item">
+              <div class="confidence-dot" style="background: var(--confidence-low);"></div>
+              <span>Low</span>
+            </div>
+            <div class="confidence-item">
+              <div class="confidence-dot" style="background: var(--confidence-none);"></div>
+              <span>None</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Brand Gradient -->
+        <div class="component-card">
+          <div class="component-label">Brand Gradient</div>
+          <div class="gradient-preview">
+            Cyan → Magenta
+          </div>
+          <div class="color-value" style="text-align: center;">
+            linear-gradient(135deg, #22d3ee, #f472b6)
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Icon Library Section -->
+    <section class="section">
+      <h2 class="section-title">Icon Library</h2>
+
+      <p style="color: var(--text-secondary); margin-bottom: var(--space-6);">
+        Custom Nutri icons in three styles. All icons are 24x24 SVG, stroke-width 2px for outlined.
+      </p>
+
+      <!-- Outlined Icons -->
+      <div class="color-category">
+        <h3 class="color-category-title">Outlined (Line)</h3>
+        <div class="icon-grid">
+          <!-- Home -->
+          <div class="icon-item">
+            <div class="icon-preview">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                <polyline points="9 22 9 12 15 12 15 22"/>
+              </svg>
+            </div>
+            <span class="icon-label">Home</span>
+          </div>
+
+          <!-- Track/Add Meal -->
+          <div class="icon-item">
+            <div class="icon-preview">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="12" y1="8" x2="12" y2="16"/>
+                <line x1="8" y1="12" x2="16" y2="12"/>
+              </svg>
+            </div>
+            <span class="icon-label">Track</span>
+          </div>
+
+          <!-- Analyze/Chart -->
+          <div class="icon-item">
+            <div class="icon-preview">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="20" x2="18" y2="10"/>
+                <line x1="12" y1="20" x2="12" y2="4"/>
+                <line x1="6" y1="20" x2="6" y2="14"/>
+              </svg>
+            </div>
+            <span class="icon-label">Analyze</span>
+          </div>
+
+          <!-- More/Menu -->
+          <div class="icon-item">
+            <div class="icon-preview">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="1"/>
+                <circle cx="12" cy="5" r="1"/>
+                <circle cx="12" cy="19" r="1"/>
+              </svg>
+            </div>
+            <span class="icon-label">More</span>
+          </div>
+
+          <!-- Search -->
+          <div class="icon-item">
+            <div class="icon-preview">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8"/>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+              </svg>
+            </div>
+            <span class="icon-label">Search</span>
+          </div>
+
+          <!-- Coconut -->
+          <div class="icon-item">
+            <div class="icon-preview">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <ellipse cx="12" cy="13" rx="9" ry="8"/>
+                <circle cx="8" cy="10" r="1.5"/>
+                <circle cx="16" cy="10" r="1.5"/>
+                <circle cx="12" cy="15" r="1.5"/>
+                <path d="M6 6c2-3 10-3 12 0"/>
+              </svg>
+            </div>
+            <span class="icon-label">Coconut</span>
+          </div>
+
+          <!-- Nutrients/Molecule -->
+          <div class="icon-item">
+            <div class="icon-preview">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="3"/>
+                <circle cx="5" cy="6" r="2"/>
+                <circle cx="19" cy="6" r="2"/>
+                <circle cx="5" cy="18" r="2"/>
+                <circle cx="19" cy="18" r="2"/>
+                <line x1="9.5" y1="10" x2="6.5" y2="7.5"/>
+                <line x1="14.5" y1="10" x2="17.5" y2="7.5"/>
+                <line x1="9.5" y1="14" x2="6.5" y2="16.5"/>
+                <line x1="14.5" y1="14" x2="17.5" y2="16.5"/>
+              </svg>
+            </div>
+            <span class="icon-label">Nutrients</span>
+          </div>
+
+          <!-- Trends -->
+          <div class="icon-item">
+            <div class="icon-preview">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+              </svg>
+            </div>
+            <span class="icon-label">Trends</span>
+          </div>
+
+          <!-- Settings -->
+          <div class="icon-item">
+            <div class="icon-preview">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="3"/>
+                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+              </svg>
+            </div>
+            <span class="icon-label">Settings</span>
+          </div>
+
+          <!-- Profile/User -->
+          <div class="icon-item">
+            <div class="icon-preview">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                <circle cx="12" cy="7" r="4"/>
+              </svg>
+            </div>
+            <span class="icon-label">Profile</span>
+          </div>
+
+          <!-- Calendar -->
+          <div class="icon-item">
+            <div class="icon-preview">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                <line x1="16" y1="2" x2="16" y2="6"/>
+                <line x1="8" y1="2" x2="8" y2="6"/>
+                <line x1="3" y1="10" x2="21" y2="10"/>
+              </svg>
+            </div>
+            <span class="icon-label">Calendar</span>
+          </div>
+
+          <!-- Filter -->
+          <div class="icon-item">
+            <div class="icon-preview">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
+              </svg>
+            </div>
+            <span class="icon-label">Filter</span>
+          </div>
+
+          <!-- Water/Droplet -->
+          <div class="icon-item">
+            <div class="icon-preview">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/>
+              </svg>
+            </div>
+            <span class="icon-label">Water</span>
+          </div>
+
+          <!-- Heart/Health -->
+          <div class="icon-item">
+            <div class="icon-preview">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+              </svg>
+            </div>
+            <span class="icon-label">Heart</span>
+          </div>
+
+          <!-- Star/Favorite -->
+          <div class="icon-item">
+            <div class="icon-preview">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+              </svg>
+            </div>
+            <span class="icon-label">Star</span>
+          </div>
+
+          <!-- Bell/Notification -->
+          <div class="icon-item">
+            <div class="icon-preview">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+              </svg>
+            </div>
+            <span class="icon-label">Bell</span>
+          </div>
+
+          <!-- Edit/Pencil -->
+          <div class="icon-item">
+            <div class="icon-preview">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+              </svg>
+            </div>
+            <span class="icon-label">Edit</span>
+          </div>
+
+          <!-- Trash/Delete -->
+          <div class="icon-item">
+            <div class="icon-preview">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="3 6 5 6 21 6"/>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                <line x1="10" y1="11" x2="10" y2="17"/>
+                <line x1="14" y1="11" x2="14" y2="17"/>
+              </svg>
+            </div>
+            <span class="icon-label">Trash</span>
+          </div>
+
+          <!-- Check/Checkmark -->
+          <div class="icon-item">
+            <div class="icon-preview">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+            </div>
+            <span class="icon-label">Check</span>
+          </div>
+
+          <!-- X/Close -->
+          <div class="icon-item">
+            <div class="icon-preview">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"/>
+                <line x1="6" y1="6" x2="18" y2="18"/>
+              </svg>
+            </div>
+            <span class="icon-label">Close</span>
+          </div>
+
+          <!-- Arrow Left/Back -->
+          <div class="icon-item">
+            <div class="icon-preview">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="19" y1="12" x2="5" y2="12"/>
+                <polyline points="12 19 5 12 12 5"/>
+              </svg>
+            </div>
+            <span class="icon-label">Back</span>
+          </div>
+
+          <!-- Arrow Right/Forward -->
+          <div class="icon-item">
+            <div class="icon-preview">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="5" y1="12" x2="19" y2="12"/>
+                <polyline points="12 5 19 12 12 19"/>
+              </svg>
+            </div>
+            <span class="icon-label">Forward</span>
+          </div>
+
+          <!-- Plus -->
+          <div class="icon-item">
+            <div class="icon-preview">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"/>
+                <line x1="5" y1="12" x2="19" y2="12"/>
+              </svg>
+            </div>
+            <span class="icon-label">Plus</span>
+          </div>
+
+          <!-- Minus -->
+          <div class="icon-item">
+            <div class="icon-preview">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="5" y1="12" x2="19" y2="12"/>
+              </svg>
+            </div>
+            <span class="icon-label">Minus</span>
+          </div>
+
+          <!-- Info -->
+          <div class="icon-item">
+            <div class="icon-preview">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="12" y1="16" x2="12" y2="12"/>
+                <line x1="12" y1="8" x2="12.01" y2="8"/>
+              </svg>
+            </div>
+            <span class="icon-label">Info</span>
+          </div>
+
+          <!-- Warning -->
+          <div class="icon-item">
+            <div class="icon-preview">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                <line x1="12" y1="9" x2="12" y2="13"/>
+                <line x1="12" y1="17" x2="12.01" y2="17"/>
+              </svg>
+            </div>
+            <span class="icon-label">Warning</span>
+          </div>
+
+          <!-- Eye/View -->
+          <div class="icon-item">
+            <div class="icon-preview">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                <circle cx="12" cy="12" r="3"/>
+              </svg>
+            </div>
+            <span class="icon-label">View</span>
+          </div>
+
+          <!-- Eye Off/Hide -->
+          <div class="icon-item">
+            <div class="icon-preview">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
+                <line x1="1" y1="1" x2="23" y2="23"/>
+              </svg>
+            </div>
+            <span class="icon-label">Hide</span>
+          </div>
+
+          <!-- Camera -->
+          <div class="icon-item">
+            <div class="icon-preview">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                <circle cx="12" cy="13" r="4"/>
+              </svg>
+            </div>
+            <span class="icon-label">Camera</span>
+          </div>
+
+          <!-- Barcode/Scan -->
+          <div class="icon-item">
+            <div class="icon-preview">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 7V5a2 2 0 0 1 2-2h2"/>
+                <path d="M17 3h2a2 2 0 0 1 2 2v2"/>
+                <path d="M21 17v2a2 2 0 0 1-2 2h-2"/>
+                <path d="M7 21H5a2 2 0 0 1-2-2v-2"/>
+                <line x1="7" y1="8" x2="7" y2="16"/>
+                <line x1="11" y1="8" x2="11" y2="16"/>
+                <line x1="15" y1="8" x2="15" y2="16"/>
+              </svg>
+            </div>
+            <span class="icon-label">Scan</span>
+          </div>
+
+          <!-- Clock/Time -->
+          <div class="icon-item">
+            <div class="icon-preview">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/>
+                <polyline points="12 6 12 12 16 14"/>
+              </svg>
+            </div>
+            <span class="icon-label">Clock</span>
+          </div>
+
+          <!-- Target/Goal -->
+          <div class="icon-item">
+            <div class="icon-preview">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/>
+                <circle cx="12" cy="12" r="6"/>
+                <circle cx="12" cy="12" r="2"/>
+              </svg>
+            </div>
+            <span class="icon-label">Target</span>
+          </div>
+
+          <!-- Trophy/Achievement -->
+          <div class="icon-item">
+            <div class="icon-preview">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/>
+                <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/>
+                <path d="M4 22h16"/>
+                <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/>
+                <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/>
+                <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/>
+              </svg>
+            </div>
+            <span class="icon-label">Trophy</span>
+          </div>
+
+          <!-- Leaf/Organic -->
+          <div class="icon-item">
+            <div class="icon-preview">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/>
+                <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/>
+              </svg>
+            </div>
+            <span class="icon-label">Leaf</span>
+          </div>
+
+          <!-- Fire/Calories -->
+          <div class="icon-item">
+            <div class="icon-preview">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/>
+              </svg>
+            </div>
+            <span class="icon-label">Fire</span>
+          </div>
+
+          <!-- Scale/Weight -->
+          <div class="icon-item">
+            <div class="icon-preview">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/>
+                <path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/>
+                <path d="M7 21h10"/>
+                <path d="M12 3v18"/>
+                <path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"/>
+              </svg>
+            </div>
+            <span class="icon-label">Scale</span>
+          </div>
+
+          <!-- Share -->
+          <div class="icon-item">
+            <div class="icon-preview">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="18" cy="5" r="3"/>
+                <circle cx="6" cy="12" r="3"/>
+                <circle cx="18" cy="19" r="3"/>
+                <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+                <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+              </svg>
+            </div>
+            <span class="icon-label">Share</span>
+          </div>
+
+          <!-- Download -->
+          <div class="icon-item">
+            <div class="icon-preview">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="7 10 12 15 17 10"/>
+                <line x1="12" y1="15" x2="12" y2="3"/>
+              </svg>
+            </div>
+            <span class="icon-label">Download</span>
+          </div>
+
+          <!-- Refresh -->
+          <div class="icon-item">
+            <div class="icon-preview">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="23 4 23 10 17 10"/>
+                <polyline points="1 20 1 14 7 14"/>
+                <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+              </svg>
+            </div>
+            <span class="icon-label">Refresh</span>
+          </div>
+
+          <!-- List -->
+          <div class="icon-item">
+            <div class="icon-preview">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="8" y1="6" x2="21" y2="6"/>
+                <line x1="8" y1="12" x2="21" y2="12"/>
+                <line x1="8" y1="18" x2="21" y2="18"/>
+                <line x1="3" y1="6" x2="3.01" y2="6"/>
+                <line x1="3" y1="12" x2="3.01" y2="12"/>
+                <line x1="3" y1="18" x2="3.01" y2="18"/>
+              </svg>
+            </div>
+            <span class="icon-label">List</span>
+          </div>
+
+          <!-- Grid -->
+          <div class="icon-item">
+            <div class="icon-preview">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="3" width="7" height="7"/>
+                <rect x="14" y="3" width="7" height="7"/>
+                <rect x="14" y="14" width="7" height="7"/>
+                <rect x="3" y="14" width="7" height="7"/>
+              </svg>
+            </div>
+            <span class="icon-label">Grid</span>
+          </div>
+
+          <!-- Menu/Hamburger -->
+          <div class="icon-item">
+            <div class="icon-preview">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="3" y1="12" x2="21" y2="12"/>
+                <line x1="3" y1="6" x2="21" y2="6"/>
+                <line x1="3" y1="18" x2="21" y2="18"/>
+              </svg>
+            </div>
+            <span class="icon-label">Menu</span>
+          </div>
+
+          <!-- Chevron Down -->
+          <div class="icon-item">
+            <div class="icon-preview">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="6 9 12 15 18 9"/>
+              </svg>
+            </div>
+            <span class="icon-label">Expand</span>
+          </div>
+
+          <!-- Chevron Up -->
+          <div class="icon-item">
+            <div class="icon-preview">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="18 15 12 9 6 15"/>
+              </svg>
+            </div>
+            <span class="icon-label">Collapse</span>
+          </div>
+
+          <!-- Plate/Meal -->
+          <div class="icon-item">
+            <div class="icon-preview">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="9"/>
+                <circle cx="12" cy="12" r="5"/>
+                <line x1="12" y1="21" x2="12" y2="23"/>
+              </svg>
+            </div>
+            <span class="icon-label">Plate</span>
+          </div>
+
+          <!-- Apple/Fruit -->
+          <div class="icon-item">
+            <div class="icon-preview">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 20.94c1.5 0 2.75 1.06 4 1.06 3 0 6-8 6-12.22A4.91 4.91 0 0 0 17 5c-2.22 0-4 1.44-5 2-1-.56-2.78-2-5-2a4.9 4.9 0 0 0-5 4.78C2 14 5 22 8 22c1.25 0 2.5-1.06 4-1.06Z"/>
+                <path d="M10 2c1 .5 2 2 2 5"/>
+              </svg>
+            </div>
+            <span class="icon-label">Apple</span>
+          </div>
+
+          <!-- Pill/Supplement -->
+          <div class="icon-item">
+            <div class="icon-preview">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z"/>
+                <path d="m8.5 8.5 7 7"/>
+              </svg>
+            </div>
+            <span class="icon-label">Pill</span>
+          </div>
+
+          <!-- Zap/Energy -->
+          <div class="icon-item">
+            <div class="icon-preview">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+              </svg>
+            </div>
+            <span class="icon-label">Energy</span>
+          </div>
+
+          <!-- Moon/Sleep -->
+          <div class="icon-item">
+            <div class="icon-preview">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+              </svg>
+            </div>
+            <span class="icon-label">Sleep</span>
+          </div>
+
+          <!-- Sun/Morning -->
+          <div class="icon-item">
+            <div class="icon-preview">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="5"/>
+                <line x1="12" y1="1" x2="12" y2="3"/>
+                <line x1="12" y1="21" x2="12" y2="23"/>
+                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+                <line x1="1" y1="12" x2="3" y2="12"/>
+                <line x1="21" y1="12" x2="23" y2="12"/>
+                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+                <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+              </svg>
+            </div>
+            <span class="icon-label">Sun</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Navigation Section -->
+    <section class="section">
+      <h2 class="section-title">Navigation</h2>
+
+      <div class="component-card" style="margin-bottom: var(--space-6);">
+        <div class="component-label">Desktop Top Nav</div>
+        <div class="nav-preview">
+          <span class="nav-logo">Nutri</span>
+          <div class="nav-links">
+            <a href="#" class="nav-link active">Dashboard</a>
+            <a href="#" class="nav-link">Browse</a>
+            <a href="#" class="nav-link">Track</a>
+            <a href="#" class="nav-link">Analysis</a>
+          </div>
+          <div class="nav-avatar"></div>
+        </div>
+      </div>
+
+      <div class="component-card">
+        <div class="component-label">Mobile Bottom Tabs (with custom icons)</div>
+        <div class="bottom-tabs">
+          <div class="tab-item active">
+            <span class="tab-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2L2 9v11a2 2 0 0 0 2 2h5v-8h6v8h5a2 2 0 0 0 2-2V9L12 2z"/>
+              </svg>
+            </span>
+            <span>Home</span>
+          </div>
+          <div class="tab-item">
+            <span class="tab-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="12" y1="8" x2="12" y2="16"/>
+                <line x1="8" y1="12" x2="16" y2="12"/>
+              </svg>
+            </span>
+            <span>Track</span>
+          </div>
+          <div class="tab-item">
+            <span class="tab-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="20" x2="18" y2="10"/>
+                <line x1="12" y1="20" x2="12" y2="4"/>
+                <line x1="6" y1="20" x2="6" y2="14"/>
+              </svg>
+            </span>
+            <span>Analyze</span>
+          </div>
+          <div class="tab-item">
+            <span class="tab-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="1"/>
+                <circle cx="12" cy="5" r="1"/>
+                <circle cx="12" cy="19" r="1"/>
+              </svg>
+            </span>
+            <span>More</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <p>Nutri Design System • Edit the CSS variables at the top to customize</p>
+    </footer>
+  </div>
+</body>
+</html>

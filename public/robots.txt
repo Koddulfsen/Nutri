@@ -1,0 +1,14 @@
+# Robots.txt for Nutri - Nutrition Tracking Platform
+# Generated: 2025-11-16
+
+# Allow all robots to crawl all content
+User-agent: *
+Allow: /
+
+# Sitemap location (update when sitemap is generated)
+# Sitemap: https://nutri-sana-eco.vercel.app/sitemap.xml
+
+# Disallow private/sensitive routes
+Disallow: /dashboard
+Disallow: /settings
+Disallow: /api/

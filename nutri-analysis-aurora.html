@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="aurora">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nutri · Analysis</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@400;500&family=DM+Mono:wght@400;500&family=Noto+Serif+JP:wght@200;300;400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0A0E14;
+  --bg-soft: #10161E;
+  --bg-accent: #151E28;
+  --surface: #0E1318;
+  --border: #1C2A38;
+  --border-soft: #182430;
+  --text-1: #C8E0F0;
+  --text-2: #6A8EA8;
+  --text-3: #3E6480;
+  --accent: #00D4CC;
+  --accent-soft: #0C2828;
+  --accent-text: #40F0E8;
+  --warm: #00A8B4;
+  --warm-soft: #0C2024;
+  --warm-text: #30D8E0;
+  --radius: 20px;
+  --radius-sm: 12px;
+  --radius-pill: 50px;
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 36px;
+  --space-2xl: 48px;
+  --font-display: 'Instrument Serif', Georgia, serif;
+  --font-body: 'DM Sans', sans-serif;
+  --font-mono: 'DM Mono', monospace;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: var(--bg);
+  color: var(--text-2);
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.6;
+  font-weight: 400;
+}
+
+/* ═══════════════════════════════════ */
+/*  LAYOUT                            */
+/* ═══════════════════════════════════ */
+.app {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  min-height: 100vh;
+}
+
+/* ═══════════════════════════════════ */
+/*  SIDEBAR                           */
+/* ═══════════════════════════════════ */
+.sidebar {
+  background: var(--bg-soft);
+  border-right: 1px solid var(--border-soft);
+  display: flex;
+  flex-direction: column;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+}
+
+.sidebar-head {
+  padding: var(--space-lg);
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.sidebar-logo {
+  font-family: var(--font-display);
+  font-size: 30px;
+  font-weight: 400;
+  color: var(--text-1);
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+}
+
+.sidebar-logo-jp {
+  font-family: 'Noto Serif JP', serif;
+  font-size: 12px;
+  font-weight: 300;
+  color: var(--text-3);
+  letter-spacing: 0.2em;
+  margin-bottom: var(--space-xs);
+}
+
+.sidebar-sub {
+  font-family: var(--font-body);
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--text-3);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  margin-top: var(--space-sm);
+}
+
+/* Food list */
+.food-list {
+  flex: 1;
+  padding: var(--space-sm) 0;
+}
+
+.food-list-label {
+  padding: var(--space-sm) var(--space-lg);
+  font-family: var(--font-body);
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--text-3);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+.food-item {
+  padding: 10px var(--space-lg);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  transition: background 0.15s ease;
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.food-item:last-of-type { border-bottom: none; }
+
+.food-item:hover {
+  background: var(--bg-accent);
+}
+
+.food-item-name {
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--text-1);
+}
+
+.food-item-kcal {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-3);
+}
+
+/* Food totals */
+.food-totals {
+  padding: var(--space-md) var(--space-lg);
+  border-top: 1px solid var(--border-soft);
+  margin-top: auto;
+  background: var(--surface);
+}
+
+.food-total-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 3px 0;
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+
+.food-total-row .label { color: var(--text-3); }
+.food-total-row .value { color: var(--text-2); }
+.food-total-row.primary .value { color: var(--text-1); font-weight: 500; }
+
+/* ═══════════════════════════════════ */
+/*  MAIN CONTENT                      */
+/* ═══════════════════════════════════ */
+.main {
+  padding: var(--space-2xl);
+  max-width: calc(720px + var(--space-2xl) * 2);
+}
+
+/* ─── Search ─── */
+.search-section {
+  text-align: center;
+  margin-bottom: var(--space-2xl);
+  padding-bottom: var(--space-xl);
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.search-bar {
+  position: relative;
+  max-width: 480px;
+  width: 100%;
+  margin: 0 auto var(--space-md);
+}
+
+.search-bar input {
+  width: 100%;
+  padding: 10px 16px 10px 44px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--text-1);
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.search-bar input::placeholder { color: var(--text-3); }
+
+.search-bar input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent-soft);
+}
+
+.search-icon {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.search-icon svg {
+  width: 16px;
+  height: 16px;
+  stroke: var(--text-3);
+  stroke-width: 1.5;
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.add-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 22px;
+  background: var(--accent-soft);
+  color: var(--accent-text);
+  border: 1px solid rgba(0, 212, 204, 0.2);
+  border-radius: var(--radius-pill);
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.add-btn:hover {
+  background: #0E3030;
+}
+
+/* ─── Macros ─── */
+.macros-section {
+  margin-bottom: var(--space-2xl);
+  padding-bottom: var(--space-xl);
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.cal-hero {
+  text-align: center;
+  margin-bottom: var(--space-lg);
+}
+
+.cal-hero-num {
+  font-family: var(--font-display);
+  font-size: 30px;
+  font-weight: 400;
+  color: var(--text-1);
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+}
+
+.cal-hero-label {
+  font-family: var(--font-body);
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--text-3);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  margin-top: var(--space-xs);
+}
+
+.macros-grid {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-xl);
+  flex-wrap: wrap;
+}
+
+.macro-item { text-align: center; }
+
+.macro-ring {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto var(--space-sm);
+}
+
+.macro-ring svg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform: rotate(-90deg);
+}
+
+.macro-ring-val {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 400;
+  color: var(--text-1);
+  line-height: 1;
+}
+
+.macro-ring-unit {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-3);
+}
+
+.macro-label {
+  font-family: var(--font-body);
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--text-3);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+/* ─── Compounds ─── */
+.compounds-section {}
+
+.compounds-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-lg);
+}
+
+.compounds-title {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.compounds-title-jp {
+  font-family: 'Noto Serif JP', serif;
+  font-size: 20px;
+  font-weight: 200;
+  color: var(--text-1);
+}
+
+.compounds-title-en {
+  font-family: var(--font-body);
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--text-3);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+/* Picker */
+.picker {
+  display: flex;
+  gap: var(--space-sm);
+  align-items: center;
+}
+
+.picker-group {
+  display: flex;
+  gap: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+}
+
+.picker-opt {
+  padding: 5px 14px;
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-3);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  border-right: 1px solid var(--border);
+}
+
+.picker-opt:last-child { border-right: none; }
+
+.picker-opt:hover {
+  color: var(--text-2);
+  background: var(--bg-accent);
+}
+
+.picker-opt.sel {
+  background: var(--accent-soft);
+  color: var(--accent-text);
+}
+
+.picker-label {
+  font-family: var(--font-body);
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--text-3);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+.age-input {
+  width: 44px;
+  padding: 5px 6px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-1);
+  text-align: center;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.age-input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent-soft);
+}
+
+/* Compound grid */
+.compounds-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+  background: var(--border-soft);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.compound-cell {
+  background: var(--bg);
+  padding: 14px var(--space-md);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: background 0.15s ease;
+}
+
+.compound-cell:hover {
+  background: var(--bg-soft);
+}
+
+.compound-name {
+  width: 76px;
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--text-2);
+  flex-shrink: 0;
+}
+
+.compound-bar-wrap {
+  flex: 1;
+  height: 4px;
+  background: var(--bg-accent);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.compound-bar-fill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 0.8s ease;
+}
+
+.compound-val {
+  width: 58px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-2);
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.compound-dv {
+  width: 42px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-3);
+  text-align: right;
+  flex-shrink: 0;
+}
+
+/* Elevated compound (e.g. copper) */
+.compound-cell.elevated .compound-name { color: var(--warm-text); }
+.compound-cell.elevated .compound-val { color: var(--warm-text); }
+.compound-cell.elevated .compound-dv { color: var(--warm); }
+
+/* Ratio callout */
+.ratios-bar {
+  display: flex;
+  gap: var(--space-sm);
+  margin-top: var(--space-lg);
+  flex-wrap: wrap;
+}
+
+.ratio-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 14px;
+  background: var(--bg-accent);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--text-2);
+}
+
+.ratio-badge .ratio-label {
+  font-family: var(--font-body);
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--text-3);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.ratio-badge.warn {
+  background: var(--warm-soft);
+  border-color: rgba(0, 168, 180, 0.15);
+  color: var(--warm-text);
+}
+
+.ratio-badge.warn .ratio-label { color: var(--warm); }
+
+/* ═══════════════════════════════════ */
+/*  RESPONSIVE                        */
+/* ═══════════════════════════════════ */
+@media (max-width: 860px) {
+  .app { grid-template-columns: 1fr; }
+  .sidebar {
+    position: relative;
+    height: auto;
+    max-height: 300px;
+    border-right: none;
+    border-bottom: 1px solid var(--border-soft);
+  }
+  .main { padding: var(--space-xl) var(--space-lg); }
+  .compounds-grid { grid-template-columns: 1fr; }
+  .compounds-header { flex-direction: column; gap: var(--space-md); align-items: flex-start; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ═══════════════════ SIDEBAR ═══════════════════ -->
+  <aside class="sidebar">
+    <div class="sidebar-head">
+      <p class="sidebar-logo-jp">栄 養</p>
+      <p class="sidebar-logo">Nutri</p>
+      <p class="sidebar-sub">Your foods</p>
+    </div>
+
+    <div class="food-list">
+      <p class="food-list-label">Added today</p>
+      <div class="food-item">
+        <span class="food-item-name">Beef liver, pan-fried</span>
+        <span class="food-item-kcal">175 kcal</span>
+      </div>
+      <div class="food-item">
+        <span class="food-item-name">Orange juice, fresh</span>
+        <span class="food-item-kcal">112 kcal</span>
+      </div>
+      <div class="food-item">
+        <span class="food-item-name">Whole milk, 240ml</span>
+        <span class="food-item-kcal">149 kcal</span>
+      </div>
+      <div class="food-item">
+        <span class="food-item-name">Cottage cheese</span>
+        <span class="food-item-kcal">206 kcal</span>
+      </div>
+      <div class="food-item">
+        <span class="food-item-name">Honey, 2 tbsp</span>
+        <span class="food-item-kcal">128 kcal</span>
+      </div>
+    </div>
+
+    <div class="food-totals">
+      <div class="food-total-row primary">
+        <span class="label">Total calories</span>
+        <span class="value">770 kcal</span>
+      </div>
+      <div class="food-total-row">
+        <span class="label">Protein</span>
+        <span class="value">56g</span>
+      </div>
+      <div class="food-total-row">
+        <span class="label">Carbs</span>
+        <span class="value">82g</span>
+      </div>
+      <div class="food-total-row">
+        <span class="label">Fat</span>
+        <span class="value">24g</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ═══════════════════ MAIN ═══════════════════ -->
+  <main class="main">
+
+    <!-- Search -->
+    <section class="search-section">
+      <div class="search-bar">
+        <span class="search-icon">
+          <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="21" y2="21"/></svg>
+        </span>
+        <input type="text" placeholder="Search foods, compounds, nutrients...">
+      </div>
+      <button class="add-btn">+ Add to analysis</button>
+    </section>
+
+    <!-- Macros -->
+    <section class="macros-section">
+      <div class="cal-hero">
+        <p class="cal-hero-num">770</p>
+        <p class="cal-hero-label">Total calories</p>
+      </div>
+      <div class="macros-grid">
+        <div class="macro-item">
+          <div class="macro-ring">
+            <svg width="80" height="80" viewBox="0 0 80 80">
+              <circle cx="40" cy="40" r="34" fill="none" stroke="var(--bg-accent)" stroke-width="3"/>
+              <circle cx="40" cy="40" r="34" fill="none" stroke="var(--accent)" stroke-width="3" stroke-dasharray="128 214" stroke-linecap="round" opacity="0.35"/>
+            </svg>
+            <span>
+              <span class="macro-ring-val">56</span>
+              <span class="macro-ring-unit">g</span>
+            </span>
+          </div>
+          <p class="macro-label">Protein</p>
+        </div>
+        <div class="macro-item">
+          <div class="macro-ring">
+            <svg width="80" height="80" viewBox="0 0 80 80">
+              <circle cx="40" cy="40" r="34" fill="none" stroke="var(--bg-accent)" stroke-width="3"/>
+              <circle cx="40" cy="40" r="34" fill="none" stroke="var(--warm)" stroke-width="3" stroke-dasharray="150 214" stroke-linecap="round" opacity="0.3"/>
+            </svg>
+            <span>
+              <span class="macro-ring-val">82</span>
+              <span class="macro-ring-unit">g</span>
+            </span>
+          </div>
+          <p class="macro-label">Carbs</p>
+        </div>
+        <div class="macro-item">
+          <div class="macro-ring">
+            <svg width="80" height="80" viewBox="0 0 80 80">
+              <circle cx="40" cy="40" r="34" fill="none" stroke="var(--bg-accent)" stroke-width="3"/>
+              <circle cx="40" cy="40" r="34" fill="none" stroke="var(--text-3)" stroke-width="3" stroke-dasharray="85 214" stroke-linecap="round" opacity="0.4"/>
+            </svg>
+            <span>
+              <span class="macro-ring-val">24</span>
+              <span class="macro-ring-unit">g</span>
+            </span>
+          </div>
+          <p class="macro-label">Fat</p>
+        </div>
+        <div class="macro-item">
+          <div class="macro-ring">
+            <svg width="80" height="80" viewBox="0 0 80 80">
+              <circle cx="40" cy="40" r="34" fill="none" stroke="var(--bg-accent)" stroke-width="3"/>
+              <circle cx="40" cy="40" r="34" fill="none" stroke="var(--accent)" stroke-width="3" stroke-dasharray="100 214" stroke-linecap="round" opacity="0.2"/>
+            </svg>
+            <span>
+              <span class="macro-ring-val">42</span>
+              <span class="macro-ring-unit">g</span>
+            </span>
+          </div>
+          <p class="macro-label">Sugar</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Compound analysis -->
+    <section class="compounds-section">
+      <div class="compounds-header">
+        <div class="compounds-title">
+          <span class="compounds-title-jp">成分</span>
+          <span class="compounds-title-en">Compound analysis</span>
+        </div>
+        <div class="picker">
+          <div class="picker-group">
+            <span class="picker-opt sel">Male</span>
+            <span class="picker-opt">Female</span>
+          </div>
+          <span class="picker-label">Age</span>
+          <input class="age-input" type="number" value="28">
+        </div>
+      </div>
+
+      <div class="compounds-grid">
+        <div class="compound-cell">
+          <span class="compound-name">Retinol</span>
+          <div class="compound-bar-wrap"><div class="compound-bar-fill" style="width:95%;background:var(--accent);opacity:0.25"></div></div>
+          <span class="compound-val">6,582 IU</span>
+          <span class="compound-dv">219%</span>
+        </div>
+        <div class="compound-cell">
+          <span class="compound-name">Vitamin B12</span>
+          <div class="compound-bar-wrap"><div class="compound-bar-fill" style="width:100%;background:var(--accent);opacity:0.28"></div></div>
+          <span class="compound-val">59.3 µg</span>
+          <span class="compound-dv">2471%</span>
+        </div>
+        <div class="compound-cell">
+          <span class="compound-name">Iron (heme)</span>
+          <div class="compound-bar-wrap"><div class="compound-bar-fill" style="width:72%;background:var(--accent);opacity:0.2"></div></div>
+          <span class="compound-val">6.5 mg</span>
+          <span class="compound-dv">36%</span>
+        </div>
+        <div class="compound-cell elevated">
+          <span class="compound-name">Copper</span>
+          <div class="compound-bar-wrap"><div class="compound-bar-fill" style="width:85%;background:var(--warm);opacity:0.35"></div></div>
+          <span class="compound-val">9.8 mg</span>
+          <span class="compound-dv">1089%</span>
+        </div>
+        <div class="compound-cell">
+          <span class="compound-name">Zinc</span>
+          <div class="compound-bar-wrap"><div class="compound-bar-fill" style="width:42%;background:var(--accent);opacity:0.15"></div></div>
+          <span class="compound-val">4.0 mg</span>
+          <span class="compound-dv">36%</span>
+        </div>
+        <div class="compound-cell">
+          <span class="compound-name">Selenium</span>
+          <div class="compound-bar-wrap"><div class="compound-bar-fill" style="width:56%;background:var(--accent);opacity:0.18"></div></div>
+          <span class="compound-val">39.7 µg</span>
+          <span class="compound-dv">72%</span>
+        </div>
+        <div class="compound-cell">
+          <span class="compound-name">Vitamin C</span>
+          <div class="compound-bar-wrap"><div class="compound-bar-fill" style="width:65%;background:var(--accent);opacity:0.18"></div></div>
+          <span class="compound-val">62 mg</span>
+          <span class="compound-dv">69%</span>
+        </div>
+        <div class="compound-cell">
+          <span class="compound-name">Calcium</span>
+          <div class="compound-bar-wrap"><div class="compound-bar-fill" style="width:38%;background:var(--accent);opacity:0.12"></div></div>
+          <span class="compound-val">380 mg</span>
+          <span class="compound-dv">38%</span>
+        </div>
+        <div class="compound-cell">
+          <span class="compound-name">Phosphorus</span>
+          <div class="compound-bar-wrap"><div class="compound-bar-fill" style="width:45%;background:var(--accent);opacity:0.15"></div></div>
+          <span class="compound-val">316 mg</span>
+          <span class="compound-dv">45%</span>
+        </div>
+        <div class="compound-cell">
+          <span class="compound-name">Vitamin D</span>
+          <div class="compound-bar-wrap"><div class="compound-bar-fill" style="width:12%;background:var(--accent);opacity:0.1"></div></div>
+          <span class="compound-val">1.2 µg</span>
+          <span class="compound-dv">8%</span>
+        </div>
+        <div class="compound-cell">
+          <span class="compound-name">Magnesium</span>
+          <div class="compound-bar-wrap"><div class="compound-bar-fill" style="width:28%;background:var(--accent);opacity:0.12"></div></div>
+          <span class="compound-val">22 mg</span>
+          <span class="compound-dv">5%</span>
+        </div>
+        <div class="compound-cell">
+          <span class="compound-name">Potassium</span>
+          <div class="compound-bar-wrap"><div class="compound-bar-fill" style="width:32%;background:var(--accent);opacity:0.13"></div></div>
+          <span class="compound-val">548 mg</span>
+          <span class="compound-dv">12%</span>
+        </div>
+        <div class="compound-cell">
+          <span class="compound-name">Niacin (B3)</span>
+          <div class="compound-bar-wrap"><div class="compound-bar-fill" style="width:78%;background:var(--accent);opacity:0.2"></div></div>
+          <span class="compound-val">14.9 mg</span>
+          <span class="compound-dv">93%</span>
+        </div>
+        <div class="compound-cell">
+          <span class="compound-name">Riboflavin</span>
+          <div class="compound-bar-wrap"><div class="compound-bar-fill" style="width:88%;background:var(--accent);opacity:0.22"></div></div>
+          <span class="compound-val">3.4 mg</span>
+          <span class="compound-dv">262%</span>
+        </div>
+        <div class="compound-cell">
+          <span class="compound-name">Folate</span>
+          <div class="compound-bar-wrap"><div class="compound-bar-fill" style="width:62%;background:var(--accent);opacity:0.17"></div></div>
+          <span class="compound-val">253 µg</span>
+          <span class="compound-dv">63%</span>
+        </div>
+        <div class="compound-cell">
+          <span class="compound-name">Sodium</span>
+          <div class="compound-bar-wrap"><div class="compound-bar-fill" style="width:35%;background:var(--accent);opacity:0.12"></div></div>
+          <span class="compound-val">520 mg</span>
+          <span class="compound-dv">23%</span>
+        </div>
+      </div>
+
+      <!-- Ratio badges -->
+      <div class="ratios-bar">
+        <div class="ratio-badge">
+          <span class="ratio-label">Ca:P</span>
+          <span>1.2 : 1</span>
+        </div>
+        <div class="ratio-badge warn">
+          <span class="ratio-label">Cu:Zn</span>
+          <span>2.45 : 1</span>
+        </div>
+        <div class="ratio-badge">
+          <span class="ratio-label">Na:K</span>
+          <span>0.95 : 1</span>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+</body>
+</html>

@@ -1,0 +1,1 @@
+ALTER TABLE "compounds" DROP COLUMN "has_dv";
