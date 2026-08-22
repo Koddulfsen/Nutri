@@ -280,9 +280,43 @@ Entry: { item: "Lunch", value: "pizza" }
 Derived: { item: "Tyramine", value: 45mg }   { item: "Sodium", value: 890mg }
 ```
 
-### Parent/child sources
-Only **Duke** and **FooDB** use parent/child food structures. The other 16 are flat.
-(Frida — the Danish source — is flat, despite occasional memory to the contrary.)
+### How sources express structure — VERIFIED 2026-08-22
+
+**No source has parent/child food rows.** Every `source_*_foods` table was checked: not one
+has `parent_id`, `child_id`, or a self-reference. Earlier versions of this file said "Duke and
+FooDB use parent/child food structures" — that sends you looking for tables that don't exist.
+What actually varies is how structure is expressed *around* flat rows. Three patterns:
+
+**1. Plant × part — the only real second dimension**
+- **DUKE** — has no `foods` table at all; it has *plants*. 2,016 plants × 100 part codes =
+  68,844 rows in `source_duke_farmacy`. `PL` Plant 15,755 · `LF` Leaf 10,188 · `FR` Fruit
+  9,857 · `SD` Seed 8,739 · `SH` Shoot 6,109 · `RT` Root 5,520. Vocabulary in `data/duke/PARTS.csv`.
+- **FOODB** — same dimension via `Content.csv → orig_food_part`, but **99% of rows leave it
+  blank** (≈1,100 of 400k scanned; seed 302, fruit 276, leaf 204). Effectively ignorable.
+
+In both, the part sits on the **measurement row, not the food row**. There is no parent food
+and no child food — one food, values tagged by part.
+
+**2. Category trees** — `food_group` on the food row: ASEANFOODS, CIQUAL, UK_COFID, FINELI,
+INDB, KFCT, MATVARETABELLEN, MEXT, NEVO. FOODB and PHENOL add `food_subgroup` (2 levels).
+FOODB also has `food_type`: **Type 1 = 706** (raw/primary), **Type 2 = 264** (processed).
+These classify foods; they do not relate foods to each other.
+
+**3. Structure encoded in the name** — BLS, FRIDA, AFCD, FOODFILES. Species, organ and
+preparation comma-separated in one string (`Beef, liver, raw` · `Rind Leber, roh` ·
+`Lever, okse, rå`). Readable to a human, opaque to a parser — this is why cross-source name
+matching is hard.
+
+**For alpha: exclude DUKE only.** Its part dimension is load-bearing and it is plant-only.
+FOODB is deferred for size (271 MB), not structure.
+
+### Source inventory gaps — found 2026-08-22
+- **DUKE is missing from `api_source_enum`** despite having 155 mappings and staging tables.
+  The merge step cannot write a DUKE value until it is added.
+- **NUTRITIONIX is in the enum** but has 0 mappings, no staging tables, no raw data. Phantom.
+- **PHENOL-EXPLORER** has staging tables and 579 KB of raw data but **0 mappings** and is not
+  in the enum. An 18th source, unwired.
+- Naming mismatch: staging tables are `source_cofid_*`, the enum and mappings say `UK_COFID`.
 
 ---
 
