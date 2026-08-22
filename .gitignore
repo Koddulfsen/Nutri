@@ -74,4 +74,7 @@ data/
 Thumbs.db
 
 # Workspace-specific
-CLAUDE.md
+
+# local env backups (contain credentials)
+.env.backup*
+.env.*.local

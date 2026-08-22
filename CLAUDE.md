@@ -233,7 +233,7 @@ What is actually true, as of 2026-08-11. **Add to this rather than trusting comm
 | Encryption applied to health data | ❌ FALSE — `encryptPHI` has zero callers |
 | User deletion works | ❌ FALSE — nothing consumes `deletion_requests` |
 | Data export works | ❌ FALSE — all TODO comments |
-| RLS protects user data | ❌ FALSE — zero policies exist |
+| RLS protects user data | ✅ ENFORCED on the public API (Supabase/PostgREST) — 10 policies; verified by planting a real `user_profiles` row and confirming an anonymous caller gets `[]`. **Not** a boundary for the app's own queries: Drizzle connects as the table owner and bypasses RLS, so application-level `userId` filtering is still the boundary there |
 | Rate limiting protects login | ✅ VERIFIED — Postgres-backed, fails closed; 5/20 parallel hits allowed (atomic) |
 | Full IPs stored in audit log | ✅ FIXED — truncated at all 3 write boundaries (pseudonymised, still personal data) |
 | Full date of birth stored | ✅ REMOVED — year+month only; API rejects a day. Age bands identical across 809 cases |
@@ -253,8 +253,10 @@ What is actually true, as of 2026-08-11. **Add to this rather than trusting comm
 | Middleware `basePath` matching | ✅ VERIFIED — Next strips it; page protection works in prod |
 | Production build | ✅ VERIFIED passing — was broken (3 TS errors); fixed 2026-08-11 |
 | Middleware runs in dev | ✅ VERIFIED — short-circuit removed; headers now present in dev |
-| App runs as DB superuser | ✅ FIXED — runtime is `nutri_app`; DDL blocked, verified by attempting CREATE/ALTER/DROP |
-| Migration role still superuser | ⚠️ `nutri` retains SUPERUSER — only used for manual migrations. Run `ALTER ROLE nutri NOSUPERUSER;` as postgres |
+| App runs as DB superuser | ⚠️ **REGRESSED 2026-08-22** — was `nutri_app` on local Postgres; the move to Supabase runs the app as `postgres` (table owner, full DDL, bypasses RLS). Least-privilege role needs recreating on Supabase |
+| Migration role still superuser | ⚠️ Moot on Supabase — both URLs now use `postgres`. See the row above |
+| Database location | ✅ Supabase `knwfnixfanmydbeatamu`, **eu-west-1** (EU region, Article 9 data). Migrated 2026-08-22: 94 tables, 0 restore errors, row counts verified both sides |
+| `anon` write grants | ✅ REVOKED — Supabase grants anon full DML by default; RLS deny-all was the only thing in front of it. Now revoked, incl. default privileges |
 
 ---
 
@@ -409,6 +411,13 @@ The DAL comments claiming RLS are false.
 - Dev server **always port 3003**: `npx next dev -p 3003`
 - App is served under basePath **`/nutri`** — `http://localhost:3003/nutri/...`
 - `DEV_AUTH_BYPASS=true` makes every request one fixed admin. **Local only, never deployed.**
+
+### The dev-auth shim is incomplete
+`lib/supabase/dev-shim.ts` reimplements a subset of the Supabase client for
+`DEV_AUTH_BYPASS=true`. It does **not** implement `.or()`, which
+`lib/search/search-service.ts:181` depends on — so with the bypass on, food search
+silently returns zero results with no error. Symptom looks like missing data; cause is a
+missing method. Turn the bypass off to test anything that searches.
 
 ### Code style
 TypeScript strict; Zod on every route; server components preferred; aliases `@/db`, `@/lib`,
