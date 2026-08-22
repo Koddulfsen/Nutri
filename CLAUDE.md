@@ -240,6 +240,9 @@ What is actually true, as of 2026-08-11. **Add to this rather than trusting comm
 | Upstash Redis | ✅ DISABLED in .env — 12 files used it; each call burned a 420ms timeout against a dead host |
 | getUserDemographics privilege | ✅ FIXED — was building a raw service-role Supabase client inline; now Drizzle |
 | Import queue processes jobs | ❌ FALSE — nothing consumes the queue |
+| Food import pipeline end-to-end | ✅ VERIFIED 2026-08-22 — beef liver imported from 3 sources, 241 values, cross-source compare works |
+| CNF unit labels | ❌ WRONG — default to `g` for 15 compounds (values correct). See §6b |
+| Raw source data on disk | ✅ VERIFIED — 8 unloaded sources do contain beef liver. See §6c |
 | ~~Middleware protects pages in dev~~ | ✅ FIXED 2026-08-11 — see rows below |
 | Tests pass | ❌ FALSE — 13/14 files fail; 4 assert nothing |
 | Routes authorize with getUser() | ✅ VERIFIED — 36 files swept; 0 getSession outside middleware |
@@ -330,6 +333,61 @@ Vitamin E mapping rather than update this one. Not caused by this work — worth
 **Separately: 314 of 1,807 mappings have no `source_unit` at all.** Not a maths error, so the
 checker counts it as `missingUnits` rather than a flag — but it means those rows are trusted
 blind. Worth a pass before food data loads.
+
+## 6b. IMPORT BUGS FOUND ON FIRST REAL FOOD (2026-08-22)
+
+First food loaded: **"Beef, liver, raw"** — 3 sources, 241 values, 136 merged nutrients
+(89 compound-linked, 47 not). Cross-source comparison works. Two bugs surfaced:
+
+**1. CNF unit labels default to `g` — 15 compounds affected.** Values are CORRECT (CNF 11
+matches FDC 11 µg); only the label is wrong. Root cause `lib/services/nutrient-mapper.ts:362`:
+
+```ts
+const standardUnit = STANDARD_UNITS[standardName] || unit || 'g';
+```
+
+`STANDARD_UNITS` has **52 entries** against **280 compounds**; everything else falls through
+to `'g'`. CNF's API sends no units, so nothing corrects it. Currently cosmetic — but
+`convertUnit()` sits directly below, so the day a unit *is* passed, µg→g divides real values
+by 1,000,000. Fix the dictionary against real multi-food data, not from one food.
+
+**2. Energy has duplicate/mislabelled rows.** CNF returned both 135 (kcal) and 564 (kJ); both
+were written as `Energy`. An FDC row of 134.796 is labelled `kJ` but is kcal. Five values for
+one food, two of which are the same number in different units.
+
+Also: `merged_nutrients.unit` inherits the wrong unit from the same defaulting.
+
+---
+
+## 6c. WHICH SOURCES ACTUALLY HAVE BEEF LIVER (verified 2026-08-22)
+
+Only 3 sources answered because **14 of the 17 have zero rows loaded** — not because they
+lack the food. Verified by reading the raw files in `data/` directly (557 MB on disk).
+
+**Only 2 sources are live APIs:** FDC (`api.nal.usda.gov`) and CNF
+(`food-nutrition.canada.ca`). Every other client reads a local `source_*` table. The URLs in
+the foodb/frida/matvaretabellen/nevo clients are attribution links, not endpoints.
+
+| Status | Sources |
+|---|---|
+| ✅ Returned data | FDC (live API), CNF (live API), ASEANFOODS (517 foods loaded) |
+| 🟡 **Has beef liver, not loaded** | BLS `Rind Leber, roh` · CIQUAL `Liver, heifer/calf, cooked` · FINELI `MAKSA, NAUDAN` (786) · FRIDA `Lever, okse, rå` · KFCT `Beef edible offal, Liver, Raw` · MEXT `Beef, offal and by-products, liver, raw` · NEVO `Lever runder- rauw` (1407) · UK_COFID `Liver, ox, raw` |
+| 🟠 Has liver, but not beef | AFCD (chicken, lamb) · FOODFILES (chicken, cod) · MATVARETABELLEN (cod only) |
+| ⚪ No liver | INDB · FOODB (appears only in description text) |
+| ⬜ N/A — plant-only DBs | DUKE · PHENOL-EXPLORER |
+
+So beef liver should eventually reach **11 sources**, not 3.
+
+**Gotchas found while checking:**
+- `data/fineli/*.csv` is **ISO-8859-1**, not UTF-8 — decoding as UTF-8 throws. Finnish names
+  live in `foodname_FI.csv`; the EN file has no liver entry, so an English-only match misses it.
+- `data/ciqual/ciqual-2020-en.xls` (legacy `.xls`) needs `xlrd`; use `ciqual-2025-en.xlsx`.
+- Searching for "liver" in English misses most sources — BLS `Leber`, FRIDA/NEVO `lever`,
+  FINELI `maksa`. Name matching across sources needs per-language terms.
+- DUKE `SUPERACT.csv` and FooDB `HealthEffect.csv` contain thousands of "liver" hits that are
+  *pharmacological activity text*, not foods. Don't match on them.
+
+---
 
 ---
 
