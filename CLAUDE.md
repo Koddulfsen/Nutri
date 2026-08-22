@@ -50,7 +50,7 @@ exist to keep them out. This project is built to repel them.
 | Layer | State |
 |---|---|
 | Compound reference data | **Done.** 280 compounds, 1,807 mappings, 16,832 DV rows / 15 authorities |
-| Food data | Code ready, **DB empty**. 557 MB raw on disk, importers verified working |
+| Food data | **13 of 17 sources loaded — 3.2M staging rows, 34,754 foods** (2026-08-22). DUKE + FOODB held back; PHENOL unmapped |
 | Tracking / user data | Schema exists, zero rows |
 | **Authentication** | **BROKEN — no working login. This blocks everything.** |
 | Authorization | No RLS, 18 admin routes unguarded |
@@ -121,6 +121,24 @@ confirm list, not the delete list. Deletions are `git rm` — individually rever
 Conversion factors are applied at **read time**, so a wrong factor yields a plausible number,
 never a crash. 25 are currently wrong — see §6. Units are a trap: `µg` (U+00B5), `μg`
 (U+03BC), `ug` and `UG` are the same unit and 221 "errors" are just that.
+
+### 🚪 Before you reach for the browser
+**Never open a browser window to look at the app.** Jens has the app in front of him and
+checks visual results himself — faster than any screenshot round-trip. No `claude-in-chrome`,
+no headless capture, no "let me just confirm how it looks."
+
+This does *not* weaken the verify-your-claims door above — it changes which check you run.
+Verify by inspecting what the server actually serves, not by trusting the source file:
+
+```bash
+CSS=$(curl -sL http://localhost:3003/nutri | grep -oE 'href="[^"]*\.css[^"]*"' | head -1 | sed 's/href="//;s/"//')
+curl -s "http://localhost:3003$CSS" | grep -A12 '\.home-page'
+```
+
+A source edit is not a shipped change. Turbopack has served a **stale CSS bundle** after a
+correct edit — the fix was killing the dev server, `rm -rf .next`, restarting. So when Jens
+says "it didn't work", suspect the pipeline before re-editing the file. Then hand him the
+change to look at and say what you verified.
 
 ### 🚪 Before you start a session
 Re-read §1. If it no longer matches reality, **fix §1 first** — a stale position marker sent
@@ -240,6 +258,8 @@ What is actually true, as of 2026-08-11. **Add to this rather than trusting comm
 | Upstash Redis | ✅ DISABLED in .env — 12 files used it; each call burned a 420ms timeout against a dead host |
 | getUserDemographics privilege | ✅ FIXED — was building a raw service-role Supabase client inline; now Drizzle |
 | Import queue processes jobs | ❌ FALSE — nothing consumes the queue |
+| Staging data loaded | ✅ 13/17 sources, **3,213,257 rows**, 34,754 foods (2026-08-22). Loaders live in `db/seed/<source>/import-<source>.mjs`, **not** `scripts/`. Each TRUNCATEs its own tables, so all are re-runnable |
+| KFCT / MEXT English names | ✅ POPULATED — `name_en` was 0/2733 and 0/2478 after import; `scripts/populate-{kfct,mext}-english-names.mjs` fills it (now 1694 and 2184). Import alone does NOT do this |
 | Food import pipeline end-to-end | ✅ VERIFIED 2026-08-22 — beef liver imported from 3 sources, 241 values, cross-source compare works |
 | CNF unit labels | ❌ WRONG — default to `g` for 15 compounds (values correct). See §6b |
 | Raw source data on disk | ✅ VERIFIED — 8 unloaded sources do contain beef liver. See §6c |
@@ -369,6 +389,39 @@ Vitamin E mapping rather than update this one. Not caused by this work — worth
 **Separately: 314 of 1,807 mappings have no `source_unit` at all.** Not a maths error, so the
 checker counts it as `missingUnits` rather than a flag — but it means those rows are trusted
 blind. Worth a pass before food data loads.
+
+## 6d. STAGING LOAD — DONE 2026-08-22
+
+13 of 17 sources loaded into Supabase. **3,213,257 staging rows**, up from 9,523.
+
+| Source | Foods | Values | | Source | Foods | Values |
+|---|---|---|---|---|---|---|
+| BLS | 7,140 | 869,501 | | MATVARETABELLEN | 2,121 | 120,197 |
+| FINELI | 4,238 | 307,819 | | AFCD | 1,588 | 182,140 |
+| CIQUAL | 3,484 | 174,570 | | FRIDA | 1,370 | 137,946 |
+| UK_COFID | 2,886 | 192,760 | | INDB | 1,014 | 39,546 |
+| FOODFILES | 2,857 | 571,495 | | ASEANFOODS | 517 | 8,510 |
+| KFCT | 2,733 | 63,873 | | **Total** | **34,754** | **3.18M** |
+| MEXT | 2,478 | 237,032 | | | | |
+
+**Not loaded, on purpose:** DUKE (plant × part, alpha-excluded), FOODB (271 MB, deferred),
+PHENOL-EXPLORER (0 mappings — nothing to merge into).
+
+**How to run one:** `DATABASE_URL="$MIGRATION_DATABASE_URL" node db/seed/<src>/import-<src>.mjs`
+Route bulk loads through the **session** connection (port 5432), not the transaction pooler
+(6543). Every loader TRUNCATEs its own staging tables first, so re-running is safe.
+
+**Beef liver is now findable in all 8 expected sources** — BLS `Beef liver, raw` · CIQUAL
+`Liver, heifer, cooked` · FINELI `LIVER, BEEF` · FRIDA `Liver, ox, raw` · UK_COFID
+`Liver, ox, raw` · NEVO `Liver ox boiled` · KFCT `Beef edible offal, Liver, Raw` · MEXT
+`Beef, offal and by-products, liver, raw`.
+
+⚠️ **KFCT and MEXT need a second step.** Their importers leave `name_en` completely NULL
+(0/2733 and 0/2478), so an English search finds nothing and the source looks empty. Run
+`scripts/populate-{kfct,mext}-english-names.mjs` after importing. Coverage is partial by
+design — 1694/2733 and 2184/2478; the rest have no English name in the source.
+
+---
 
 ## 6b. IMPORT BUGS FOUND ON FIRST REAL FOOD (2026-08-22)
 
