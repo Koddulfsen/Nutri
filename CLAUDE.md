@@ -404,10 +404,13 @@ import { createClient } from '@/lib/supabase/server'; // Supabase-shaped; dev sh
 The DAL comments claiming RLS are false.
 
 ### Local environment
-- Postgres 16, **port 5434**
-- **Two connections, on purpose:** `DATABASE_URL` is the least-privilege runtime role
-  (`nutri_app` — DML only, cannot CREATE/ALTER/DROP). `MIGRATION_DATABASE_URL` is the
-  owner and is used *only* by `drizzle.config.ts`. Never point the app at the owner.
+- **Supabase Postgres 17.6, eu-west-1** (project `knwfnixfanmydbeatamu`) as of 2026-08-22.
+  The old local Postgres 16 on port 5434 is still on this machine as a fallback; `.env` was
+  backed up to `.env.backup-local-*` before the switch.
+- **Two connections, on purpose:** `DATABASE_URL` → transaction pooler, port **6543** (app).
+  `MIGRATION_DATABASE_URL` → session mode, port **5432** (drizzle-kit, dumps, psql).
+  ⚠️ Both currently authenticate as `postgres`. The least-privilege split that existed
+  locally (`nutri_app`) is REGRESSED — see the trust ledger.
 - Dev server **always port 3003**: `npx next dev -p 3003`
 - App is served under basePath **`/nutri`** — `http://localhost:3003/nutri/...`
 - `DEV_AUTH_BYPASS=true` makes every request one fixed admin. **Local only, never deployed.**
