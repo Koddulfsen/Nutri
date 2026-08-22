@@ -235,7 +235,7 @@ export default function FoodHealthPage() {
         {activeTab === 'conversions' && conversionsData && !loading && (
           <div>
             {/* Summary Cards */}
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-8">
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
               <div className="bg-white/5 rounded-xl p-4 border border-white/10">
                 <div className="text-3xl font-bold text-cyan-400">{conversionsData.summary.totalMappings}</div>
                 <div className="text-sm text-white/60">Total Mappings</div>
@@ -247,6 +247,16 @@ export default function FoodHealthPage() {
               <div className="bg-white/5 rounded-xl p-4 border border-white/10">
                 <div className="text-3xl font-bold text-red-400">{conversionsData.summary.flaggedIssues}</div>
                 <div className="text-sm text-white/60">Flagged Issues</div>
+              </div>
+              {/* Unit-label nits and missing units are NOT maths errors — kept out of
+                  "Flagged Issues" so that number stays trustworthy. */}
+              <div className="bg-white/5 rounded-xl p-4 border border-white/10">
+                <div className="text-3xl font-bold text-white/70">{conversionsData.summary.qualifierMismatches ?? 0}</div>
+                <div className="text-sm text-white/60">Qualifier Only</div>
+              </div>
+              <div className="bg-white/5 rounded-xl p-4 border border-white/10">
+                <div className="text-3xl font-bold text-white/70">{conversionsData.summary.missingUnits ?? 0}</div>
+                <div className="text-sm text-white/60">Missing Unit</div>
               </div>
             </div>
 

@@ -1,8 +1,16 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/db';
 import { sql } from 'drizzle-orm';
+import { requireAdmin } from '@/lib/auth/api-guard';
+import { parseUnit } from '@/lib/food-health/units';
 
 export async function GET() {
+  // Admin-only. Middleware is a second line of defence, not a boundary
+  // (see CVE-2025-29927: middleware can be skipped entirely).
+  const denied = await requireAdmin();
+  if (denied) return denied;
+
+
   try {
     // Get all compound_sources with their compound info
     const results = await db.execute(sql`
@@ -32,18 +40,29 @@ export async function GET() {
       const factor = parseFloat(row.conversion_factor || '1');
       const flags: string[] = [];
 
-      // Flag: source_unit matches canonical but factor != 1 (likely error)
-      if (row.source_unit && row.canonical_unit &&
-          row.source_unit.toLowerCase() === row.canonical_unit.toLowerCase() &&
-          factor !== 1.0) {
+      const src = parseUnit(row.source_unit);
+      const canon = parseUnit(row.canonical_unit);
+
+      // Same scale? Then the factor should be 1. Different scale? Then it should not be.
+      const sameMagnitude = src.magnitude === canon.magnitude;
+      const haveBothUnits = Boolean(src.magnitude && canon.magnitude);
+
+      if (haveBothUnits && sameMagnitude && factor !== 1.0) {
         flags.push('SAME_UNIT_DIFFERENT_FACTOR');
       }
 
-      // Flag: factor is 1.0 but units differ (missing conversion)
-      if (factor === 1.0 && row.source_unit && row.canonical_unit &&
-          row.source_unit.toLowerCase() !== row.canonical_unit.toLowerCase()) {
+      if (haveBothUnits && !sameMagnitude && factor === 1.0) {
         flags.push('DIFFERENT_UNIT_NO_CONVERSION');
       }
+
+      // Same magnitude, differing qualifier ('mg' vs 'mg NE'). Not a maths error —
+      // reported separately so it never inflates the real count.
+      const qualifierMismatch =
+        haveBothUnits && sameMagnitude && src.qualifier !== canon.qualifier;
+
+      // 314 rows carry no source_unit at all. That is a completeness gap, not a
+      // maths error, so it gets its own counter rather than inflating flags.
+      const missingUnit = !row.source_unit || !row.canonical_unit;
 
       return {
         id: row.id,
@@ -52,23 +71,31 @@ export async function GET() {
         sourceName: row.source_name,
         sourceUnit: row.source_unit,
         canonicalUnit: row.canonical_unit,
+        normalizedSourceUnit: src.magnitude,
+        normalizedCanonicalUnit: canon.magnitude,
         conversionFactor: factor,
         isCanonical: row.is_canonical,
         compoundName: row.compound_name,
         compoundType: row.compound_type,
         flags,
+        qualifierMismatch,
+        missingUnit,
         isNonTrivial: factor !== 1.0,
       };
     });
 
     const nonTrivialCount = conversions.filter((c: any) => c.isNonTrivial).length;
     const flaggedCount = conversions.filter((c: any) => c.flags.length > 0).length;
+    const qualifierCount = conversions.filter((c: any) => c.qualifierMismatch).length;
+    const missingUnitCount = conversions.filter((c: any) => c.missingUnit).length;
 
     return NextResponse.json({
       summary: {
         totalMappings: conversions.length,
         nonTrivialConversions: nonTrivialCount,
         flaggedIssues: flaggedCount,
+        qualifierMismatches: qualifierCount,
+        missingUnits: missingUnitCount,
       },
       conversions,
     });
