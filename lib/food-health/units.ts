@@ -14,7 +14,20 @@
  * silent because factors apply at read time) is distinguishable from a wrong
  * LABEL (a data-entry nit).
  */
-export const QUALIFIERS = ['dfe', 'ne', 'rae', 're', 'ae', 'at'];
+// Equivalence qualifiers: they describe accounting, not scale. 'mg NE' and 'mg'
+// are the same magnitude. Split on hyphens too, so 'alfa-TE' arrives as two tokens.
+export const QUALIFIERS = [
+  'dfe',   // dietary folate equivalents
+  'ne',    // niacin equivalents
+  'rae',   // retinol activity equivalents
+  're',    // retinol equivalents
+  'ae',    // alpha-tocopherol equivalents
+  'ate',   // alpha-tocopherol equivalents (Matvaretabellen spelling)
+  'te',    // tocopherol equivalents
+  'at',    // alpha-tocopherol
+  'alfa',  // Nordic spelling, always paired ('alfa-TE')
+  'alpha',
+];
 
 export function parseUnit(raw: string | null | undefined): { magnitude: string; qualifier: string } {
   if (!raw) return { magnitude: '', qualifier: '' };
@@ -29,11 +42,12 @@ export function parseUnit(raw: string | null | undefined): { magnitude: string; 
   u = u.replace(/\s*(\/|per\s+)\s*100\s*(g|ml|gram|grams)\b\.?/g, '').trim();
 
   // Peel off a trailing equivalence qualifier, if present.
-  let qualifier = '';
+  // Peel every trailing qualifier token, so 'mg alfa-TE' -> magnitude 'mg'.
   const parts = u.split(/[\s_-]+/).filter(Boolean);
-  if (parts.length > 1 && QUALIFIERS.includes(parts[parts.length - 1])) {
-    qualifier = parts.pop() as string;
+  const qualifierParts: string[] = [];
+  while (parts.length > 1 && QUALIFIERS.includes(parts[parts.length - 1])) {
+    qualifierParts.unshift(parts.pop() as string);
   }
 
-  return { magnitude: parts.join(' '), qualifier };
+  return { magnitude: parts.join(' '), qualifier: qualifierParts.join(' ') };
 }

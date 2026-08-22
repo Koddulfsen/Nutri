@@ -189,7 +189,8 @@ Checkboxes are the timeline. Update them as work lands.
       deletion cascade. These are where silent failure means breach
 - [x] **4.3** Conversion factors *(done 2026-08-22)* — 23 rows fixed (17 FRIDA + 6 DUKE) via
       `scripts/fix-conversion-factors.ts` (idempotent, `--dry-run`); checker normalization
-      extracted to `lib/food-health/units.ts`. 4 judgment calls left, listed in §6
+      extracted to `lib/food-health/units.ts`. 4 judgment calls resolved as label-only
+      (`scripts/fix-source-unit-labels.ts`). Checker now reports 0 real flags
 
 ### Phase 5 — Alpha
 - [ ] **5.1** DPIA — **mandatory before processing begins**, not after *(P7)*
@@ -226,8 +227,8 @@ What is actually true, as of 2026-08-11. **Add to this rather than trusting comm
 | Food importers work | ✅ VERIFIED — aseanfoods loaded 517 foods / 8,510 rows |
 | Compound + DV data intact | ✅ VERIFIED — 280 / 1,807 / 16,832 |
 | Conversion factors applied at read time | ✅ VERIFIED — fixable retroactively |
-| Known-wrong conversion factors | ✅ FIXED 2026-08-22 — 23 rows (17 FRIDA + 6 DUKE); re-queried DB, second run is a no-op. 4 judgment calls remain (§6) |
-| Conversion checker false positives | ✅ FIXED — was 246 flags / ~25 real; unit normalization in `lib/food-health/units.ts`. Now 4 real + 314 missing-unit |
+| Known-wrong conversion factors | ✅ FIXED 2026-08-22 — 23 rows (17 FRIDA + 6 DUKE); re-queried DB, second run is a no-op |
+| Conversion checker false positives | ✅ FIXED — was 246 flags / ~25 real. Now **0 real flags**; 25 qualifier-only notes, 314 missing-unit, both counted separately |
 | Chatbot pipeline | ✅ VERIFIED to Anthropic — blocked only on account credits |
 | Encryption applied to health data | ❌ FALSE — `encryptPHI` has zero callers |
 | User deletion works | ❌ FALSE — nothing consumes `deletion_requests` |
@@ -300,11 +301,31 @@ Applied by `scripts/fix-conversion-factors.ts` (idempotent; supports `--dry-run`
 DUKE basis confirmed from DUKE's own data: 78 rows already at `0.0001` (g) and 44 at `0.1`
 (mg). 1 ppm = 1 mg/kg = 0.1 mg/100g = 0.0001 g/100g.
 
-**Still open — 4 judgment calls (owner):**
-- FRIDA `Niacin Equivalents` `NE` → `mg`
-- FRIDA `Vitamin E (Total)` `alfa-TE` → `mg`
-- MATVARETABELLEN `Vitamin E (Total)` `mg-ATE` → `mg`
-- MEXT `Ethanol` `'……g……'` → `g` (placeholder unit; needs a source look-up)
+**The 4 judgment calls: resolved 2026-08-22 as label-only.** Every one already had the
+correct factor of 1.0 — confirmed because every peer source maps the same compound at 1.0
+with a plain unit (e.g. 9 sources map Niacin Equivalents, 8 of them as plain `mg`). The
+labels carried the magnitude only implicitly, so `scripts/fix-source-unit-labels.ts` made it
+explicit. No values changed.
+
+| Source | Was | Now |
+|---|---|---|
+| FRIDA `Niacin Equivalents` | `NE` | `mg NE` |
+| FRIDA `Vitamin E (Total)` | `alfa-TE` | `mg alfa-TE` |
+| MATVARETABELLEN `Vitamin E (Total)` | `mg-ATE` | `mg ATE` |
+| MEXT `Ethanol` | `……g……` | `g` |
+
+`source_unit` is audit metadata — safe to relabel. Runtime maths reads `conversion_factor`,
+and the per-food `sourceUnit` the source clients return comes from each raw
+`source_*_nutrients` table, not this column. The MEXT `……` is a leader-dot artifact from the
+Japanese Standard Tables unit row; its raw table is empty, so this was read from the mapping,
+not the data.
+
+**Checker now reports 0 real flags** (from 246), with 25 qualifier-only notes and the
+missing-unit gap below.
+
+⚠️ `scripts/seed/04-vitamin-e.ts` was updated to match, but its FRIDA row uses
+`externalId: '135'` while the live row is `VITE`. Re-seeding would insert a *second* FRIDA
+Vitamin E mapping rather than update this one. Not caused by this work — worth a look.
 
 **Separately: 314 of 1,807 mappings have no `source_unit` at all.** Not a maths error, so the
 checker counts it as `missingUnits` rather than a flag — but it means those rows are trusted
