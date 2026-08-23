@@ -186,19 +186,90 @@ async function importData() {
   console.log('\n=== Step 3: Importing Nutrient Content ===');
   await sql`TRUNCATE source_ciqual_content`;
 
-  // Build column-to-nutrient mapping
-  // nutrients.json entries are in the same order as Excel columns starting at col 9
-  // But we need to verify by checking headers match nutrient names
-  // The Excel header row has nutrient names that should correspond to nutrients.json order
-  const colToNutrientCode = {};
-  for (let i = 0; i < nutrientsJson.length; i++) {
-    const colIdx = NUTRIENT_START_COL + i;
-    if (colIdx < headers.length) {
-      colToNutrientCode[colIdx] = String(nutrientsJson[i].id);
-    }
+  // Build column-to-nutrient mapping BY COLUMN TITLE, never by position.
+  //
+  // This used to bind Excel column (9 + i) to nutrientsJson[i] positionally, on the
+  // assumption that the two were in the same order. They are not: 69 of 74 columns
+  // were bound to the wrong nutrient, so Iron received Maltose's numbers and so on.
+  // Only the first five (Energy x4, Water) happened to line up, which is why Water
+  // always looked correct and hid the problem. 158,267 of 174,570 values were wrong.
+  // See docs/IMPORT-INTEGRITY-AUDIT.md.
+  //
+  // Position is not a stable property of a spreadsheet. The column title is, so match
+  // on that and abort if any nutrient cannot be located.
+  // A CIQUAL header looks like "Protein, crude, N x 6.25 (g 100g)": the nutrient name,
+  // then the unit and basis in parentheses. nutrients.json splits those into `name` and
+  // `unit`. Name alone is NOT unique - "Energy, Regulation EU No 1169/2011" appears twice,
+  // once as kJ and once as kcal - so the key must be name + unit.
+  const normText = (v) =>
+    String(v ?? '')
+      .replace(/\s+/g, ' ')
+      .replace(/[\u00b5\u03bc]/g, 'u')   // micro sign / Greek mu -> u
+      .trim()
+      .toLowerCase()
+      .replace(/[^a-z0-9]/g, '');
+
+  // Only the MAGNITUDE of a unit is a reliable key. nutrients.json is inconsistent about
+  // the basis suffix - the same kind of value appears as 'ug', 'ug/100 g' and 'ug/100mg' -
+  // so reduce every unit to its leading magnitude token.
+  const unitMagnitude = (u) => normText(String(u ?? '').split('/')[0].trim().split(' ')[0]);
+
+  // "Protein (g 100g)" -> { name: 'protein', unit: 'g' }
+  // Split on the LAST '(' - several nutrient names contain parentheses of their own,
+  // e.g. "FA 18:2 9c,12c (n-6) (g 100g)" or "Vitamin D2 (ergocalciferol) (ug 100g)".
+  const parseHeader = (h) => {
+    const raw = String(h ?? '').replace(/\s+/g, ' ').trim();
+    const open = raw.lastIndexOf('(');
+    if (open === -1) return { name: normText(raw), unit: '' };
+    const namePart = raw.slice(0, open);
+    const inside = raw.slice(open + 1).replace(/\)/g, '').trim();
+    return { name: normText(namePart), unit: unitMagnitude(inside) };
+  };
+
+  const headerToCol = new Map();
+  for (let colIdx = NUTRIENT_START_COL; colIdx < headers.length; colIdx++) {
+    const { name, unit } = parseHeader(headers[colIdx]);
+    if (!name) continue;
+    const key = `${name}|${unit}`;
+    if (!headerToCol.has(key)) headerToCol.set(key, colIdx);
   }
 
-  console.log(`  Mapped ${Object.keys(colToNutrientCode).length} nutrient columns`);
+  const colToNutrientCode = {};
+  const usedCols = new Map();
+  const unmatched = [];
+  for (const nutrient of nutrientsJson) {
+    const key = `${normText(nutrient.name)}|${unitMagnitude(nutrient.unit)}`;
+    const colIdx = headerToCol.get(key);
+    if (colIdx === undefined) {
+      unmatched.push(`${nutrient.name} [${nutrient.unit}]`);
+      continue;
+    }
+    if (usedCols.has(colIdx)) {
+      throw new Error(
+        `Two nutrients resolved to Excel column ${colIdx}: ` +
+        `"${usedCols.get(colIdx)}" and "${nutrient.name} [${nutrient.unit}]". ` +
+        `Refusing to import rather than silently drop one.`
+      );
+    }
+    usedCols.set(colIdx, `${nutrient.name} [${nutrient.unit}]`);
+    colToNutrientCode[colIdx] = String(nutrient.id);
+  }
+
+  if (unmatched.length > 0) {
+    throw new Error(
+      `Could not locate ${unmatched.length} nutrient column(s) by title+unit:\n  ` +
+      unmatched.join('\n  ') +
+      `\nRefusing to import rather than guess at column positions.`
+    );
+  }
+
+  if (Object.keys(colToNutrientCode).length !== nutrientsJson.length) {
+    throw new Error(
+      `Mapped ${Object.keys(colToNutrientCode).length} columns for ${nutrientsJson.length} nutrients.`
+    );
+  }
+
+  console.log(`  Matched ${Object.keys(colToNutrientCode).length}/${nutrientsJson.length} nutrient columns by title+unit`);
 
   let contentCount = 0;
   let pendingContent = [];

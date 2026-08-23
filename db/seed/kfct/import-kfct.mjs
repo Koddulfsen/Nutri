@@ -11,6 +11,7 @@
  */
 
 import { readFileSync } from 'fs';
+import { createBoundsGuard } from '../_shared/bounds.mjs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import postgres from 'postgres';
@@ -885,7 +886,7 @@ async function main() {
   // Step 6: Cross-reference
   console.log('\nStep 6: Cross-referencing with INDEX...');
   const foods = [];
-  const content = [];
+  let content = [];
   let matched = 0, unmatched = 0;
 
   for (const [idx, nutrients] of mergedData) {
@@ -940,6 +941,15 @@ async function main() {
   console.log(`  ${foods.length} foods`);
 
   // Content
+  // KFCT is parsed out of PDF-extracted text. In a few sections the parser has picked up
+  // the global-index column instead of the value column, producing rows like
+  // "protein = 2964 g". Reject the physically impossible ones rather than store them.
+  const kfctUnits = new Map([...nutrientInfo].map(([tag, info]) => [tag, info.unit]));
+  const guard = createBoundsGuard({ tagUnits: kfctUnits });
+  const totalBeforeGuard = content.length;
+  content = content.filter((c) => guard.accept(c.tagname, c.value));
+  guard.report({ total: totalBeforeGuard, label: 'content rows' });
+
   let inserted = 0;
   for (let b = 0; b < content.length; b += CONTENT_BATCH_SIZE) {
     const chunk = content.slice(b, b + CONTENT_BATCH_SIZE);

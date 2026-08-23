@@ -20,6 +20,7 @@
  */
 
 import { readFileSync } from 'fs';
+import { createBoundsGuard } from '../_shared/bounds.mjs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import postgres from 'postgres';
@@ -518,7 +519,7 @@ async function main() {
 
   // Build flat arrays
   const foodRows = [];
-  const contentRows = [];
+  let contentRows = [];
   for (const [foodId, food] of foods) {
     foodRows.push({ foodId, name: food.name, foodGroup: food.foodGroup });
     for (const [nutrientCode, value] of food.nutrients) {
@@ -582,6 +583,13 @@ async function main() {
     )} ON CONFLICT (food_id) DO UPDATE SET name = EXCLUDED.name, food_group = EXCLUDED.food_group`;
   }
   console.log(`  ${foodRows.length} foods inserted`);
+
+  // Reject physically impossible values (moisture 644 g/100 g etc.) before they land.
+  const aseanUnits = new Map(allNutrients.map((n) => [n.tagname, n.unit]));
+  const guard = createBoundsGuard({ tagUnits: aseanUnits });
+  const totalBeforeGuard = contentRows.length;
+  contentRows = contentRows.filter((c) => guard.accept(c.nutrientCode, c.value));
+  guard.report({ total: totalBeforeGuard, label: 'content rows' });
 
   let inserted = 0;
   for (let b = 0; b < contentRows.length; b += CONTENT_BATCH_SIZE) {

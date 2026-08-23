@@ -258,6 +258,8 @@ What is actually true, as of 2026-08-11. **Add to this rather than trusting comm
 | Upstash Redis | ✅ DISABLED in .env — 12 files used it; each call burned a 420ms timeout against a dead host |
 | getUserDemographics privilege | ✅ FIXED — was building a raw service-role Supabase client inline; now Drizzle |
 | Import queue processes jobs | ❌ FALSE — nothing consumes the queue |
+| CIQUAL staging values | ✅ FIXED 2026-08-22 — importer bound columns by POSITION; 69/74 were wrong (158,267 of 174,570 values). Now matched by column title+unit, aborts if any fails. Verified against the raw spreadsheet: 8/8 nutrients exact |
+| Impossible staging values | ✅ NONE — bounds guard (`db/seed/_shared/bounds.mjs`) rejects gram proximates >110 g/100 g. Threshold is 110 not 100 because CoFID carbohydrate-as-monosaccharide legitimately reaches 105 |
 | Staging data loaded | ✅ 13/17 sources, **3,213,257 rows**, 34,754 foods (2026-08-22). Loaders live in `db/seed/<source>/import-<source>.mjs`, **not** `scripts/`. Each TRUNCATEs its own tables, so all are re-runnable |
 | KFCT / MEXT English names | ✅ POPULATED — `name_en` was 0/2733 and 0/2478 after import; `scripts/populate-{kfct,mext}-english-names.mjs` fills it (now 1694 and 2184). Import alone does NOT do this |
 | Food import pipeline end-to-end | ✅ VERIFIED 2026-08-22 — beef liver imported from 3 sources, 241 values, cross-source compare works |
