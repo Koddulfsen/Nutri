@@ -14,7 +14,11 @@
     "db:migrate": "drizzle-kit migrate",
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
-    "db:seed": "tsx db/seed/index.ts"
+    "db:seed": "tsx db/seed/index.ts",
+    "build:local": "DEV_AUTH_BYPASS=false NEXT_PUBLIC_DEV_AUTH_BYPASS=false next build",
+    "check:auth": "tsx scripts/check-route-auth.ts",
+    "check:auth:strict": "STRICT=1 tsx scripts/check-route-auth.ts",
+    "test:outliers": "tsx scripts/test-outliers.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.32.1",
