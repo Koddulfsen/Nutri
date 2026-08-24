@@ -44,6 +44,7 @@ import { aseanfoodsStagingClient } from '@/lib/services/aseanfoods-client';
 import { nutrientMapper } from '@/lib/services/nutrient-mapper';
 import { logger } from '@/lib/logger';
 import { withRetry } from '@/lib/services/http-retry';
+import { analyzeCompound, type CompoundAnalysis } from '@/lib/food-health/outliers';
 import { requireAdmin } from '@/lib/auth/api-guard';
 
 /**
@@ -75,6 +76,9 @@ const AddFoodSchema = z.object({
         apiSource: z.enum(['CNF', 'FDC', 'FOODB', 'PHENOL', 'DUKE', 'AFCD', 'UK_COFID', 'FINELI', 'CIQUAL', 'BLS', 'FRIDA', 'NEVO', 'MATVARETABELLEN', 'FOODFILES', 'MEXT', 'KFCT', 'INDB', 'ASEANFOODS']),
         apiFoodId: z.string().min(1, 'API food ID is required'),
         apiFoodVariant: z.string().optional(), // Specific variant/preparation (e.g., FooDB orig_food_name, Duke plant_part)
+        // The source's OWN name for the matched food, e.g. "Gelatin desserts, dry mix".
+        // Display-only, but it is the fastest way to spot a wrong match — see the review step.
+        apiFoodName: z.string().optional(),
         // Multi-variant blend (parent foods only — Duke plant_parts, FooDB orig_food_name).
         // When set, percents must sum to exactly 100 and apiFoodVariant is ignored.
         composition: z
@@ -95,6 +99,9 @@ const AddFoodSchema = z.object({
         )
     )
     .min(1, 'At least one API source is required'),
+  // Fetch, merge and analyse but write NOTHING. Used by the review step so a food is
+  // inspected before it exists, not after. See docs/IMPORT-INTEGRITY-AUDIT.md.
+  dryRun: z.boolean().optional().default(false),
   userId: z.string().uuid().optional(), // Authenticated user ID (null = anonymous)
   metadata: MetadataSchema.optional(),     // Structured food metadata from AI clarify
   categoryPath: z.string().optional(),     // "Animal > Eggs > Chicken Eggs"
@@ -135,7 +142,8 @@ interface MergedNutrientResult {
  * SSE Progress Event Types
  */
 interface ProgressEvent {
-  type: 'progress' | 'complete' | 'error';
+  /** 'preview' is a dry run: everything computed, nothing written. */
+  type: 'progress' | 'complete' | 'error' | 'preview';
   step?: string;
   percent?: number;
   detail?: string;
@@ -146,6 +154,21 @@ interface ProgressEvent {
   approvalStatus?: string;
   portionCount?: number;
   error?: string;
+  preview?: {
+    name: string;
+    sources: Array<{
+      apiSource: string;
+      apiFoodId: string | null;
+      matchedName: string | null;
+      valueCount: number;
+      flagCount: number;
+      highFlagCount: number;
+    }>;
+    comparedCompounds: number;
+    flaggedCompounds: number;
+    totalCompounds: number;
+    findings: CompoundAnalysis[];
+  };
   failedSources?: Array<{ source: string; error: string }>;
 }
 
@@ -211,7 +234,7 @@ export async function POST(request: NextRequest): Promise<Response> {
     );
   }
 
-  const { name, commonNames, sources, userId, metadata, categoryPath, portions } = validationResult.data;
+  const { name, commonNames, sources, userId, metadata, categoryPath, portions, dryRun } = validationResult.data;
 
   // Create streaming response for progress updates
   const encoder = new TextEncoder();
@@ -1000,6 +1023,96 @@ export async function POST(request: NextRequest): Promise<Response> {
               originalName: n.originalName,
             })),
           });
+        }
+
+        // Step 4b: Cross-source outlier analysis.
+        //
+        // Runs before any write so a wrong food match is caught while it is still cheap to
+        // fix. "Gelatin" pulled 3 sources that had matched gelatin DESSERT MIX (7.8 g
+        // protein) alongside 10 that matched pure gelatin (~86 g); nothing noticed until a
+        // human compared the numbers by hand.
+        const sourceNames = new Map(
+          sources.map((src) => [src.apiSource as string, src.apiFoodName ?? null])
+        );
+
+        const analyses: CompoundAnalysis[] = mergedNutrientsData
+          .filter((m) => m.sources.length >= 2)
+          .map((m) =>
+            analyzeCompound(
+              m.nutrientName,
+              m.unit ?? null,
+              m.sources.map((s) => ({
+                source: s.apiSource,
+                value: s.value,
+                matchedName: sourceNames.get(s.apiSource) ?? null,
+              }))
+            )
+          );
+
+        const flagged = analyses.filter((a) => a.flags.length > 0);
+        const severityRank = { high: 0, medium: 1, low: 2 } as const;
+        flagged.sort(
+          (a, b) =>
+            severityRank[a.worst ?? 'low'] - severityRank[b.worst ?? 'low'] ||
+            b.flags.length - a.flags.length
+        );
+
+        // How often each source is flagged. A source that is an outlier on many compounds
+        // is almost certainly matched to the wrong food, which is more useful to surface
+        // than any single nutrient disagreement.
+        const perSource = new Map<string, { flags: number; high: number }>();
+        for (const a of flagged) {
+          for (const f of a.flags) {
+            const e = perSource.get(f.source) ?? { flags: 0, high: 0 };
+            e.flags++;
+            if (f.severity === 'high') e.high++;
+            perSource.set(f.source, e);
+          }
+        }
+
+        const sourceSummary = nutrientResults.map((r) => {
+          const stats = perSource.get(r.apiSource) ?? { flags: 0, high: 0 };
+          return {
+            apiSource: r.apiSource,
+            apiFoodId: sources.find((s) => s.apiSource === r.apiSource)?.apiFoodId ?? null,
+            matchedName: sourceNames.get(r.apiSource) ?? null,
+            valueCount: r.nutrients.length,
+            flagCount: stats.flags,
+            highFlagCount: stats.high,
+          };
+        });
+
+        sourceSummary.sort((a, b) => b.highFlagCount - a.highFlagCount || b.flagCount - a.flagCount);
+
+        logger.info(
+          {
+            service: 'add-food-api',
+            name,
+            dryRun,
+            comparedCompounds: analyses.length,
+            flaggedCompounds: flagged.length,
+            suspectSources: sourceSummary.filter((s) => s.highFlagCount > 0).map((s) => s.apiSource),
+          },
+          'Cross-source analysis complete'
+        );
+
+        if (dryRun) {
+          sendEvent({
+            type: 'preview',
+            step: 'preview',
+            percent: 100,
+            detail: `Reviewed ${analyses.length} compounds across ${nutrientResults.length} sources`,
+            preview: {
+              name,
+              sources: sourceSummary,
+              comparedCompounds: analyses.length,
+              flaggedCompounds: flagged.length,
+              totalCompounds: mergedNutrientsData.length,
+              findings: flagged.slice(0, 60),
+            },
+          });
+          controller.close();
+          return;
         }
 
         logger.debug(
