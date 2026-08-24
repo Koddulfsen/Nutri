@@ -43,6 +43,7 @@ import { indbStagingClient } from '@/lib/services/indb-client';
 import { aseanfoodsStagingClient } from '@/lib/services/aseanfoods-client';
 import { nutrientMapper } from '@/lib/services/nutrient-mapper';
 import { logger } from '@/lib/logger';
+import { withRetry } from '@/lib/services/http-retry';
 import { requireAdmin } from '@/lib/auth/api-guard';
 
 /**
@@ -271,7 +272,17 @@ export async function POST(request: NextRequest): Promise<Response> {
             sourceCode: source.apiSource,
           });
 
+          // Retry EVERY source, not just the two live APIs. Since the move to Supabase the
+          // "local" staging clients are remote calls as well, so any of them can hit a
+          // transient network failure. 3 attempts with backoff; 4xx is never retried.
+          const resultsBefore = nutrientResults.length;
+
           try {
+
+          await withRetry(async () => {
+          // A failed attempt normally pushes nothing, but truncate defensively so a retry
+          // can never double-count a source.
+          nutrientResults.length = resultsBefore;
 
           if (source.apiSource === 'CNF') {
             const cnfNutrients = await cnfClient.getNutrients(parseInt(source.apiFoodId, 10));
@@ -458,8 +469,13 @@ export async function POST(request: NextRequest): Promise<Response> {
               nutrients: aseanfoodsNutrients,
             });
           } else {
-            throw new Error(`Unsupported API source: ${source.apiSource}`);
+            // A code bug, not a transient failure — do not burn 3 attempts on it.
+            const unsupported = new Error(`Unsupported API source: ${source.apiSource}`);
+            (unsupported as any).nonRetryable = true;
+            throw unsupported;
           }
+
+          }, { label: `${sourceName} fetch` });
 
           // Send completed progress for this source
           sendEvent({

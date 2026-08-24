@@ -69,6 +69,10 @@ export function isRetryable(error: unknown): boolean {
   }
   // No HTTP response at all -> connection level. Retry unless the caller aborted.
   if (e?.code === 'ERR_CANCELED' || e?.name === 'CanceledError') return false;
+
+  // Programming errors are not transient — retrying them just wastes time and noise.
+  if (e?.nonRetryable === true) return false;
+
   return true;
 }
 
