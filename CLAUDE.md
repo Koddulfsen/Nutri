@@ -263,6 +263,8 @@ What is actually true, as of 2026-08-11. **Add to this rather than trusting comm
 | Staging data loaded | ✅ 13/17 sources, **3,213,257 rows**, 34,754 foods (2026-08-22). Loaders live in `db/seed/<source>/import-<source>.mjs`, **not** `scripts/`. Each TRUNCATEs its own tables, so all are re-runnable |
 | KFCT / MEXT English names | ✅ POPULATED — `name_en` was 0/2733 and 0/2478 after import; `scripts/populate-{kfct,mext}-english-names.mjs` fills it (now 1694 and 2184). Import alone does NOT do this |
 | Food import pipeline end-to-end | ✅ VERIFIED 2026-08-22 — beef liver imported from 3 sources, 241 values, cross-source compare works |
+| Outbound API failures | ✅ HANDLED — `lib/services/http-retry.ts`: 3 attempts w/ backoff, retries connection-level + 429/5xx, never 4xx. `describeError()` logs code/errno/syscall/address/cause/AggregateError members — previously a failed USDA call logged only `message: "Error"` and the cause was unrecoverable |
+| Partial food imports | ✅ FIXED — a source that failed still got a `food_sources` row with zero values (egg, chicken breast). Import now aborts before any write if any source fails; `food_sources` is built only from sources that returned data |
 | CNF unit labels | ❌ WRONG — default to `g` for 15 compounds (values correct). See §6b |
 | Raw source data on disk | ✅ VERIFIED — 8 unloaded sources do contain beef liver. See §6c |
 | ~~Middleware protects pages in dev~~ | ✅ FIXED 2026-08-11 — see rows below |

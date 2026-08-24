@@ -27,6 +27,7 @@ import { cnfClient } from '@/lib/services/cnf-client';
 import { usdaClient } from '@/lib/services/usda-client';
 import { foodbStagingClient } from '@/lib/services/foodb-client';
 import { dukeStagingClient } from '@/lib/services/duke-client';
+import { mergeDukeVariants, mergeFooDBVariants } from '@/lib/services/variant-composition';
 import { afcdStagingClient } from '@/lib/services/afcd-client';
 import { cofidStagingClient } from '@/lib/services/cofid-client';
 import { fineliStagingClient } from '@/lib/services/fineli-client';
@@ -73,7 +74,24 @@ const AddFoodSchema = z.object({
         apiSource: z.enum(['CNF', 'FDC', 'FOODB', 'PHENOL', 'DUKE', 'AFCD', 'UK_COFID', 'FINELI', 'CIQUAL', 'BLS', 'FRIDA', 'NEVO', 'MATVARETABELLEN', 'FOODFILES', 'MEXT', 'KFCT', 'INDB', 'ASEANFOODS']),
         apiFoodId: z.string().min(1, 'API food ID is required'),
         apiFoodVariant: z.string().optional(), // Specific variant/preparation (e.g., FooDB orig_food_name, Duke plant_part)
+        // Multi-variant blend (parent foods only — Duke plant_parts, FooDB orig_food_name).
+        // When set, percents must sum to exactly 100 and apiFoodVariant is ignored.
+        composition: z
+          .array(z.object({
+            variant: z.string().min(1),
+            percent: z.number().positive().max(100),
+          }))
+          .min(1)
+          .optional()
+          .refine(
+            (arr) => !arr || Math.round(arr.reduce((s, c) => s + c.percent, 0) * 100) === 10000,
+            { message: 'composition percents must sum to 100' },
+          ),
       })
+        .refine(
+          (s) => !s.composition || s.apiSource === 'DUKE' || s.apiSource === 'FOODB',
+          { message: 'composition is only supported for DUKE and FOODB sources' },
+        )
     )
     .min(1, 'At least one API source is required'),
   userId: z.string().uuid().optional(), // Authenticated user ID (null = anonymous)
@@ -233,6 +251,7 @@ export async function POST(request: NextRequest): Promise<Response> {
           apiSource: 'CNF' | 'FDC' | 'FOODB' | 'PHENOL' | 'DUKE' | 'AFCD' | 'UK_COFID' | 'FINELI' | 'CIQUAL' | 'BLS' | 'FRIDA' | 'NEVO' | 'MATVARETABELLEN' | 'FOODFILES' | 'MEXT' | 'KFCT' | 'INDB' | 'ASEANFOODS';
           apiFoodId: string;
           apiFoodVariant?: string;
+          composition?: Array<{ variant: string; percent: number }>;
           nutrients: any[];
         }> = [];
 
@@ -269,16 +288,35 @@ export async function POST(request: NextRequest): Promise<Response> {
               nutrients: usdaNutrients,
             });
           } else if (source.apiSource === 'FOODB') {
-            const foodbNutrients = await foodbStagingClient.getNutrients(
-              parseInt(source.apiFoodId, 10),
-              source.apiFoodVariant
-            );
-            nutrientResults.push({
-              apiSource: 'FOODB' as const,
-              apiFoodId: source.apiFoodId,
-              apiFoodVariant: source.apiFoodVariant,
-              nutrients: foodbNutrients,
-            });
+            if (source.composition && source.composition.length > 0) {
+              const perVariant = await Promise.all(
+                source.composition.map(async (c) => ({
+                  variant: c.variant,
+                  percent: c.percent,
+                  nutrients: await foodbStagingClient.getNutrients(
+                    parseInt(source.apiFoodId, 10),
+                    c.variant,
+                  ),
+                })),
+              );
+              nutrientResults.push({
+                apiSource: 'FOODB' as const,
+                apiFoodId: source.apiFoodId,
+                composition: source.composition,
+                nutrients: mergeFooDBVariants(perVariant),
+              });
+            } else {
+              const foodbNutrients = await foodbStagingClient.getNutrients(
+                parseInt(source.apiFoodId, 10),
+                source.apiFoodVariant
+              );
+              nutrientResults.push({
+                apiSource: 'FOODB' as const,
+                apiFoodId: source.apiFoodId,
+                apiFoodVariant: source.apiFoodVariant,
+                nutrients: foodbNutrients,
+              });
+            }
           } else if (source.apiSource === 'PHENOL') {
             // Phenol-Explorer uses staging tables similar to FooDB
             // TODO: Implement phenolStagingClient.getNutrients when needed
@@ -289,16 +327,32 @@ export async function POST(request: NextRequest): Promise<Response> {
             });
           } else if (source.apiSource === 'DUKE') {
             // Duke Phytochemical Database - staging table with plant phytochemicals
-            const dukeNutrients = await dukeStagingClient.getNutrients(
-              source.apiFoodId,
-              source.apiFoodVariant // plant_part filter
-            );
-            nutrientResults.push({
-              apiSource: 'DUKE' as const,
-              apiFoodId: source.apiFoodId,
-              apiFoodVariant: source.apiFoodVariant,
-              nutrients: dukeNutrients,
-            });
+            if (source.composition && source.composition.length > 0) {
+              const perVariant = await Promise.all(
+                source.composition.map(async (c) => ({
+                  variant: c.variant,
+                  percent: c.percent,
+                  nutrients: await dukeStagingClient.getNutrients(source.apiFoodId, c.variant),
+                })),
+              );
+              nutrientResults.push({
+                apiSource: 'DUKE' as const,
+                apiFoodId: source.apiFoodId,
+                composition: source.composition,
+                nutrients: mergeDukeVariants(perVariant),
+              });
+            } else {
+              const dukeNutrients = await dukeStagingClient.getNutrients(
+                source.apiFoodId,
+                source.apiFoodVariant // plant_part filter
+              );
+              nutrientResults.push({
+                apiSource: 'DUKE' as const,
+                apiFoodId: source.apiFoodId,
+                apiFoodVariant: source.apiFoodVariant,
+                nutrients: dukeNutrients,
+              });
+            }
           } else if (source.apiSource === 'AFCD') {
             // Australian Food Composition Database - staging table with nutrients
             const afcdNutrients = await afcdStagingClient.getNutrients(source.apiFoodId);
@@ -450,6 +504,44 @@ export async function POST(request: NextRequest): Promise<Response> {
           },
           'Nutrients fetched from all API sources'
         );
+
+        // Step 2b: Gate — refuse to write a partial food.
+        //
+        // Previously a source that failed to return nutrients was logged and skipped, but a
+        // food_sources row was still written for it. The result was a record asserting
+        // "USDA is a source for this food" with zero values behind it — a claim the data
+        // did not support. Two of four foods imported that way.
+        //
+        // Nothing has been written to the database at this point, so failing here is clean:
+        // the user keeps their selections and can retry. Each source has already been
+        // retried 3x with backoff by this point (see lib/services/http-retry.ts).
+        if (failedSources.length > 0) {
+          const names = failedSources.map((f) => f.source).join(', ');
+          const detail = failedSources
+            .map((f) => `${f.source}: ${f.error}`)
+            .join(' | ');
+
+          logger.error(
+            {
+              service: 'add-food-api',
+              name,
+              failedSources,
+              succeededSources: nutrientResults.map((r) => r.apiSource),
+            },
+            'Aborting import — one or more sources failed after retries; nothing written'
+          );
+
+          sendEvent({
+            type: 'error',
+            error:
+              `Could not fetch from ${names} after 3 attempts. Nothing was saved — ` +
+              `your selections are still here, so you can try again, or remove ` +
+              `${names} and import the rest. (${detail})`,
+            failedSources,
+          });
+          controller.close();
+          return;
+        }
 
         // Step 3: Standardize nutrients from each source
         // Count total nutrients for progress tracking
@@ -981,11 +1073,23 @@ export async function POST(request: NextRequest): Promise<Response> {
           );
 
           // 5.2: Insert food sources
-          const foodSourcesData = sources.map((source) => ({
+          // Only record sources that actually returned nutrients. The gate above should
+          // already guarantee this, but a food_sources row is a claim about provenance —
+          // it must never outrun the data.
+          const succeededSourceIds = new Set(nutrientResults.map((r) => r.apiSource));
+          const foodSourcesData = sources
+            .filter((source) => succeededSourceIds.has(source.apiSource))
+            .map((source) => ({
             foodId: insertedFood.id,
             apiSource: source.apiSource,
             apiFoodId: source.apiFoodId,
-            apiFoodVariant: source.apiFoodVariant || null,
+            // composition takes precedence: when set, apiFoodVariant is null
+            apiFoodVariant: source.composition && source.composition.length > 0
+              ? null
+              : (source.apiFoodVariant || null),
+            composition: source.composition && source.composition.length > 0
+              ? source.composition
+              : null,
             verifiedBy: userId || null,
           }));
 

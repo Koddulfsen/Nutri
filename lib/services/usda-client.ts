@@ -13,6 +13,7 @@
 
 import axios, { AxiosInstance, AxiosError } from 'axios';
 import { logger } from '@/lib/logger';
+import { withRetry, describeError } from './http-retry';
 
 /**
  * USDA API Response Types
@@ -238,12 +239,18 @@ export class USDAClient {
         'Fetching food details from USDA API'
       );
 
-      const response = await this.client.get<USDAFoodDetails>(`/food/${fdcId}`, {
-        params: {
-          format,
-          api_key: this.apiKey,
-        },
-      });
+      // Retried: connection-level blips against api.nal.usda.gov dropped USDA entirely
+      // for a food, with no HTTP response and no usable error. See http-retry.ts.
+      const response = await withRetry(
+        () =>
+          this.client.get<USDAFoodDetails>(`/food/${fdcId}`, {
+            params: {
+              format,
+              api_key: this.apiKey,
+            },
+          }),
+        { label: `USDA getFoodDetails(${fdcId})` }
+      );
 
       logger.info(
         {
@@ -347,8 +354,16 @@ export class USDAClient {
           statusText: axiosError.response?.statusText,
           data,
           message: axiosError.message,
+          // Without these, a connection-level failure logs only `message: "Error"` and the
+          // cause is unrecoverable after the fact. Keep every identifying field.
+          code: (axiosError as any).code,
+          errno: (axiosError as any).errno,
+          syscall: (axiosError as any).syscall,
+          address: (axiosError as any).address,
+          description: describeError(axiosError),
+          stack: axiosError.stack,
         },
-        `USDA API error in ${method}`
+        `USDA API error in ${method}: ${describeError(axiosError)}`
       );
 
       // Handle specific error codes
@@ -375,8 +390,10 @@ export class USDAClient {
           service: 'usda-api',
           method,
           error: error instanceof Error ? error.message : String(error),
+          description: describeError(error),
+          stack: error instanceof Error ? error.stack : undefined,
         },
-        `Unexpected error in ${method}`
+        `Unexpected error in ${method}: ${describeError(error)}`
       );
     }
   }
