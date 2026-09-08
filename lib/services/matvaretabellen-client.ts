@@ -15,8 +15,8 @@
  * - source_matvaretabellen_nutrients: Nutrient definitions (nutrient_id, name, unit, eurofir_code)
  * - source_matvaretabellen_content: Food-nutrient values (long format)
  *
- * Key difference: compound_sources uses EuroFIR codes as external_id,
- * so the join goes through source_matvaretabellen_nutrients.eurofir_code
+ * Key difference: compound_sources external_ids are mostly Matvaretabellen
+ * nutrient_ids, with a few EuroFIR codes, so the join tries both — see getNutrients()
  * (same pattern as FRIDA).
  *
  * Generated: 2026-02-07
@@ -133,8 +133,11 @@ class MatvaretabellenStagingClient {
    * Get nutrients for a food from staging table
    * Returns nutrients with Nutri compound mapping where available
    *
-   * Critical: compound_sources uses EuroFIR codes as external_id,
-   * so the join goes through source_matvaretabellen_nutrients.eurofir_code
+   * Critical: the external_id convention is mixed. 51 of the 57 staging
+   * nutrients are keyed by Matvaretabellen's own nutrient_id ("C16:0Palmitinsyre"),
+   * and 3 by EuroFIR code (K, NIAEQ, P). Joining on eurofir_code alone matched
+   * 3 of 57 and left 49 promised compounds silent, so the join tries both.
+   * Verified: no nutrient matches two different mappings.
    *
    * @param foodId - Matvaretabellen food ID (text, e.g., "06.178")
    */
@@ -165,8 +168,8 @@ class MatvaretabellenStagingClient {
           comp.unit as canonical_unit
         FROM source_matvaretabellen_content c
         JOIN source_matvaretabellen_nutrients n ON n.nutrient_id = c.nutrient_id
-        LEFT JOIN compound_sources cs ON cs.external_id = n.eurofir_code
-          AND cs.external_source = 'MATVARETABELLEN'
+        LEFT JOIN compound_sources cs ON cs.external_source = 'MATVARETABELLEN'
+          AND (cs.external_id = n.nutrient_id OR cs.external_id = n.eurofir_code)
         LEFT JOIN compounds comp ON comp.id = cs.compound_id
         WHERE c.food_id = ${foodId}
           AND c.value IS NOT NULL
