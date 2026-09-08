@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Preview — Mobile / Tablet / Desktop</title>
+<style>
+  html,body{
+    margin:0; padding:0;
+    background:#1a1a1a;
+    font-family: -apple-system, Helvetica, Arial, sans-serif;
+  }
+  .note{
+    text-align:center;
+    color:#888;
+    font-size:0.8rem;
+    padding: 10px 20px 0;
+  }
+  .row{
+    display:flex;
+    align-items:flex-start;
+    justify-content:center;
+    gap: 40px;
+    padding: 30px 20px;
+    flex-wrap: wrap;
+  }
+  .device{
+    display:flex; flex-direction:column; align-items:center;
+    gap: 10px;
+  }
+  .device-label{
+    color:#999; font-size:0.8rem; letter-spacing:1px; text-transform:uppercase;
+  }
+  .frame{
+    background:#000;
+    border-radius: 4px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+    overflow:hidden;
+  }
+  iframe{
+    display:block;
+    border:0;
+    width:100%; height:100%;
+  }
+
+  /* mobile device frame: ~iPhone 14 Pro Max viewport */
+  #mobile-frame{
+    width: 430px; height: 900px;
+  }
+
+  /* tablet device frame: ~iPad Air viewport */
+  #tablet-frame{
+    width: 820px; height: 900px;
+  }
+
+  /* desktop device frame: scaled down so it fits on its own row,
+     but the iframe content itself still renders at full desktop width */
+  #desktop-frame{
+    width: 1440px; height: 900px;
+    transform: scale(0.85);
+    transform-origin: top center;
+    margin-bottom: -135px;
+  }
+  #desktop-frame iframe{
+    width: 1440px; height: 900px;
+  }
+</style>
+</head>
+<body>
+  <div class="note">Live Next.js dev server at localhost:3003 — run <code>npx next dev -p 3003</code>, edits hot-reload in each frame below.</div>
+
+  <div class="row">
+    <div class="device">
+      <div class="device-label">Mobile — 430px</div>
+      <div class="frame" id="mobile-frame">
+        <iframe src="http://localhost:3003/nutri"></iframe>
+      </div>
+    </div>
+
+    <div class="device">
+      <div class="device-label">Tablet — 820px</div>
+      <div class="frame" id="tablet-frame">
+        <iframe src="http://localhost:3003/nutri"></iframe>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="device">
+      <div class="device-label">Desktop — 1440px</div>
+      <div class="frame" id="desktop-frame">
+        <iframe src="http://localhost:3003/nutri"></iframe>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

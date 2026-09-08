@@ -78,3 +78,16 @@ Thumbs.db
 # local env backups (contain credentials)
 .env.backup*
 .env.*.local
+
+# Scratch files kept in the working tree but not part of the project.
+# Design sources live in bilder/ and public/design/; these are pasted
+# screenshots and personal notes.
+/Pasted image.png
+/teknisk bakgrunn nutri.png
+/mørsk teknisk bakgrunn sana.png
+/endringer.txt
+/Foods to add 74.txt
+
+# Intermediate artifacts from the background-removal pass on the banana art
+public/design/_bgmask.pkl
+public/design/_tmp_check.png
