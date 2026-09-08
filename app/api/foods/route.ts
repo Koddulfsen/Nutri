@@ -45,6 +45,7 @@ import { nutrientMapper } from '@/lib/services/nutrient-mapper';
 import { logger } from '@/lib/logger';
 import { withRetry } from '@/lib/services/http-retry';
 import { analyzeCompound, type CompoundAnalysis } from '@/lib/food-health/outliers';
+import { mergeCompoundValues, type Excluded } from '@/lib/food-health/merge';
 import { requireAdmin } from '@/lib/auth/api-guard';
 
 /**
@@ -74,7 +75,8 @@ const AddFoodSchema = z.object({
     .array(
       z.object({
         apiSource: z.enum(['CNF', 'FDC', 'FOODB', 'PHENOL', 'DUKE', 'AFCD', 'UK_COFID', 'FINELI', 'CIQUAL', 'BLS', 'FRIDA', 'NEVO', 'MATVARETABELLEN', 'FOODFILES', 'MEXT', 'KFCT', 'INDB', 'ASEANFOODS']),
-        apiFoodId: z.string().min(1, 'API food ID is required'),
+        // Some source search clients (e.g. FINELI) return a numeric id — coerce so the shape is consistent.
+        apiFoodId: z.coerce.string().min(1, 'API food ID is required'),
         apiFoodVariant: z.string().optional(), // Specific variant/preparation (e.g., FooDB orig_food_name, Duke plant_part)
         // The source's OWN name for the matched food, e.g. "Gelatin desserts, dry mix".
         // Display-only, but it is the fastest way to spot a wrong match — see the review step.
@@ -168,6 +170,11 @@ interface ProgressEvent {
     flaggedCompounds: number;
     totalCompounds: number;
     findings: CompoundAnalysis[];
+    /**
+     * Values the merge refused to average, with the reason. Shown in review so a
+     * held-out value is a visible decision rather than a silent omission.
+     */
+    excludedValues: Array<{ nutrientName: string; reason: string; detail: string }>;
   };
   failedSources?: Array<{ source: string; error: string }>;
 }
@@ -1006,16 +1013,31 @@ export async function POST(request: NextRequest): Promise<Response> {
 
         const mergedNutrientsData: MergedNutrientResult[] = [];
 
+        // Averaging is unit-aware. It used to be a plain sum over the group with
+        // `unit: nutrients[0].unit`, which meant a source arriving in milligrams
+        // was added to sources in grams and the result labelled by whichever
+        // came first — Apple tryptophan stored 0.7274 g against a true ~0.001 g,
+        // and carried source_count 9 while doing it. See lib/food-health/merge.ts.
+        const mergeExclusions: { nutrientName: string; excluded: Excluded<StandardizedNutrientForMerge>[] }[] = [];
+
         for (const [, nutrients] of nutrientGroups.entries()) {
-          const sum = nutrients.reduce((acc, n) => acc + n.value, 0);
-          const average = sum / nutrients.length;
+          const merged = mergeCompoundValues(nutrients);
+
+          if (merged.excluded.length > 0) {
+            mergeExclusions.push({
+              nutrientName: nutrients[0].standardName,
+              excluded: merged.excluded,
+            });
+          }
 
           mergedNutrientsData.push({
             compoundId: nutrients[0].compoundId,
             nutrientName: nutrients[0].standardName,
-            averageValue: average,
-            unit: nutrients[0].unit,
-            sourceCount: nutrients.length,
+            averageValue: merged.averageValue,
+            unit: merged.unit,
+            // Counts what the average is actually built from, not what was
+            // offered. A dropped value must not inflate apparent corroboration.
+            sourceCount: merged.kept.length,
             sources: nutrients.map((n) => ({
               apiSource: n.apiSource,
               value: n.value,
@@ -1023,6 +1045,18 @@ export async function POST(request: NextRequest): Promise<Response> {
               originalName: n.originalName,
             })),
           });
+        }
+
+        if (mergeExclusions.length > 0) {
+          logger.warn(
+            {
+              service: 'add-food-api',
+              name,
+              compounds: mergeExclusions.length,
+              details: mergeExclusions.flatMap((e) => e.excluded.map((x) => `${e.nutrientName} — ${x.detail}`)),
+            },
+            'Values excluded from merge as unit or magnitude errors'
+          );
         }
 
         // Step 4b: Cross-source outlier analysis.
@@ -1109,6 +1143,13 @@ export async function POST(request: NextRequest): Promise<Response> {
               flaggedCompounds: flagged.length,
               totalCompounds: mergedNutrientsData.length,
               findings: flagged.slice(0, 60),
+              excludedValues: mergeExclusions.flatMap((e) =>
+                e.excluded.map((x) => ({
+                  nutrientName: e.nutrientName,
+                  reason: x.reason,
+                  detail: x.detail,
+                }))
+              ),
             },
           });
           controller.close();

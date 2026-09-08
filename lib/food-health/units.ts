@@ -51,3 +51,36 @@ export function parseUnit(raw: string | null | undefined): { magnitude: string; 
 
   return { magnitude: parts.join(' '), qualifier: qualifierParts.join(' ') };
 }
+
+/**
+ * Convertible scales, grouped by DIMENSION.
+ *
+ * Crossing dimensions is a category error, not a scaling error: kJ -> kcal is a
+ * real x0.239 conversion, g -> kcal is not a conversion at all. Anything not
+ * listed here cannot be normalized and must be excluded from an average rather
+ * than guessed at. Note parseUnit() folds the micro sign to 'u', so the key is
+ * 'ug' and not 'µg'.
+ */
+export const UNIT_SCALES: Record<string, { dim: string; scale: number }> = {
+  kg: { dim: 'mass', scale: 1e3 },
+  g: { dim: 'mass', scale: 1 },
+  mg: { dim: 'mass', scale: 1e-3 },
+  ug: { dim: 'mass', scale: 1e-6 },
+  ng: { dim: 'mass', scale: 1e-9 },
+  kj: { dim: 'energy', scale: 1 },
+  kcal: { dim: 'energy', scale: 4.184 },
+  iu: { dim: 'iu', scale: 1 },
+  '%': { dim: 'ratio', scale: 1 },
+};
+
+/**
+ * Factor that turns a value expressed in `from` into one expressed in `to`.
+ * Returns null when either unit is unknown or they measure different things —
+ * the caller must then drop the value, never average it in.
+ */
+export function conversionBetween(from: string | null | undefined, to: string | null | undefined): number | null {
+  const f = UNIT_SCALES[parseUnit(from).magnitude];
+  const t = UNIT_SCALES[parseUnit(to).magnitude];
+  if (!f || !t || f.dim !== t.dim) return null;
+  return f.scale / t.scale;
+}

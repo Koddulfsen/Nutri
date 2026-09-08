@@ -91,6 +91,8 @@ interface PreviewPayload {
   flaggedCompounds: number;
   totalCompounds: number;
   findings: Finding[];
+  /** Values the merge held out of the average — a wrong unit or a scale error. */
+  excludedValues?: Array<{ nutrientName: string; reason: string; detail: string }>;
 }
 
 interface ProgressState {
@@ -432,6 +434,32 @@ export default function AddFoodModal({
                           ))}
                         </div>
                       ))}
+                  </div>
+                </>
+              )}
+
+              {/* Values the merge refused to average. A held-out value must be
+                  visible here, or it is indistinguishable from one that was
+                  never offered. */}
+              {(preview.excludedValues?.length ?? 0) > 0 && (
+                <>
+                  <div className="review-section-title">
+                    Held out of the average ({preview.excludedValues!.length})
+                  </div>
+                  <div className="findings">
+                    {preview.excludedValues!.map((x, i) => (
+                      <div key={`${x.nutrientName}-${i}`} className="finding">
+                        <div className="finding-head">
+                          <span className="fc-name">{x.nutrientName}</span>
+                          <span className="fc-meta">
+                            {x.reason === 'incompatible-unit' ? 'wrong unit' : 'scale error'}
+                          </span>
+                        </div>
+                        <div className="flag sev-high">
+                          <span className="fl-reason">{x.detail}</span>
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </>
               )}
