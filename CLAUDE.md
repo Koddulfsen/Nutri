@@ -246,6 +246,12 @@ What is actually true, as of 2026-08-11. **Add to this rather than trusting comm
 | Compound + DV data intact | ✅ VERIFIED — 280 / 1,807 / 16,832 |
 | Conversion factors applied at read time | ✅ VERIFIED — fixable retroactively |
 | Known-wrong conversion factors | ✅ FIXED 2026-08-22 — 23 rows (17 FRIDA + 6 DUKE); re-queried DB, second run is a no-op |
+| Conversion factors, full sweep | ✅ FIXED 2026-09-08 — 23 more rows (`scripts/fix-conversion-factors-2.ts`). MEXT/FRIDA/FINELI amino acids stored mg at factor 1.0. Both audits now report 0 wrong |
+| Merge averages across units | ✅ FIXED 2026-09-08 — it summed raw values and labelled the result with `nutrients[0].unit`. Apple tryptophan read 0.7274 g against a true ~0.003. `lib/food-health/merge.ts` normalizes first, then holds out >100x outliers; 8 vitest tests |
+| Mapping ids match the source catalogue | ✅ VERIFIED 2026-09-08 — `scripts/audit-mapping-ids.mjs`. 57 fixed; only KFCT's 88 remain dead, and that source genuinely does not publish them |
+| AFCD joins nutrients by name | ✅ FIXED 2026-09-08 — the client fell back to matching on nutrient NAME. AFCD publishes 77 names twice on different bases (amino acids as mg and mg/gN, fatty acids as g and %T), so both were attached to one compound. Index only now |
+| Merged food values | ✅ REBUILT 2026-09-08 — all 71 foods re-imported (71 ok, 0 failed). Energy is `kcal` on all 71, was `g` on 66. Values >100x apart across sources: 13.2% -> 1.8%. Magnitude audit: 32 findings -> 1 |
+| Matvaretabellen contribution | ✅ FIXED — 3 compounds -> 50 after the join fix and re-import |
 | Conversion checker false positives | ✅ FIXED — was 246 flags / ~25 real. Now **0 real flags**; 25 qualifier-only notes, 314 missing-unit, both counted separately |
 | Chatbot pipeline | ✅ VERIFIED to Anthropic — blocked only on account credits |
 | Encryption applied to health data | ❌ FALSE — `encryptPHI` has zero callers |
@@ -390,9 +396,11 @@ missing-unit gap below.
 `externalId: '135'` while the live row is `VITE`. Re-seeding would insert a *second* FRIDA
 Vitamin E mapping rather than update this one. Not caused by this work — worth a look.
 
-**Separately: 314 of 1,807 mappings have no `source_unit` at all.** Not a maths error, so the
-checker counts it as `missingUnits` rather than a flag — but it means those rows are trusted
-blind. Worth a pass before food data loads.
+**Separately: 293 of 1,753 mappings have no `source_unit` at all** (was 314 of 1,807 — 23 were
+filled in by the second factor pass, and 54 dead mappings deleted). Not a maths error, so the
+checker counts it as `missingUnits` rather than a flag. `scripts/audit-source-units.ts` now
+covers them anyway by deriving the unit from the source's own catalogue, and reports 148 as
+blind-but-correct — but a mapping that states its unit is still better than one that does not.
 
 ## 6d. STAGING LOAD — DONE 2026-08-22
 
@@ -444,11 +452,19 @@ to `'g'`. CNF's API sends no units, so nothing corrects it. Currently cosmetic �
 `convertUnit()` sits directly below, so the day a unit *is* passed, µg→g divides real values
 by 1,000,000. Fix the dictionary against real multi-food data, not from one food.
 
-**2. Energy has duplicate/mislabelled rows.** CNF returned both 135 (kcal) and 564 (kJ); both
-were written as `Energy`. An FDC row of 134.796 is labelled `kJ` but is kcal. Five values for
-one food, two of which are the same number in different units.
+**2. Energy has duplicate/mislabelled rows.** ✅ **The merged value is FIXED 2026-09-08** —
+`merged_nutrients` now reads `kcal` on all 71 foods (it was `g` on 66) because the merge
+converts kJ onto kcal instead of averaging the two numbers together. Apple went from
+`70.1067 g` to `53.9528 kcal`. UK_COFID's kJ mapping also needed a x0.239 factor (§6e).
 
-Also: `merged_nutrients.unit` inherits the wrong unit from the same defaulting.
+**The underlying source rows are still messy** and this is worth a proper pass: CNF returns
+both 135 (kcal) and 564 (kJ) written as `Energy`, and an FDC row of 134.796 is labelled `kJ`
+while being kcal. The merge now survives that rather than curing it — a source whose label
+is wrong but whose magnitude is right passes both guards silently.
+
+Also: `merged_nutrients.unit` used to inherit whatever unit came first in the group. It now
+takes the unit most values carry, after normalization — but that is a majority vote, so on a
+compound where most sources mislabel, it still follows them.
 
 ---
 
@@ -479,6 +495,30 @@ So beef liver should eventually reach **11 sources**, not 3.
   FINELI `maksa`. Name matching across sources needs per-language terms.
 - DUKE `SUPERACT.csv` and FooDB `HealthEffect.csv` contain thousands of "liver" hits that are
   *pharmacological activity text*, not foods. Don't match on them.
+
+## 6e. SECOND FACTOR PASS — DONE 2026-09-08
+
+The August pass fixed the rows already listed in the audit. This one checked
+*every* mapping, two independent ways, because neither method is sound alone:
+
+| Script | Method | Blind spot |
+|---|---|---|
+| `audit-source-units.ts` | expected factor from `source_*_nutrients.unit` | that column lies — MEXT declares `g` for calcium while publishing beef liver at `5` |
+| `audit-magnitudes.ts` | each source vs the median of its peers on the same food | the median is wrong when most sources are wrong, as they were for amino acids |
+| `audit-mapping-ids.mjs` | every `external_id` against the source catalogue | a source with no catalogue loaded (CNF) cannot be checked at all |
+
+Trusting the label alone would have turned **13 correct MEXT factors into 1000x
+errors**. Those 13 are now suppressed per-id in the script with the evidence
+recorded — not by exempting MEXT, which would hide the next real error there.
+
+Fixed: 13 MEXT amino acids + butyric acid, 4 FRIDA amino acids, FINELI
+tryptophan (all mg stored as g); MATVARETABELLEN salt; UK_COFID energy kJ. Two
+MEXT rows went the other way — `VITA_RAE` x1000000 → x1 and `TOCPHG` x1000 → x1,
+where someone had already scaled them by trusting that junk `g`.
+
+**Still unverifiable: CNF's 117 mappings.** `source_cnf_nutrients` has 0 rows, so
+nothing can check them. Loading that catalogue is the only fix.
+
 
 ---
 
