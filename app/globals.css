@@ -2227,7 +2227,7 @@ section {
   min-height: 100vh;
   color: #17141a;
   background-color: #0a0a0a;
-  background-image: url('/nutri/design/banana.png');
+  background-image: url('/design/banana.png');
   background-size: cover;
   background-position: center;
   background-attachment: fixed;
@@ -2541,7 +2541,7 @@ section {
   padding: 120px 32px;
   border-radius: 14px;
   overflow: hidden;
-  background-image: url('/nutri/design/bakgrunn.png');
+  background-image: url('/design/bakgrunn.png');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -4786,7 +4786,7 @@ nav a:hover {
   content: '';
   position: absolute;
   inset: 0;
-  background: url('/nutri/texture1.png') top center / cover no-repeat;
+  background: url('/texture1.png') top center / cover no-repeat;
   filter: grayscale(100%);
   opacity: 0.1;
   z-index: -1;
@@ -5011,7 +5011,7 @@ nav a:hover {
   content: '';
   position: absolute;
   inset: 0;
-  background: url('/nutri/texture2.png') top center / cover no-repeat;
+  background: url('/texture2.png') top center / cover no-repeat;
   filter: grayscale(100%);
   opacity: 0.1;
   transform: scaleX(-1);
@@ -5123,7 +5123,7 @@ nav a:hover {
   left: 0;
   right: 0;
   aspect-ratio: 1;
-  background: url('/nutri/texture4.png') top center / 100% auto no-repeat;
+  background: url('/texture4.png') top center / 100% auto no-repeat;
   filter: grayscale(100%);
   opacity: 0.1;
   z-index: -1;

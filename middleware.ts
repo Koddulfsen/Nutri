@@ -30,7 +30,7 @@ export async function middleware(request: NextRequest) {
   // and session validation. That made auth gating impossible to test locally and meant
   // it first executed in production. The dev accommodation is the session-synthesis
   // branch below, and nothing else.
-  const basePath = process.env.NEXT_PUBLIC_BASE_PATH || '/nutri'
+  const basePath = process.env.NEXT_PUBLIC_BASE_PATH || ''
 
   let response = NextResponse.next({
     request: {
@@ -138,7 +138,7 @@ export async function middleware(request: NextRequest) {
   ]
 
   // Verified 2026-08-11 against a production build: Next strips `basePath`, so
-  // `pathname` here is `/dashboard`, never `/nutri/dashboard`. Do not add `/nutri`
+  // `pathname` here is `/dashboard`, never basePath-prefixed. Do not add the
   // prefixes to the checks below.
   const pathname = request.nextUrl.pathname
   const isApiRoute = pathname.startsWith('/api/')

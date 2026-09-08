@@ -10,8 +10,10 @@ export async function GET(request: Request) {
   const code = searchParams.get('code')
   const error = searchParams.get('error')
   const errorDescription = searchParams.get('error_description')
-  const basePath = process.env.NEXT_PUBLIC_BASE_PATH || '/nutri'
-  const next = searchParams.get('next') ?? basePath
+  const basePath = process.env.NEXT_PUBLIC_BASE_PATH || ''
+  // With the app at the domain root basePath is '', which would redirect to a
+  // bare origin. Land on the dashboard instead.
+  const next = searchParams.get('next') ?? `${basePath}/dashboard`
 
   // Handle OAuth errors
   if (error) {

@@ -2467,7 +2467,7 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
           min-height: 100vh;
           display: flex;
           flex-direction: column;
-          background-image: url('/nutri/design/bakgrunn.png');
+          background-image: url('/design/bakgrunn.png');
           background-size: cover;
           background-position: center;
           background-attachment: fixed;

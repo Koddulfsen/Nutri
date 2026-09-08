@@ -287,7 +287,7 @@ export async function signInWithOAuth(provider: 'google' | 'apple') {
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider,
       options: {
-        redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/nutri/auth/callback`
+        redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback`
       }
     })
 
@@ -353,7 +353,7 @@ export async function resetPassword(email: string) {
 
     // Send password reset email
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/nutri/auth/reset-password`
+      redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/reset-password`
     })
 
     // Log audit event (even if email doesn't exist, for security)

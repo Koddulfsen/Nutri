@@ -20,8 +20,11 @@ if (
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Serve under /nutri subpath on sana.eco
-  basePath: '/nutri',
+  // Served at the domain root. This was '/nutri' when the app lived under a
+  // subpath on sana.eco; moving it back means changing this line AND the
+  // hardcoded '/nutri' prefixes in globals.css, AnalysisClient and the OAuth
+  // redirectTo values, because CSS url() and absolute URLs are not rewritten
+  // by Next the way <Link> and router are.
 
   // Enable React strict mode for better error detection
   reactStrictMode: true,
