@@ -14,9 +14,7 @@
  */
 
 import { createClient } from '@/lib/supabase/server';
-import { isAdminUser } from '@/lib/auth/permissions';
 import AnalysisClient from './AnalysisClient';
-import AlphaGate from '@/app/components/AlphaGate';
 import { CORE_COMPOUNDS } from '@/lib/data/core-compounds';
 import { db } from '@/db';
 import { compoundGroups } from '@/db/schema';
@@ -120,10 +118,9 @@ export default async function AnalysisPage({ searchParams }: PageProps) {
   // Auth is optional — guests get a limited experience backed by localStorage
   const { data: { user } } = await supabase.auth.getUser();
 
-  // Alpha gate: only admin users can access analysis while the project is in alpha testing
-  if (!(await isAdminUser(user))) {
-    return <AlphaGate />;
-  }
+  // The alpha gate is gone: anyone who signs up reaches the real analysis view.
+  // Auth stays optional here by design — a guest gets the localStorage-backed
+  // experience, and `user` being null is handled downstream.
 
   // Parse date from URL, default to today
   const params = await searchParams;

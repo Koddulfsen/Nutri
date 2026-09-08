@@ -1,8 +1,6 @@
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
-import { isAdminUser } from '@/lib/auth/permissions';
 import DashboardClient from './DashboardClient';
-import AlphaGate from '@/app/components/AlphaGate';
 
 export const metadata = {
   title: 'Dashboard - Nutri',
@@ -19,10 +17,7 @@ export default async function DashboardPage() {
     redirect('/login');
   }
 
-  // Alpha gate: only admins can access the dashboard
-  if (!(await isAdminUser(user))) {
-    return <AlphaGate />;
-  }
-
+  // The alpha gate is gone: anyone who signs up gets the real dashboard.
+  // Signing in is still required — this page reads the caller's own data.
   return <DashboardClient user={user} />;
 }
