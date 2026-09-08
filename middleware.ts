@@ -24,6 +24,12 @@ import type { NextRequest } from 'next/server'
  * 6. Allow authenticated requests to proceed
  */
 export async function middleware(request: NextRequest) {
+  // NOTE: there is deliberately no `NODE_ENV === 'development'` short-circuit here.
+  // One used to sit at the top of this function and returned before every check —
+  // security headers, CSP, the API 401 gate, protected-path redirects, admin gating
+  // and session validation. That made auth gating impossible to test locally and meant
+  // it first executed in production. The dev accommodation is the session-synthesis
+  // branch below, and nothing else.
   const basePath = process.env.NEXT_PUBLIC_BASE_PATH || '/nutri'
 
   let response = NextResponse.next({
@@ -102,8 +108,54 @@ export async function middleware(request: NextRequest) {
     }
   )
 
-  // Get session
-  const { data: { session } } = await supabase.auth.getSession()
+  // Get session.
+  // In local dev the Supabase project is gone, so synthesise a session inline
+  // rather than calling out to a dead auth host. This can't reuse the dev shim
+  // in lib/supabase/dev-shim.ts because middleware runs on the Edge runtime,
+  // which cannot load the `postgres` driver that module depends on.
+  // The NODE_ENV term is the safety net, not redundancy — see lib/supabase/dev-user.ts.
+  const devAuthBypass =
+    process.env.NODE_ENV !== 'production' && process.env.DEV_AUTH_BYPASS === 'true'
+
+  const session = devAuthBypass
+    ? {
+        user: {
+          id: '00000000-0000-4000-8000-000000000001',
+          email: process.env.DEV_AUTH_EMAIL || 'dev@localhost',
+          user_metadata: { session_version: 1 },
+        },
+      }
+    : (await supabase.auth.getSession()).data.session
+
+  // API routes that don't require auth (login/signup flows, waitlist)
+  const publicApiPaths = [
+    '/api/auth/callback',
+    '/api/auth/confirm',
+    '/api/auth/sign-in',
+    '/api/auth/sign-up',
+    '/api/auth/reset-password',
+    '/api/waitlist',
+  ]
+
+  // Verified 2026-08-11 against a production build: Next strips `basePath`, so
+  // `pathname` here is `/dashboard`, never `/nutri/dashboard`. Do not add `/nutri`
+  // prefixes to the checks below.
+  const pathname = request.nextUrl.pathname
+  const isApiRoute = pathname.startsWith('/api/')
+
+  // `startsWith`, not `includes`: a substring match would let any future route whose
+  // path merely *contains* a public prefix slip past the 401 gate.
+  const isPublicApi = publicApiPaths.some(
+    p => pathname === p || pathname.startsWith(p + '/')
+  )
+
+  // Block unauthenticated API calls with 401 — stops bots cold
+  if (isApiRoute && !isPublicApi && !session) {
+    return new NextResponse(JSON.stringify({ error: 'Unauthorized' }), {
+      status: 401,
+      headers: { 'Content-Type': 'application/json' },
+    })
+  }
 
   // Define protected routes (require authentication)
   const protectedPaths = [
@@ -112,16 +164,16 @@ export async function middleware(request: NextRequest) {
     '/settings',
     '/analysis',
     '/admin',
-    // '/compounds' removed - Phase 1 requires public access for free tier users
-    '/api/user',
-    '/api/auth/mfa',
-    '/api/auth/api-keys',
-    '/api/audit-log'
   ]
 
-  // Define admin-only routes
+  // Define admin-only routes.
+  // `/api/admin` is listed explicitly: it does NOT match the `/admin` prefix, so
+  // without it every admin API was reachable by any authenticated user.
+  // This is a second line of defence only — each handler must still call
+  // `requireAdmin()`, because middleware is not a security boundary on its own.
   const adminPaths = [
     '/admin',
+    '/api/admin',
     '/api/foods/pending',
   ]
 
@@ -156,14 +208,25 @@ export async function middleware(request: NextRequest) {
 
     const isAdmin = adminEmails.includes(session.user.email || '')
 
-    // Redirect non-admin users to analysis page
     if (!isAdmin) {
+      // API callers get a JSON 403. Redirecting them would hand an HTTP client an
+      // HTML page with a 3xx, which most clients follow — turning a hard denial
+      // into a confusing 200. Pages redirect instead, so admin routes do not
+      // confirm their own existence to a signed-in non-admin.
+      if (isApiRoute) {
+        return new NextResponse(JSON.stringify({ error: 'Forbidden' }), {
+          status: 403,
+          headers: { 'Content-Type': 'application/json' },
+        })
+      }
       return NextResponse.redirect(new URL(`${basePath}/analysis`, request.url))
     }
   }
 
-  // If authenticated, validate session version (global logout)
-  if (session) {
+  // If authenticated, validate session version (global logout).
+  // Skipped under the dev bypass: there is no real session to invalidate, and
+  // the lookup would need a DB driver unavailable on the Edge runtime.
+  if (session && !devAuthBypass) {
     try {
       const { data: profile } = await supabase
         .from('user_profiles')

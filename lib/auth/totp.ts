@@ -27,7 +27,10 @@ const TOTP_ALGORITHM = 'SHA1'
  *
  * @example
  * const secret = generateSecret()
- * // Store secret in user_profiles.mfa_secret (encrypted at-rest)
+ * // Store secret in user_profiles.mfa_secret
+ * // WARNING: currently stored in PLAINTEXT. This comment previously claimed it
+ * // was encrypted at rest. Anyone with database read access can defeat the
+ * // second factor. See docs/AUDIT-2026-08-11.md (P4) and CLAUDE.md task 2.5.
  */
 export function generateSecret(): string {
   const secret = new OTPAuth.Secret({ size: 20 })
