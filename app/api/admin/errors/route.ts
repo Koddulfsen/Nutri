@@ -15,6 +15,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { getRecentErrors } from '@/lib/logging/pino-config';
 import { logger, withRequestId } from '@/lib/logging/pino-config';
+import { requireAdmin } from '@/lib/auth/api-guard';
 
 interface ErrorAnalyticsResponse {
   totalErrors: number;
@@ -42,13 +43,19 @@ interface ErrorAnalyticsResponse {
  * - grouped: Whether to group by error type (default: false)
  */
 export async function GET(request: NextRequest) {
+  // Admin-only. Middleware is a second line of defence, not a boundary
+  // (see CVE-2025-29927: middleware can be skipped entirely).
+  const denied = await requireAdmin();
+  if (denied) return denied;
+
+
   return withRequestId(async () => {
     try {
       // 1. Authentication check
       const supabase = await createClient();
-      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      const { data: { user }, error: sessionError } = await supabase.auth.getUser();
 
-      if (sessionError || !session) {
+      if (sessionError || !user) {
         logger.warn({ error: sessionError }, 'Unauthorized error analytics attempt');
         return NextResponse.json(
           { error: 'Unauthorized' },
@@ -56,15 +63,9 @@ export async function GET(request: NextRequest) {
         );
       }
 
-      // 2. Admin role verification
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user?.user_metadata?.admin) {
-        logger.warn({ userId: user?.id }, 'Non-admin user attempted error analytics');
-        return NextResponse.json(
-          { error: 'Forbidden - Admin access required' },
-          { status: 403 }
-        );
-      }
+      // Authorization is enforced by requireAdmin() at the top of this handler.
+      // A second check here previously read `user_metadata.admin`, which the
+      // user's own client can write — a privilege-escalation vector, not a gate.
 
       logger.info({ userId: user.id }, 'Admin error analytics requested');
 
@@ -168,27 +169,28 @@ export async function GET(request: NextRequest) {
  * Clear error buffer (admin utility)
  */
 export async function DELETE() {
+  // Admin-only. Middleware is a second line of defence, not a boundary
+  // (see CVE-2025-29927: middleware can be skipped entirely).
+  const denied = await requireAdmin();
+  if (denied) return denied;
+
+
   return withRequestId(async () => {
     try {
       // 1. Authentication check
       const supabase = await createClient();
-      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      const { data: { user }, error: sessionError } = await supabase.auth.getUser();
 
-      if (sessionError || !session) {
+      if (sessionError || !user) {
         return NextResponse.json(
           { error: 'Unauthorized' },
           { status: 401 }
         );
       }
 
-      // 2. Admin role verification
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user?.user_metadata?.admin) {
-        return NextResponse.json(
-          { error: 'Forbidden - Admin access required' },
-          { status: 403 }
-        );
-      }
+      // Authorization is enforced by requireAdmin() at the top of this handler.
+      // A second check here previously read `user_metadata.admin`, which the
+      // user's own client can write — a privilege-escalation vector, not a gate.
 
       logger.info({ userId: user.id }, 'Admin clearing error buffer');
 

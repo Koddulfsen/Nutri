@@ -20,20 +20,20 @@ export default async function AdminApprovalsPage() {
 
   // Get current user
   const {
-    data: { session },
-  } = await supabase.auth.getSession();
+    data: { user },
+  } = await supabase.auth.getUser();
 
   // Redirect if not logged in
-  if (!session?.user) {
+  if (!user) {
     redirect('/login');
   }
 
   // Check if user is admin
-  const isAdmin = await isAdminUser(session.user);
+  const isAdmin = await isAdminUser(user);
 
   if (!isAdmin) {
     redirect('/analysis');
   }
 
-  return <ApprovalDashboard user={session.user} />;
+  return <ApprovalDashboard user={user} />;
 }

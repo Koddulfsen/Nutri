@@ -22,8 +22,15 @@ const ALL_SOURCES = [
 ];
 
 import { normalizeSource } from '@/lib/utils/source-normalize';
+import { requireAdmin } from '@/lib/auth/api-guard';
 
 export async function GET(request: NextRequest) {
+  // Admin-only. Middleware is a second line of defence, not a boundary
+  // (see CVE-2025-29927: middleware can be skipped entirely).
+  const denied = await requireAdmin();
+  if (denied) return denied;
+
+
   try {
     const supabase = await createClient();
     const { data: { user }, error: authError } = await supabase.auth.getUser();

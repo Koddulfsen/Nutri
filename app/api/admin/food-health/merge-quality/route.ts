@@ -11,8 +11,15 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/db';
 import { sql } from 'drizzle-orm';
+import { requireAdmin } from '@/lib/auth/api-guard';
 
 export async function GET() {
+  // Admin-only. Middleware is a second line of defence, not a boundary
+  // (see CVE-2025-29927: middleware can be skipped entirely).
+  const denied = await requireAdmin();
+  if (denied) return denied;
+
+
   try {
     // 1. Null compoundId count
     const nullCompoundResult = await db.execute(sql`

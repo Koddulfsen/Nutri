@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import AnalysisHeader from '@/app/components/navigation/AnalysisHeader';
 import { apiUrl } from '@/lib/utils/base-path';
 
@@ -27,6 +27,7 @@ interface VerifyStats {
   total: number;
   verified: number;
   flagged: number;
+  review: number;
   unverified: number;
   compoundCount?: number;
 }
@@ -44,7 +45,7 @@ interface SourceMapping {
   conversionFactor: string;
   isCanonical: boolean;
   verification: {
-    status: 'verified' | 'flagged' | 'unverified';
+    status: 'verified' | 'flagged' | 'review' | 'unverified';
     notes: string | null;
     verifiedAt: string | null;
   };
@@ -64,9 +65,27 @@ interface CompoundCard {
   name: string;
   unit: string;
   type: string;
-  mappingStats: { total: number; verified: number; flagged: number; unverified: number };
+  mappingStats: { total: number; verified: number; flagged: number; review: number; unverified: number };
   sourceMappings: SourceMapping[];
   foodValues: FoodValueRow[];
+}
+
+interface SanityCheckResult {
+  expected_range: { low: number; high: number; unit: string };
+  typical_value: number;
+  verdict: 'matches' | 'low_outlier' | 'high_outlier' | 'uncertain';
+  confidence: 'high' | 'medium' | 'low';
+  sources: Array<{ name: string; url: string; value: number | null }>;
+  note: string;
+}
+
+interface SanityCheckState {
+  loading: boolean;
+  result?: SanityCheckResult;
+  error?: string;
+  cached?: boolean;
+  checkedAt?: string;
+  markedSources?: string[];
 }
 
 // ---------- Component ----------
@@ -95,8 +114,11 @@ export default function VerifyMappingsPage() {
   const [loadingPercent, setLoadingPercent] = useState(0);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [flagNotes, setFlagNotes] = useState('');
-  const [flagMappingId, setFlagMappingId] = useState<string | null>(null);
+  const [reviewNotes, setReviewNotes] = useState('');
+  const [reviewMappingId, setReviewMappingId] = useState<string | null>(null);
+
+  // Sanity check state, keyed by food_id. Reset when compound changes.
+  const [sanityChecks, setSanityChecks] = useState<Record<string, SanityCheckState>>({});
   const [typeFilter, setTypeFilter] = useState<string>('');
   const [statusFilter, setStatusFilter] = useState<string>('unverified');
   const [sourceFilter, setSourceFilter] = useState<string>('');
@@ -190,8 +212,9 @@ export default function VerifyMappingsPage() {
 
   const fetchCompound = useCallback(async (newOffset: number) => {
     setVerifyLoading(true);
-    setFlagMappingId(null);
-    setFlagNotes('');
+    setReviewMappingId(null);
+    setReviewNotes('');
+    setSanityChecks({});
     setLoadingStep('Connecting...');
     setLoadingPercent(0);
     try {
@@ -280,10 +303,11 @@ export default function VerifyMappingsPage() {
         );
         const verified = updated.filter(m => m.verification.status === 'verified').length;
         const flagged = updated.filter(m => m.verification.status === 'flagged').length;
+        const review = updated.filter(m => m.verification.status === 'review').length;
         return {
           ...prev,
           sourceMappings: updated,
-          mappingStats: { ...prev.mappingStats, verified, flagged, unverified: updated.length - verified - flagged },
+          mappingStats: { ...prev.mappingStats, verified, flagged, review, unverified: updated.length - verified - flagged - review },
         };
       });
     } catch (err: any) {
@@ -293,11 +317,11 @@ export default function VerifyMappingsPage() {
     }
   };
 
-  // Flag a single mapping row
-  const flagMapping = async (mappingId: string) => {
-    if (flagMappingId !== mappingId) {
-      setFlagMappingId(mappingId);
-      setFlagNotes('');
+  // Mark a single mapping row for review (needs unit/CF/source-id fix)
+  const markForReview = async (mappingId: string) => {
+    if (reviewMappingId !== mappingId) {
+      setReviewMappingId(mappingId);
+      setReviewNotes('');
       return;
     }
     setSaving(true);
@@ -305,23 +329,24 @@ export default function VerifyMappingsPage() {
       await fetch(apiUrl('/api/admin/verify-mappings'), {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ compoundSourceId: mappingId, status: 'flagged', notes: flagNotes || null }),
+        body: JSON.stringify({ compoundSourceId: mappingId, status: 'review', notes: reviewNotes || null }),
       });
       setCompound(prev => {
         if (!prev) return prev;
         const updated = prev.sourceMappings.map(m =>
-          m.id === mappingId ? { ...m, verification: { ...m.verification, status: 'flagged' as const, notes: flagNotes || null } } : m
+          m.id === mappingId ? { ...m, verification: { ...m.verification, status: 'review' as const, notes: reviewNotes || null } } : m
         );
         const verified = updated.filter(m => m.verification.status === 'verified').length;
         const flagged = updated.filter(m => m.verification.status === 'flagged').length;
+        const review = updated.filter(m => m.verification.status === 'review').length;
         return {
           ...prev,
           sourceMappings: updated,
-          mappingStats: { ...prev.mappingStats, verified, flagged, unverified: updated.length - verified - flagged },
+          mappingStats: { ...prev.mappingStats, verified, flagged, review, unverified: updated.length - verified - flagged - review },
         };
       });
-      setFlagMappingId(null);
-      setFlagNotes('');
+      setReviewMappingId(null);
+      setReviewNotes('');
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -352,10 +377,11 @@ export default function VerifyMappingsPage() {
         );
         const verified = updated.filter(m => m.verification.status === 'verified').length;
         const flagged = updated.filter(m => m.verification.status === 'flagged').length;
+        const review = updated.filter(m => m.verification.status === 'review').length;
         return {
           ...prev,
           sourceMappings: updated,
-          mappingStats: { ...prev.mappingStats, verified, flagged, unverified: 0 },
+          mappingStats: { ...prev.mappingStats, verified, flagged, review, unverified: 0 },
         };
       });
     } catch (err: any) {
@@ -367,6 +393,68 @@ export default function VerifyMappingsPage() {
 
   const skip = () => fetchCompound(offset + 1);
   const goBack = () => { if (offset > 0) fetchCompound(offset - 1); };
+
+  // Run sanity check for a food row. If already loaded and not `force`, returns cached state.
+  const runSanityCheckForFood = async (fv: FoodValueRow, force = false) => {
+    if (!compound) return;
+    const existing = sanityChecks[fv.foodId];
+    if (existing?.loading) return;
+    if (existing?.result && !force) return; // already loaded, use cached
+
+    setSanityChecks(prev => ({ ...prev, [fv.foodId]: { loading: true } }));
+    try {
+      const res = await fetch(apiUrl('/api/admin/sanity-check-food-compound'), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          compoundId: compound.id,
+          foodId: fv.foodId,
+          compoundName: compound.name,
+          compoundType: compound.type,
+          compoundUnit: compound.unit,
+          foodName: fv.foodName,
+          ourValue: fv.average,
+          sourceValues: fv.sourceValues,
+          force,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+
+      setSanityChecks(prev => ({
+        ...prev,
+        [fv.foodId]: {
+          loading: false,
+          result: data.result,
+          cached: data.cached,
+          checkedAt: data.checkedAt,
+          markedSources: data.markedSources,
+        },
+      }));
+
+      // If we just marked sources for review, update the mappings table locally
+      if (data.markedSources?.length && compound) {
+        setCompound(prev => {
+          if (!prev) return prev;
+          const updated = prev.sourceMappings.map(m =>
+            data.markedSources.includes(m.externalSource) && m.verification.status !== 'flagged'
+              ? { ...m, verification: { ...m.verification, status: 'review' as const } }
+              : m
+          );
+          const verified = updated.filter(m => m.verification.status === 'verified').length;
+          const flagged = updated.filter(m => m.verification.status === 'flagged').length;
+          const review = updated.filter(m => m.verification.status === 'review').length;
+          return {
+            ...prev,
+            sourceMappings: updated,
+            mappingStats: { ...prev.mappingStats, verified, flagged, review, unverified: updated.length - verified - flagged - review },
+          };
+        });
+      }
+    } catch (err: any) {
+      setSanityChecks(prev => ({ ...prev, [fv.foodId]: { loading: false, error: err.message } }));
+    }
+  };
 
   // Keyboard shortcuts (verify mode only)
   useEffect(() => {
@@ -635,7 +723,7 @@ export default function VerifyMappingsPage() {
           <>
             {/* Stats row */}
             {stats && (
-              <div className="grid grid-cols-4 gap-3 mb-6">
+              <div className="grid grid-cols-5 gap-3 mb-6">
                 <div className="bg-white/5 rounded-xl p-3 border border-white/10 text-center">
                   <div className="text-2xl font-bold text-cyan-400">{stats.total}</div>
                   <div className="text-xs text-white/60">Mappings</div>
@@ -644,9 +732,13 @@ export default function VerifyMappingsPage() {
                   <div className="text-2xl font-bold text-green-400">{stats.verified}</div>
                   <div className="text-xs text-white/60">Verified</div>
                 </div>
-                <div className="bg-red-500/10 rounded-xl p-3 border border-red-500/20 text-center">
-                  <div className="text-2xl font-bold text-red-400">{stats.flagged}</div>
-                  <div className="text-xs text-white/60">Flagged</div>
+                <div className="bg-amber-500/10 rounded-xl p-3 border border-amber-500/20 text-center">
+                  <div className="text-2xl font-bold text-amber-400">{stats.review}</div>
+                  <div className="text-xs text-white/60">Review</div>
+                </div>
+                <div className="bg-red-500/10 rounded-xl p-3 border border-red-500/20 text-center" title="Dead mappings — source has no data or supplement-only forms">
+                  <div className="text-2xl font-bold text-red-400/70">{stats.flagged}</div>
+                  <div className="text-xs text-white/60">Flagged (dead)</div>
                 </div>
                 <div className="bg-white/5 rounded-xl p-3 border border-white/10 text-center">
                   <div className="text-2xl font-bold text-yellow-400">{stats.unverified}</div>
@@ -655,7 +747,7 @@ export default function VerifyMappingsPage() {
               </div>
             )}
 
-            {/* Verification progress bar */}
+            {/* Verification progress bar — review rows count as "not done" */}
             {stats && stats.total > 0 && (
               <div className="mb-6">
                 <div className="h-2 bg-white/10 rounded-full overflow-hidden">
@@ -665,7 +757,7 @@ export default function VerifyMappingsPage() {
                   />
                 </div>
                 <div className="text-xs text-white/40 mt-1 text-right">
-                  {stats.verified + stats.flagged} / {stats.total} reviewed ({Math.round(((stats.verified + stats.flagged) / stats.total) * 100)}%)
+                  {stats.verified + stats.flagged} / {stats.total} resolved ({Math.round(((stats.verified + stats.flagged) / stats.total) * 100)}%)
                 </div>
               </div>
             )}
@@ -688,9 +780,10 @@ export default function VerifyMappingsPage() {
                 className="bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-cyan-400"
               >
                 <option value="">All Statuses</option>
-                <option value="unverified">Has Unverified</option>
-                <option value="verified">All Verified</option>
-                <option value="flagged">Has Flagged</option>
+                <option value="unverified">Needs Work</option>
+                <option value="review">Has Review</option>
+                <option value="verified">All Resolved</option>
+                <option value="flagged">Has Flagged (dead)</option>
               </select>
               <select
                 value={sourceFilter}
@@ -760,8 +853,13 @@ export default function VerifyMappingsPage() {
                           {compound.mappingStats.verified} verified
                         </span>
                       )}
+                      {compound.mappingStats.review > 0 && (
+                        <span className="text-xs px-2 py-1 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/30">
+                          {compound.mappingStats.review} review
+                        </span>
+                      )}
                       {compound.mappingStats.flagged > 0 && (
-                        <span className="text-xs px-2 py-1 rounded-full bg-red-500/20 text-red-400 border border-red-500/30">
+                        <span className="text-xs px-2 py-1 rounded-full bg-red-500/10 text-red-400/70 border border-red-500/20" title="Dead mappings — excluded from use">
                           {compound.mappingStats.flagged} flagged
                         </span>
                       )}
@@ -822,16 +920,24 @@ export default function VerifyMappingsPage() {
                             <td className="px-3 py-2 text-center">
                               {m.verification.status === 'verified' ? (
                                 <button
-                                  onClick={() => flagMapping(m.id)}
-                                  className="text-green-400 hover:text-green-300 transition"
-                                  title="Verified (click to flag)"
+                                  onClick={() => markForReview(m.id)}
+                                  className="text-green-400 hover:text-amber-400 transition"
+                                  title="Verified (click to mark for review)"
                                 >&#10003;</button>
+                              ) : m.verification.status === 'review' ? (
+                                <div className="flex items-center justify-center gap-1">
+                                  <button
+                                    onClick={() => verifyMapping(m.id)}
+                                    disabled={saving}
+                                    className="text-amber-400 hover:text-green-400 transition disabled:opacity-30"
+                                    title={`Review${m.verification.notes ? ': ' + m.verification.notes : ''} (click to verify)`}
+                                  >&#9888;</button>
+                                </div>
                               ) : m.verification.status === 'flagged' ? (
-                                <button
-                                  onClick={() => verifyMapping(m.id)}
-                                  className="text-red-400 hover:text-red-300 transition"
-                                  title={`Flagged${m.verification.notes ? ': ' + m.verification.notes : ''} (click to verify)`}
-                                >&#9873;</button>
+                                <span
+                                  className="text-red-400/50"
+                                  title={`Flagged dead${m.verification.notes ? ': ' + m.verification.notes : ''} — excluded from use`}
+                                >&#9873;</span>
                               ) : (
                                 <div className="flex items-center justify-center gap-1">
                                   <button
@@ -841,11 +947,11 @@ export default function VerifyMappingsPage() {
                                     title="Verify"
                                   >&#10003;</button>
                                   <button
-                                    onClick={() => flagMapping(m.id)}
+                                    onClick={() => markForReview(m.id)}
                                     disabled={saving}
-                                    className="text-white/20 hover:text-red-400 transition disabled:opacity-30"
-                                    title="Flag"
-                                  >&#9873;</button>
+                                    className="text-white/20 hover:text-amber-400 transition disabled:opacity-30"
+                                    title="Mark for review"
+                                  >&#9888;</button>
                                 </div>
                               )}
                             </td>
@@ -855,25 +961,25 @@ export default function VerifyMappingsPage() {
                     </table>
                   </div>
 
-                  {/* Inline flag notes input */}
-                  {flagMappingId && (
-                    <div className="px-6 py-2 bg-red-500/5 border-t border-red-500/20">
+                  {/* Inline review notes input */}
+                  {reviewMappingId && (
+                    <div className="px-6 py-2 bg-amber-500/5 border-t border-amber-500/20">
                       <div className="flex gap-2">
                         <input
                           type="text"
-                          placeholder="Reason for flagging (optional, press Enter to submit)"
-                          value={flagNotes}
-                          onChange={(e) => setFlagNotes(e.target.value)}
-                          onKeyDown={(e) => { if (e.key === 'Enter') flagMapping(flagMappingId); if (e.key === 'Escape') { setFlagMappingId(null); setFlagNotes(''); } }}
+                          placeholder="What needs fixing? (unit, conversion factor, wrong source ID...)"
+                          value={reviewNotes}
+                          onChange={(e) => setReviewNotes(e.target.value)}
+                          onKeyDown={(e) => { if (e.key === 'Enter') markForReview(reviewMappingId); if (e.key === 'Escape') { setReviewMappingId(null); setReviewNotes(''); } }}
                           autoFocus
-                          className="flex-1 bg-white/10 border border-red-500/30 rounded-lg px-3 py-1.5 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-red-400"
+                          className="flex-1 bg-white/10 border border-amber-500/30 rounded-lg px-3 py-1.5 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-amber-400"
                         />
                         <button
-                          onClick={() => flagMapping(flagMappingId)}
-                          className="px-3 py-1.5 rounded-lg bg-red-500/20 border border-red-500/40 text-red-400 text-xs hover:bg-red-500/30 transition"
-                        >Flag</button>
+                          onClick={() => markForReview(reviewMappingId)}
+                          className="px-3 py-1.5 rounded-lg bg-amber-500/20 border border-amber-500/40 text-amber-400 text-xs hover:bg-amber-500/30 transition"
+                        >Mark Review</button>
                         <button
-                          onClick={() => { setFlagMappingId(null); setFlagNotes(''); }}
+                          onClick={() => { setReviewMappingId(null); setReviewNotes(''); }}
                           className="px-3 py-1.5 text-white/40 text-xs hover:text-white/60 transition"
                         >Cancel</button>
                       </div>
@@ -894,29 +1000,89 @@ export default function VerifyMappingsPage() {
                               <th key={s} className="text-right px-3 py-2 font-mono">{s}</th>
                             ))}
                             <th className="text-right px-4 py-2 text-cyan-400/60">Avg</th>
+                            <th className="text-right px-2 py-2"></th>
                           </tr>
                         </thead>
                         <tbody>
-                          {compound.foodValues.map((fv) => (
-                            <tr key={fv.foodId} className="border-t border-white/5 hover:bg-white/[0.02]">
-                              <td className="px-4 py-2 text-white/80 truncate max-w-[180px]">{fv.foodName}</td>
-                              {foodMatrixSources.map(s => {
-                                const val = fv.sourceValues[s];
-                                const avg = fv.average;
-                                const isOutlier = val != null && avg > 0 && (val > avg * 2 || val < avg * 0.5);
-                                return (
-                                  <td key={s} className={`text-right px-3 py-2 font-mono text-xs ${
-                                    val == null ? 'text-white/15' : isOutlier ? 'text-yellow-400 bg-yellow-500/10' : 'text-white/60'
-                                  }`}>
-                                    {val != null ? val.toFixed(2) : '--'}
+                          {compound.foodValues.map((fv) => {
+                            const sc = sanityChecks[fv.foodId];
+                            const verdictColor = sc?.result?.verdict === 'matches' ? 'text-green-400'
+                              : sc?.result?.verdict === 'high_outlier' || sc?.result?.verdict === 'low_outlier' ? 'text-red-400'
+                              : sc?.result?.verdict === 'uncertain' ? 'text-yellow-400'
+                              : 'text-white/60';
+                            return (
+                              <React.Fragment key={fv.foodId}>
+                                <tr className="border-t border-white/5 hover:bg-white/[0.02]">
+                                  <td className="px-4 py-2 text-white/80 truncate max-w-[180px]">{fv.foodName}</td>
+                                  {foodMatrixSources.map(s => {
+                                    const val = fv.sourceValues[s];
+                                    const avg = fv.average;
+                                    const isOutlier = val != null && avg > 0 && (val > avg * 2 || val < avg * 0.5);
+                                    return (
+                                      <td key={s} className={`text-right px-3 py-2 font-mono text-xs ${
+                                        val == null ? 'text-white/15' : isOutlier ? 'text-yellow-400 bg-yellow-500/10' : 'text-white/60'
+                                      }`}>
+                                        {val != null ? val.toFixed(2) : '--'}
+                                      </td>
+                                    );
+                                  })}
+                                  <td className="text-right px-4 py-2 font-mono text-xs text-cyan-400">
+                                    {fv.average.toFixed(2)} {fv.unit}
                                   </td>
-                                );
-                              })}
-                              <td className="text-right px-4 py-2 font-mono text-xs text-cyan-400">
-                                {fv.average.toFixed(2)} {fv.unit}
-                              </td>
-                            </tr>
-                          ))}
+                                  <td className="text-right px-2 py-2">
+                                    <button
+                                      onClick={() => runSanityCheckForFood(fv, !!sc?.result)}
+                                      disabled={sc?.loading}
+                                      className="text-xs px-2 py-1 rounded border border-white/15 text-white/60 hover:text-cyan-400 hover:border-cyan-500/40 disabled:opacity-40 transition"
+                                      title={sc?.result ? 'Re-run sanity check' : 'Sanity check against web sources'}
+                                    >
+                                      {sc?.loading ? '...' : sc?.result ? '↻' : 'Search web'}
+                                    </button>
+                                  </td>
+                                </tr>
+                                {sc && (sc.result || sc.error) && (
+                                  <tr className="bg-white/[0.02]">
+                                    <td colSpan={foodMatrixSources.length + 3} className="px-4 py-2 border-t border-white/5">
+                                      {sc.error ? (
+                                        <span className="text-xs text-red-400">Error: {sc.error}</span>
+                                      ) : sc.result && (
+                                        <div className="text-xs space-y-1">
+                                          <div className="flex items-center gap-3 flex-wrap">
+                                            <span className={`font-medium ${verdictColor}`}>
+                                              {sc.result.verdict.replace('_', ' ')}
+                                            </span>
+                                            <span className="text-white/40">·</span>
+                                            <span className="text-white/60">
+                                              typical {sc.result.typical_value.toFixed(2)} (range {sc.result.expected_range.low.toFixed(2)}–{sc.result.expected_range.high.toFixed(2)}) {sc.result.expected_range.unit}
+                                            </span>
+                                            <span className="text-white/40">·</span>
+                                            <span className="text-white/40">{sc.result.confidence} confidence</span>
+                                            {sc.cached && <span className="text-white/30 italic">(cached)</span>}
+                                          </div>
+                                          <div className="text-white/70">{sc.result.note}</div>
+                                          {sc.result.sources.length > 0 && (
+                                            <div className="flex gap-3 flex-wrap pt-1">
+                                              {sc.result.sources.map((src, i) => (
+                                                <a key={i} href={src.url} target="_blank" rel="noopener noreferrer"
+                                                  className="text-cyan-400/70 hover:text-cyan-400 underline decoration-dotted">
+                                                  {src.name}{src.value != null ? ` (${src.value})` : ''}
+                                                </a>
+                                              ))}
+                                            </div>
+                                          )}
+                                          {sc.markedSources && sc.markedSources.length > 0 && (
+                                            <div className="text-amber-400/80 text-[11px] pt-1">
+                                              Marked for review: {sc.markedSources.join(', ')}
+                                            </div>
+                                          )}
+                                        </div>
+                                      )}
+                                    </td>
+                                  </tr>
+                                )}
+                              </React.Fragment>
+                            );
+                          })}
                         </tbody>
                       </table>
                     </div>

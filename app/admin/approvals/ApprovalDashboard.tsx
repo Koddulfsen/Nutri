@@ -35,11 +35,20 @@ interface PendingFood {
     name: string;
     commonNames: string[];
     dataSource: string;
+    isComposite?: boolean;
+    description?: string | null;
     createdAt: string;
   };
   sources: Array<{
     apiSource: string;
     apiFoodId: string;
+  }>;
+  components?: Array<{
+    componentFoodId: string;
+    componentName: string | null;
+    grams: string;
+    position: number;
+    notes: string | null;
   }>;
 }
 
@@ -178,19 +187,67 @@ export default function ApprovalDashboard({ user }: ApprovalDashboardProps) {
                       </div>
                     </div>
 
-                    {/* API Sources */}
-                    <div className="sources-section">
-                      <div className="section-label">API Sources</div>
-                      <div className="sources-grid">
-                        {item.sources.map((source, index) => (
-                          <div key={index} className="source-badge">
-                            {source.apiSource === 'CNF' && '🇨🇦 '}
-                            {source.apiSource === 'FDC' && '🇺🇸 '}
-                            {source.apiSource} (ID: {source.apiFoodId})
+                    {/* Composite recipe (chatbot-created branded products) */}
+                    {item.food.isComposite && item.components && item.components.length > 0 && (
+                      <div className="sources-section">
+                        <div className="section-label">Recipe (composite)</div>
+                        {item.food.description && (
+                          <div style={{ fontSize: '13px', color: 'rgba(255,255,255,0.6)', marginBottom: '12px' }}>
+                            {item.food.description}
                           </div>
-                        ))}
+                        )}
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                          {item.components.map((c, i) => {
+                            const grams = parseFloat(c.grams);
+                            const total = item.components!.reduce((s, x) => s + parseFloat(x.grams), 0);
+                            const pct = total > 0 ? Math.round((grams / total) * 100) : 0;
+                            return (
+                              <div
+                                key={i}
+                                style={{
+                                  display: 'flex',
+                                  justifyContent: 'space-between',
+                                  alignItems: 'center',
+                                  padding: '8px 12px',
+                                  background: 'rgba(255,255,255,0.04)',
+                                  border: '1px solid rgba(255,255,255,0.08)',
+                                  borderRadius: '4px',
+                                  fontSize: '13px',
+                                }}
+                              >
+                                <span>
+                                  {c.componentName ?? <em style={{ color: 'var(--warn, orange)' }}>missing food</em>}
+                                  {c.notes && (
+                                    <span style={{ color: 'rgba(255,255,255,0.4)', marginLeft: '8px', fontSize: '12px' }}>
+                                      ({c.notes})
+                                    </span>
+                                  )}
+                                </span>
+                                <span style={{ fontFamily: 'var(--font-mono)', color: 'rgba(255,255,255,0.7)' }}>
+                                  {grams.toFixed(1)}g · {pct}%
+                                </span>
+                              </div>
+                            );
+                          })}
+                        </div>
                       </div>
-                    </div>
+                    )}
+
+                    {/* API Sources (legacy add-food path) */}
+                    {item.sources.length > 0 && (
+                      <div className="sources-section">
+                        <div className="section-label">API Sources</div>
+                        <div className="sources-grid">
+                          {item.sources.map((source, index) => (
+                            <div key={index} className="source-badge">
+                              {source.apiSource === 'CNF' && '🇨🇦 '}
+                              {source.apiSource === 'FDC' && '🇺🇸 '}
+                              {source.apiSource} (ID: {source.apiFoodId})
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
 
                     {/* Review Notes */}
                     <div className="review-section">

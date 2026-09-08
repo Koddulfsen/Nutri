@@ -13,8 +13,15 @@ import { db } from '@/db';
 import { sql } from 'drizzle-orm';
 import { getSourceNutrientReference, getSourceNutrientReferenceWithProgress } from '@/lib/services/source-nutrient-reference';
 import { normalizeSource } from '@/lib/utils/source-normalize';
+import { requireAdmin } from '@/lib/auth/api-guard';
 
 export async function GET(request: NextRequest) {
+  // Admin-only. Middleware is a second line of defence, not a boundary
+  // (see CVE-2025-29927: middleware can be skipped entirely).
+  const denied = await requireAdmin();
+  if (denied) return denied;
+
+
   try {
     const supabase = await createClient();
     const { data: { user }, error: authError } = await supabase.auth.getUser();
@@ -68,6 +75,7 @@ async function handleStreaming(
             COUNT(cs.id) as mapping_total,
             COUNT(csv.id) FILTER (WHERE csv.status = 'verified') as mapping_verified,
             COUNT(csv.id) FILTER (WHERE csv.status = 'flagged') as mapping_flagged,
+            COUNT(csv.id) FILTER (WHERE csv.status = 'review') as mapping_review,
             COUNT(cs.id) - COUNT(csv.id) as mapping_unverified
           FROM compounds c
           JOIN compound_sources cs ON cs.compound_id = c.id
@@ -80,6 +88,7 @@ async function handleStreaming(
           total: parseInt(statsRows[0].mapping_total),
           verified: parseInt(statsRows[0].mapping_verified),
           flagged: parseInt(statsRows[0].mapping_flagged),
+          review: parseInt(statsRows[0].mapping_review),
           unverified: parseInt(statsRows[0].mapping_unverified),
         };
         send({ type: 'stats', stats });
@@ -147,6 +156,7 @@ async function handleStreaming(
           total: sourceMappings.length,
           verified: sourceMappings.filter((m: any) => m.verification.status === 'verified').length,
           flagged: sourceMappings.filter((m: any) => m.verification.status === 'flagged').length,
+          review: sourceMappings.filter((m: any) => m.verification.status === 'review').length,
           unverified: sourceMappings.filter((m: any) => m.verification.status === 'unverified').length,
         };
 
@@ -198,9 +208,13 @@ async function getFilteredCompoundCount(
 
   let havingClause = sql``;
   if (statusFilter === 'unverified') {
-    havingClause = sql`HAVING COUNT(cs.id) - COUNT(csv.id) > 0`;
+    // "Needs work" — has any row that isn't terminal (not verified, not dead-flagged)
+    havingClause = sql`HAVING COUNT(csv.id) FILTER (WHERE csv.status IN ('verified', 'flagged')) < COUNT(cs.id)`;
   } else if (statusFilter === 'verified') {
-    havingClause = sql`HAVING COUNT(csv.id) FILTER (WHERE csv.status = 'verified') = COUNT(cs.id)`;
+    // "All resolved" — every row is terminal (verified or dead-flagged)
+    havingClause = sql`HAVING COUNT(csv.id) FILTER (WHERE csv.status IN ('verified', 'flagged')) = COUNT(cs.id)`;
+  } else if (statusFilter === 'review') {
+    havingClause = sql`HAVING COUNT(csv.id) FILTER (WHERE csv.status = 'review') > 0`;
   } else if (statusFilter === 'flagged') {
     havingClause = sql`HAVING COUNT(csv.id) FILTER (WHERE csv.status = 'flagged') > 0`;
   }
@@ -238,9 +252,11 @@ async function getFilteredCompound(
 
   let havingClause = sql``;
   if (statusFilter === 'unverified') {
-    havingClause = sql`HAVING COUNT(cs.id) - COUNT(csv.id) > 0`;
+    havingClause = sql`HAVING COUNT(csv.id) FILTER (WHERE csv.status IN ('verified', 'flagged')) < COUNT(cs.id)`;
   } else if (statusFilter === 'verified') {
-    havingClause = sql`HAVING COUNT(csv.id) FILTER (WHERE csv.status = 'verified') = COUNT(cs.id)`;
+    havingClause = sql`HAVING COUNT(csv.id) FILTER (WHERE csv.status IN ('verified', 'flagged')) = COUNT(cs.id)`;
+  } else if (statusFilter === 'review') {
+    havingClause = sql`HAVING COUNT(csv.id) FILTER (WHERE csv.status = 'review') > 0`;
   } else if (statusFilter === 'flagged') {
     havingClause = sql`HAVING COUNT(csv.id) FILTER (WHERE csv.status = 'flagged') > 0`;
   }

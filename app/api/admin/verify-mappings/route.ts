@@ -10,6 +10,7 @@ import { createClient } from '@/lib/supabase/server';
 import { db } from '@/db';
 import { sql } from 'drizzle-orm';
 import { getSourceNutrientReference, getSourceNutrientReferenceWithProgress, isSourceNutrientReferenceCached } from '@/lib/services/source-nutrient-reference';
+import { requireAdmin } from '@/lib/auth/api-guard';
 
 // Allowlist of valid external sources to prevent injection via source filter
 const VALID_SOURCES = new Set([
@@ -19,6 +20,12 @@ const VALID_SOURCES = new Set([
 ]);
 
 export async function GET(request: NextRequest) {
+  // Admin-only. Middleware is a second line of defence, not a boundary
+  // (see CVE-2025-29927: middleware can be skipped entirely).
+  const denied = await requireAdmin();
+  if (denied) return denied;
+
+
   try {
     // Auth check
     const supabase = await createClient();
@@ -514,6 +521,12 @@ async function handleStreamingRequest(
 }
 
 export async function PATCH(request: NextRequest) {
+  // Admin-only. Middleware is a second line of defence, not a boundary
+  // (see CVE-2025-29927: middleware can be skipped entirely).
+  const denied = await requireAdmin();
+  if (denied) return denied;
+
+
   try {
     // Auth check
     const supabase = await createClient();
@@ -525,9 +538,9 @@ export async function PATCH(request: NextRequest) {
     const body = await request.json();
     const { compoundSourceId, status, notes } = body;
 
-    if (!compoundSourceId || !['verified', 'flagged'].includes(status)) {
+    if (!compoundSourceId || !['verified', 'flagged', 'review'].includes(status)) {
       return NextResponse.json(
-        { error: 'compoundSourceId and status (verified|flagged) required' },
+        { error: 'compoundSourceId and status (verified|flagged|review) required' },
         { status: 400 }
       );
     }

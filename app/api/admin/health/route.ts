@@ -22,6 +22,7 @@ import { getRateLimiterStatus } from '@/lib/services/rate-limiter';
 import { getQueueMetrics } from '@/lib/queue/food-import-queue';
 import { getRecentErrors } from '@/lib/logging/pino-config';
 import { logger, withRequestId } from '@/lib/logging/pino-config';
+import { requireAdmin } from '@/lib/auth/api-guard';
 
 interface HealthDashboardResponse {
   overall: 'HEALTHY' | 'DEGRADED' | 'UNHEALTHY';
@@ -66,13 +67,19 @@ interface HealthDashboardResponse {
  * Returns comprehensive system health dashboard
  */
 export async function GET() {
+  // Admin-only. Middleware is a second line of defence, not a boundary
+  // (see CVE-2025-29927: middleware can be skipped entirely).
+  const denied = await requireAdmin();
+  if (denied) return denied;
+
+
   return withRequestId(async () => {
     try {
       // 1. Authentication check
       const supabase = await createClient();
-      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      const { data: { user }, error: sessionError } = await supabase.auth.getUser();
 
-      if (sessionError || !session) {
+      if (sessionError || !user) {
         logger.warn({ error: sessionError }, 'Unauthorized health check attempt');
         return NextResponse.json(
           { error: 'Unauthorized' },
@@ -80,15 +87,9 @@ export async function GET() {
         );
       }
 
-      // 2. Admin role verification
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user?.user_metadata?.admin) {
-        logger.warn({ userId: user?.id }, 'Non-admin user attempted health check');
-        return NextResponse.json(
-          { error: 'Forbidden - Admin access required' },
-          { status: 403 }
-        );
-      }
+      // Authorization is enforced by requireAdmin() at the top of this handler.
+      // A second check here previously read `user_metadata.admin`, which the
+      // user's own client can write — a privilege-escalation vector, not a gate.
 
       logger.info({ userId: user.id }, 'Admin health check requested');
 

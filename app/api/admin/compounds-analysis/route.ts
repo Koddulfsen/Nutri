@@ -9,6 +9,7 @@ import { NextResponse } from 'next/server';
 import { db } from '@/db';
 import { compounds, compoundSources } from '@/db/schema';
 import { eq, sql, count, asc } from 'drizzle-orm';
+import { requireAdmin } from '@/lib/auth/api-guard';
 
 // ============================================================================
 // Known Correct IDs (Reference Tables from MEMORY.md)
@@ -155,6 +156,12 @@ const INFOODS_SOURCES = new Set(['FOODfiles', 'Fineli', 'BLS', 'NEVO', 'KFCT', '
 const NUMERIC_ID_SOURCES = new Set(['FDC', 'CNF', 'FRIDA', 'CIQUAL', 'Matvaretabellen']);
 
 export async function GET() {
+  // Admin-only. Middleware is a second line of defence, not a boundary
+  // (see CVE-2025-29927: middleware can be skipped entirely).
+  const denied = await requireAdmin();
+  if (denied) return denied;
+
+
   try {
     // 1. Get all compounds with mapping counts
     const compoundsWithCounts = await db
