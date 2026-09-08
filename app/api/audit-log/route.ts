@@ -16,9 +16,9 @@ export async function GET(request: Request) {
     const supabase = await createClient()
 
     // Get session
-    const { data: { session }, error: sessionError } = await supabase.auth.getSession()
+    const { data: { user }, error: sessionError } = await supabase.auth.getUser()
 
-    if (sessionError || !session) {
+    if (sessionError || !user) {
       return NextResponse.json(
         {
           error: {
@@ -44,7 +44,7 @@ export async function GET(request: Request) {
     let query = supabase
       .from('audit_log')
       .select('id, action, resource_type, resource_id, metadata, ip_address, user_agent, created_at', { count: 'exact' })
-      .eq('user_id', session.user.id)
+      .eq('user_id', user.id)
       .order('created_at', { ascending: false })
       .range(offset, offset + limit - 1)
 

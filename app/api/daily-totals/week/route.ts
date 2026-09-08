@@ -37,10 +37,10 @@ export async function GET(request: NextRequest) {
     // Step 1: Authenticate user
     const supabase = await createClient();
     const {
-      data: { session },
-    } = await supabase.auth.getSession();
+      data: { user },
+    } = await supabase.auth.getUser();
 
-    if (!session) {
+    if (!user) {
       logger.warn(
         {
           service: 'week-totals-api',
@@ -52,7 +52,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const userId = session.user.id;
+    const userId = user.id;
 
     // Step 2: Parse and validate query params
     const { searchParams } = new URL(request.url);

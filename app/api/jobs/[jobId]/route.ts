@@ -54,9 +54,9 @@ export async function GET(
   try {
     // Step 1: Authentication check
     const supabase = await createClient();
-    const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+    const { data: { user }, error: sessionError } = await supabase.auth.getUser();
 
-    if (sessionError || !session) {
+    if (sessionError || !user) {
       logger.warn(
         { service: 'job-status-api', endpoint: '/api/jobs/[jobId]' },
         'Unauthorized job status check'
@@ -68,7 +68,7 @@ export async function GET(
       );
     }
 
-    const userId = session.user.id;
+    const userId = user.id;
     const { jobId } = await params;
 
     logger.debug(

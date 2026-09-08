@@ -35,10 +35,10 @@ export async function PATCH(
     // Step 1: Authenticate user
     const supabase = await createClient();
     const {
-      data: { session },
-    } = await supabase.auth.getSession();
+      data: { user },
+    } = await supabase.auth.getUser();
 
-    if (!session) {
+    if (!user) {
       logger.warn(
         { service: 'symptom-detail-api', endpoint: 'PATCH /api/symptoms/[symptomLogId]' },
         'Unauthorized request - no session'
@@ -46,7 +46,7 @@ export async function PATCH(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const userId = session.user.id;
+    const userId = user.id;
     const { symptomLogId } = await params;
 
     // Step 2: Parse and validate request body
@@ -139,10 +139,10 @@ export async function DELETE(
     // Step 1: Authenticate user
     const supabase = await createClient();
     const {
-      data: { session },
-    } = await supabase.auth.getSession();
+      data: { user },
+    } = await supabase.auth.getUser();
 
-    if (!session) {
+    if (!user) {
       logger.warn(
         { service: 'symptom-detail-api', endpoint: 'DELETE /api/symptoms/[symptomLogId]' },
         'Unauthorized request - no session'
@@ -150,7 +150,7 @@ export async function DELETE(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const userId = session.user.id;
+    const userId = user.id;
     const { symptomLogId } = await params;
 
     logger.info(

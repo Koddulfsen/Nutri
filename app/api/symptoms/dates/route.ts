@@ -1,15 +1,15 @@
 /**
- * Meals Dates API Endpoint
+ * Symptom Logged Dates API Endpoint
  *
- * GET /api/meals/dates?from=YYYY-MM-DD&to=YYYY-MM-DD
- * Returns array of date strings that have at least one food item logged.
+ * GET /api/symptoms/dates?from=YYYY-MM-DD&to=YYYY-MM-DD
+ * Returns array of date strings that have at least one symptom log.
  */
 
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { createClient } from '@/lib/supabase/server';
 import { db } from '@/db';
-import { mealLogs, mealItems } from '@/db/schema';
+import { symptomLogs } from '@/db/schema';
 import { eq, and, gte, lte } from 'drizzle-orm';
 
 const QuerySchema = z.object({
@@ -38,17 +38,15 @@ export async function GET(request: NextRequest) {
   const { from, to } = parsed.data;
   const userId = user.id;
 
-  // Get distinct dates where the user has at least one meal item
   const rows = await db
-    .selectDistinct({ date: mealLogs.date })
-    .from(mealLogs)
-    .innerJoin(mealItems, eq(mealItems.mealLogId, mealLogs.id))
+    .selectDistinct({ date: symptomLogs.date })
+    .from(symptomLogs)
     .where(
       and(
-        eq(mealLogs.userId, userId),
-        gte(mealLogs.date, from),
-        lte(mealLogs.date, to),
-        eq(mealLogs.isActive, true),
+        eq(symptomLogs.userId, userId),
+        eq(symptomLogs.isActive, true),
+        gte(symptomLogs.date, from),
+        lte(symptomLogs.date, to),
       )
     );
 

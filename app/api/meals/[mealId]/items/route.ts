@@ -45,10 +45,10 @@ export async function POST(
     // Step 1: Authenticate user
     const supabase = await createClient();
     const {
-      data: { session },
-    } = await supabase.auth.getSession();
+      data: { user },
+    } = await supabase.auth.getUser();
 
-    if (!session) {
+    if (!user) {
       logger.warn(
         {
           service: 'meal-items-api',
@@ -60,7 +60,7 @@ export async function POST(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const userId = session.user.id;
+    const userId = user.id;
     const { mealId } = await params;
 
     // Step 2: Parse and validate request body

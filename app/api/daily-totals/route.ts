@@ -14,15 +14,38 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { createClient } from '@/lib/supabase/server';
 import { getDailyTotals } from '@/lib/services/daily-totals-service';
-import { getDailyValuesBatch, calculatePercentDV } from '@/lib/services/daily-value-service';
+import {
+  getDailyValuesBatch,
+  getDailyValuesBatchByDemographics,
+  calculatePercentDV,
+} from '@/lib/services/daily-value-service';
 import { logger } from '@/lib/logger';
+
+/**
+ * Convert a nutrient amount between unit systems. Returns null when units aren't
+ * comparable (e.g. mg vs IU, kcal vs mg). Handles common mass conversions only —
+ * good enough for the alpha; energy/IU/kJ stay null.
+ */
+function convertToUnit(amount: number, from: string, to: string): number | null {
+  if (from === to) return amount;
+  const norm = (u: string) => u.replace('μ', 'µ').toLowerCase();
+  const f = norm(from);
+  const t = norm(to);
+  if (f === t) return amount;
+  const mass: Record<string, number> = { g: 1, mg: 0.001, µg: 0.000001, ug: 0.000001, mcg: 0.000001 };
+  if (mass[f] != null && mass[t] != null) return (amount * mass[f]) / mass[t];
+  return null;
+}
 
 /**
  * GET query params schema
  */
 const GetDailyTotalsSchema = z.object({
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be in YYYY-MM-DD format'),
-  mealIds: z.string().optional(), // Comma-separated meal UUIDs for filtering
+  mealIds: z.string().optional(),
+  // Optional demographic overrides — when both present, use the new age-range DV lookup
+  age: z.string().regex(/^\d{1,3}$/).optional(),
+  sex: z.enum(['MALE', 'FEMALE']).optional(),
 });
 
 /**
@@ -34,10 +57,10 @@ export async function GET(request: NextRequest) {
     // Step 1: Authenticate user
     const supabase = await createClient();
     const {
-      data: { session },
-    } = await supabase.auth.getSession();
+      data: { user },
+    } = await supabase.auth.getUser();
 
-    if (!session) {
+    if (!user) {
       logger.warn(
         {
           service: 'daily-totals-api',
@@ -49,14 +72,21 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const userId = session.user.id;
+    const userId = user.id;
 
     // Step 2: Parse and validate query params
     const { searchParams } = new URL(request.url);
     const date = searchParams.get('date');
     const mealIdsParam = searchParams.get('mealIds');
 
-    const validationResult = GetDailyTotalsSchema.safeParse({ date, mealIds: mealIdsParam ?? undefined });
+    const ageParam = searchParams.get('age');
+    const sexParam = searchParams.get('sex');
+    const validationResult = GetDailyTotalsSchema.safeParse({
+      date,
+      mealIds: mealIdsParam ?? undefined,
+      age: ageParam ?? undefined,
+      sex: sexParam ?? undefined,
+    });
 
     if (!validationResult.success) {
       logger.warn(
@@ -116,26 +146,57 @@ export async function GET(request: NextRequest) {
       fat: totals.compounds.find((c) => c.name === 'Total Fat')?.amount || 0,
     };
 
-    // Step 5: Get daily values for all compounds (optimized - single query + caching)
+    // Step 5: Get daily values for all compounds
     const compoundIds = totals.compounds.map((c) => c.compoundId);
-    const dailyValues = await getDailyValuesBatch(userId, compoundIds);
+    const age = validationResult.data.age ? parseInt(validationResult.data.age, 10) : undefined;
+    const sex = validationResult.data.sex;
+
+    // dvValues: compoundId → { value, unit, source, upperLimit? }
+    const dvValues = new Map<string, {
+      value: number; unit: string; source: string | null;
+      upperLimit?: number | null; upperLimitUnit?: string | null;
+    }>();
+
+    if (age !== undefined && sex !== undefined) {
+      // New age-range lookup driven by picker demographics
+      const lookup = await getDailyValuesBatchByDemographics({
+        compoundIds, ageYears: age, sex,
+      });
+      lookup.forEach((row, id) => {
+        if (row.target != null && row.targetUnit) {
+          dvValues.set(id, {
+            value: row.target,
+            unit: row.targetUnit,
+            source: 'average',
+            upperLimit: row.upperLimit,
+            upperLimitUnit: row.upperLimitUnit,
+          });
+        }
+      });
+    } else {
+      const legacy = await getDailyValuesBatch(userId, compoundIds);
+      legacy.forEach((v, id) => dvValues.set(id, { value: v.value, unit: v.unit, source: v.source }));
+    }
+
     const healthScore = 0;
 
     // Step 6: Return response with DV data
     return NextResponse.json({
       date: totals.date,
       compounds: totals.compounds.map((c) => {
-        const dv = dailyValues.get(c.compoundId);
+        const dv = dvValues.get(c.compoundId);
 
         let rdaPercent: number | null = null;
         let zone: 'deficient' | 'low' | 'optimal' | 'high' | 'excess' | 'unknown' = 'unknown';
-        let dvSource: string | null = null;
 
         if (dv) {
-          const percentResult = calculatePercentDV(c.amount, dv.value);
-          rdaPercent = percentResult.percent;
-          zone = percentResult.status;
-          dvSource = dv.source;
+          // Convert intake to DV unit if they differ (mg <-> µg, mg <-> g).
+          const intakeInDvUnit = convertToUnit(c.amount, c.unit, dv.unit);
+          if (intakeInDvUnit != null) {
+            const percentResult = calculatePercentDV(intakeInDvUnit, dv.value);
+            rdaPercent = percentResult.percent;
+            zone = percentResult.status;
+          }
         }
 
         return {
@@ -146,8 +207,13 @@ export async function GET(request: NextRequest) {
           confidence: c.confidence,
           zone,
           rdaPercent,
-          dailyValue: dv ? { value: dv.value, unit: dv.unit, source: dvSource } : null,
-          // Show progress bar for all compounds - UI handles active/inactive state based on dailyValue presence
+          dailyValue: dv ? {
+            value: dv.value,
+            unit: dv.unit,
+            source: dv.source,
+            upperLimit: dv.upperLimit ?? null,
+            upperLimitUnit: dv.upperLimitUnit ?? null,
+          } : null,
           showProgressBar: true,
           displayPriority: 0,
         };

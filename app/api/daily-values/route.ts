@@ -14,6 +14,7 @@ import { z } from 'zod';
 import { createClient } from '@/lib/supabase/server';
 import {
   getDailyValuesBatch,
+  getDailyValuesBatchByDemographics,
   setCustomDailyValue,
   deleteCustomDailyValue,
   getUserCustomValues,
@@ -36,6 +37,10 @@ const GetDailyValuesSchema = z.object({
 const FetchDailyValuesSchema = z.object({
   compoundIds: z.array(z.string().uuid()).min(1, 'At least one compound ID required'),
   includeDisplaySettings: z.boolean().optional(),
+  // Optional demographic overrides — when both provided, bypass profile lookup
+  // and use the new age-range-based DV query (the picker on /analysis sends these).
+  age: z.number().int().min(0).max(120).optional(),
+  sex: z.enum(['MALE', 'FEMALE']).optional(),
 });
 
 /**
@@ -64,10 +69,10 @@ export async function GET(request: NextRequest) {
     // Step 1: Authenticate user
     const supabase = await createClient();
     const {
-      data: { session },
-    } = await supabase.auth.getSession();
+      data: { user },
+    } = await supabase.auth.getUser();
 
-    if (!session) {
+    if (!user) {
       logger.warn(
         { service: 'daily-values-api', endpoint: 'GET /api/daily-values' },
         'Unauthorized request - no session'
@@ -75,7 +80,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const userId = session.user.id;
+    const userId = user.id;
 
     // Step 2: Parse query params
     const { searchParams } = new URL(request.url);
@@ -173,14 +178,14 @@ export async function POST(request: NextRequest) {
     // Step 1: Authenticate user
     const supabase = await createClient();
     const {
-      data: { session },
-    } = await supabase.auth.getSession();
+      data: { user },
+    } = await supabase.auth.getUser();
 
-    if (!session) {
+    if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const userId = session.user.id;
+    const userId = user.id;
 
     // Step 2: Parse body and determine mode
     const body = await request.json();
@@ -188,7 +193,7 @@ export async function POST(request: NextRequest) {
     // Mode 1: Fetch daily values (batch) - uses compoundIds array
     const fetchResult = FetchDailyValuesSchema.safeParse(body);
     if (fetchResult.success) {
-      const { compoundIds, includeDisplaySettings } = fetchResult.data;
+      const { compoundIds, includeDisplaySettings, age, sex } = fetchResult.data;
 
       logger.debug(
         {
@@ -196,17 +201,38 @@ export async function POST(request: NextRequest) {
           endpoint: 'POST /api/daily-values (fetch)',
           userId,
           compoundCount: compoundIds.length,
+          hasDemographicOverride: age !== undefined && sex !== undefined,
         },
         'Fetching daily values (batch)'
       );
 
-      const dailyValues = await getDailyValuesBatch(userId, compoundIds);
-
       // Convert Map to object for JSON response
       const valuesObject: Record<string, any> = {};
-      dailyValues.forEach((value, key) => {
-        valuesObject[key] = value;
-      });
+
+      if (age !== undefined && sex !== undefined) {
+        // New path: age/sex from caller, age-range-based lookup
+        const lookup = await getDailyValuesBatchByDemographics({
+          compoundIds, ageYears: age, sex,
+        });
+        lookup.forEach((row, compoundId) => {
+          if (row.target == null) return;
+          valuesObject[compoundId] = {
+            compoundId,
+            value: row.target,
+            unit: row.targetUnit,
+            valueType: row.targetType,
+            source: 'average',
+            sourceCount: row.targetSourceCount,
+            upperLimit: row.upperLimit,
+            upperLimitUnit: row.upperLimitUnit,
+            upperLimitSourceCount: row.upperLimitSourceCount,
+          };
+        });
+      } else {
+        // Legacy path: read demographics from profile
+        const dailyValues = await getDailyValuesBatch(userId, compoundIds);
+        dailyValues.forEach((value, key) => { valuesObject[key] = value; });
+      }
 
       // Include display settings if requested
       let displaySettings = null;
@@ -220,14 +246,14 @@ export async function POST(request: NextRequest) {
           endpoint: 'POST /api/daily-values (fetch)',
           userId,
           requestedCount: compoundIds.length,
-          foundCount: dailyValues.size,
+          foundCount: Object.keys(valuesObject).length,
         },
         'Daily values fetched successfully (batch)'
       );
 
       return NextResponse.json({
         dailyValues: valuesObject,
-        count: dailyValues.size,
+        count: Object.keys(valuesObject).length,
         ...(displaySettings && { displaySettings }),
       });
     }
@@ -281,14 +307,14 @@ export async function DELETE(request: NextRequest) {
     // Step 1: Authenticate user
     const supabase = await createClient();
     const {
-      data: { session },
-    } = await supabase.auth.getSession();
+      data: { user },
+    } = await supabase.auth.getUser();
 
-    if (!session) {
+    if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const userId = session.user.id;
+    const userId = user.id;
 
     // Step 2: Parse query params
     const { searchParams } = new URL(request.url);

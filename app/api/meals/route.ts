@@ -53,10 +53,10 @@ export async function POST(request: NextRequest) {
     // Step 1: Authenticate user
     const supabase = await createClient();
     const {
-      data: { session },
-    } = await supabase.auth.getSession();
+      data: { user },
+    } = await supabase.auth.getUser();
 
-    if (!session) {
+    if (!user) {
       logger.warn(
         {
           service: 'meals-api',
@@ -68,7 +68,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const userId = session.user.id;
+    const userId = user.id;
 
     // Step 2: Parse and validate request body
     const body = await request.json();
@@ -98,8 +98,8 @@ export async function POST(request: NextRequest) {
 
     // Step 3: Ensure user profile exists (auto-create if missing)
     await ensureUserProfile(userId, {
-      fullName: session.user.user_metadata?.full_name || session.user.user_metadata?.name,
-      avatarUrl: session.user.user_metadata?.avatar_url,
+      fullName: user.user_metadata?.full_name || user.user_metadata?.name,
+      avatarUrl: user.user_metadata?.avatar_url,
     });
 
     logger.info(
@@ -169,10 +169,10 @@ export async function GET(request: NextRequest) {
     // Step 1: Authenticate user
     const supabase = await createClient();
     const {
-      data: { session },
-    } = await supabase.auth.getSession();
+      data: { user },
+    } = await supabase.auth.getUser();
 
-    if (!session) {
+    if (!user) {
       logger.warn(
         {
           service: 'meals-api',
@@ -184,7 +184,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const userId = session.user.id;
+    const userId = user.id;
 
     // Step 2: Parse and validate query params
     const { searchParams } = new URL(request.url);

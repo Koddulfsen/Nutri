@@ -26,10 +26,10 @@ export async function DELETE(
     // Step 1: Authenticate user
     const supabase = await createClient();
     const {
-      data: { session },
-    } = await supabase.auth.getSession();
+      data: { user },
+    } = await supabase.auth.getUser();
 
-    if (!session) {
+    if (!user) {
       logger.warn(
         { service: 'symptom-definition-detail-api', endpoint: 'DELETE /api/symptom-definitions/[definitionId]' },
         'Unauthorized request - no session'
@@ -37,7 +37,7 @@ export async function DELETE(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const userId = session.user.id;
+    const userId = user.id;
     const { definitionId } = await params;
 
     logger.info(

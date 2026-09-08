@@ -11,7 +11,8 @@
  * - startDate: ISO 8601 date (optional filter)
  * - endDate: ISO 8601 date (optional filter)
  *
- * HIPAA Compliance: 6-year retention enforced
+ * Retention: none enforced. The previous "HIPAA 6-year retention" claim was not
+ * implemented, and HIPAA does not apply to this EEA controller.
  *
  * Created: 2025-11-10
  */

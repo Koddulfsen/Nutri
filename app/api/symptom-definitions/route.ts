@@ -34,10 +34,10 @@ export async function GET() {
     // Step 1: Authenticate user
     const supabase = await createClient();
     const {
-      data: { session },
-    } = await supabase.auth.getSession();
+      data: { user },
+    } = await supabase.auth.getUser();
 
-    if (!session) {
+    if (!user) {
       logger.warn(
         { service: 'symptom-definitions-api', endpoint: 'GET /api/symptom-definitions' },
         'Unauthorized request - no session'
@@ -45,7 +45,7 @@ export async function GET() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const userId = session.user.id;
+    const userId = user.id;
 
     logger.debug(
       { service: 'symptom-definitions-api', endpoint: 'GET /api/symptom-definitions', userId },
@@ -107,10 +107,10 @@ export async function POST(request: NextRequest) {
     // Step 1: Authenticate user
     const supabase = await createClient();
     const {
-      data: { session },
-    } = await supabase.auth.getSession();
+      data: { user },
+    } = await supabase.auth.getUser();
 
-    if (!session) {
+    if (!user) {
       logger.warn(
         { service: 'symptom-definitions-api', endpoint: 'POST /api/symptom-definitions' },
         'Unauthorized request - no session'
@@ -118,7 +118,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const userId = session.user.id;
+    const userId = user.id;
 
     // Step 2: Parse and validate request body
     const body = await request.json();
@@ -144,8 +144,8 @@ export async function POST(request: NextRequest) {
 
     // Step 3: Ensure user profile exists
     await ensureUserProfile(userId, {
-      fullName: session.user.user_metadata?.full_name || session.user.user_metadata?.name,
-      avatarUrl: session.user.user_metadata?.avatar_url,
+      fullName: user.user_metadata?.full_name || user.user_metadata?.name,
+      avatarUrl: user.user_metadata?.avatar_url,
     });
 
     logger.info(
