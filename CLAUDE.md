@@ -49,21 +49,33 @@ exist to keep them out. This project is built to repel them.
 
 | Layer | State |
 |---|---|
-| Compound reference data | **Done.** 280 compounds, 1,807 mappings, 16,832 DV rows / 15 authorities |
-| Food data | **13 of 17 sources loaded — 3.2M staging rows, 34,754 foods** (2026-08-22). DUKE + FOODB held back; PHENOL unmapped |
-| Tracking / user data | Schema exists, zero rows |
-| **Authentication** | **BROKEN — no working login. This blocks everything.** |
-| Authorization | No RLS, 18 admin routes unguarded |
-| Privacy compliance | Erasure and export are non-functional stubs |
-| Tests | Harness non-functional |
+| Compound reference data | **Done.** 280 compounds, 1,753 mappings, 16,832 DV rows / 15 authorities |
+| Food data | **13 of 17 sources loaded — 3.2M staging rows, 34,754 foods.** 71 foods merged and verified against reference values (2026-09-08). DUKE + FOODB held back; PHENOL unmapped |
+| Tracking / user data | Schema exists; **20 meal_logs, 2 user_profiles** — the app has been used |
+| **Authentication** | ✅ **WORKS.** Supabase Auth is live — `auth` schema present, 1 confirmed user, `/auth/v1/settings` 200, sign-in/sign-up/OAuth/reset all wired in `app/(auth)/actions.ts` |
+| Authorization | ⚠️ Admin routes and pages ARE gated. But the app connects as the table owner, so RLS does not apply to its own queries — every user-scoped query depends on a hand-written `userId` filter, and nobody has checked them all |
+| Privacy compliance | Erasure and export return an honest 501. Article 9 columns are unencrypted; consent has no UI and 0 rows |
+| Tests | Vitest works (`lib/food-health` passes). The 13 legacy Jest files still fail; 4 assert nothing |
+| Deployment | Repo `Koddulfsen/Nutri` exists; **`origin/main` is 1 commit behind everything.** `basePath: '/nutri'` — decide before a public deploy |
 
-**The single blocking dependency:** Supabase Auth is gone. Every security control below
-assumes the system knows who someone is. It currently cannot.
+**Alpha access is gated by `app/components/AlphaGate.tsx`.** Signups are open in Supabase
+(`disable_signup: false`), so anyone can create an account — but `dashboard/page.tsx` and
+`analysis/page.tsx` show the waitlist screen unless `isAdminUser()` passes. Admin is the
+`ADMIN_EMAILS` env list, not a database column. ⚠️ That gate is on **two pages only**; it has
+never been checked against every other page and API route.
+
+**The blocking dependency is no longer identity.** It is authorization: the system knows who
+you are, and then trusts each query to filter correctly.
 
 ```
 Identity ──→ Authorization ──→ Data protection ──→ Rights & compliance ──→ Money
-   ▲ broken; nothing downstream can be trusted until this is real
+   ✅ works      ▲ you are here
 ```
+
+⚠️ **This section claimed "Authentication BROKEN — no working login" until 2026-09-08.** It was
+made false by the August move to hosted Supabase, which restored `auth`, and nobody updated it.
+Every session since opened by reading that identity was dead, and Phase 2.1 still asks for a
+decision that the migration already made. Verify §1 against the database before trusting it.
 
 Full findings: **`docs/AUDIT-2026-08-11.md`**. Read it before security work.
 
@@ -177,10 +189,13 @@ Checkboxes are the timeline. Update them as work lands.
 - [x] Full date of birth removed → year+month (verified identical across 809 age cases)
 
 ### Phase 2 — Foundation
-- [ ] **2.1** **DECIDE: auth replacement.** Self-hosted Supabase (restores `auth` + RLS +
-      email, ~70 call sites unchanged, needs Docker) vs Postgres-native (fewer vendors, but
-      every user-scoped query must be hand-audited with no RLS backstop)
-- [ ] **2.2** Build it; restore authorization at the data layer
+- [x] **2.1** ~~DECIDE: auth replacement~~ — **settled by the 2026-08-22 move to hosted
+      Supabase**, which restored `auth`. Verified 2026-09-08: schema present, confirmed user,
+      login endpoint answers. No decision outstanding
+- [ ] **2.2** Restore authorization at the data layer. Identity works; the gap is that Drizzle
+      connects as the table owner, so RLS never applies and every user-scoped query is trusted
+      to filter by `userId` on its own. **Nobody has audited them all** — that audit is the
+      next real task
 - [x] **2.2a** Least-privilege DB role — app runs as `nutri_app` (no DDL, no BYPASSRLS, not superuser); migrations use `MIGRATION_DATABASE_URL` (owner). Default privileges cover future migration tables. **Remaining:** run `ALTER ROLE nutri NOSUPERUSER;` as a superuser (see below)
 - [x] **2.3** `withAuth(handler, { role, schema })` wrapper + CI check *(built)* — `lib/auth/with-auth.ts`, `withPublic()` for explicit public routes, lint at `scripts/check-route-auth.ts` (`npm run check:auth`). Report-only until the last 30 routes are migrated, then flip `STRICT=1` in CI
 - [x] **2.4** `getSession()` → `getUser()` *(B2)* — 36 files rewritten; zero `getSession()` left outside `middleware.ts` (deferred to 2.2, since `getUser()` adds a network call per request)
