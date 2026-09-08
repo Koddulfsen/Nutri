@@ -19,6 +19,7 @@
  *   node scripts/fix-mapping-ids.mjs --dry-run
  *   node scripts/fix-mapping-ids.mjs
  */
+import 'dotenv/config';
 import postgres from 'postgres';
 
 const DRY = process.argv.includes('--dry-run');

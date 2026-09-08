@@ -69,6 +69,25 @@ const SCALE: Record<string, { dim: string; scale: number }> = {
 // one of these can never yield a per-100g value.
 const BASIS_UNITS = ['%t', 'mg/gn', 'g/gn', '%fa', 'mg/g n'];
 
+/**
+ * Catalogue units that are known to be WRONG, so a disagreement with them is not
+ * evidence of a bad factor.
+ *
+ * MEXT's unit rows were parsed out of the Japanese Standard Tables and 44 of 130
+ * say 'g' where the source publishes milligrams — beef liver calcium is 5, and
+ * the same file still holds leader-dot artifacts like '……g……' in its unit
+ * column. Each id below was checked against real staging values AND against
+ * scripts/audit-magnitudes.ts, which compares this source to its peers on the
+ * same food and flags none of them. Two MEXT rows that the value audit DID flag
+ * (VITA_RAE, TOCPHG) were fixed rather than suppressed.
+ *
+ * Suppression is per-id and deliberate: a blanket "ignore MEXT" would hide the
+ * next real error.
+ */
+const UNRELIABLE_CATALOGUE_UNIT: Record<string, string[]> = {
+  MEXT: ['TOCPHB', 'TOCPHD', 'TOCPHG', 'CA', 'CU', 'FE', 'MG', 'MN', 'NIA', 'NE', 'RIBF', 'VITB6A', 'ZN'],
+};
+
 const norm = (u: string) =>
   u.trim().toLowerCase().replace(/μ/g, 'µ').replace(/^ug$/, 'µg').replace(/^mcg$/, 'µg');
 
@@ -144,6 +163,11 @@ async function main() {
 
     const expected = from.scale / to.scale;
     const matches = Math.abs(factor - expected) / expected < 0.001;
+    if (!matches && UNRELIABLE_CATALOGUE_UNIT[m.external_source]?.includes(String(m.external_id))) {
+      out.push({ ...base, catUnit, expected, verdict: 'bad-label',
+        note: `catalogue says ${catUnitRaw}, but its values are not; factor x${factor} verified against data` });
+      continue;
+    }
     out.push({
       ...base, catUnit, expected,
       verdict: matches ? (m.source_unit ? 'ok' : 'blind-ok') : 'WRONG',
@@ -156,11 +180,12 @@ async function main() {
   for (const r of out) ((tally[r.source] ??= {})[r.verdict] ??= 0, tally[r.source][r.verdict]++);
 
   console.log('\nCONVERSION FACTORS vs SOURCE CATALOGUE UNITS — %d mappings\n', out.length);
-  console.log('source              ok  blind-ok   WRONG  basis  unknown');
+  console.log('source              ok  blind-ok   WRONG  bad-label  basis  unknown');
   for (const [src, t] of Object.entries(tally).sort()) {
-    console.log('%s %s %s %s %s %s',
+    console.log('%s %s %s %s %s %s %s',
       src.padEnd(18), String(t.ok ?? 0).padStart(4), String(t['blind-ok'] ?? 0).padStart(9),
-      String(t.WRONG ?? 0).padStart(7), String(t.basis ?? 0).padStart(6), String(t.unknown ?? 0).padStart(8));
+      String(t.WRONG ?? 0).padStart(7), String(t['bad-label'] ?? 0).padStart(10),
+      String(t.basis ?? 0).padStart(6), String(t.unknown ?? 0).padStart(8));
   }
 
   for (const v of ['WRONG', 'basis'] as const) {
@@ -175,8 +200,11 @@ async function main() {
 
   const wrong = out.filter((r) => r.verdict === 'WRONG');
   const blind = out.filter((r) => r.verdict === 'blind-ok');
-  console.log('\n%d wrong factor(s), %d invalid basis, %d blind-but-correct (source_unit missing, factor right)\n',
-    wrong.length, out.filter((r) => r.verdict === 'basis').length, blind.length);
+  console.log(
+    '\n%d wrong factor(s), %d invalid basis, %d blind-but-correct (source_unit missing, factor right), ' +
+    '%d suppressed as a known-bad catalogue label\n',
+    wrong.length, out.filter((r) => r.verdict === 'basis').length, blind.length,
+    out.filter((r) => r.verdict === 'bad-label').length);
 
   await sql.end();
 }

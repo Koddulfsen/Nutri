@@ -20,6 +20,7 @@
  *
  * Usage: node scripts/audit-mapping-ids.mjs [--csv out.csv]
  */
+import 'dotenv/config';
 import postgres from 'postgres';
 import { writeFileSync } from 'node:fs';
 
