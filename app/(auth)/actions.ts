@@ -12,7 +12,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { validatePasswordStrength } from '@/lib/auth/password'
-import { checkLoginRateLimit, checkPasswordResetRateLimit } from '@/lib/redis/rate-limit'
+import { checkLoginRateLimit, checkPasswordResetRateLimit } from '@/lib/rate-limit'
 import { logAuditEvent } from '@/lib/audit/log'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
@@ -452,7 +452,7 @@ export async function signOut() {
  *
  * Flow:
  * 1. Get current user
- * 2. Update user_profiles table (RLS enforces ownership)
+ * 2. Update user_profiles table (NOTE: no RLS exists — scope by user_id explicitly)
  * 3. Log audit event
  * 4. Return updated profile
  */
@@ -470,7 +470,7 @@ export async function updateProfile(data: { full_name?: string; avatar_url?: str
       }
     }
 
-    // Update user profile (RLS enforces user_id = auth.uid())
+    // Update user profile. NOTE: no RLS exists — scope by user_id explicitly.
     const { data: profile, error: updateError } = await supabase
       .from('user_profiles')
       .update({

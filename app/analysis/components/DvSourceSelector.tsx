@@ -119,7 +119,7 @@ export default function DvSourceSelector({
           justify-content: center;
           width: 36px;
           height: 36px;
-          background: rgba(255, 255, 255, 0.05);
+          background: rgba(255, 255, 255, 0.55);
           border: 1px solid rgba(255, 255, 255, 0.1);
           border-radius: 8px;
           color: rgba(255, 255, 255, 0.6);
@@ -139,15 +139,15 @@ export default function DvSourceSelector({
         }
 
         .selector-button:hover {
-          background: rgba(255, 255, 255, 0.1);
-          border-color: var(--cyan, #22d3ee);
-          color: var(--cyan, #22d3ee);
+          background: rgba(255, 255, 255, 0.85);
+          border-color: var(--coral, #d42a55);
+          color: var(--coral, #d42a55);
         }
 
         .selector-button.active {
-          background: rgba(34, 211, 238, 0.1);
-          border-color: var(--cyan, #22d3ee);
-          color: var(--cyan, #22d3ee);
+          background: rgba(212, 42, 85, 0.10);
+          border-color: var(--coral, #d42a55);
+          color: var(--coral, #d42a55);
         }
 
         .selector-button:disabled {
@@ -175,10 +175,11 @@ export default function DvSourceSelector({
           top: calc(100% + 8px);
           right: 0;
           min-width: 280px;
-          background: #1a1a1a;
+          background: #fff7f4;
+          color: #2e1a0e;
           border: 1px solid rgba(255, 255, 255, 0.1);
           border-radius: 12px;
-          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+          box-shadow: 0 8px 28px rgba(46, 26, 14, 0.22);
           z-index: 1000;
           overflow: hidden;
         }
@@ -212,11 +213,11 @@ export default function DvSourceSelector({
         }
 
         .option-item:hover {
-          background: rgba(255, 255, 255, 0.05);
+          background: rgba(255, 255, 255, 0.55);
         }
 
         .option-item.selected {
-          background: rgba(34, 211, 238, 0.1);
+          background: rgba(212, 42, 85, 0.10);
         }
 
         .option-radio {
@@ -232,13 +233,13 @@ export default function DvSourceSelector({
         }
 
         .option-item.selected .option-radio {
-          border-color: var(--cyan, #22d3ee);
+          border-color: var(--coral, #d42a55);
         }
 
         .radio-dot {
           width: 10px;
           height: 10px;
-          background: var(--cyan, #22d3ee);
+          background: var(--coral, #d42a55);
           border-radius: 50%;
         }
 
@@ -255,7 +256,7 @@ export default function DvSourceSelector({
         }
 
         .option-item.selected .option-label {
-          color: var(--cyan, #22d3ee);
+          color: var(--coral, #d42a55);
         }
 
         .option-description {

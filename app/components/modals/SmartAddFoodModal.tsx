@@ -78,7 +78,7 @@ function ReviewProgressOverlay({
           left: 0;
           right: 0;
           bottom: 0;
-          background: rgba(0, 0, 0, 0.92);
+          background: rgba(255, 247, 244, 0.95);
           border-radius: 3px;
           display: flex;
           align-items: center;
@@ -96,7 +96,7 @@ function ReviewProgressOverlay({
           font-size: 18px;
           font-weight: 500;
           margin-bottom: 24px;
-          color: var(--text-1, #e8e8f4);
+          color: var(--text-1, #2e1a0e);
           font-family: var(--font-display, 'Instrument Serif', serif);
         }
         .source-progress-list {
@@ -112,14 +112,14 @@ function ReviewProgressOverlay({
           align-items: center;
           gap: 10px;
           padding: 8px 12px;
-          background: var(--bg-accent, #0f0f0f);
+          background: var(--bg-accent, rgba(255,255,255,0.34));
           border-radius: 3px;
-          border: 1px solid var(--border, #1e1e24);
+          border: 1px solid var(--border, rgba(46,26,14,0.16));
           transition: border-color 0.3s ease;
         }
         .source-progress-item.current {
-          background: var(--accent-soft, rgba(80,136,152,0.06));
-          border-color: var(--accent-border, rgba(80,136,152,0.14));
+          background: var(--accent-soft, rgba(212,42,85,0.08));
+          border-color: var(--accent-border, rgba(212,42,85,0.22));
         }
         .source-progress-item.completed {
           border-color: rgba(80, 136, 152, 0.2);
@@ -132,15 +132,15 @@ function ReviewProgressOverlay({
           flex: 1;
           text-align: left;
           font-size: 12px;
-          color: var(--text-2, #8080a0);
+          color: var(--text-2, rgba(46,26,14,0.72));
         }
         .sp-status {
           font-size: 13px;
           width: 20px;
           text-align: center;
-          color: var(--text-3, #484860);
+          color: var(--text-3, rgba(46,26,14,0.5));
         }
-        .source-progress-item.completed .sp-status { color: var(--accent, #508898); }
+        .source-progress-item.completed .sp-status { color: var(--accent, #d42a55); }
         .source-progress-item.failed .sp-status { color: #ef4444; }
         .sp-error-detail {
           font-size: 11px;
@@ -148,7 +148,7 @@ function ReviewProgressOverlay({
           font-weight: 400;
         }
         .source-progress-item.current .sp-status {
-          color: var(--accent, #508898);
+          color: var(--accent, #d42a55);
           animation: pulse 1s ease-in-out infinite;
         }
         @keyframes pulse {
@@ -158,31 +158,31 @@ function ReviewProgressOverlay({
         .progress-bar-container {
           width: 100%;
           height: 4px;
-          background: var(--border, #1e1e24);
+          background: var(--border, rgba(46,26,14,0.16));
           border-radius: 2px;
           overflow: hidden;
           margin-bottom: 16px;
         }
         .progress-bar-fill {
           height: 100%;
-          background: var(--accent, #508898);
+          background: var(--accent, #d42a55);
           border-radius: 2px;
           transition: width 0.3s ease;
         }
         .progress-detail {
           font-size: 12px;
-          color: var(--text-2, #8080a0);
+          color: var(--text-2, rgba(46,26,14,0.72));
           margin-bottom: 8px;
         }
         .progress-percent {
           font-size: 28px;
           font-weight: 500;
-          color: var(--accent, #508898);
+          color: var(--accent, #d42a55);
           font-family: var(--font-mono, 'DM Mono', monospace);
         }
         .source-progress-list::-webkit-scrollbar { width: 3px; }
         .source-progress-list::-webkit-scrollbar-track { background: transparent; }
-        .source-progress-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 2px; }
+        .source-progress-list::-webkit-scrollbar-thumb { background: rgba(46,26,14,0.18); border-radius: 2px; }
       `}</style>
     </div>
   );
@@ -249,14 +249,14 @@ function SearchCard({
           font-weight: 500;
           letter-spacing: 0.12em;
           text-transform: uppercase;
-          color: var(--text-3, #484860);
+          color: var(--text-3, rgba(46,26,14,0.5));
           margin: 0;
         }
 
         .search-card-name {
           font-family: var(--font-display, 'Instrument Serif', serif);
           font-size: 42px;
-          color: var(--text-1, #e8e8f4);
+          color: var(--text-1, #2e1a0e);
           line-height: 1.1;
           animation: nameIn 0.25s ease-out;
         }
@@ -270,7 +270,7 @@ function SearchCard({
           margin-top: 8px;
           padding: 0 32px;
           height: 51px;
-          background: var(--accent, #508898);
+          background: var(--accent, #d42a55);
           color: #fff;
           border: none;
           border-radius: 3px;
@@ -278,19 +278,19 @@ function SearchCard({
           font-size: 15px;
           font-weight: 500;
           cursor: pointer;
-          box-shadow: 0 5px 0 var(--accent-dark, #306070), 0 8px 16px rgba(0,0,0,0.4);
+          box-shadow: 0 5px 0 var(--accent-dark, #9f1f40), 0 8px 16px rgba(46,26,14,0.28);
           transform: translateY(0);
           transition: transform 0.08s, box-shadow 0.08s;
         }
 
         .search-card-btn:hover:not(:disabled) {
           transform: translateY(2px);
-          box-shadow: 0 3px 0 var(--accent-dark, #306070), 0 5px 10px rgba(0,0,0,0.35);
+          box-shadow: 0 3px 0 var(--accent-dark, #9f1f40), 0 5px 10px rgba(46,26,14,0.24);
         }
 
         .search-card-btn:active:not(:disabled) {
           transform: translateY(5px);
-          box-shadow: 0 1px 0 var(--accent-dark, #306070), 0 2px 5px rgba(0,0,0,0.3);
+          box-shadow: 0 1px 0 var(--accent-dark, #9f1f40), 0 2px 5px rgba(46,26,14,0.2);
         }
 
         .search-card-btn:disabled {
@@ -301,7 +301,7 @@ function SearchCard({
         .search-card-hint {
           font-family: var(--font-body, 'DM Sans', sans-serif);
           font-size: 12px;
-          color: var(--text-3, #484860);
+          color: var(--text-3, rgba(46,26,14,0.5));
           margin: 0;
         }
       `}</style>
@@ -482,7 +482,7 @@ export default function SmartAddFoodModal({
           .panel-sidebar {
             width: 280px;
             flex-shrink: 0;
-            border-right: 4px solid var(--border, #1e1e24);
+            border-right: 4px solid var(--border, rgba(46,26,14,0.16));
             overflow: hidden;
             display: flex;
             flex-direction: column;
@@ -506,7 +506,7 @@ export default function SmartAddFoodModal({
           .close-btn {
             background: none;
             border: none;
-            color: var(--text-3, #484860);
+            color: var(--text-3, rgba(46,26,14,0.5));
             font-size: 14px;
             cursor: pointer;
             padding: 4px 8px;
@@ -514,7 +514,7 @@ export default function SmartAddFoodModal({
             transition: color 0.15s;
           }
 
-          .close-btn:hover:not(:disabled) { color: var(--text-1, #e8e8f4); }
+          .close-btn:hover:not(:disabled) { color: var(--text-1, #2e1a0e); }
           .close-btn:disabled { opacity: 0.3; cursor: not-allowed; }
 
           .panel-main-content {
@@ -526,7 +526,7 @@ export default function SmartAddFoodModal({
           /* Scrollbar */
           .panel-main-content::-webkit-scrollbar { width: 3px; }
           .panel-main-content::-webkit-scrollbar-track { background: transparent; }
-          .panel-main-content::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 2px; }
+          .panel-main-content::-webkit-scrollbar-thumb { background: rgba(46,26,14,0.18); border-radius: 2px; }
         `}</style>
       </div>
     </div>

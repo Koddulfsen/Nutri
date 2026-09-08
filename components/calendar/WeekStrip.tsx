@@ -8,8 +8,7 @@ interface WeekStripProps {
   onDayClick: (date: string) => void;
   onPreviousWeek: () => void;
   onNextWeek: () => void;
-  formattedDate: string;
-  onOpenCalendar?: () => void;
+  datesWithData?: Set<string>;
 }
 
 export function WeekStrip({
@@ -17,21 +16,10 @@ export function WeekStrip({
   onDayClick,
   onPreviousWeek,
   onNextWeek,
-  formattedDate,
-  onOpenCalendar,
+  datesWithData,
 }: WeekStripProps) {
   return (
     <div className="week-strip-container">
-      <div className="week-strip-header">
-        <button
-          onClick={onOpenCalendar}
-          className="current-date-btn"
-          aria-label="Open calendar"
-        >
-          {formattedDate}
-        </button>
-      </div>
-
       <div className="week-strip">
         <button
           onClick={onPreviousWeek}
@@ -52,6 +40,7 @@ export function WeekStrip({
             >
               <span className="day-name">{day.dayName}</span>
               <span className="day-number">{day.dayNumber}</span>
+              {datesWithData?.has(day.date) && <span className="data-dot" />}
               {day.isToday && <span className="today-dot" />}
             </button>
           ))}
@@ -69,30 +58,6 @@ export function WeekStrip({
       <style jsx>{`
         .week-strip-container {
           padding: 42px 0;
-          border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .week-strip-header {
-          display: flex;
-          justify-content: center;
-          margin-bottom: 12px;
-        }
-
-        .current-date-btn {
-          background: rgba(255, 255, 255, 0.05);
-          border: 1px solid rgba(255, 255, 255, 0.15);
-          color: #fff;
-          padding: 8px 16px;
-          border-radius: 8px;
-          font-size: 14px;
-          font-weight: 500;
-          cursor: pointer;
-          transition: all 200ms ease;
-        }
-
-        .current-date-btn:hover {
-          background: rgba(255, 255, 255, 0.08);
-          border-color: var(--cyan);
         }
 
         .week-strip {
@@ -126,6 +91,8 @@ export function WeekStrip({
         .week-days {
           display: flex;
           gap: 6px;
+          min-width: 0;
+          flex: 1;
         }
 
         .week-day-card {
@@ -133,10 +100,11 @@ export function WeekStrip({
           flex-direction: column;
           align-items: center;
           justify-content: center;
-          min-width: 48px;
+          flex: 1 1 0;
+          min-width: 0;
           padding: 8px 10px;
-          background: rgba(255, 255, 255, 0.03);
-          border: 1px solid rgba(255, 255, 255, 0.1);
+          background: var(--ws-card-bg, rgba(255, 255, 255, 0.03));
+          border: 1px solid var(--ws-card-border, rgba(255, 255, 255, 0.1));
           border-radius: 10px;
           cursor: pointer;
           transition: all 200ms ease;
@@ -144,7 +112,7 @@ export function WeekStrip({
         }
 
         .week-day-card:hover {
-          background: rgba(255, 255, 255, 0.08);
+          background: var(--ws-card-hover, rgba(255, 255, 255, 0.08));
           transform: translateY(-2px);
         }
 
@@ -164,7 +132,7 @@ export function WeekStrip({
 
         .day-name {
           font-size: 11px;
-          color: rgba(255, 255, 255, 0.5);
+          color: var(--ws-day-name, rgba(255, 255, 255, 0.5));
           font-weight: 500;
           text-transform: uppercase;
           letter-spacing: 0.5px;
@@ -177,7 +145,7 @@ export function WeekStrip({
         .day-number {
           font-size: 16px;
           font-weight: 600;
-          color: #fff;
+          color: var(--ws-day-number, #fff);
           margin-top: 2px;
         }
 
@@ -191,9 +159,19 @@ export function WeekStrip({
           border-radius: 50%;
         }
 
+        .data-dot {
+          position: absolute;
+          top: 4px;
+          right: 4px;
+          width: 5px;
+          height: 5px;
+          background: var(--accent, #508898);
+          border-radius: 50%;
+          box-shadow: 0 0 4px rgba(80, 136, 152, 0.6);
+        }
+
         @media (max-width: 640px) {
           .week-day-card {
-            min-width: 40px;
             padding: 6px 8px;
           }
 
@@ -203,6 +181,22 @@ export function WeekStrip({
 
           .day-number {
             font-size: 14px;
+          }
+        }
+
+        @media (max-width: 500px) {
+          .week-strip {
+            gap: 4px;
+          }
+          .week-days {
+            gap: 3px;
+          }
+          .week-day-card {
+            padding: 6px 2px;
+          }
+          .week-nav-btn {
+            width: 30px;
+            height: 30px;
           }
         }
       `}</style>

@@ -33,23 +33,23 @@ export async function GET(request: Request) {
     }
 
     // Get user session
-    const { data: { session } } = await supabase.auth.getSession()
+    const { data: { user } } = await supabase.auth.getUser()
 
-    if (session?.user) {
+    if (user) {
       // Check if user profile exists
       const existingProfile = await db
         .select({ id: userProfiles.id })
         .from(userProfiles)
-        .where(eq(userProfiles.userId, session.user.id))
+        .where(eq(userProfiles.userId, user.id))
         .limit(1)
 
       if (existingProfile.length === 0) {
         // Create user profile with generated DEK
         const dek = await generateDEK()
         await db.insert(userProfiles).values({
-          userId: session.user.id,
-          fullName: session.user.user_metadata?.full_name || session.user.user_metadata?.name || null,
-          avatarUrl: session.user.user_metadata?.avatar_url || null,
+          userId: user.id,
+          fullName: user.user_metadata?.full_name || user.user_metadata?.name || null,
+          avatarUrl: user.user_metadata?.avatar_url || null,
           dataEncryptionKey: dek,
         })
       }

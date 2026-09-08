@@ -52,16 +52,16 @@ export default function SymptomDropdown({
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
+    if (!adding) return;
     function handleClickOutside(event: MouseEvent) {
       if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
-        setIsOpen(false);
         setAdding(false);
         setNewName('');
       }
     }
-    if (isOpen) document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [isOpen]);
+  }, [adding]);
 
   useEffect(() => {
     if (adding && inputRef.current) inputRef.current.focus();
@@ -143,14 +143,14 @@ export default function SymptomDropdown({
       >
         <svg
           className={`chevron ${isOpen ? 'open' : ''}`}
-          width="12" height="12" viewBox="0 0 24 24"
-          fill="none" stroke="currentColor" strokeWidth="1.5"
+          width="14" height="14" viewBox="0 0 24 24"
+          fill="none" stroke="currentColor" strokeWidth="3"
           strokeLinecap="round" strokeLinejoin="round"
         >
           <polyline points="6 9 12 15 18 9"/>
         </svg>
         <span className="trigger-row">
-          <ClipboardList size={14} strokeWidth={1.5} />
+          <ClipboardList size={16} strokeWidth={1.5} />
           Wellness Log
           {loggedCount > 0 && <span className="badge">{loggedCount}</span>}
         </span>
@@ -225,7 +225,6 @@ export default function SymptomDropdown({
 
       <style jsx>{`
         .wellness-container {
-          border-top: 4px solid var(--border, #1e1e24);
           flex-shrink: 0;
         }
 
@@ -234,32 +233,32 @@ export default function SymptomDropdown({
           flex-direction: column;
           align-items: center;
           justify-content: center;
-          gap: 5px;
+          gap: 6px;
           width: 100%;
-          padding: 12px 20px;
+          padding: 14px 20px;
           background: none;
           border: none;
-          color: var(--text-3, #484860);
+          color: var(--text-1, #e8e8f4);
           cursor: pointer;
           font-family: var(--font-body, 'DM Sans', sans-serif);
-          font-size: 11px;
-          font-weight: 500;
-          letter-spacing: 0.1em;
+          font-size: 14px;
+          font-weight: 700;
+          letter-spacing: 0.12em;
           text-transform: uppercase;
           transition: color 150ms ease;
         }
 
-        .wellness-trigger:hover { color: var(--text-2, #8080a0); }
+        .wellness-trigger:hover { color: var(--accent, #508898); }
         .wellness-trigger.open { color: var(--accent, #508898); }
 
         .chevron {
-          opacity: 0.4;
+          opacity: 0.85;
           transform: rotate(180deg);
           transition: transform 0.25s ease, opacity 0.25s ease;
           flex-shrink: 0;
         }
 
-        .chevron.open { transform: rotate(0deg); opacity: 0.7; }
+        .chevron.open { transform: rotate(0deg); opacity: 1; }
 
         .trigger-row {
           display: flex;
@@ -333,7 +332,7 @@ export default function SymptomDropdown({
           width: 12px;
           height: 12px;
           border-radius: 50%;
-          border: 1px solid var(--border, #1e1e24);
+          border: 2px solid var(--text-3, #7a7a98);
           background: transparent;
           cursor: pointer;
           padding: 0;
@@ -342,7 +341,7 @@ export default function SymptomDropdown({
         }
 
         .dot:hover:not(:disabled) {
-          border-color: var(--text-3, #484860);
+          border-color: var(--text-2, #b0b0c8);
           transform: scale(1.2);
         }
 

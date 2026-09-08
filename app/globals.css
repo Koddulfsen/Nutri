@@ -1,4 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@1,700;1,800&display=swap');
 
 @import "tailwindcss";
 
@@ -36,9 +37,10 @@
     --surface:     #050505;
     --border:      #1e1e24;
     --border-soft: #161620;
+    --divider:     #2e2e38;
     --text-1:      #e8e8f4;
-    --text-2:      #8080a0;
-    --text-3:      #484860;
+    --text-2:      #b0b0c8;
+    --text-3:      #7a7a98;
     --accent:        #508898;
     --accent-dark:   #306070;
     --accent-soft:   rgba(80, 136, 152, 0.06);
@@ -2223,22 +2225,13 @@ section {
 
 .home-page {
   min-height: 100vh;
-  color: #ffffff;
+  color: #17141a;
   background-color: #0a0a0a;
-  background-image: url('/nutri/zen-garden-full.png');
+  background-image: url('/nutri/design/banana.png');
   background-size: cover;
   background-position: center;
   background-attachment: fixed;
   background-repeat: no-repeat;
-}
-
-.home-page::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  background: rgba(10, 10, 12, 0.55);
-  pointer-events: none;
-  z-index: 0;
 }
 
 .home-page > * {
@@ -2246,10 +2239,337 @@ section {
   z-index: 1;
 }
 
+/* --- Home hero: headline + search centered over the banana --- */
+
+.home-hero {
+  position: relative;
+  z-index: 1;
+  min-height: calc(100vh - 96px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 28px;
+  padding: 0 24px 10vh;
+  text-align: center;
+}
+
+.home-headline {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(2.4rem, 7vw, 5.25rem);
+  line-height: 1.02;
+  letter-spacing: -0.015em;
+  color: #2e1a0e;
+  margin: 0;
+  max-width: 16ch;
+}
+
+/* Search */
+.home-search {
+  position: relative;
+  width: 100%;
+  max-width: 560px;
+}
+
+.home-search-input {
+  width: 100%;
+  padding: 16px 44px 16px 18px;
+  font-family: var(--font-body);
+  font-size: 1.0625rem;
+  color: #17141a;
+  background: rgba(255, 255, 255, 0.82);
+  border: 1px solid rgba(23, 20, 26, 0.18);
+  border-radius: 3px;
+  backdrop-filter: blur(6px);
+  outline: none;
+}
+
+.home-search-input::placeholder { color: rgba(23, 20, 26, 0.45); }
+
+.home-search-input:focus {
+  border-color: #2e1a0e;
+  background: rgba(255, 255, 255, 0.94);
+}
+
+/* Override the global 4px faded-cyan focus ring on the hero fields:
+   solid espresso, thinner. */
+.home-search-input:focus-visible,
+.home-qty:focus-visible,
+.home-unit:focus-visible,
+.home-add-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px #2e1a0e;
+}
+
+.home-add-btn:focus-visible {
+  box-shadow: 0 0 0 2px #2e1a0e, 0 5px 0 rgba(23, 20, 26, 0.45);
+}
+
+.home-search-clear {
+  position: absolute;
+  top: 50%;
+  right: 12px;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: rgba(23, 20, 26, 0.55);
+  font-size: 0.9rem;
+  cursor: pointer;
+  line-height: 1;
+  padding: 6px;
+}
+
+.home-search-clear:hover { color: #17141a; }
+
+/* Dropdown */
+.home-dropdown {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  z-index: 20;
+  max-height: 320px;
+  overflow-y: auto;
+  text-align: left;
+  background: rgba(255, 255, 255, 0.97);
+  border: 1px solid rgba(23, 20, 26, 0.18);
+  border-radius: 3px;
+  box-shadow: 0 12px 32px rgba(23, 20, 26, 0.18);
+  backdrop-filter: blur(8px);
+}
+
+.home-dropdown-note {
+  padding: 14px 16px;
+  font-size: 0.9rem;
+  color: rgba(23, 20, 26, 0.55);
+}
+
+.home-dropdown-item {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  padding: 12px 16px;
+  background: none;
+  border: none;
+  border-bottom: 1px solid rgba(23, 20, 26, 0.08);
+  text-align: left;
+  cursor: pointer;
+  font-family: var(--font-body);
+}
+
+.home-dropdown-item:last-child { border-bottom: none; }
+.home-dropdown-item:hover { background: rgba(23, 20, 26, 0.05); }
+
+.home-dropdown-name {
+  color: #17141a;
+  font-size: 0.95rem;
+}
+
+.home-dropdown-count {
+  flex-shrink: 0;
+  font-family: var(--font-mono, monospace);
+  font-size: 0.75rem;
+  color: rgba(23, 20, 26, 0.5);
+}
+
+/* Quantity / unit / add */
+.home-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.home-qty,
+.home-unit {
+  padding: 12px 14px;
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  color: #17141a;
+  background: rgba(255, 255, 255, 0.82);
+  border: 1px solid rgba(23, 20, 26, 0.18);
+  border-radius: 3px;
+  backdrop-filter: blur(6px);
+  outline: none;
+}
+
+.home-qty { width: 88px; text-align: center; }
+.home-unit { min-width: 130px; }
+
+.home-qty:disabled,
+.home-unit:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.home-add-btn {
+  padding: 12px 26px;
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #ffffff;
+  background: #17141a;
+  border: none;
+  border-radius: 3px;
+  box-shadow: 0 5px 0 rgba(23, 20, 26, 0.45);
+  cursor: pointer;
+  transition: transform 0.06s ease, box-shadow 0.06s ease;
+}
+
+.home-add-btn:hover:not(:disabled) { background: #241f28; }
+
+.home-add-btn:active:not(:disabled) {
+  transform: translateY(4px);
+  box-shadow: 0 1px 0 rgba(23, 20, 26, 0.45);
+}
+
+.home-add-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+@media (max-width: 600px) {
+  .home-hero { gap: 22px; }
+  .home-controls { width: 100%; max-width: 560px; }
+  .home-add-btn { flex: 1; }
+}
+
 .home-page header {
-  background: #000;
+  background: transparent;
   border-bottom: none;
   padding: 18px 0;
+}
+
+/* Header sits on the pale banana art here, so its dark-bar colours
+   (--text-2, --accent-text) would wash out. Re-tone to the headline brown. */
+.home-page .logo {
+  color: #2e1a0e;
+}
+
+.home-page nav a {
+  color: rgba(46, 26, 14, 0.72);
+}
+
+.home-page nav a:hover {
+  color: #2e1a0e;
+}
+
+.home-page .user-avatar {
+  background: rgba(46, 26, 14, 0.06);
+  border-color: rgba(46, 26, 14, 0.28);
+  color: #2e1a0e;
+}
+
+/* --- Section below the hero ---
+   Background sampled from public/design/banana.png (#ffe1d9) so the seam
+   with the artwork above is invisible. */
+.home-section {
+  position: relative;
+  z-index: 1;
+  background: #ffe1d9;
+  color: #2e1a0e;
+  padding: 96px 24px 104px;
+}
+
+.home-section-inner {
+  max-width: 720px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.home-section-title {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(1.9rem, 4.5vw, 3rem);
+  line-height: 1.1;
+  letter-spacing: -0.015em;
+  color: #2e1a0e;
+  margin: 0 0 20px;
+}
+
+.home-section-lead {
+  font-family: var(--font-body);
+  font-size: 1.0625rem;
+  line-height: 1.6;
+  color: rgba(46, 26, 14, 0.75);
+  margin: 0 auto;
+  max-width: 54ch;
+}
+
+.home-stats {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 24px;
+  margin-top: 56px;
+}
+
+.home-stat {
+  flex: 1 1 180px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 24px 16px;
+  border: 1px solid rgba(46, 26, 14, 0.16);
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.35);
+}
+
+.home-stat-value {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 5vw, 2.75rem);
+  line-height: 1;
+  color: #2e1a0e;
+}
+
+.home-stat-label {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(46, 26, 14, 0.6);
+}
+
+/* Low-poly panel below the stat cards */
+.home-feature {
+  margin-top: 32px;
+  padding: 120px 32px;
+  border-radius: 14px;
+  overflow: hidden;
+  background-image: url('/nutri/design/bakgrunn.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.home-feature-title {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(2rem, 5.5vw, 3.5rem);
+  line-height: 1.05;
+  letter-spacing: -0.015em;
+  color: #ffffff;
+  margin: 0;
+  max-width: 18ch;
+  /* Prominent short shadows — stacked tight offsets, not a soft blur */
+  text-shadow:
+    0 2px 0 rgba(46, 26, 14, 0.55),
+    0 4px 0 rgba(46, 26, 14, 0.35),
+    0 6px 10px rgba(46, 26, 14, 0.3);
+}
+
+@media (max-width: 600px) {
+  .home-section { padding: 64px 24px 72px; }
+  .home-stats { gap: 16px; margin-top: 40px; }
+  .home-feature { padding: 72px 24px; margin-top: 24px; }
 }
 
 /* Hero Section - Split 7/5 */
@@ -2756,7 +3076,7 @@ section {
 /* Header */
 header {
   background: transparent;
-  border-bottom: 4px solid var(--border);
+  border-bottom: 4px solid var(--divider);
   padding: 14px 0;
   flex-shrink: 0;
 }
@@ -3972,16 +4292,33 @@ nav a:hover {
 
 .dv-bar {
   width: 100%;
-  height: 8px;
-  background: var(--border);
-  border-radius: 4px;
+  height: 18px;
+  background: linear-gradient(to right, var(--text-3) 0%, var(--accent) 50%, var(--accent-text) 100%);
+  border-radius: 3px;
   overflow: hidden;
   position: relative;
 }
 
+/* "Unfilled" veil — covers the gradient from the right, exposing only the
+   filled portion. Its `left` position is set inline to (fillPct)%. The veil's
+   color matches the empty-bar background so it reads as the unfilled track. */
 .dv-bar-fill {
-  height: 100%;
-  background: var(--accent);
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  background: var(--border);
+  transition: left 300ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* UL overflow: pure-magenta panel growing in from the right side, OVER the
+   gradient. Used when intake exceeds the target. */
+.dv-bar-overflow {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  background: var(--accent-text);
   transition: width 300ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -4017,11 +4354,12 @@ nav a:hover {
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
-  font-size: 9px;
-  font-weight: 400;
-  color: var(--text-3);
+  font-size: 11px;
+  font-weight: 500;
+  color: #ffffff;
   white-space: nowrap;
-  z-index: 1;
+  z-index: 2;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.55);
 }
 
 /* Confidence badge - 3 tier system */

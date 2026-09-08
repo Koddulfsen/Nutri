@@ -42,10 +42,12 @@ export default function CarouselPhase({
 }: CarouselPhaseProps) {
   const [manualQuery, setManualQuery] = useState(searchQuery);
   const [showAllResults, setShowAllResults] = useState(false);
+  const [picksCollapsed, setPicksCollapsed] = useState(false);
 
   // Reset local state whenever source changes (including auto-advance after pick/skip)
   useEffect(() => {
     setShowAllResults(false);
+    setPicksCollapsed(false);
     setManualQuery(searchQuery);
   }, [currentSourceIndex, searchQuery]);
 
@@ -72,6 +74,7 @@ export default function CarouselPhase({
     if (manualQuery.trim()) {
       onManualSearch(currentSource.code, manualQuery.trim());
       setShowAllResults(true);
+      setPicksCollapsed(true);
     }
   };
 
@@ -99,8 +102,30 @@ export default function CarouselPhase({
       {/* AI Picks */}
       {aiPicks.length > 0 && (
         <div className="ai-picks-section">
-          <div className="section-label">
-            {results?.aiRanked ? 'AI Picks' : 'Top Results'}
+          {picksCollapsed ? (
+            <button
+              className="picks-collapsed-bar"
+              onClick={() => setPicksCollapsed(false)}
+            >
+              <span className="section-label" style={{ marginBottom: 0 }}>
+                {results?.aiRanked ? 'AI Picks' : 'Top Results'} ({aiPicks.length})
+              </span>
+              {selectedFood && aiPicks.some((p) => p.apiId === selectedFood.apiId) && (
+                <span className="picks-collapsed-sel">{selectedFood.name}</span>
+              )}
+              <span className="picks-chevron">{'▾'}</span>
+            </button>
+          ) : (
+            <>
+          <div className="section-label picks-label-row">
+            <span>{results?.aiRanked ? 'AI Picks' : 'Top Results'}</span>
+            <button
+              type="button"
+              className="picks-hide-btn"
+              onClick={() => setPicksCollapsed(true)}
+            >
+              Hide
+            </button>
           </div>
           <div className="picks-list">
             {aiPicks.map((food, i) => (
@@ -123,6 +148,8 @@ export default function CarouselPhase({
               </div>
             ))}
           </div>
+            </>
+          )}
         </div>
       )}
 
@@ -327,10 +354,63 @@ export default function CarouselPhase({
           margin-bottom: 8px;
         }
 
+        .ai-picks-section { flex-shrink: 0; }
+
         .picks-list {
           display: flex;
           flex-direction: column;
           gap: 4px;
+          max-height: 300px;
+          overflow-y: auto;
+        }
+
+        .picks-label-row {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+        }
+
+        .picks-hide-btn {
+          background: none;
+          border: none;
+          color: var(--text-3, #484860);
+          font-size: 10px;
+          text-transform: uppercase;
+          letter-spacing: 0.1em;
+          cursor: pointer;
+          font-family: var(--font-body, 'DM Sans', sans-serif);
+        }
+
+        .picks-hide-btn:hover { color: var(--text-2, #8080a0); }
+
+        .picks-collapsed-bar {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          width: 100%;
+          padding: 8px 12px;
+          background: var(--bg-accent, #0f0f0f);
+          border: 1px solid var(--border, #1e1e24);
+          border-radius: 3px;
+          cursor: pointer;
+          font-family: var(--font-body, 'DM Sans', sans-serif);
+        }
+
+        .picks-collapsed-sel {
+          flex: 1;
+          min-width: 0;
+          text-align: left;
+          font-size: 12px;
+          color: var(--accent, #508898);
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+
+        .picks-chevron {
+          margin-left: auto;
+          color: var(--text-3, #484860);
+          font-size: 10px;
         }
 
         .pick-item {
@@ -437,7 +517,7 @@ export default function CarouselPhase({
           background: var(--surface, #050505);
           border: 1px solid transparent;
           border-radius: 3px;
-          box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.5);
+          box-shadow: none;
           color: var(--text-1, #e8e8f4);
           font-size: 13px;
           font-family: var(--font-body, 'DM Sans', sans-serif);

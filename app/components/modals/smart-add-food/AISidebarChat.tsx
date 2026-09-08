@@ -173,7 +173,7 @@ export default function AISidebarChat({ messages, loading, onSendMessage }: AISi
           background: var(--surface, #050505);
           border: 1px solid transparent;
           border-radius: 3px;
-          box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.5);
+          box-shadow: none;
           color: var(--text-1, #e8e8f4);
           font-family: var(--font-body, 'DM Sans', sans-serif);
           font-size: 13px;

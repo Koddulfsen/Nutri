@@ -164,13 +164,13 @@ export default function HeroSearch({ isAuthed = false }: HeroSearchProps) {
   };
 
   return (
-    <div className="hero-search-wrap">
-      <h1 className="hero-title">The world&apos;s food data, unified.</h1>
+    <div className="home-hero">
+      <h1 className="home-headline">wtf is even in a banana?</h1>
 
-      <div className="hero-search-box">
+      <div className="home-search">
         <input
+          className="home-search-input"
           type="text"
-          className="hero-search-input"
           placeholder="Try banana, chicken breast, olive oil..."
           value={query}
           onChange={(e) => {
@@ -182,28 +182,28 @@ export default function HeroSearch({ isAuthed = false }: HeroSearchProps) {
           autoFocus
         />
         {selectedFood && (
-          <button className="clear-btn" onClick={handleClearSelection} aria-label="Clear selection">
+          <button className="home-search-clear" onClick={handleClearSelection} aria-label="Clear selection">
             &#x2715;
           </button>
         )}
         {dropdownOpen && !selectedFood && (loading || results.length > 0 || query.trim()) && (
-          <div className="hero-search-dropdown">
-            {loading && <div className="hero-search-status">Searching…</div>}
+          <div className="home-dropdown">
+            {loading && <div className="home-dropdown-note">Searching…</div>}
             {!loading && results.length === 0 && query.trim() && (
-              <div className="hero-search-status">No results</div>
+              <div className="home-dropdown-note">No results</div>
             )}
             {results.map((r) => (
               <button
+                className="home-dropdown-item"
                 key={r.id}
-                className="hero-search-result"
                 onMouseDown={(e) => {
                   e.preventDefault();
                   handleSelectFood(r);
                 }}
               >
-                <span className="result-name">{r.name}</span>
+                <span className="home-dropdown-name">{r.name}</span>
                 {r.compoundCount != null && r.compoundCount > 0 && (
-                  <span className="result-meta">{r.compoundCount} compounds</span>
+                  <span className="home-dropdown-count">{r.compoundCount} compounds</span>
                 )}
               </button>
             ))}
@@ -211,17 +211,17 @@ export default function HeroSearch({ isAuthed = false }: HeroSearchProps) {
         )}
       </div>
 
-      <div className={`hero-add-row ${selectedFood ? 'active' : 'inactive'}`}>
+      <div className="home-controls">
         <input
+          className="home-qty"
           type="number"
-          className="hero-quantity-input"
           value={quantity}
           onChange={(e) => setQuantity(e.target.value)}
           min="0"
           disabled={!selectedFood}
         />
         <select
-          className="hero-unit-select"
+          className="home-unit"
           value={selectedUnit}
           onChange={(e) => setSelectedUnit(e.target.value)}
           disabled={!selectedFood}
@@ -240,242 +240,13 @@ export default function HeroSearch({ isAuthed = false }: HeroSearchProps) {
           )}
         </select>
         <button
-          className="hero-add-btn"
+          className="home-add-btn"
           onClick={handleAddFood}
           disabled={!selectedFood || adding}
         >
           {adding ? 'Adding...' : 'Add food'}
         </button>
       </div>
-
-      <style jsx>{`
-        .hero-search-wrap {
-          position: absolute;
-          top: 50%;
-          left: 50%;
-          transform: translate(-50%, -50%);
-          width: 100%;
-          max-width: 680px;
-          padding: 0 24px;
-          text-align: center;
-        }
-
-        .hero-title {
-          font-family: var(--font-display, 'Instrument Serif', serif);
-          font-size: 56px;
-          font-weight: 400;
-          letter-spacing: -0.01em;
-          line-height: 1.05;
-          color: var(--text-1, #e8e8f4);
-          margin: 0 0 28px 0;
-        }
-
-        @media (max-width: 640px) {
-          .hero-title {
-            font-size: 40px;
-          }
-        }
-
-        .hero-search-box {
-          position: relative;
-        }
-
-        .hero-search-input {
-          width: 100%;
-          height: 80px;
-          padding: 0 52px 0 28px;
-          background: #000;
-          border: 1px solid rgba(255, 255, 255, 0.1);
-          border-radius: 3px;
-          color: var(--text-1, #e8e8f4);
-          font-family: var(--font-display, 'Instrument Serif', serif);
-          font-size: 28px;
-          font-weight: 400;
-          outline: none;
-          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
-          transition: border-color 0.2s ease, background 0.2s ease;
-        }
-
-        .hero-search-input::placeholder {
-          color: rgba(255, 255, 255, 0.35);
-          font-style: italic;
-        }
-
-        .hero-search-input:focus {
-          border-color: transparent;
-          background: #000;
-          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4), 0 0 0 4px rgba(34, 211, 238, 0.3);
-        }
-
-        .clear-btn {
-          position: absolute;
-          right: 18px;
-          top: 50%;
-          transform: translateY(-50%);
-          background: transparent;
-          border: none;
-          color: var(--text-3, #484860);
-          font-size: 16px;
-          cursor: pointer;
-          padding: 6px 8px;
-          line-height: 1;
-          transition: color 0.15s;
-        }
-
-        .clear-btn:hover {
-          color: var(--text-1, #e8e8f4);
-        }
-
-        .hero-search-dropdown {
-          position: absolute;
-          top: calc(100% + 6px);
-          left: 0;
-          right: 0;
-          background: #000;
-          border: 1px solid rgba(255, 255, 255, 0.1);
-          border-radius: 3px;
-          overflow: hidden;
-          max-height: 420px;
-          overflow-y: auto;
-          box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
-          text-align: left;
-          z-index: 2;
-        }
-
-        .hero-search-result {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          width: 100%;
-          padding: 12px 20px;
-          background: transparent;
-          border: none;
-          border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-          color: var(--text-1, #e8e8f4);
-          font-family: var(--font-body, 'DM Sans', sans-serif);
-          font-size: 14px;
-          cursor: pointer;
-          text-align: left;
-          transition: background 0.15s ease;
-        }
-
-        .hero-search-result:last-child {
-          border-bottom: none;
-        }
-
-        .hero-search-result:hover {
-          background: rgba(80, 136, 152, 0.1);
-        }
-
-        .result-name {
-          color: var(--text-1, #e8e8f4);
-        }
-
-        .result-meta {
-          font-family: var(--font-mono, 'DM Mono', monospace);
-          font-size: 11px;
-          color: var(--text-3, #484860);
-        }
-
-        .hero-search-status {
-          padding: 16px 20px;
-          color: var(--text-3, #484860);
-          font-size: 13px;
-          font-style: italic;
-          text-align: center;
-        }
-
-        /* Add row */
-        .hero-add-row {
-          display: flex;
-          gap: 12px;
-          margin-top: 16px;
-          transition: opacity 0.2s ease;
-        }
-
-        .hero-add-row.inactive {
-          opacity: 0.65;
-        }
-
-        .hero-add-row .hero-quantity-input,
-        .hero-add-row .hero-unit-select,
-        .hero-add-row .hero-add-btn {
-          flex: 1 1 0;
-          min-width: 0;
-        }
-
-        .hero-quantity-input {
-          height: 60px;
-          padding: 0 16px;
-          background: #000;
-          border: 1px solid rgba(255, 255, 255, 0.1);
-          border-radius: 3px;
-          color: var(--text-1, #e8e8f4);
-          font-family: var(--font-body, 'DM Sans', sans-serif);
-          font-size: 16px;
-          outline: none;
-          text-align: center;
-          width: 100%;
-          box-sizing: border-box;
-          transition: border-color 0.15s;
-        }
-
-        .hero-quantity-input:focus {
-          border-color: var(--accent, #508898);
-        }
-
-        .hero-unit-select {
-          height: 60px;
-          padding: 0 16px;
-          background: #000;
-          border: 1px solid rgba(255, 255, 255, 0.1);
-          border-radius: 3px;
-          color: var(--text-1, #e8e8f4);
-          font-family: var(--font-body, 'DM Sans', sans-serif);
-          font-size: 14px;
-          cursor: pointer;
-          outline: none;
-          -webkit-appearance: none;
-          appearance: none;
-          width: 100%;
-          box-sizing: border-box;
-          transition: border-color 0.15s;
-        }
-
-        .hero-unit-select:focus {
-          border-color: var(--accent, #508898);
-        }
-
-        .hero-add-btn {
-          height: 60px;
-          background: var(--accent, #508898);
-          color: #fff;
-          border: none;
-          border-radius: 3px;
-          font-family: var(--font-body, 'DM Sans', sans-serif);
-          font-size: 14px;
-          font-weight: 500;
-          cursor: pointer;
-          box-shadow: 0 5px 0 var(--accent-dark, #306070);
-          transform: translateY(0);
-          transition: transform 0.08s, box-shadow 0.08s;
-        }
-
-        .hero-add-btn:hover:not(:disabled) {
-          transform: translateY(2px);
-          box-shadow: 0 3px 0 var(--accent-dark, #306070);
-        }
-
-        .hero-add-btn:active:not(:disabled) {
-          transform: translateY(5px);
-          box-shadow: 0 0 0 var(--accent-dark, #306070);
-        }
-
-        .hero-add-btn:disabled {
-          opacity: 0.4;
-          cursor: default;
-        }
-      `}</style>
     </div>
   );
 }

@@ -205,13 +205,15 @@ export default function CompoundTooltip({
 
           <style jsx>{`
             .compound-tooltip {
-              background: rgba(0, 0, 0, 0.95);
+              background: #fff7f4;
+              color: #2e1a0e;
               border: 1px solid rgba(34, 211, 238, 0.3);
               border-radius: 8px;
               padding: 12px;
               min-width: 280px;
               max-width: 350px;
-              box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+              box-shadow: 0 8px 28px rgba(46, 26, 14, 0.22);
+              border: 1px solid rgba(46, 26, 14, 0.16);
               backdrop-filter: blur(8px);
             }
 
@@ -221,13 +223,13 @@ export default function CompoundTooltip({
               justify-content: space-between;
               gap: 8px;
               padding-bottom: 8px;
-              border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+              border-bottom: 1px solid rgba(46, 26, 14, 0.12);
               margin-bottom: 8px;
             }
 
             .tooltip-title {
               font-weight: 600;
-              color: var(--cyan, #22d3ee);
+              color: var(--accent-dark, #306070);
               font-size: 13px;
             }
 
@@ -239,7 +241,7 @@ export default function CompoundTooltip({
             .tooltip-loading,
             .tooltip-error,
             .tooltip-empty {
-              color: rgba(255, 255, 255, 0.5);
+              color: rgba(46, 26, 14, 0.6);
               font-size: 12px;
               padding: 8px 0;
             }
@@ -253,17 +255,17 @@ export default function CompoundTooltip({
               justify-content: space-between;
               align-items: center;
               padding: 6px 0;
-              border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+              border-bottom: 1px solid rgba(46, 26, 14, 0.12);
               margin-bottom: 8px;
             }
 
             .total-label {
-              color: rgba(255, 255, 255, 0.7);
+              color: rgba(46, 26, 14, 0.72);
               font-size: 12px;
             }
 
             .total-value {
-              color: var(--cyan, #22d3ee);
+              color: var(--accent-dark, #306070);
               font-weight: 600;
               font-size: 14px;
             }
@@ -285,7 +287,7 @@ export default function CompoundTooltip({
             }
 
             .food-name {
-              color: #fff;
+              color: #2e1a0e;
               font-size: 12px;
               flex: 1;
               white-space: nowrap;
@@ -294,7 +296,7 @@ export default function CompoundTooltip({
             }
 
             .food-amount {
-              color: rgba(255, 255, 255, 0.8);
+              color: rgba(46, 26, 14, 0.8);
               font-size: 12px;
               font-weight: 500;
             }
@@ -309,8 +311,8 @@ export default function CompoundTooltip({
 
             .source-item {
               font-size: 10px;
-              color: rgba(255, 255, 255, 0.5);
-              background: rgba(255, 255, 255, 0.05);
+              color: rgba(46, 26, 14, 0.6);
+              background: rgba(46, 26, 14, 0.05);
               padding: 2px 6px;
               border-radius: 4px;
             }
