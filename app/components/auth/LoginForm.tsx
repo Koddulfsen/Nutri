@@ -67,32 +67,42 @@ export default function LoginForm({ error: initialError }: LoginFormProps) {
         </div>
       )}
 
-      {/* OAuth Buttons */}
-      <div className="oauth-buttons">
-        <button
-          type="button"
-          onClick={() => handleOAuthLogin('google')}
-          className="oauth-btn google"
-        >
-          <div className="oauth-icon">G</div>
-          <span>Continue with Google</span>
-        </button>
-        <button
-          type="button"
-          onClick={() => handleOAuthLogin('apple')}
-          className="oauth-btn apple"
-        >
-          <div className="oauth-icon" style={{ background: 'var(--white)', color: 'var(--black)' }}>
-            A
-          </div>
-          <span>Continue with Apple</span>
-        </button>
-      </div>
+      {/* OAuth. Hidden unless NEXT_PUBLIC_ENABLE_OAUTH is 'true', because a
+          provider that is not configured in Supabase gives the user a button
+          that only produces an error. Set that variable once Google (and/or
+          Apple) actually has credentials, and these come back with no code
+          change. */}
+      {process.env.NEXT_PUBLIC_ENABLE_OAUTH === 'true' && (
+        <>
+        <div className="oauth-buttons">
+          <button
+            type="button"
+            onClick={() => handleOAuthLogin('google')}
+            className="oauth-btn google"
+          >
+            <div className="oauth-icon">G</div>
+            <span>Continue with Google</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => handleOAuthLogin('apple')}
+            className="oauth-btn apple"
+          >
+            <div className="oauth-icon" style={{ background: 'var(--white)', color: 'var(--black)' }}>
+              A
+            </div>
+            <span>Continue with Apple</span>
+          </button>
+        </div>
+        </>
+      )}
 
-      {/* Divider */}
-      <div className="divider">
-        <span>or continue with email</span>
-      </div>
+      {/* Divider — only meaningful when there is something to divide from. */}
+      {process.env.NEXT_PUBLIC_ENABLE_OAUTH === 'true' && (
+        <div className="divider">
+          <span>or continue with email</span>
+        </div>
+      )}
 
       {/* Login Form */}
       <form onSubmit={handleSubmit}>
