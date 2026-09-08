@@ -52,7 +52,7 @@ function preFilterResults(
   searchSynonyms: string[],
   results: NormalizedResult[],
   sourceCode: string,
-  limit = 25
+  limit = 400
 ): NormalizedResult[] {
   const rawTokens = [canonicalName, ...searchSynonyms]
     .join(' ')
@@ -440,7 +440,46 @@ const SOURCE_DEFS: SourceSearchDef[] = [
   },
 ];
 
-/** AI rank results for a single source, with concurrency limiting */
+/** Batch size for a single AI ranking call. */
+const RANK_BATCH_SIZE = 40;
+/** How many ranking calls run at once for one source. */
+const RANK_BATCH_CONCURRENCY = 4;
+
+/** Rank one batch (<= RANK_BATCH_SIZE) and return the matched picks in rank order. */
+async function rankOneBatch(
+  canonicalFood: string,
+  sourceDef: SourceSearchDef,
+  batch: NormalizedResult[]
+): Promise<NormalizedResult[]> {
+  const messages = buildRankMessages(
+    canonicalFood,
+    sourceDef.code,
+    sourceDef.name,
+    batch.map((r) => ({
+      id: r.apiId,
+      name: r.name,
+      description: r.description,
+      nutrientCount: r.nutrientCount,
+    }))
+  );
+
+  const raw = await chatCompletion(getRankSystemPrompt(), messages);
+  const cleaned = raw.replace(/```json\s*/g, '').replace(/```\s*/g, '').trim();
+  const ranked: Array<{ id: string; rank: number; reason: string }> = JSON.parse(cleaned);
+
+  const picks: NormalizedResult[] = [];
+  for (const pick of ranked.sort((a, b) => a.rank - b.rank)) {
+    const found = batch.find((r) => r.apiId === pick.id);
+    if (found && !picks.some((p) => p.apiId === found.apiId)) picks.push(found);
+  }
+  return picks;
+}
+
+/**
+ * AI rank results for a single source.
+ * Small lists go straight to one call. Large lists are split into batches so
+ * EVERY candidate is seen by the model, then the batch winners are re-ranked.
+ */
 async function rankSourceResults(
   canonicalFood: string,
   sourceDef: SourceSearchDef,
@@ -455,32 +494,39 @@ async function rankSourceResults(
   }
 
   try {
-    const messages = buildRankMessages(
-      canonicalFood,
-      sourceDef.code,
-      sourceDef.name,
-      results.map((r) => ({
-        id: r.apiId,
-        name: r.name,
-        description: r.description,
-        nutrientCount: r.nutrientCount,
-      }))
-    );
-
-    const raw = await chatCompletion(getRankSystemPrompt(), messages);
-    const cleaned = raw.replace(/```json\s*/g, '').replace(/```\s*/g, '').trim();
-    const ranked: Array<{ id: string; rank: number; reason: string }> = JSON.parse(cleaned);
-
-    const topPicks: NormalizedResult[] = [];
-    const missingIds: string[] = [];
-    for (const pick of ranked.sort((a, b) => a.rank - b.rank)) {
-      const found = results.find((r) => r.apiId === pick.id);
-      if (found) topPicks.push(found);
-      else missingIds.push(pick.id);
+    // Split into batches; a single batch when the list is already small.
+    const batches: NormalizedResult[][] = [];
+    for (let i = 0; i < results.length; i += RANK_BATCH_SIZE) {
+      batches.push(results.slice(i, i + RANK_BATCH_SIZE));
     }
 
-    const capped = topPicks.slice(0, 5);
-    const aiRanked = capped.length > 0;
+    // Rank every batch (bounded concurrency) so no candidate is skipped.
+    const batchWinners: NormalizedResult[] = [];
+    for (let i = 0; i < batches.length; i += RANK_BATCH_CONCURRENCY) {
+      const slice = batches.slice(i, i + RANK_BATCH_CONCURRENCY);
+      const settled = await Promise.allSettled(
+        slice.map((b) => rankOneBatch(canonicalFood, sourceDef, b))
+      );
+      for (const s of settled) {
+        if (s.status === 'fulfilled') {
+          for (const p of s.value.slice(0, 5)) {
+            if (!batchWinners.some((w) => w.apiId === p.apiId)) batchWinners.push(p);
+          }
+        }
+      }
+    }
+
+    // Final re-rank across the pooled winners when there's more than one batch.
+    let finalPicks: NormalizedResult[];
+    if (batches.length === 1) {
+      finalPicks = batchWinners.slice(0, 5);
+    } else if (batchWinners.length <= 5) {
+      finalPicks = batchWinners;
+    } else {
+      finalPicks = (await rankOneBatch(canonicalFood, sourceDef, batchWinners)).slice(0, 5);
+    }
+
+    const aiRanked = finalPicks.length > 0;
 
     logger.debug(
       {
@@ -488,16 +534,15 @@ async function rankSourceResults(
         source: sourceDef.code,
         stage: 'rank',
         inputCount: results.length,
-        rankedCount: ranked.length,
-        matchedCount: topPicks.length,
-        missingIds,
-        finalPicks: capped.map((p) => p.name),
+        batchCount: batches.length,
+        pooledWinners: batchWinners.length,
+        finalPicks: finalPicks.map((p) => p.name),
         usedFallback: !aiRanked,
       },
       aiRanked ? 'AI rank succeeded' : 'AI rank returned no matching IDs — using fallback'
     );
 
-    return { aiTopPicks: aiRanked ? capped : results.slice(0, 5), aiRanked };
+    return { aiTopPicks: aiRanked ? finalPicks : results.slice(0, 5), aiRanked };
   } catch (error) {
     logger.warn(
       {
@@ -615,7 +660,8 @@ export async function POST(request: NextRequest): Promise<Response> {
         }
 
         // Rank with concurrency limit
-        const CONCURRENCY = 6;
+        // Kept modest: each source may now fan out into several batched rank calls.
+        const CONCURRENCY = 3;
         for (let i = 0; i < sourcesWithResults.length; i += CONCURRENCY) {
           const batch = sourcesWithResults.slice(i, i + CONCURRENCY);
           const rankPromises = batch.map(async (s) => {

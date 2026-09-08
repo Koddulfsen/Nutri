@@ -18,6 +18,7 @@ import { mealLogs, mealItems, dailyTotals, mergedNutrients, compounds, foodNutri
 import { eq, and, inArray } from 'drizzle-orm';
 import { logger } from '@/lib/logger';
 import { redis } from './redis';
+import { expandFoodsToAtomsBatch, type ExpandedAtom } from './food-expansion';
 
 /**
  * Compound value with confidence
@@ -126,8 +127,23 @@ export async function calculateDailyTotals(userId: string, date: string, mealIds
       return [];
     }
 
-    // Step 3: Fetch nutrient values for all foods from merged_nutrients AND food_nutrient_values
-    const foodIds = [...new Set(items.map((item) => item.foodId))];
+    // Step 2.5: Expand composites to atoms.
+    // Items pointing at composite foods with rows in `food_components` get
+    // recursively decomposed into their constituent atoms (or composite-without-
+    // components leaves), with grams scaled proportionally. Atoms pass through
+    // unchanged. The downstream nutrient query then runs against atom IDs only.
+    const expandedAtoms: ExpandedAtom[] = await expandFoodsToAtomsBatch(
+      items.map((item) => ({
+        foodId: item.foodId,
+        // Treat portionSize as grams (the nutrient values are per 100g).
+        // This matches the pre-existing assumption in the legacy aggregation path.
+        grams: parseFloat(item.portionSize) || 100,
+      }))
+    );
+
+    // Step 3: Fetch nutrient values for all foods (now atom-resolved) from
+    // merged_nutrients AND food_nutrient_values
+    const foodIds = [...new Set(expandedAtoms.map((a) => a.foodId))];
 
     // Query merged_nutrients (USDA/CNF data)
     const mergedNutrientValues = await db
@@ -213,12 +229,12 @@ export async function calculateDailyTotals(userId: string, date: string, mealIds
       }
     >();
 
-    for (const item of items) {
-      // Convert portion to 100g basis (nutrients are per 100g)
-      const portionMultiplier = (parseFloat(item.portionSize) || 100) / 100;
+    for (const atom of expandedAtoms) {
+      // Convert atom grams to 100g basis (nutrients are per 100g)
+      const portionMultiplier = atom.grams / 100;
 
-      // Find nutrient values for this food
-      const nutrients = nutrientValues.filter((nv) => nv.foodId === item.foodId);
+      // Find nutrient values for this atom
+      const nutrients = nutrientValues.filter((nv) => nv.foodId === atom.foodId);
 
       for (const nutrient of nutrients) {
         // Skip if no compoundId (legacy data)

@@ -19,6 +19,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { cnfClient } from '@/lib/services/cnf-client';
 import { logger } from '@/lib/logger';
+import { requireUser } from '@/lib/auth/api-guard';
 
 /**
  * Query parameters schema validation
@@ -71,6 +72,12 @@ interface CNFSearchResponse {
 export const maxDuration = 60;
 
 export async function GET(request: NextRequest): Promise<NextResponse<CNFSearchResponse | { error: string; details?: any }>> {
+  // Proxies to the external Health Canada API. Requires a session so anonymous
+  // callers cannot burn our upstream rate limit.
+  const denied = await requireUser();
+  if (denied) return denied;
+
+
   const startTime = Date.now();
 
   try {

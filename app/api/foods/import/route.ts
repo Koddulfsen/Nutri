@@ -38,9 +38,9 @@ export async function POST(request: NextRequest) {
   try {
     // Step 1: Authentication check
     const supabase = await createClient();
-    const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+    const { data: { user }, error: sessionError } = await supabase.auth.getUser();
 
-    if (sessionError || !session) {
+    if (sessionError || !user) {
       logger.warn(
         { service: 'food-import-api', endpoint: '/api/foods/import' },
         'Unauthorized import attempt'
@@ -52,7 +52,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const userId = session.user.id;
+    const userId = user.id;
 
     // Step 2: Parse and validate request body
     const body = await request.json();

@@ -20,6 +20,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { searchService } from '@/lib/search/search-service';
+import { createClient } from '@/lib/supabase/server';
 import { logger } from '@/lib/logger';
 
 /**
@@ -106,6 +107,12 @@ export async function GET(request: NextRequest) {
       'Executing food search'
     );
 
+    // Resolve current user for visibility scoping (private foods are only
+    // visible to their creator). Search remains usable for unauthenticated
+    // visitors — they just see public foods.
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+
     // Step 2: Execute search
     const searchResponse = await searchService.searchFoods({
       query: params.q,
@@ -116,6 +123,7 @@ export async function GET(request: NextRequest) {
       limit: params.limit,
       sortBy: params.sortBy,
       sortOrder: params.sortOrder,
+      userId: user?.id,
     });
 
     // Step 3: If no results, get suggestions

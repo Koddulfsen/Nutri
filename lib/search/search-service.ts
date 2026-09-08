@@ -21,6 +21,21 @@ import { cnfClient } from '@/lib/services/cnf-client';
 import { logger } from '@/lib/logger';
 
 /**
+ * Shape of a `foods` row as selected by `searchDatabase`.
+ *
+ * The Supabase client is constructed without a generated `Database` type, so
+ * PostgREST results are untyped at compile time. This mirrors the explicit
+ * select list in `searchDatabase` — keep the two in sync.
+ */
+interface FoodSearchRow {
+  id: string;
+  fdc_id: number | null;
+  name: string;
+  description: string | null;
+  food_category_id: string | null;
+}
+
+/**
  * Search result
  */
 export interface SearchResult {
@@ -149,7 +164,7 @@ export class SearchService {
    */
   private async searchDatabase(options: SearchOptions): Promise<SearchResult[]> {
     try {
-      const { query, category, brand, isEstimated, page = 1, limit = 20 } = options;
+      const { query, category, brand, isEstimated, page = 1, limit = 20, userId } = options;
       const offset = (page - 1) * limit;
 
       // Create Supabase client (uses REST API which works with IPv4)
@@ -159,6 +174,14 @@ export class SearchService {
       let dbQuery = supabase
         .from('foods')
         .select('id, fdc_id, name, description, food_category_id');
+
+      // Visibility filter — public foods are always returned; private foods
+      // only when an authenticated user is querying their own.
+      if (userId) {
+        dbQuery = dbQuery.or(`visibility.eq.public,and(visibility.eq.private,created_by.eq.${userId})`);
+      } else {
+        dbQuery = dbQuery.eq('visibility', 'public');
+      }
 
       // Text search - use ilike for pattern matching
       if (query && query.trim().length > 0) {
@@ -197,12 +220,17 @@ export class SearchService {
         return [];
       }
 
+      // The Supabase client is created without a generated `Database` type, so
+      // query results come back untyped. Annotate against the select list above
+      // rather than widening to `any`, so the fields used below stay checked.
+      const rows = data as FoodSearchRow[];
+
       // Get compound counts for the found foods
-      const foodIds = data.map((food) => food.id);
+      const foodIds = rows.map((food) => food.id);
       const compoundCounts = await this.getCompoundCounts(supabase, foodIds);
 
       // Transform to SearchResult format with compound counts
-      return data.map((food) => ({
+      return rows.map((food) => ({
         id: food.id,
         fdcId: food.fdc_id || 0,
         name: food.name,
@@ -419,7 +447,7 @@ export class SearchService {
         throw error;
       }
 
-      return data?.map((r) => r.name) || [];
+      return (data as { name: string }[] | null)?.map((r) => r.name) || [];
     } catch (error) {
       logger.warn(
         {

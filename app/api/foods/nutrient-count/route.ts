@@ -20,6 +20,7 @@ import { usdaClient } from '@/lib/services/usda-client';
 import { db } from '@/db';
 import { sql } from 'drizzle-orm';
 import { logger } from '@/lib/logger';
+import { requireUser } from '@/lib/auth/api-guard';
 
 /**
  * Query parameters schema validation
@@ -49,6 +50,12 @@ export const maxDuration = 30;
 export async function GET(
   request: NextRequest
 ): Promise<NextResponse<NutrientCountResponse | { error: string; details?: any }>> {
+  // Reaches external sources to count nutrients. Requires a session so anonymous
+  // callers cannot burn upstream rate limits.
+  const denied = await requireUser();
+  if (denied) return denied;
+
+
   const startTime = Date.now();
 
   try {

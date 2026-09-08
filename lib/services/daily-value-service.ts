@@ -47,7 +47,8 @@ export type SourceRegion = 'USA_CANADA' | 'EU' | 'UK' | 'JAPAN' | 'CHINA' | 'AU_
 export type SourcePreference = 'AVERAGE' | SourceRegion;
 
 export interface UserDemographics {
-  birthDate: Date | null;
+  birthYear: number | null;
+  birthMonth: number | null;
   biologicalSex: BiologicalSex | null;
   lifeStage: LifeStage;
   manualAgeGroup: AgeGroup | null;
@@ -79,12 +80,19 @@ export interface DisplaySettings {
 // ═══════════════════════════════════════════════════════════════
 
 /**
- * Calculate age group from birth date
+ * Calculate age group from birth year and month.
+ *
+ * Takes year+month rather than a full date because the day was never used: the
+ * previous signature accepted a Date and read only getFullYear()/getMonth().
+ * Storing the day was therefore pure over-collection of a strong quasi-identifier.
+ *
+ * @param birthYear  four-digit year, e.g. 1990
+ * @param birthMonth 1-12 (note: NOT zero-based, unlike JS Date)
  */
-export function calculateAgeGroup(birthDate: Date): AgeGroup {
+export function calculateAgeGroup(birthYear: number, birthMonth: number): AgeGroup {
   const today = new Date();
   const ageInMonths =
-    (today.getFullYear() - birthDate.getFullYear()) * 12 + (today.getMonth() - birthDate.getMonth());
+    (today.getFullYear() - birthYear) * 12 + (today.getMonth() - (birthMonth - 1));
 
   if (ageInMonths <= 6) return 'INFANT_0_6M';
   if (ageInMonths <= 12) return 'INFANT_7_12M';
@@ -108,8 +116,8 @@ export function getEffectiveAgeGroup(demographics: UserDemographics): AgeGroup |
   if (demographics.manualAgeGroup) {
     return demographics.manualAgeGroup;
   }
-  if (demographics.birthDate) {
-    return calculateAgeGroup(demographics.birthDate);
+  if (demographics.birthYear && demographics.birthMonth) {
+    return calculateAgeGroup(demographics.birthYear, demographics.birthMonth);
   }
   return null;
 }
@@ -135,29 +143,42 @@ export async function getUserDemographics(userId: string): Promise<UserDemograph
   }
 
   try {
-    // Use Supabase client for faster queries
-    const { createClient } = await import('@supabase/supabase-js');
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!
-    );
+    // Read through Drizzle, the same path the write below uses.
+    //
+    // This previously constructed a raw @supabase/supabase-js client inline from
+    // NEXT_PUBLIC_SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY. Two problems:
+    //   1. It bypassed @/lib/supabase/server, so it never went through the app's
+    //      client at all — and once the hosted project was retired it pointed at a
+    //      dead host, silently returning null for every user's demographics.
+    //   2. It used the SERVICE ROLE key — which bypasses row-level security — for
+    //      an ordinary user-scoped read. That is a privilege the request does not
+    //      need, in a path that runs on every DV calculation.
+    // The `.where(eq(userId))` below is the ownership check; there is no RLS.
+    const rows = await db
+      .select({
+        birthYear: userProfiles.birthYear,
+        birthMonth: userProfiles.birthMonth,
+        biologicalSex: userProfiles.biologicalSex,
+        lifeStage: userProfiles.lifeStage,
+        manualAgeGroup: userProfiles.manualAgeGroup,
+        dvSourcePreference: userProfiles.dvSourcePreference,
+      })
+      .from(userProfiles)
+      .where(eq(userProfiles.userId, userId))
+      .limit(1);
 
-    const { data: profile, error } = await supabase
-      .from('user_profiles')
-      .select('birth_date, biological_sex, life_stage, manual_age_group, dv_source_preference')
-      .eq('user_id', userId)
-      .single();
-
-    if (error || !profile) {
+    const profile = rows[0];
+    if (!profile) {
       return null;
     }
 
     const demographics: UserDemographics = {
-      birthDate: profile.birth_date ? new Date(profile.birth_date) : null,
-      biologicalSex: profile.biological_sex as BiologicalSex | null,
-      lifeStage: (profile.life_stage as LifeStage) || 'NONE',
-      manualAgeGroup: profile.manual_age_group as AgeGroup | null,
-      dvSourcePreference: (profile.dv_source_preference as SourcePreference) || 'AVERAGE',
+      birthYear: profile.birthYear ?? null,
+      birthMonth: profile.birthMonth ?? null,
+      biologicalSex: profile.biologicalSex as BiologicalSex | null,
+      lifeStage: (profile.lifeStage as LifeStage) || 'NONE',
+      manualAgeGroup: profile.manualAgeGroup as AgeGroup | null,
+      dvSourcePreference: (profile.dvSourcePreference as SourcePreference) || 'AVERAGE',
     };
 
     // Store in memory cache
@@ -185,7 +206,8 @@ export async function updateUserDemographics(
     await db
       .update(userProfiles)
       .set({
-        birthDate: data.birthDate ? data.birthDate.toISOString().split('T')[0] : undefined,
+        birthYear: data.birthYear ?? undefined,
+        birthMonth: data.birthMonth ?? undefined,
         biologicalSex: data.biologicalSex,
         lifeStage: data.lifeStage,
         manualAgeGroup: data.manualAgeGroup,
@@ -194,9 +216,27 @@ export async function updateUserDemographics(
       })
       .where(eq(userProfiles.userId, userId));
 
-    // Invalidate cache
+    // Invalidate cache — best effort, never fatal.
+    //
+    // This was previously unguarded, so when the cache backend became
+    // unreachable the await threw AFTER the database write had already
+    // succeeded, and the user saw a 500 for an update that actually landed.
+    // A cache is an optimisation; it must never be able to fail a write.
+    // The in-memory cache is cleared unconditionally for the same reason.
+    demographicsCache.delete(userId);
     if (redis) {
-      await redis.del(`user-demographics:${userId}`);
+      try {
+        await redis.del(`user-demographics:${userId}`);
+      } catch (cacheError) {
+        logger.warn(
+          {
+            service: 'daily-value-service',
+            userId,
+            error: cacheError instanceof Error ? cacheError.message : String(cacheError),
+          },
+          'Cache invalidation failed; write succeeded. Stale demographics possible until TTL.'
+        );
+      }
     }
 
     logger.info({ service: 'daily-value-service', userId }, 'User demographics updated');
@@ -527,6 +567,155 @@ export async function getDailyValuesBatch(
     }, 'Failed to get batch daily values');
     throw error;
   }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// New demographics-driven batch lookup (age-range columns)
+// ═══════════════════════════════════════════════════════════════
+
+export interface BatchDvByDemographicsArgs {
+  compoundIds: string[];
+  ageYears: number;
+  sex: 'MALE' | 'FEMALE';
+}
+
+export interface DvLookupRow {
+  target: number | null;       // averaged RDA/AI across sources
+  targetUnit: string | null;
+  targetType: 'RDA' | 'AI' | 'MIXED' | null; // what we averaged
+  targetSourceCount: number;
+  upperLimit: number | null;   // averaged UL across sources (if any)
+  upperLimitUnit: string | null;
+  upperLimitSourceCount: number;
+}
+
+/**
+ * Batch lookup using explicit demographics + the new age-range columns.
+ * - Selects rows where the user's age (in months) falls inside [age_min_months, age_max_months]
+ *   (NULL age_max_months = no upper bound).
+ * - life_stage = 'NONE' (alpha: no pregnancy/lactation paths).
+ * - activity_level / dietary_context ignored (averaged across whatever the source published).
+ * - For the "target" we average RDA + AI rows per compound. Per (compound, source) we prefer RDA
+ *   when both exist so we don't double-count a single source.
+ * - For "upper limit" we average UL rows per compound.
+ */
+export async function getDailyValuesBatchByDemographics(
+  args: BatchDvByDemographicsArgs
+): Promise<Map<string, DvLookupRow>> {
+  const { compoundIds, ageYears, sex } = args;
+  const results = new Map<string, DvLookupRow>();
+  if (compoundIds.length === 0) return results;
+
+  // Age in months at the upper end of the user's current year.
+  // E.g. ageYears=30 → 30*12 = 360 months. Most sources index in whole-year ranges so
+  // landing on year-boundaries is consistent with the source bracketing convention.
+  const ageMonths = Math.max(0, Math.floor(ageYears * 12));
+
+  // One query for everything we need; we'll bucket in JS.
+  const rows = await db
+    .select({
+      compoundId: referenceDailyValues.compoundId,
+      sourceRegion: referenceDailyValues.sourceRegion,
+      value: referenceDailyValues.value,
+      unit: referenceDailyValues.unit,
+      valueType: referenceDailyValues.valueType,
+    })
+    .from(referenceDailyValues)
+    .where(
+      and(
+        inArray(referenceDailyValues.compoundId, compoundIds),
+        eq(referenceDailyValues.sex, sex),
+        eq(referenceDailyValues.lifeStage, 'NONE'),
+        sql`(${referenceDailyValues.ageMinMonths} IS NULL OR ${referenceDailyValues.ageMinMonths} <= ${ageMonths})`,
+        sql`(${referenceDailyValues.ageMaxMonths} IS NULL OR ${referenceDailyValues.ageMaxMonths} >= ${ageMonths})`,
+        inArray(referenceDailyValues.valueType, ['RDA', 'AI', 'UL']),
+      )
+    );
+
+  // Bucket: compoundId → { perSourceTarget: Map<region, {val, unit, type}>, ulRows: [{val, unit}] }
+  type Bucket = {
+    perSourceTarget: Map<string, { value: number; unit: string; type: 'RDA' | 'AI' }>;
+    ulRows: { value: number; unit: string }[];
+  };
+  const buckets = new Map<string, Bucket>();
+
+  for (const r of rows) {
+    let b = buckets.get(r.compoundId);
+    if (!b) {
+      b = { perSourceTarget: new Map(), ulRows: [] };
+      buckets.set(r.compoundId, b);
+    }
+    const val = parseFloat(r.value as unknown as string);
+    if (Number.isNaN(val)) continue;
+
+    if (r.valueType === 'UL') {
+      b.ulRows.push({ value: val, unit: r.unit });
+    } else if (r.valueType === 'RDA' || r.valueType === 'AI') {
+      const existing = b.perSourceTarget.get(r.sourceRegion);
+      // Prefer RDA over AI when a single source publishes both
+      if (!existing || (existing.type === 'AI' && r.valueType === 'RDA')) {
+        b.perSourceTarget.set(r.sourceRegion, { value: val, unit: r.unit, type: r.valueType });
+      }
+    }
+  }
+
+  for (const compoundId of compoundIds) {
+    const b = buckets.get(compoundId);
+    if (!b) {
+      results.set(compoundId, {
+        target: null, targetUnit: null, targetType: null, targetSourceCount: 0,
+        upperLimit: null, upperLimitUnit: null, upperLimitSourceCount: 0,
+      });
+      continue;
+    }
+
+    // Target: average across sources, grouped by unit. Pick the dominant unit if mixed.
+    const byUnit = new Map<string, { sum: number; n: number; types: Set<'RDA' | 'AI'> }>();
+    for (const row of b.perSourceTarget.values()) {
+      const u = byUnit.get(row.unit) ?? { sum: 0, n: 0, types: new Set() };
+      u.sum += row.value;
+      u.n += 1;
+      u.types.add(row.type);
+      byUnit.set(row.unit, u);
+    }
+    let target: number | null = null;
+    let targetUnit: string | null = null;
+    let targetType: 'RDA' | 'AI' | 'MIXED' | null = null;
+    let targetSourceCount = 0;
+    if (byUnit.size > 0) {
+      // Pick unit with the most sources
+      const [pickedUnit, picked] = [...byUnit.entries()].sort((a, b) => b[1].n - a[1].n)[0];
+      target = picked.sum / picked.n;
+      targetUnit = pickedUnit;
+      targetSourceCount = picked.n;
+      targetType = picked.types.size === 1 ? [...picked.types][0] : 'MIXED';
+    }
+
+    // UL: average across sources, grouped by unit. Same idea.
+    const ulByUnit = new Map<string, { sum: number; n: number }>();
+    for (const row of b.ulRows) {
+      const u = ulByUnit.get(row.unit) ?? { sum: 0, n: 0 };
+      u.sum += row.value;
+      u.n += 1;
+      ulByUnit.set(row.unit, u);
+    }
+    let upperLimit: number | null = null;
+    let upperLimitUnit: string | null = null;
+    let upperLimitSourceCount = 0;
+    if (ulByUnit.size > 0) {
+      const [pickedUnit, picked] = [...ulByUnit.entries()].sort((a, b) => b[1].n - a[1].n)[0];
+      upperLimit = picked.sum / picked.n;
+      upperLimitUnit = pickedUnit;
+      upperLimitSourceCount = picked.n;
+    }
+
+    results.set(compoundId, {
+      target, targetUnit, targetType, targetSourceCount,
+      upperLimit, upperLimitUnit, upperLimitSourceCount,
+    });
+  }
+
+  return results;
 }
 
 // ═══════════════════════════════════════════════════════════════

@@ -18,7 +18,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { db } from '@/db';
-import { foodApprovals } from '@/db/schema';
+import { foodApprovals, foods } from '@/db/schema';
 import { logger } from '@/lib/logger';
 import { eq, and } from 'drizzle-orm';
 import { requireAdmin } from '@/lib/auth/api-guard';
@@ -129,19 +129,34 @@ export async function POST(
       );
     }
 
-    // Step 4: Update approval status
+    // Step 4: Update approval status (and flip food visibility on approve).
+    // Composites are stored with visibility='private' until reviewed; approval
+    // promotes them to 'public' so they become globally searchable. Rejection
+    // leaves them private (the creator can still use them, but they don't
+    // appear in other users' searches).
     const newStatus = action === 'approve' ? 'APPROVED' : 'REJECTED';
 
-    const [updatedApproval] = await db
-      .update(foodApprovals)
-      .set({
-        status: newStatus,
-        reviewedBy: reviewerId,
-        reviewNotes: reviewNotes || null,
-        reviewedAt: new Date(),
-      })
-      .where(eq(foodApprovals.id, existingApproval.id))
-      .returning();
+    const [updatedApproval] = await db.transaction(async (tx) => {
+      const [approval] = await tx
+        .update(foodApprovals)
+        .set({
+          status: newStatus,
+          reviewedBy: reviewerId,
+          reviewNotes: reviewNotes || null,
+          reviewedAt: new Date(),
+        })
+        .where(eq(foodApprovals.id, existingApproval.id))
+        .returning();
+
+      if (action === 'approve') {
+        await tx
+          .update(foods)
+          .set({ visibility: 'public', updatedAt: new Date() })
+          .where(eq(foods.id, foodId));
+      }
+
+      return [approval];
+    });
 
     const durationMs = Date.now() - startTime;
 

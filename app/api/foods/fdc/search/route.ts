@@ -19,6 +19,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { usdaClient } from '@/lib/services/usda-client';
 import { logger } from '@/lib/logger';
+import { requireUser } from '@/lib/auth/api-guard';
 
 /**
  * Query parameters schema validation
@@ -72,6 +73,12 @@ interface FDCSearchResponse {
 export const maxDuration = 60;
 
 export async function GET(request: NextRequest): Promise<NextResponse<FDCSearchResponse | { error: string; details?: any }>> {
+  // Proxies to the external USDA FDC API. Requires a session so anonymous
+  // callers cannot burn our upstream rate limit.
+  const denied = await requireUser();
+  if (denied) return denied;
+
+
   const startTime = Date.now();
 
   try {

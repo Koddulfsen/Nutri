@@ -300,6 +300,32 @@ class DukeStagingClient {
   }
 
   /**
+   * Get available plant parts with mapped-compound counts.
+   * One query, used by the add-food modal to render expandable parent rows.
+   */
+  async getPlantPartsWithCounts(fnfNum: string): Promise<Array<{ plantPart: string; compoundCount: number }>> {
+    const results = await db.execute<{ plant_part: string; compound_count: string }>(sql`
+      SELECT
+        f.plant_part,
+        COUNT(DISTINCT cs.compound_id) as compound_count
+      FROM source_duke_farmacy f
+      JOIN compound_sources cs ON cs.external_id = f.chem_id
+        AND cs.external_source = 'DUKE'
+      WHERE f.fnf_num = ${fnfNum}
+        AND f.plant_part IS NOT NULL
+        AND f.plant_part != ''
+      GROUP BY f.plant_part
+      ORDER BY f.plant_part
+    `);
+
+    const rows = (results as any).rows ?? results;
+    return rows.map((row: any) => ({
+      plantPart: row.plant_part,
+      compoundCount: parseInt(row.compound_count, 10) || 0,
+    }));
+  }
+
+  /**
    * Get available plant parts for a plant
    *
    * @param fnfNum - Duke FNF number

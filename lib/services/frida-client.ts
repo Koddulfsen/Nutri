@@ -164,8 +164,8 @@ class FridaStagingClient {
           comp.unit as canonical_unit
         FROM source_frida_content c
         JOIN source_frida_nutrients n ON n.nutrient_id = c.nutrient_id
-        LEFT JOIN compound_sources cs ON cs.external_id = n.eurofir_code
-          AND cs.external_source = 'FRIDA'
+        LEFT JOIN compound_sources cs ON cs.external_source = 'FRIDA'
+          AND (cs.external_id = n.eurofir_code OR cs.external_id = n.nutrient_id::text)
         LEFT JOIN compounds comp ON comp.id = cs.compound_id
         WHERE c.food_id = ${foodId}
           AND c.value IS NOT NULL

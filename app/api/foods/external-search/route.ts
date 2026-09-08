@@ -20,6 +20,7 @@ import { z } from 'zod';
 import { cnfClient } from '@/lib/services/cnf-client';
 import { usdaClient } from '@/lib/services/usda-client';
 import { logger } from '@/lib/logger';
+import { requireUser } from '@/lib/auth/api-guard';
 
 /**
  * Query parameters schema validation
@@ -67,6 +68,12 @@ interface ExternalSearchResponse {
 export const maxDuration = 60; // Allow up to 60 seconds for API calls
 
 export async function GET(request: NextRequest): Promise<NextResponse<ExternalSearchResponse | { error: string; details?: any }>> {
+  // Fans out to external food-database APIs. Requires a session so anonymous
+  // callers cannot burn upstream rate limits.
+  const denied = await requireUser();
+  if (denied) return denied;
+
+
   const startTime = Date.now();
 
   try {

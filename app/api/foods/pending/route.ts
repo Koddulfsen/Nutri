@@ -18,9 +18,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { db } from '@/db';
-import { foodApprovals, foods, foodSources } from '@/db/schema';
+import { foodApprovals, foods, foodSources, foodComponents } from '@/db/schema';
 import { logger } from '@/lib/logger';
 import { eq, desc } from 'drizzle-orm';
+import { requireAdmin } from '@/lib/auth/api-guard';
 
 /**
  * Query parameters schema
@@ -46,6 +47,13 @@ const QueryParamsSchema = z.object({
  * Get list of pending food approvals
  */
 export async function GET(request: NextRequest): Promise<NextResponse> {
+  // Moderation queue — lists foods awaiting review. Admin only.
+  // Middleware also gates this path, but middleware can be bypassed
+  // (CVE-2025-29927), so the boundary lives here.
+  const denied = await requireAdmin();
+  if (denied) return denied;
+
+
   const startTime = Date.now();
 
   try {
@@ -104,6 +112,8 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
         foodName: foods.name,
         commonNames: foods.commonNames,
         dataSource: foods.dataSource,
+        isComposite: foods.isComposite,
+        description: foods.description,
         createdAt: foods.createdAt,
       })
       .from(foodApprovals)
@@ -126,7 +136,8 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       'Pending approvals fetched'
     );
 
-    // Step 3: Fetch food sources for each pending food
+    // Step 3: For each pending food, fetch sources (legacy add-food path) and
+    // — if it's a composite — its components (chatbot-created branded recipes).
     const pendingFoodsWithSources = await Promise.all(
       pendingApprovals.map(async (approval) => {
         const sources = await db
@@ -138,6 +149,30 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
           })
           .from(foodSources)
           .where(eq(foodSources.foodId, approval.foodId));
+
+        let components: Array<{
+          componentFoodId: string;
+          componentName: string | null;
+          grams: string;
+          position: number;
+          notes: string | null;
+        }> = [];
+
+        if (approval.isComposite) {
+          const rows = await db
+            .select({
+              componentFoodId: foodComponents.componentFoodId,
+              componentName: foods.name,
+              grams: foodComponents.grams,
+              position: foodComponents.position,
+              notes: foodComponents.notes,
+            })
+            .from(foodComponents)
+            .leftJoin(foods, eq(foodComponents.componentFoodId, foods.id))
+            .where(eq(foodComponents.compositeFoodId, approval.foodId))
+            .orderBy(foodComponents.position);
+          components = rows;
+        }
 
         return {
           approval: {
@@ -154,12 +189,15 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
             name: approval.foodName,
             commonNames: approval.commonNames,
             dataSource: approval.dataSource,
+            isComposite: approval.isComposite,
+            description: approval.description,
             createdAt: approval.createdAt,
           },
           sources: sources.map((s) => ({
             apiSource: s.apiSource,
             apiFoodId: s.apiFoodId,
           })),
+          components,
         };
       })
     );

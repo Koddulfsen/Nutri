@@ -30,6 +30,13 @@ export interface SearchOptions {
   limit?: number;
   sortBy?: 'name' | 'relevance' | 'created_at';
   sortOrder?: 'asc' | 'desc';
+  /**
+   * Visibility scope for the search.
+   * - undefined (default): public foods only — safe for unauthenticated callers.
+   * - userId provided: public foods + private foods owned by this user.
+   *   Use for authenticated users who should see their own personal recipes.
+   */
+  userId?: string;
 }
 
 /**

@@ -239,7 +239,7 @@ export async function GET(
 
     const indbResults: IndbSearchResult[] = paginatedResults.map((food: any) => ({
       apiSource: 'INDB' as const,
-      apiId: food.food_id,
+      apiId: String(food.food_id),
       name: food.name,
       description: food.food_group || undefined,
       nutrientCount: parseInt(food.nutrient_count, 10),
