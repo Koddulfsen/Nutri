@@ -1,9 +1,13 @@
 // Audit Logging Infrastructure - FS-4 Security & Compliance System
 // Created: 2025-11-10
-// Purpose: Immutable audit trail with 6-year HIPAA retention
+// Purpose: Append-only audit trail.
+// NOTE: there is no retention policy implemented — the previous "6-year HIPAA
+// retention" claim was never backed by code, and HIPAA does not apply to this
+// EEA controller. See docs/AUDIT-2026-08-11.md (P9).
 
 import { db } from '@/db';
 import { auditLog } from '@/db/schema';
+import { anonymizeIP } from './request-metadata';
 
 /**
  * Audit Action Types
@@ -63,7 +67,11 @@ export async function logAudit(options: AuditLogOptions): Promise<void> {
       resourceType: options.resourceType,
       resourceId: options.resourceId || null,
       metadata: options.metadata || {},
-      ipAddress: options.ipAddress || null,
+      // Truncate at the write boundary so a full IP is never persisted. Doing it
+      // here rather than at each call site means no caller can forget. Note this
+      // is pseudonymisation, not anonymisation — the row is still personal data
+      // and still needs retention limits and inclusion in export/erasure.
+      ipAddress: options.ipAddress ? anonymizeIP(options.ipAddress) : null,
       userAgent: options.userAgent || null,
       createdAt: new Date()
     });
@@ -125,7 +133,9 @@ export async function logAuditBatch(entries: AuditLogOptions[]): Promise<void> {
       resourceType: entry.resourceType,
       resourceId: entry.resourceId || null,
       metadata: entry.metadata || {},
-      ipAddress: entry.ipAddress || null,
+      // Same truncation as the single-write path above — a full IP must never
+      // reach the table, whichever door the write comes through.
+      ipAddress: entry.ipAddress ? anonymizeIP(entry.ipAddress) : null,
       userAgent: entry.userAgent || null,
       createdAt: new Date()
     }));

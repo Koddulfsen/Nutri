@@ -16,9 +16,9 @@ export async function GET(request: Request) {
     const supabase = await createClient()
 
     // Get session
-    const { data: { session }, error: sessionError } = await supabase.auth.getSession()
+    const { data: { user }, error: sessionError } = await supabase.auth.getUser()
 
-    if (sessionError || !session) {
+    if (sessionError || !user) {
       return NextResponse.json(
         {
           error: {
@@ -35,7 +35,7 @@ export async function GET(request: Request) {
     const { data: profile, error: profileError } = await supabase
       .from('user_profiles')
       .select('id, user_id, full_name, avatar_url, created_at, updated_at')
-      .eq('user_id', session.user.id)
+      .eq('user_id', user.id)
       .single()
 
     if (profileError) {
@@ -53,12 +53,12 @@ export async function GET(request: Request) {
 
     return NextResponse.json({
       data: {
-        id: session.user.id,
-        email: session.user.email,
+        id: user.id,
+        email: user.email,
         full_name: profile.full_name,
         avatar_url: profile.avatar_url,
         tier: 'free', // TODO: Implement tier logic in Phase 2
-        created_at: session.user.created_at
+        created_at: user.created_at
       },
       success: true
     })

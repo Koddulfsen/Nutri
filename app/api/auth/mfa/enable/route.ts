@@ -20,9 +20,9 @@ export async function POST(request: Request) {
     const supabase = await createClient()
 
     // Get session
-    const { data: { session }, error: sessionError } = await supabase.auth.getSession()
+    const { data: { user }, error: sessionError } = await supabase.auth.getUser()
 
-    if (sessionError || !session) {
+    if (sessionError || !user) {
       return NextResponse.json(
         {
           error: {
@@ -39,7 +39,7 @@ export async function POST(request: Request) {
     const secret = generateSecret()
 
     // Generate QR code
-    const qrCode = await generateQRCode(secret, session.user.email || 'user@nutri.app')
+    const qrCode = await generateQRCode(secret, user.email || 'user@nutri.app')
 
     // Generate 10 backup codes (function generates 10 by default)
     const backupCodes = generateBackupCodes()
@@ -57,7 +57,7 @@ export async function POST(request: Request) {
         mfa_backup_codes: hashedBackupCodes,
         updated_at: new Date().toISOString()
       })
-      .eq('user_id', session.user.id)
+      .eq('user_id', user.id)
 
     if (updateError) {
       return NextResponse.json(
@@ -78,10 +78,10 @@ export async function POST(request: Request) {
     const userAgent = headersList.get('user-agent') || 'unknown'
 
     await logAuditEvent({
-      userId: session.user.id,
+      userId: user.id,
       action: 'UPDATE',
       resourceType: 'user_profile',
-      resourceId: session.user.id,
+      resourceId: user.id,
       metadata: { action: 'mfa_setup_initiated' },
       ipAddress,
       userAgent

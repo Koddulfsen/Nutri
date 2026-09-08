@@ -1,8 +1,10 @@
 /**
  * Audit Logging Utilities
  *
- * Purpose: Log security and data access events for HIPAA compliance
- * Retention: 6 years (HIPAA Security Rule § 164.316)
+ * Purpose: Log security and data access events.
+ * Retention: NONE IMPLEMENTED. This previously claimed "6 years (HIPAA Security
+ *   Rule § 164.316)" — that rule does not apply here (GDPR, not HIPAA) and no
+ *   expiry job exists. See docs/AUDIT-2026-08-11.md (P9).
  * Fields: user_id, action, resource_type, resource_id, IP, user agent, metadata
  *
  * Generated: 2025-11-10
@@ -11,6 +13,7 @@
 
 import { db } from '@/db'
 import { auditLog } from '@/db/schema/audit'
+import { anonymizeIP } from '@/lib/security/request-metadata'
 
 export type AuditAction =
   | 'LOGIN'
@@ -74,7 +77,10 @@ export async function logAuditEvent(event: AuditEventData): Promise<string> {
         resourceType: event.resourceType,
         resourceId: event.resourceId || null,
         metadata: event.metadata || {},
-        ipAddress: event.ipAddress || null,
+        // Truncated before storage; see lib/security/request-metadata.ts.
+        // This is pseudonymisation, not anonymisation — the row remains
+        // personal data under GDPR.
+        ipAddress: event.ipAddress ? anonymizeIP(event.ipAddress) : null,
         userAgent: event.userAgent || null,
       })
       .returning({ id: auditLog.id })

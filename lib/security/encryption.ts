@@ -182,15 +182,16 @@ export async function decryptPHI(encrypted: string, dek: string): Promise<string
 /**
  * Rotate Data Encryption Key
  *
- * Re-encrypts all PHI fields with a new DEK.
- * Triggered on password change (security best practice).
+ * WARNING: this does NOT rotate anything. It generates a new key and returns it.
+ * Nothing is decrypted, re-encrypted, stored, or cleaned up, and the function does
+ * not even read `oldDEK`. The docstring here previously described a five-step
+ * rotation process that no code performs.
  *
- * Process:
- * 1. Generate new DEK
- * 2. Decrypt all PHI fields with old DEK
- * 3. Re-encrypt with new DEK
- * 4. Store new DEK in user_profiles
- * 5. Delete old DEK (secure cleanup)
+ * Calling this on password change would DESTROY access to any encrypted data, since
+ * the old key would be replaced without re-encrypting under the new one.
+ *
+ * (Currently harmless only because encryptPHI/decryptPHI have no callers at all —
+ * no data is encrypted yet. See docs/AUDIT-2026-08-11.md P4/P5, CLAUDE.md task 2.5.)
  *
  * @param userId - User ID for key rotation
  * @param oldDEK - Current DEK (for decryption)

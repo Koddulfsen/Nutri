@@ -21,9 +21,9 @@ export async function DELETE(
     const supabase = await createClient()
 
     // Get session
-    const { data: { session }, error: sessionError } = await supabase.auth.getSession()
+    const { data: { user }, error: sessionError } = await supabase.auth.getUser()
 
-    if (sessionError || !session) {
+    if (sessionError || !user) {
       return NextResponse.json(
         {
           error: {
@@ -58,7 +58,7 @@ export async function DELETE(
       )
     }
 
-    if (apiKey.user_id !== session.user.id) {
+    if (apiKey.user_id !== user.id) {
       return NextResponse.json(
         {
           error: {
@@ -98,7 +98,7 @@ export async function DELETE(
     const userAgent = headersList.get('user-agent') || 'unknown'
 
     await logAuditEvent({
-      userId: session.user.id,
+      userId: user.id,
       action: 'DELETE',
       resourceType: 'api_key',
       resourceId: keyId,

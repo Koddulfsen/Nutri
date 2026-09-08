@@ -20,9 +20,9 @@ export async function POST(request: Request) {
     const supabase = await createClient()
 
     // Get session
-    const { data: { session }, error: sessionError } = await supabase.auth.getSession()
+    const { data: { user }, error: sessionError } = await supabase.auth.getUser()
 
-    if (sessionError || !session) {
+    if (sessionError || !user) {
       return NextResponse.json(
         {
           error: {
@@ -44,7 +44,7 @@ export async function POST(request: Request) {
     // const { data: profile } = await supabase
     //   .from('user_profiles')
     //   .select('tier')
-    //   .eq('user_id', session.user.id)
+    //   .eq('user_id', user.id)
     //   .single()
     //
     // if (profile?.tier !== 'premium') {
@@ -64,7 +64,7 @@ export async function POST(request: Request) {
     const { data: existingKeys, error: countError } = await supabase
       .from('api_keys')
       .select('id')
-      .eq('user_id', session.user.id)
+      .eq('user_id', user.id)
       .eq('is_revoked', false)
       .is('expires_at', null)
       .or(`expires_at.gt.${new Date().toISOString()}`)
@@ -110,7 +110,7 @@ export async function POST(request: Request) {
     const { data: apiKey, error: insertError } = await supabase
       .from('api_keys')
       .insert({
-        user_id: session.user.id,
+        user_id: user.id,
         key_prefix: keyPrefix,
         key_hash: keyHash,
         name: name || 'Unnamed Key',
@@ -139,7 +139,7 @@ export async function POST(request: Request) {
     const userAgent = headersList.get('user-agent') || 'unknown'
 
     await logAuditEvent({
-      userId: session.user.id,
+      userId: user.id,
       action: 'CREATE',
       resourceType: 'api_key',
       resourceId: apiKey.id,

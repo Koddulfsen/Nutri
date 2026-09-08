@@ -106,42 +106,71 @@ export function extractUserAgent(request: Request): string | null {
 /**
  * Anonymize IP Address
  *
- * Anonymizes IP address for GDPR compliance by removing last octet.
- * Used when storing analytics data that doesn't require full IP.
+ * Truncates an IP address to reduce its identifying power before storage.
  *
- * IPv4: 192.168.1.100 → 192.168.1.0
- * IPv6: 2001:db8::1 → 2001:db8::
+ * IMPORTANT — this is PSEUDONYMISATION, not anonymisation. Under GDPR, truncated
+ * IPs remain personal data: the subject may still be identifiable by reasonable
+ * means (e.g. correlating with other records we hold). Truncated IPs therefore
+ * still need a lawful basis, a retention limit, and inclusion in data exports and
+ * erasure. The name `anonymizeIP` is kept for compatibility, but do not read it
+ * as "this data is now outside GDPR" — it isn't.
+ *
+ *   IPv4: 192.168.1.100  → 192.168.1.0        (drops the host octet, keeps /24)
+ *   IPv6: 2001:db8::1    → 2001:0db8:0000::   (keeps /48, zeroes the rest)
+ *   IPv6: ::1            → 0000:0000:0000::
+ *
+ * The previous implementation split on ':' without expanding compressed notation,
+ * so '::1' produced '::1::' — malformed, AND it retained the very value it was
+ * meant to remove. See docs/AUDIT-2026-08-11.md (P9).
  *
  * @param ipAddress - Full IP address
- * @returns Anonymized IP address
- *
- * @example
- * const anonymized = anonymizeIP('192.168.1.100');
- * // Save for analytics: 192.168.1.0
+ * @returns Truncated IP, or '0.0.0.0' when the input cannot be parsed
  */
 export function anonymizeIP(ipAddress: string): string {
   if (!ipAddress) return '0.0.0.0';
 
-  // IPv4
-  if (ipAddress.includes('.')) {
-    const parts = ipAddress.split('.');
-    if (parts.length === 4) {
+  const ip = ipAddress.trim();
+
+  // IPv4-mapped IPv6 (::ffff:192.168.1.100) — treat as the IPv4 address it carries
+  const mapped = ip.match(/^::ffff:(\d{1,3}(?:\.\d{1,3}){3})$/i);
+  const candidate = mapped ? mapped[1] : ip;
+
+  // IPv4 — keep the /24, zero the host octet
+  if (/^\d{1,3}(\.\d{1,3}){3}$/.test(candidate)) {
+    const parts = candidate.split('.');
+    if (parts.every((p) => Number(p) >= 0 && Number(p) <= 255)) {
       parts[3] = '0';
       return parts.join('.');
     }
+    return '0.0.0.0';
   }
 
-  // IPv6
-  if (ipAddress.includes(':')) {
-    const parts = ipAddress.split(':');
-    if (parts.length > 0) {
-      // Keep first 4 groups, zero out rest
-      const anonymized = parts.slice(0, 4).join(':');
-      return `${anonymized}::`;
+  // IPv6 — expand '::' to its full 8 groups before truncating, otherwise the
+  // group positions are meaningless.
+  if (candidate.includes(':')) {
+    const halves = candidate.split('::');
+    if (halves.length > 2) return '0.0.0.0'; // '::' may appear at most once
+
+    const head = halves[0] ? halves[0].split(':').filter(Boolean) : [];
+    const tail = halves.length === 2 && halves[1] ? halves[1].split(':').filter(Boolean) : [];
+
+    let groups: string[];
+    if (halves.length === 2) {
+      const missing = 8 - head.length - tail.length;
+      if (missing < 0) return '0.0.0.0';
+      groups = [...head, ...Array(missing).fill('0'), ...tail];
+    } else {
+      groups = head;
     }
+    if (groups.length !== 8) return '0.0.0.0';
+    if (!groups.every((g) => /^[0-9a-f]{1,4}$/i.test(g))) return '0.0.0.0';
+
+    // Keep the first 3 groups (/48) — the common network-level truncation — and
+    // drop the remaining 80 bits entirely.
+    const kept = groups.slice(0, 3).map((g) => g.padStart(4, '0'));
+    return `${kept.join(':')}::`;
   }
 
-  // Unknown format
   return '0.0.0.0';
 }
 

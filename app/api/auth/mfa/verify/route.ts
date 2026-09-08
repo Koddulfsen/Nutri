@@ -13,15 +13,16 @@ import { createClient } from '@/lib/supabase/server'
 import { verifyCode } from '@/lib/auth/totp'
 import { logAuditEvent } from '@/lib/audit/log'
 import { headers } from 'next/headers'
+import { checkMfaRateLimit } from '@/lib/rate-limit'
 
 export async function POST(request: Request) {
   try {
     const supabase = await createClient()
 
     // Get session
-    const { data: { session }, error: sessionError } = await supabase.auth.getSession()
+    const { data: { user }, error: sessionError } = await supabase.auth.getUser()
 
-    if (sessionError || !session) {
+    if (sessionError || !user) {
       return NextResponse.json(
         {
           error: {
@@ -55,7 +56,7 @@ export async function POST(request: Request) {
     const { data: profile, error: profileError } = await supabase
       .from('user_profiles')
       .select('id, mfa_secret, mfa_enabled')
-      .eq('user_id', session.user.id)
+      .eq('user_id', user.id)
       .single()
 
     if (profileError || !profile) {
@@ -85,6 +86,16 @@ export async function POST(request: Request) {
     }
 
     // Verify TOTP code (±1 time step tolerance for clock skew)
+    // A 6-digit TOTP with a +/-1 step window leaves ~3 codes valid at any moment,
+    // which is brute-forceable in minutes without a limiter. Fails closed.
+    const mfaLimit = await checkMfaRateLimit(user.id)
+    if (!mfaLimit.allowed) {
+      return NextResponse.json({
+        data: { valid: false, message: 'Too many attempts. Try again later.' },
+        success: false
+      }, { status: 429 })
+    }
+
     const isValid = verifyCode(code, profile.mfa_secret)
 
     if (!isValid) {
@@ -94,7 +105,7 @@ export async function POST(request: Request) {
       const userAgent = headersList.get('user-agent') || 'unknown'
 
       await logAuditEvent({
-        userId: session.user.id,
+        userId: user.id,
         action: 'UPDATE',
         resourceType: 'user_profile',
         resourceId: profile.id,
@@ -103,13 +114,13 @@ export async function POST(request: Request) {
         userAgent
       })
 
+      // 401, not 200. This previously returned `success: true` with the failure
+      // buried in `data.valid`, so any caller checking `res.ok` or `body.success`
+      // — the normal pattern — treated a FAILED second factor as a pass.
       return NextResponse.json({
-        data: {
-          valid: false,
-          message: 'Invalid or expired code'
-        },
-        success: true
-      })
+        data: { valid: false, message: 'Invalid or expired code' },
+        success: false
+      }, { status: 401 })
     }
 
     // If this is first verification after setup, enable MFA
@@ -120,7 +131,7 @@ export async function POST(request: Request) {
           mfa_enabled: true,
           updated_at: new Date().toISOString()
         })
-        .eq('user_id', session.user.id)
+        .eq('user_id', user.id)
 
       if (enableError) {
         return NextResponse.json(
@@ -142,7 +153,7 @@ export async function POST(request: Request) {
     const userAgent = headersList.get('user-agent') || 'unknown'
 
     await logAuditEvent({
-      userId: session.user.id,
+      userId: user.id,
       action: 'UPDATE',
       resourceType: 'user_profile',
       resourceId: profile.id,
