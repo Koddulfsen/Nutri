@@ -1,4 +1,4 @@
-import { pgTable, uuid, text, integer, jsonb, timestamp, boolean, uniqueIndex, index, date } from 'drizzle-orm/pg-core';
+import { pgTable, uuid, text, integer, smallint, jsonb, timestamp, boolean, uniqueIndex, index } from 'drizzle-orm/pg-core';
 import { sql } from 'drizzle-orm';
 import { biologicalSexEnum, ageGroupEnum, lifeStageEnum, dvSourcePreferenceEnum } from './daily_values_enums';
 
@@ -16,8 +16,28 @@ export const userProfiles = pgTable('user_profiles', {
   sessionVersion: integer('session_version').notNull().default(1),
   dashboardWidgets: jsonb('dashboard_widgets').notNull().default(sql`'{"staple": ["rda_snapshot", "recent_meals", "compound_trends"], "custom": []}'::jsonb`),
 
+  // TOTP multi-factor auth. Read/written by app/api/auth/mfa/* and lib/auth/totp.ts.
+  // These columns previously existed only in the hosted Supabase database — they
+  // were never declared here, so they were lost when the database moved to local
+  // Postgres. Declared now so the schema is the single source of truth.
+  mfaEnabled: boolean('mfa_enabled').notNull().default(false),
+  mfaSecret: text('mfa_secret'),                                          // TOTP shared secret
+  mfaBackupCodes: text('mfa_backup_codes').array(),                       // bcrypt hashes, one per backup code
+
   // Demographic fields for personalized daily values
-  birthDate: date('birth_date'),                                          // For automatic age group calculation
+  // Birth YEAR and MONTH only — never the day.
+  //
+  // This previously stored a full date of birth. `calculateAgeGroup()` reads only
+  // the year and month (it never calls getDate()), so the day was collected and
+  // stored while being provably unused — verified against 809 cases spanning every
+  // band boundary, where day-of-month changed the result zero times.
+  //
+  // Full DOB is a strong quasi-identifier: combined with biological_sex and
+  // life_stage it re-identifies most people even with no name attached, and here
+  // it would also disclose a pregnancy. Dropping the day is lossless for us and
+  // materially reduces that. GDPR Art. 5(1)(c) data minimisation.
+  birthYear: smallint('birth_year'),                                      // e.g. 1990
+  birthMonth: smallint('birth_month'),                                    // 1-12
   biologicalSex: biologicalSexEnum('biological_sex'),                     // MALE | FEMALE
   lifeStage: lifeStageEnum('life_stage').notNull().default('NONE'),       // NONE | PREGNANT | LACTATING
   manualAgeGroup: ageGroupEnum('manual_age_group'),                       // Optional override for age calculation

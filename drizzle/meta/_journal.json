@@ -295,6 +295,48 @@
       "when": 1776488716262,
       "tag": "0041_boring_winter_soldier",
       "breakpoints": true
+    },
+    {
+      "idx": 42,
+      "version": "7",
+      "when": 1776740450730,
+      "tag": "0042_serious_ego",
+      "breakpoints": true
+    },
+    {
+      "idx": 43,
+      "version": "7",
+      "when": 1778402183980,
+      "tag": "0043_complete_giant_man",
+      "breakpoints": true
+    },
+    {
+      "idx": 44,
+      "version": "7",
+      "when": 1778402184980,
+      "tag": "0044_missing_snapshot_objects",
+      "breakpoints": true
+    },
+    {
+      "idx": 45,
+      "version": "7",
+      "when": 1786465254507,
+      "tag": "0045_equal_arachne",
+      "breakpoints": true
+    },
+    {
+      "idx": 46,
+      "version": "7",
+      "when": 1786472918180,
+      "tag": "0046_outstanding_trish_tilby",
+      "breakpoints": true
+    },
+    {
+      "idx": 47,
+      "version": "7",
+      "when": 1786472919180,
+      "tag": "0047_birth_year_month",
+      "breakpoints": true
     }
   ]
 }

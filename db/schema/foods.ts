@@ -2,7 +2,7 @@ import { pgTable, uuid, integer, text, timestamp, boolean, decimal, index, uniqu
 import { sql } from 'drizzle-orm';
 import { foodCategories } from './categories';
 import { users } from './users';
-import { originTypeEnum } from './multi_source_enums';
+import { originTypeEnum, foodVisibilityEnum } from './multi_source_enums';
 
 /**
  * Foods Table
@@ -45,6 +45,9 @@ export const foods = pgTable('foods', {
   usageCount: integer('usage_count').notNull().default(0), // Incremented when added to meals
   createdBy: uuid('created_by').references(() => users.userId, { onDelete: 'set null' }), // References auth.users.id, null if anonymous
 
+  // Visibility — public (default) for atoms + approved branded composites; private for personal recipes
+  visibility: foodVisibilityEnum('visibility').notNull().default('public'),
+
   // Full-text search
   searchVector: text('search_vector'), // Will be populated by trigger
 
@@ -60,5 +63,6 @@ export const foods = pgTable('foods', {
   ftsIdx: index('idx_foods_fts').using('gin', table.searchVector),
   usageIdx: index('idx_foods_usage').on(table.usageCount), // For popularity sorting
   creatorIdx: index('idx_foods_creator').on(table.createdBy),
+  visibilityIdx: index('idx_foods_visibility').on(table.visibility),
   portionSizeCheck: sql`CHECK (default_portion_size > 0 OR default_portion_size IS NULL)`,
 }));

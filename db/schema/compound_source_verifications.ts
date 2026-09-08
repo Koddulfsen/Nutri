@@ -10,7 +10,7 @@ import { compoundSources } from './compounds';
 export const compoundSourceVerifications = pgTable('compound_source_verifications', {
   id: uuid('id').primaryKey().defaultRandom(),
   compoundSourceId: uuid('compound_source_id').notNull().references(() => compoundSources.id, { onDelete: 'cascade' }),
-  status: text('status').notNull(), // 'verified' | 'flagged'
+  status: text('status').notNull(), // 'verified' | 'flagged' (dead mapping, exclude from use) | 'review' (needs unit/CF/source-id fix)
   notes: text('notes'),
   verifiedBy: uuid('verified_by'),
   verifiedAt: timestamp('verified_at', { withTimezone: true }).notNull().defaultNow(),

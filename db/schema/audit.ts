@@ -4,7 +4,14 @@ import { auditActionEnum } from './enums';
 
 /**
  * Audit Log Table
- * 6-year HIPAA retention compliance trail logging all security events
+ * Append-only trail of security events.
+ *
+ * RETENTION: none is implemented. There is no expiry job, TTL, or partition drop
+ * anywhere in the codebase, so rows accumulate indefinitely. This previously
+ * claimed "6-year HIPAA retention compliance", which was wrong twice over: HIPAA
+ * is US law and does not apply to an EEA controller, and under GDPR Art. 5(1)(e)
+ * indefinite retention is a violation rather than a form of compliance.
+ * See docs/AUDIT-2026-08-11.md (P9).
  * INSERT-only table (no UPDATE/DELETE to preserve integrity)
  */
 export const auditLog = pgTable('audit_log', {

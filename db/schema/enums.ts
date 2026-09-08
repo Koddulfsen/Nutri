@@ -61,7 +61,9 @@ export const evidenceLevelEnum = pgEnum('evidence_level_enum', [
 
 /**
  * Audit Action Types
- * 8 security event categories for HIPAA compliance
+ * 8 security event categories.
+ * (Previously said "for HIPAA compliance" — see lib/dal/audit.ts for why that
+ * framing was wrong; this project is under GDPR, not HIPAA.)
  */
 export const auditActionEnum = pgEnum('audit_action_enum', [
   'LOGIN',

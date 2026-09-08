@@ -53,3 +53,14 @@ export const approvalStatusEnum = pgEnum('approval_status_enum', [
   'REJECTED',      // Rejected by admin
   'AUTO_APPROVED', // Added by authenticated user (auto-approved)
 ]);
+
+/**
+ * Food Visibility
+ * Controls who can see a food in search and analysis flows.
+ * - public: globally visible (atoms + approved branded composites)
+ * - private: only visible to the creating user (personal recipes)
+ */
+export const foodVisibilityEnum = pgEnum('food_visibility_enum', [
+  'public',
+  'private',
+]);

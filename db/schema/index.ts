@@ -35,6 +35,9 @@ export * from './meal_tracking';
 // Food Portions
 export * from './food_portions'; // Standard portion definitions
 
+// Food Components — recipe decomposition for composite foods
+export * from './food_components';
+
 // Multi-Source Food System tables
 export * from './food_sources'; // API source mappings
 export * from './merged_nutrients'; // Averaged nutrient values
@@ -43,6 +46,7 @@ export * from './food_approvals'; // Approval workflow
 
 // Compound Source Verifications
 export * from './compound_source_verifications';
+export * from './compound_food_sanity_checks';
 
 // External Data Sources (compound pipeline)
 export * from './external_sources';
@@ -61,6 +65,8 @@ export * from './source_mext'; // Japanese MEXT Food Composition
 export * from './source_kfct'; // Korean KFCT Food Composition
 export * from './source_indb'; // Indian INDB Nutrient Database
 export * from './source_aseanfoods'; // ASEAN Food Composition Database
+export * from './source_fdc'; // USDA FoodData Central (catalog only — data fetched via API)
+export * from './source_cnf'; // Canadian Nutrient File (catalog only — data fetched via API)
 
 // Symptom Tracking tables
 export * from './symptoms';
@@ -68,3 +74,4 @@ export * from './waitlist';
 
 // Relations (CRITICAL - prevents 100+ type errors)
 export * from './relations';
+export * from './rate_limits';

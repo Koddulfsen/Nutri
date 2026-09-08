@@ -96,6 +96,8 @@ export const sourceRegionEnum = pgEnum('source_region_enum', [
   'TAIWAN',     // HPA DRIs
   'RUSSIA',     // Rospotrebnadzor MR 2.3.1
   'WHO_FAO',    // WHO/FAO global reference
+  'SINGAPORE',  // Singapore HPB RDAs
+  'SPAIN',      // AESAN INR
 ]);
 
 /**
@@ -144,4 +146,6 @@ export const dvSourcePreferenceEnum = pgEnum('dv_source_preference_enum', [
   'TAIWAN',
   'RUSSIA',
   'WHO_FAO',
+  'SINGAPORE',
+  'SPAIN',
 ]);

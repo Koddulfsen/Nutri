@@ -24,7 +24,10 @@ export const deletionRequests = pgTable(
   'deletion_requests',
   {
     id: uuid('id').primaryKey().defaultRandom(),
-    userId: uuid('user_id').notNull(), // References auth.users (FK added in migration SQL)
+    // NOTE: no foreign key exists. The comment here used to claim one was "added in
+    // migration SQL"; it never was, so deleting a user does NOT cascade to this
+    // table. See docs/AUDIT-2026-08-11.md (P2).
+    userId: uuid('user_id').notNull(),
     userEmail: text('user_email').notNull(), // Stored for post-deletion email
     status: deletionStatusEnum('status').notNull().default('pending'),
     requestedAt: timestamp('requested_at', { withTimezone: true }).notNull().defaultNow(),
@@ -47,7 +50,10 @@ export const exportRequests = pgTable(
   'export_requests',
   {
     id: uuid('id').primaryKey().defaultRandom(),
-    userId: uuid('user_id').notNull(), // References auth.users (FK added in migration SQL)
+    // NOTE: no foreign key exists. The comment here used to claim one was "added in
+    // migration SQL"; it never was, so deleting a user does NOT cascade to this
+    // table. See docs/AUDIT-2026-08-11.md (P2).
+    userId: uuid('user_id').notNull(),
     userEmail: text('user_email').notNull(),
     status: exportStatusEnum('status').notNull().default('pending'),
     requestedAt: timestamp('requested_at', { withTimezone: true }).notNull().defaultNow(),
