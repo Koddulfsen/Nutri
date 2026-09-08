@@ -1,0 +1,94 @@
+FOODS TO ADD — complete list (74)
+Prefer raw / minimally processed entries, and the same food across sources.
+
+MEAT, FISH, EGG (10)
+  1  Beef liver
+  2  Beef, ground
+  3  Chicken breast
+  4  Pork skin (or gelatin)
+  5  Whole egg
+  6  Salmon, wild
+  7  Cod, Atlantic
+  8  Tuna, canned
+  9  Oyster
+ 10  Cod liver oil
+
+DAIRY (5)
+ 11  Whole milk
+ 12  Butter
+ 13  Plain yogurt
+ 14  Cheddar cheese
+ 15  Gouda, aged
+
+VEGETABLES (13)
+ 16  Spinach, raw
+ 17  Kale, raw
+ 18  Carrot, raw
+ 19  Broccoli
+ 20  Tomato paste
+ 21  Sweet potato
+ 22  Potato, cooked and cooled
+ 23  Garlic
+ 24  Onion
+ 25  Rhubarb
+ 26  Shiitake mushroom (UV-exposed if available)
+ 27  Chicory root (or Jerusalem artichoke)
+ 28  Avocado
+
+FRUIT (8)
+ 29  Apple, with skin
+ 30  Banana
+ 31  Orange
+ 32  Lemon
+ 33  Pear
+ 34  Prune
+ 35  Cranberry
+ 36  Raisins
+
+GRAINS, LEGUMES (7)
+ 37  Rolled oats
+ 38  Barley
+ 39  Whole wheat bread
+ 40  Rice, white
+ 41  Rice, brown
+ 42  Lentils
+ 43  Soybeans
+
+NUTS, SEEDS (5)
+ 44  Brazil nut
+ 45  Macadamia nut
+ 46  Flaxseed
+ 47  Hemp seed
+ 48  Mustard seed
+
+OILS, FATS (5)
+ 49  Olive oil, extra virgin
+ 50  Rapeseed / canola oil
+ 51  Sunflower oil
+ 52  Coconut oil
+ 53  Evening primrose oil (or borage oil)
+
+FERMENTED, SEAWEED, BEVERAGES, OTHER (13)
+ 54  Natto
+ 55  Sauerkraut (or kimchi)
+ 56  Kelp / nori / wakame
+ 57  Table salt, iodized
+ 58  Black tea, brewed
+ 59  Coffee, brewed
+ 60  Dark chocolate / cocoa
+ 61  Brewer's yeast
+ 62  Mineral water
+ 63  Vinegar
+ 64  Beer
+ 65  Red wine
+ 66  Canned tomato
+
+FORTIFIED / SUPPLEMENT FORMS (8)
+ 67  Fortified breakfast cereal
+ 68  Multivitamin tablet
+ 69  Mineral supplement
+ 70  Diet soda
+ 71  Stevia tabletop sweetener
+ 72  Sugar-free gum
+ 73  Citicoline supplement
+ 74  Nicotinamide riboside supplement

@@ -10,6 +10,7 @@
 
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
+import { createDevClient, isDevAuthBypass } from './dev-shim'
 
 /**
  * Creates a Supabase client for server-side operations
@@ -37,11 +38,22 @@ import { cookies } from 'next/headers'
  *
  * export async function GET(request: Request) {
  *   const supabase = createClient()
- *   const { data: { session } } = await supabase.auth.getSession()
+ *   const { data: { user } } = await supabase.auth.getUser()
  *   // ...
  * }
  */
 export const createClient = async () => {
+  // Local development runs against a bare Postgres with no Supabase project
+  // attached, so route every call through the dev shim instead.
+  //
+  // The shim is cast to the real client type rather than widening this
+  // function's return type: ~70 call sites rely on inference from it, and
+  // returning `any` silently turns their callback parameters into implicit
+  // anys, which fails the production build under `strict`.
+  if (isDevAuthBypass()) {
+    return createDevClient() as unknown as ReturnType<typeof createServerClient>
+  }
+
   const cookieStore = await cookies()
 
   return createServerClient(
