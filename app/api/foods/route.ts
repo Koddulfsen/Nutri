@@ -104,6 +104,13 @@ const AddFoodSchema = z.object({
   // Fetch, merge and analyse but write NOTHING. Used by the review step so a food is
   // inspected before it exists, not after. See docs/IMPORT-INTEGRITY-AUDIT.md.
   dryRun: z.boolean().optional().default(false),
+  // Recompute an EXISTING food's nutrients in place, instead of creating a new
+  // one. Same fetch/standardize/merge pipeline — the only difference is the
+  // write target — so a factor or merge fix can be applied to foods that were
+  // imported before it without a second implementation drifting from this one.
+  // The food row, its portions, category, approval and id are left alone; only
+  // merged_nutrients and nutrient_source_values are replaced.
+  replaceFoodId: z.string().uuid().optional(),
   userId: z.string().uuid().optional(), // Authenticated user ID (null = anonymous)
   metadata: MetadataSchema.optional(),     // Structured food metadata from AI clarify
   categoryPath: z.string().optional(),     // "Animal > Eggs > Chicken Eggs"
@@ -241,7 +248,8 @@ export async function POST(request: NextRequest): Promise<Response> {
     );
   }
 
-  const { name, commonNames, sources, userId, metadata, categoryPath, portions, dryRun } = validationResult.data;
+  const { name, commonNames, sources, userId, metadata, categoryPath, portions, dryRun, replaceFoodId } =
+    validationResult.data;
 
   // Create streaming response for progress updates
   const encoder = new TextEncoder();
@@ -1206,8 +1214,168 @@ export async function POST(request: NextRequest): Promise<Response> {
           }
         }
 
+        /**
+         * Write provenance and values for a food row: food_sources, then
+         * merged_nutrients and the per-source values under them.
+         *
+         * Shared by the create path and the replaceFoodId path so a re-import
+         * cannot drift from a first import — the two differ only in whether the
+         * food row is inserted or reused.
+         */
+        const writeNutrients = async (tx: any, foodRow: { id: string }) => {
+      // 5.2: Insert food sources
+      // Only record sources that actually returned nutrients. The gate above should
+      // already guarantee this, but a food_sources row is a claim about provenance —
+      // it must never outrun the data.
+      const succeededSourceIds = new Set(nutrientResults.map((r) => r.apiSource));
+      const foodSourcesData = sources
+        .filter((source) => succeededSourceIds.has(source.apiSource))
+        .map((source) => ({
+        foodId: foodRow.id,
+        apiSource: source.apiSource,
+        apiFoodId: source.apiFoodId,
+        // composition takes precedence: when set, apiFoodVariant is null
+        apiFoodVariant: source.composition && source.composition.length > 0
+          ? null
+          : (source.apiFoodVariant || null),
+        composition: source.composition && source.composition.length > 0
+          ? source.composition
+          : null,
+        verifiedBy: userId || null,
+      }));
+
+      await tx.insert(foodSources).values(foodSourcesData);
+
+      logger.debug(
+        {
+          service: 'add-food-api',
+          foodId: foodRow.id,
+          sourcesCount: foodSourcesData.length,
+        },
+        'Food sources inserted'
+      );
+
+      // 5.3: Insert merged nutrients
+      if (mergedNutrientsData.length > 0) {
+        const mergedNutrientsInsertData = mergedNutrientsData.map((nutrient) => ({
+          foodId: foodRow.id,
+          compoundId: nutrient.compoundId,
+          nutrientName: nutrient.nutrientName,
+          averageValue: nutrient.averageValue.toString(),
+          unit: nutrient.unit,
+          sourceCount: nutrient.sourceCount,
+        }));
+
+        const insertedMergedNutrients = await tx
+          .insert(mergedNutrients)
+          .values(mergedNutrientsInsertData)
+          .returning();
+
+        logger.debug(
+          {
+            service: 'add-food-api',
+            foodId: foodRow.id,
+            mergedNutrientsCount: insertedMergedNutrients.length,
+          },
+          'Merged nutrients inserted'
+        );
+
+        // 5.4: Insert nutrient source values
+        const nutrientSourceValuesData: Array<{
+          mergedNutrientId: string;
+          apiSource: 'CNF' | 'FDC' | 'FOODB' | 'PHENOL' | 'DUKE' | 'AFCD' | 'UK_COFID' | 'FINELI' | 'CIQUAL' | 'BLS' | 'FRIDA' | 'NEVO' | 'MATVARETABELLEN' | 'FOODFILES' | 'MEXT' | 'KFCT' | 'INDB' | 'ASEANFOODS';
+          value: string;
+          sourceUnit: string;
+          confidence: string;
+        }> = [];
+
+        for (let i = 0; i < mergedNutrientsData.length; i++) {
+          const mergedNutrient = mergedNutrientsData[i];
+          const insertedMergedNutrient = insertedMergedNutrients[i];
+
+          if (!insertedMergedNutrient?.id) {
+            continue;
+          }
+
+          for (const source of mergedNutrient.sources) {
+            nutrientSourceValuesData.push({
+              mergedNutrientId: insertedMergedNutrient.id,
+              apiSource: source.apiSource,
+              value: (source.value ?? 0).toString(),
+              sourceUnit: source.sourceUnit,
+              confidence: '1.0',
+            });
+          }
+        }
+
+        if (nutrientSourceValuesData.length > 0) {
+          await tx.insert(nutrientSourceValues).values(nutrientSourceValuesData);
+        }
+
+        logger.debug(
+          {
+            service: 'add-food-api',
+            foodId: foodRow.id,
+            sourceValuesCount: nutrientSourceValuesData.length,
+          },
+          'Nutrient source values inserted'
+        );
+      }
+
+        };
+
         const result = await db.transaction(async (tx) => {
-          // 5.1: Insert food (with metadata if provided)
+          // 5.1: Insert food (with metadata if provided) — or, when replacing,
+          // reuse the existing row so every id pointing at this food survives.
+          if (replaceFoodId) {
+            const [existing] = await tx.select().from(foods).where(eq(foods.id, replaceFoodId));
+            if (!existing) {
+              throw new Error(`replaceFoodId ${replaceFoodId} does not exist`);
+            }
+
+            // Delete the derived values only. nutrient_source_values hangs off
+            // merged_nutrients, so it goes first.
+            const oldMerged = await tx
+              .select({ id: mergedNutrients.id })
+              .from(mergedNutrients)
+              .where(eq(mergedNutrients.foodId, replaceFoodId));
+
+            for (const m of oldMerged) {
+              await tx.delete(nutrientSourceValues).where(eq(nutrientSourceValues.mergedNutrientId, m.id));
+            }
+            await tx.delete(mergedNutrients).where(eq(mergedNutrients.foodId, replaceFoodId));
+
+            // food_sources is rewritten from the sources that answered THIS run,
+            // so a source that has since gone silent stops claiming provenance.
+            await tx.delete(foodSources).where(eq(foodSources.foodId, replaceFoodId));
+
+            logger.info(
+              {
+                service: 'add-food-api',
+                foodId: replaceFoodId,
+                name: existing.name,
+                clearedMergedNutrients: oldMerged.length,
+              },
+              'Replacing nutrients for an existing food'
+            );
+
+            await writeNutrients(tx, existing);
+
+            // Approval and portions are deliberately untouched: this replaces
+            // values, not the food's standing or its serving sizes.
+            const keptPortions = await tx
+              .select({ id: foodPortions.id })
+              .from(foodPortions)
+              .where(eq(foodPortions.foodId, replaceFoodId));
+
+            return {
+              food: existing,
+              mergedNutrients: mergedNutrientsData,
+              approvalStatus: 'UNCHANGED',
+              portionCount: keptPortions.length,
+            };
+          }
+
           const foodValues: any = {
             name,
             commonNames,
@@ -1242,104 +1410,7 @@ export async function POST(request: NextRequest): Promise<Response> {
             'Food inserted'
           );
 
-          // 5.2: Insert food sources
-          // Only record sources that actually returned nutrients. The gate above should
-          // already guarantee this, but a food_sources row is a claim about provenance —
-          // it must never outrun the data.
-          const succeededSourceIds = new Set(nutrientResults.map((r) => r.apiSource));
-          const foodSourcesData = sources
-            .filter((source) => succeededSourceIds.has(source.apiSource))
-            .map((source) => ({
-            foodId: insertedFood.id,
-            apiSource: source.apiSource,
-            apiFoodId: source.apiFoodId,
-            // composition takes precedence: when set, apiFoodVariant is null
-            apiFoodVariant: source.composition && source.composition.length > 0
-              ? null
-              : (source.apiFoodVariant || null),
-            composition: source.composition && source.composition.length > 0
-              ? source.composition
-              : null,
-            verifiedBy: userId || null,
-          }));
-
-          await tx.insert(foodSources).values(foodSourcesData);
-
-          logger.debug(
-            {
-              service: 'add-food-api',
-              foodId: insertedFood.id,
-              sourcesCount: foodSourcesData.length,
-            },
-            'Food sources inserted'
-          );
-
-          // 5.3: Insert merged nutrients
-          if (mergedNutrientsData.length > 0) {
-            const mergedNutrientsInsertData = mergedNutrientsData.map((nutrient) => ({
-              foodId: insertedFood.id,
-              compoundId: nutrient.compoundId,
-              nutrientName: nutrient.nutrientName,
-              averageValue: nutrient.averageValue.toString(),
-              unit: nutrient.unit,
-              sourceCount: nutrient.sourceCount,
-            }));
-
-            const insertedMergedNutrients = await tx
-              .insert(mergedNutrients)
-              .values(mergedNutrientsInsertData)
-              .returning();
-
-            logger.debug(
-              {
-                service: 'add-food-api',
-                foodId: insertedFood.id,
-                mergedNutrientsCount: insertedMergedNutrients.length,
-              },
-              'Merged nutrients inserted'
-            );
-
-            // 5.4: Insert nutrient source values
-            const nutrientSourceValuesData: Array<{
-              mergedNutrientId: string;
-              apiSource: 'CNF' | 'FDC' | 'FOODB' | 'PHENOL' | 'DUKE' | 'AFCD' | 'UK_COFID' | 'FINELI' | 'CIQUAL' | 'BLS' | 'FRIDA' | 'NEVO' | 'MATVARETABELLEN' | 'FOODFILES' | 'MEXT' | 'KFCT' | 'INDB' | 'ASEANFOODS';
-              value: string;
-              sourceUnit: string;
-              confidence: string;
-            }> = [];
-
-            for (let i = 0; i < mergedNutrientsData.length; i++) {
-              const mergedNutrient = mergedNutrientsData[i];
-              const insertedMergedNutrient = insertedMergedNutrients[i];
-
-              if (!insertedMergedNutrient?.id) {
-                continue;
-              }
-
-              for (const source of mergedNutrient.sources) {
-                nutrientSourceValuesData.push({
-                  mergedNutrientId: insertedMergedNutrient.id,
-                  apiSource: source.apiSource,
-                  value: (source.value ?? 0).toString(),
-                  sourceUnit: source.sourceUnit,
-                  confidence: '1.0',
-                });
-              }
-            }
-
-            if (nutrientSourceValuesData.length > 0) {
-              await tx.insert(nutrientSourceValues).values(nutrientSourceValuesData);
-            }
-
-            logger.debug(
-              {
-                service: 'add-food-api',
-                foodId: insertedFood.id,
-                sourceValuesCount: nutrientSourceValuesData.length,
-              },
-              'Nutrient source values inserted'
-            );
-          }
+          await writeNutrients(tx, insertedFood);
 
           // 5.5: Insert food approval
           const approvalStatus = userId ? 'AUTO_APPROVED' : 'PENDING';

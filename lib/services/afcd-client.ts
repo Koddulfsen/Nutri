@@ -163,8 +163,16 @@ class AfcdStagingClient {
           comp.unit as canonical_unit
         FROM source_afcd_content c
         JOIN source_afcd_nutrients n ON n.nutrient_index = c.nutrient_index
+        -- Index only. The join used to fall back to the nutrient NAME, and AFCD
+        -- publishes 77 names twice on different bases: every amino acid as both
+        -- mg and mg/gN (per gram nitrogen), every fatty acid as both g and %T
+        -- (percent of total fatty acids). Tryptophan is index 266 in mg and 248
+        -- in mg/gN, so the fallback attached both to the compound and the
+        -- mg->g factor was applied to a ratio, putting Apple tryptophan ~7x
+        -- high even after the factors were corrected. All 113 AFCD mappings are
+        -- keyed by numeric index, so the fallback bought nothing.
         LEFT JOIN compound_sources cs ON cs.external_source = 'AFCD'
-          AND (cs.external_id = CAST(n.nutrient_index AS TEXT) OR cs.external_id = n.name OR cs.source_name = n.name)
+          AND cs.external_id = CAST(n.nutrient_index AS TEXT)
         LEFT JOIN compounds comp ON comp.id = cs.compound_id
         WHERE c.afcd_food_key = ${afcdFoodKey}
           AND c.value IS NOT NULL
