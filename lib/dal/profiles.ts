@@ -25,13 +25,13 @@ export type UserProfileUpdate = Partial<Omit<UserProfile, 'id' | 'userId' | 'cre
  */
 async function requireAuth(): Promise<string> {
   const supabase = await createClient();
-  const { data: { session }, error } = await supabase.auth.getSession();
+  const { data: { user }, error } = await supabase.auth.getUser();
 
-  if (error || !session?.user) {
+  if (error || !user) {
     throw new Error('Unauthorized: User must be authenticated');
   }
 
-  return session.user.id;
+  return user.id;
 }
 
 /**
@@ -42,7 +42,7 @@ async function requireAuth(): Promise<string> {
  * SECURITY LAYERS:
  * - Layer 1: Authentication check (requireAuth)
  * - Layer 2: Authorization check (userId matches session)
- * - Layer 3: RLS policy enforcement (database-level)
+ * - Layer 3: NONE. Previously claimed database-level RLS; zero policies exist.
  * - Layer 4: Audit logging
  *
  * @param userId - User ID to retrieve profile for
@@ -86,7 +86,7 @@ export async function getUserProfile(userId: string): Promise<UserProfile | null
  * SECURITY LAYERS:
  * - Layer 1: Authentication check
  * - Layer 2: Authorization check (userId matches session)
- * - Layer 3: RLS policy enforcement
+ * - Layer 3: NONE. Previously claimed RLS; zero policies exist.
  * - Layer 4: Audit logging with before/after snapshots
  *
  * @param userId - User ID to update
@@ -117,7 +117,8 @@ export async function updateUserProfile(
     where: eq(userProfiles.userId, userId)
   });
 
-  // Layer 3: Execute update (RLS enforces userId = auth.uid())
+  // Execute update. NOTE: no RLS exists — the userId filter below is the only
+  // ownership check.
   const updated = await db
     .update(userProfiles)
     .set({

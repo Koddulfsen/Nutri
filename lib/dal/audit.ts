@@ -4,7 +4,7 @@
 
 import { db } from '@/db';
 import { auditLog } from '@/db/schema';
-import { eq, and, gte, lte, desc } from 'drizzle-orm';
+import { eq, and, gte, lte, desc, count } from 'drizzle-orm';
 import { createClient } from '@/lib/supabase/server';
 import type { AuditAction } from '@/lib/security/audit-logger';
 
@@ -48,13 +48,13 @@ export interface AuditLogPage {
  */
 async function requireAuth(): Promise<string> {
   const supabase = await createClient();
-  const { data: { session }, error } = await supabase.auth.getSession();
+  const { data: { user }, error } = await supabase.auth.getUser();
 
-  if (error || !session?.user) {
+  if (error || !user) {
     throw new Error('Unauthorized: User must be authenticated');
   }
 
-  return session.user.id;
+  return user.id;
 }
 
 /**
@@ -62,10 +62,16 @@ async function requireAuth(): Promise<string> {
  *
  * Retrieves paginated audit logs for authenticated user.
  *
- * HIPAA COMPLIANCE:
- * - 6-year retention enforced at database level
- * - User can view their own audit trail
- * - RLS enforces user_id = auth.uid()
+ * RETENTION & SCOPING — read before trusting anything here:
+ * - There is NO retention policy. No expiry job, TTL or partition drop exists, so
+ *   rows accumulate forever. This block previously claimed "6-year retention
+ *   enforced at database level", which was never implemented.
+ * - HIPAA does not apply. This is an EEA controller under GDPR, where indefinite
+ *   retention of personal data violates Art. 5(1)(e) rather than satisfying anything.
+ * - There is NO RLS. This previously claimed "RLS enforces user_id = auth.uid()";
+ *   the database has zero policies. Queries here must scope by userId themselves.
+ * - Full IP addresses are stored un-anonymised (see P9 in the audit).
+ * See docs/AUDIT-2026-08-11.md and CLAUDE.md task 2.8.
  *
  * PERFORMANCE:
  * - Uses composite index: idx_audit_log_user_time (user_id, created_at DESC)
@@ -75,7 +81,7 @@ async function requireAuth(): Promise<string> {
  * SECURITY LAYERS:
  * - Layer 1: Authentication check
  * - Layer 2: Authorization check (userId matches session)
- * - Layer 3: RLS policy enforcement (database-level)
+ * - Layer 3: NONE. Previously claimed database-level RLS; zero policies exist.
  * - NOTE: Audit log reads are NOT logged (would create infinite loop)
  *
  * @param userId - User ID to retrieve logs for
@@ -145,7 +151,7 @@ export async function getAuditLogs(
   // NOTE: This is a separate query for accuracy
   // In production, consider caching total counts for performance
   const totalResult = await db
-    .select({ count: db.$count(auditLog.id) })
+    .select({ count: count() })
     .from(auditLog)
     .where(and(...conditions));
 

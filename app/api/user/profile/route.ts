@@ -24,9 +24,9 @@ export async function GET(request: Request) {
     const supabase = await createClient()
 
     // Get session
-    const { data: { session }, error: sessionError } = await supabase.auth.getSession()
+    const { data: { user }, error: sessionError } = await supabase.auth.getUser()
 
-    if (sessionError || !session) {
+    if (sessionError || !user) {
       return NextResponse.json(
         {
           error: {
@@ -39,11 +39,12 @@ export async function GET(request: Request) {
       )
     }
 
-    // Query user profile (RLS auto-enforces auth.uid() = user_id)
+    // Query user profile. NOTE: there is no RLS — the .eq(user_id) below is the
+    // only thing scoping this to the caller. Do not remove it.
     const { data: profile, error: profileError } = await supabase
       .from('user_profiles')
       .select('id, user_id, full_name, avatar_url, mfa_enabled, created_at, updated_at')
-      .eq('user_id', session.user.id)
+      .eq('user_id', user.id)
       .single()
 
     if (profileError) {
@@ -87,9 +88,9 @@ export async function PATCH(request: Request) {
     const supabase = await createClient()
 
     // Get session
-    const { data: { session }, error: sessionError } = await supabase.auth.getSession()
+    const { data: { user }, error: sessionError } = await supabase.auth.getUser()
 
-    if (sessionError || !session) {
+    if (sessionError || !user) {
       return NextResponse.json(
         {
           error: {
@@ -133,11 +134,12 @@ export async function PATCH(request: Request) {
       updateData.avatar_url = avatar_url
     }
 
-    // Update user profile (RLS enforces ownership)
+    // Update user profile. NOTE: there is no RLS — the .eq(user_id) below is the
+    // only ownership check. Do not remove it.
     const { data: profile, error: updateError } = await supabase
       .from('user_profiles')
       .update(updateData)
-      .eq('user_id', session.user.id)
+      .eq('user_id', user.id)
       .select()
       .single()
 
@@ -160,7 +162,7 @@ export async function PATCH(request: Request) {
     const userAgent = headersList.get('user-agent') || 'unknown'
 
     await logAuditEvent({
-      userId: session.user.id,
+      userId: user.id,
       action: 'UPDATE',
       resourceType: 'user_profile',
       resourceId: profile.id,

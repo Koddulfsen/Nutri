@@ -33,13 +33,13 @@ export interface ApiKeyWithPlaintext {
  */
 async function requireAuth(): Promise<string> {
   const supabase = await createClient();
-  const { data: { session }, error } = await supabase.auth.getSession();
+  const { data: { user }, error } = await supabase.auth.getUser();
 
-  if (error || !session?.user) {
+  if (error || !user) {
     throw new Error('Unauthorized: User must be authenticated');
   }
 
-  return session.user.id;
+  return user.id;
 }
 
 /**

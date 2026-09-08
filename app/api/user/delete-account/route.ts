@@ -24,7 +24,34 @@ import { eq, and } from 'drizzle-orm';
  * GDPR Article 17: Right to Erasure (Right to be Forgotten)
  */
 export async function POST(request: NextRequest) {
-  try {
+  // ─── DISABLED 2026-08-11 ────────────────────────────────────────────────────
+  // This endpoint promised something the system does not do.
+  //
+  // It recorded a row in `deletion_requests` and told the user their data would be
+// deleted in 30 days. Nothing ever consumed that table — no cron, no worker, no
+// scheduled job. Five related tables also lack the foreign keys needed to cascade.
+  //
+  // Under GDPR that is both an Art. 17 (right to erasure) breach on Article 9
+  // health data and a misleading statement to the data subject
+  // (Art. 5(1)(a), fairness and transparency).
+  //
+  // 501 is the honest state until the erasure job exists. Re-enable only
+  // together with that implementation.
+  // See docs/AUDIT-2026-08-11.md (P1/P2) and CLAUDE.md task 2.8.
+  //
+  // The original implementation is preserved below for reference.
+  // ────────────────────────────────────────────────────────────────────────────
+  return NextResponse.json(
+    {
+      error: 'Not implemented',
+      message: 'Account deletion is temporarily unavailable and no request has been recorded. Please contact support to have your data erased.',
+    },
+    { status: 501 }
+  );
+}
+
+/* Original implementation — restore when the erasure job is built:
+try {
     // Verify authentication
     const supabase = await createClient();
     const { data: { user }, error: authError } = await supabase.auth.getUser();
@@ -112,7 +139,7 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
-}
+*/
 
 /**
  * DELETE /api/user/delete-account
@@ -123,7 +150,34 @@ export async function POST(request: NextRequest) {
  * - requestId: Deletion request ID to cancel
  */
 export async function DELETE(request: NextRequest) {
-  try {
+  // ─── DISABLED 2026-08-11 ────────────────────────────────────────────────────
+  // This endpoint promised something the system does not do.
+  //
+  // It recorded a row in `deletion_requests` and told the user their data would be
+// deleted in 30 days. Nothing ever consumed that table — no cron, no worker, no
+// scheduled job. Five related tables also lack the foreign keys needed to cascade.
+  //
+  // Under GDPR that is both an Art. 17 (right to erasure) breach on Article 9
+  // health data and a misleading statement to the data subject
+  // (Art. 5(1)(a), fairness and transparency).
+  //
+  // 501 is the honest state until the erasure job exists. Re-enable only
+  // together with that implementation.
+  // See docs/AUDIT-2026-08-11.md (P1/P2) and CLAUDE.md task 2.8.
+  //
+  // The original implementation is preserved below for reference.
+  // ────────────────────────────────────────────────────────────────────────────
+  return NextResponse.json(
+    {
+      error: 'Not implemented',
+      message: 'Account deletion is temporarily unavailable and no request has been recorded. Please contact support to have your data erased.',
+    },
+    { status: 501 }
+  );
+}
+
+/* Original implementation — restore when the erasure job is built:
+try {
     // Verify authentication
     const supabase = await createClient();
     const { data: { user }, error: authError } = await supabase.auth.getUser();
@@ -212,4 +266,4 @@ export async function DELETE(request: NextRequest) {
       { status: 500 }
     );
   }
-}
+*/

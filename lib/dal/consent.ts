@@ -24,13 +24,13 @@ export type ConsentUpdate = Partial<Omit<ConsentRecord, 'id' | 'userId' | 'creat
  */
 async function requireAuth(): Promise<string> {
   const supabase = await createClient();
-  const { data: { session }, error } = await supabase.auth.getSession();
+  const { data: { user }, error } = await supabase.auth.getUser();
 
-  if (error || !session?.user) {
+  if (error || !user) {
     throw new Error('Unauthorized: User must be authenticated');
   }
 
-  return session.user.id;
+  return user.id;
 }
 
 /**
@@ -46,7 +46,9 @@ async function requireAuth(): Promise<string> {
  * SECURITY LAYERS:
  * - Layer 1: Authentication check
  * - Layer 2: Authorization check (userId matches session)
- * - Layer 3: RLS policy enforcement
+ * - Layer 3: NONE. This previously claimed RLS policy enforcement; the database
+ *   has zero RLS policies, so the application checks above are the ONLY layer.
+ *   Every user-scoped query must filter by userId explicitly.
  * - Layer 4: Audit logging
  *
  * @param userId - User ID to retrieve consent for
@@ -68,7 +70,8 @@ export async function getUserConsent(userId: string): Promise<ConsentRecord> {
     throw new Error('Unauthorized: Cannot access another user\'s consent');
   }
 
-  // Layer 3: Execute database query (RLS provides additional enforcement)
+  // Execute database query. NOTE: there is no RLS backstop — this query must
+  // scope by userId itself.
   const consent = await db.query.userConsent.findFirst({
     where: eq(userConsent.userId, userId)
   });

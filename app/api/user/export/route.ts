@@ -26,7 +26,34 @@ import { eq, and, desc } from 'drizzle-orm';
  * GDPR Article 20: Right to Data Portability
  */
 export async function POST(request: NextRequest) {
-  try {
+  // ─── DISABLED 2026-08-11 ────────────────────────────────────────────────────
+  // This endpoint promised something the system does not do.
+  //
+  // It recorded a row in `export_requests` and promised a download "within 5 minutes".
+// The collection, generation, upload and email steps were all TODO comments, and
+// `download_url` was never populated.
+  //
+  // Under GDPR that is both an Art. 15/20 (access and portability) breach on Article 9
+  // health data and a misleading statement to the data subject
+  // (Art. 5(1)(a), fairness and transparency).
+  //
+  // 501 is the honest state until the export pipeline exists. Re-enable only
+  // together with that implementation.
+  // See docs/AUDIT-2026-08-11.md (P3) and CLAUDE.md task 2.8.
+  //
+  // The original implementation is preserved below for reference.
+  // ────────────────────────────────────────────────────────────────────────────
+  return NextResponse.json(
+    {
+      error: 'Not implemented',
+      message: 'Data export is temporarily unavailable and no request has been recorded. Please contact support to obtain a copy of your data.',
+    },
+    { status: 501 }
+  );
+}
+
+/* Original implementation — restore when the export pipeline is built:
+try {
     // Verify authentication
     const supabase = await createClient();
     const { data: { user }, error: authError } = await supabase.auth.getUser();
@@ -93,7 +120,7 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
-}
+*/
 
 /**
  * GET /api/user/export
@@ -101,7 +128,34 @@ export async function POST(request: NextRequest) {
  * Get export status and download URL
  */
 export async function GET(request: NextRequest) {
-  try {
+  // ─── DISABLED 2026-08-11 ────────────────────────────────────────────────────
+  // This endpoint promised something the system does not do.
+  //
+  // It recorded a row in `export_requests` and promised a download "within 5 minutes".
+// The collection, generation, upload and email steps were all TODO comments, and
+// `download_url` was never populated.
+  //
+  // Under GDPR that is both an Art. 15/20 (access and portability) breach on Article 9
+  // health data and a misleading statement to the data subject
+  // (Art. 5(1)(a), fairness and transparency).
+  //
+  // 501 is the honest state until the export pipeline exists. Re-enable only
+  // together with that implementation.
+  // See docs/AUDIT-2026-08-11.md (P3) and CLAUDE.md task 2.8.
+  //
+  // The original implementation is preserved below for reference.
+  // ────────────────────────────────────────────────────────────────────────────
+  return NextResponse.json(
+    {
+      error: 'Not implemented',
+      message: 'Data export is temporarily unavailable and no request has been recorded. Please contact support to obtain a copy of your data.',
+    },
+    { status: 501 }
+  );
+}
+
+/* Original implementation — restore when the export pipeline is built:
+try {
     // Verify authentication
     const supabase = await createClient();
     const { data: { user }, error: authError } = await supabase.auth.getUser();
@@ -142,4 +196,4 @@ export async function GET(request: NextRequest) {
       { status: 500 }
     );
   }
-}
+*/

@@ -46,7 +46,14 @@ const sourcePreferences = ['AVERAGE', 'USA_CANADA', 'EU', 'UK', 'JAPAN', 'CHINA'
  * PATCH body schema
  */
 const UpdateDemographicsSchema = z.object({
-  birthDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be in YYYY-MM-DD format').nullable().optional(),
+  // Year and month only — we deliberately do not accept a day of birth.
+  // The day was never used to compute an age band, and a full DOB is a strong
+  // quasi-identifier. Accepting it would mean it transits and lands in logs.
+  birthYearMonth: z
+    .string()
+    .regex(/^\d{4}-(0[1-9]|1[0-2])$/, 'Must be in YYYY-MM format')
+    .nullable()
+    .optional(),
   biologicalSex: z.enum(biologicalSexes).nullable().optional(),
   lifeStage: z.enum(lifeStages).optional(),
   manualAgeGroup: z.enum(ageGroups).nullable().optional(),
@@ -62,10 +69,10 @@ export async function GET(request: NextRequest) {
     // Step 1: Authenticate user
     const supabase = await createClient();
     const {
-      data: { session },
-    } = await supabase.auth.getSession();
+      data: { user },
+    } = await supabase.auth.getUser();
 
-    if (!session) {
+    if (!user) {
       logger.warn(
         { service: 'demographics-api', endpoint: 'GET /api/user/demographics' },
         'Unauthorized request - no session'
@@ -73,7 +80,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const userId = session.user.id;
+    const userId = user.id;
 
     logger.debug(
       { service: 'demographics-api', endpoint: 'GET /api/user/demographics', userId },
@@ -85,7 +92,7 @@ export async function GET(request: NextRequest) {
 
     if (!demographics) {
       return NextResponse.json({
-        birthDate: null,
+        birthYearMonth: null,
         biologicalSex: null,
         lifeStage: 'NONE',
         manualAgeGroup: null,
@@ -110,7 +117,10 @@ export async function GET(request: NextRequest) {
     );
 
     return NextResponse.json({
-      birthDate: demographics.birthDate?.toISOString().split('T')[0] || null,
+      birthYearMonth:
+        demographics.birthYear && demographics.birthMonth
+          ? `${demographics.birthYear}-${String(demographics.birthMonth).padStart(2, '0')}`
+          : null,
       biologicalSex: demographics.biologicalSex,
       lifeStage: demographics.lifeStage,
       manualAgeGroup: demographics.manualAgeGroup,
@@ -145,10 +155,10 @@ export async function PATCH(request: NextRequest) {
     // Step 1: Authenticate user
     const supabase = await createClient();
     const {
-      data: { session },
-    } = await supabase.auth.getSession();
+      data: { user },
+    } = await supabase.auth.getUser();
 
-    if (!session) {
+    if (!user) {
       logger.warn(
         { service: 'demographics-api', endpoint: 'PATCH /api/user/demographics' },
         'Unauthorized request - no session'
@@ -156,7 +166,7 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const userId = session.user.id;
+    const userId = user.id;
 
     // Step 2: Parse and validate body
     const body = await request.json();
@@ -194,8 +204,15 @@ export async function PATCH(request: NextRequest) {
     // Step 3: Convert and update
     const updateData: Parameters<typeof updateUserDemographics>[1] = {};
 
-    if (updates.birthDate !== undefined) {
-      updateData.birthDate = updates.birthDate ? new Date(updates.birthDate) : null;
+    if (updates.birthYearMonth !== undefined) {
+      if (updates.birthYearMonth) {
+        const [y, m] = updates.birthYearMonth.split('-');
+        updateData.birthYear = Number(y);
+        updateData.birthMonth = Number(m);
+      } else {
+        updateData.birthYear = null;
+        updateData.birthMonth = null;
+      }
     }
     if (updates.biologicalSex !== undefined) {
       updateData.biologicalSex = updates.biologicalSex as BiologicalSex | null;
@@ -231,7 +248,10 @@ export async function PATCH(request: NextRequest) {
       success: true,
       demographics: updated
         ? {
-            birthDate: updated.birthDate?.toISOString().split('T')[0] || null,
+            birthYearMonth:
+              updated.birthYear && updated.birthMonth
+                ? `${updated.birthYear}-${String(updated.birthMonth).padStart(2, '0')}`
+                : null,
             biologicalSex: updated.biologicalSex,
             lifeStage: updated.lifeStage,
             manualAgeGroup: updated.manualAgeGroup,
