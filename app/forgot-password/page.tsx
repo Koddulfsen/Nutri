@@ -9,15 +9,20 @@
 
 'use client';
 
-import { useState } from 'react';
+import { Suspense, useState } from 'react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import { resetPassword } from '@/app/(auth)/actions';
 
-export default function ForgotPasswordPage() {
+function ForgotPasswordContent() {
+  const searchParams = useSearchParams();
   const [email, setEmail] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [success, setSuccess] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  // /auth/reset-password sends the user back here when the emailed link is
+  // expired, already used, or malformed. Without this the redirect landed on a
+  // form that gave no reason it had failed.
+  const [error, setError] = useState<string | null>(searchParams.get('error'));
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -94,5 +99,17 @@ export default function ForgotPasswordPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+/**
+ * useSearchParams needs a Suspense boundary, or the whole route opts into
+ * client-side rendering and the production build warns.
+ */
+export default function ForgotPasswordPage() {
+  return (
+    <Suspense fallback={null}>
+      <ForgotPasswordContent />
+    </Suspense>
   );
 }

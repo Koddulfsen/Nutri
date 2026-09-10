@@ -405,6 +405,60 @@ export async function resetPassword(email: string) {
  * 2. Log audit event
  * 3. Redirect to home page
  */
+/**
+ * Set a new password for the user the reset link just authenticated.
+ *
+ * The reset email carries a one-time code which /auth/reset-password exchanges
+ * for a session before rendering the form, so by the time this runs the caller
+ * is a real authenticated user and updateUser can set the password directly.
+ * There is deliberately no "current password" argument: proving control of the
+ * mailbox IS the proof here, and asking for a password the user has forgotten
+ * would defeat the flow.
+ */
+export async function updatePassword(formData: FormData) {
+  const password = formData.get('password') as string
+
+  const passwordValidation = validatePasswordStrength(password)
+  if (!passwordValidation.isValid) {
+    return { error: passwordValidation.errors.join(', '), success: false }
+  }
+
+  try {
+    const supabase = await createClient()
+
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) {
+      return {
+        error: 'This reset link has expired. Request a new one.',
+        success: false
+      }
+    }
+
+    const { error } = await supabase.auth.updateUser({ password })
+    if (error) {
+      return { error: error.message, success: false }
+    }
+
+    const headersList = await headers()
+    const ipAddress = headersList.get('x-forwarded-for') || headersList.get('x-real-ip') || 'unknown'
+    const userAgent = headersList.get('user-agent') || 'unknown'
+
+    await logAuditEvent({
+      userId: user.id,
+      action: 'UPDATE',
+      resourceType: 'auth',
+      resourceId: user.id,
+      metadata: { method: 'password_reset' },
+      ipAddress,
+      userAgent
+    })
+
+    return { success: true }
+  } catch (error: any) {
+    return { error: error.message || 'An unexpected error occurred', success: false }
+  }
+}
+
 export async function signOut() {
   try {
     const supabase = await createClient()
