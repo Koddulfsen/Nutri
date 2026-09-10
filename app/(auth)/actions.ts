@@ -46,15 +46,25 @@ export async function signUp(formData: FormData) {
   try {
     const supabase = await createClient()
 
-    // Send OTP email (creates user automatically if doesn't exist)
-    const { data, error } = await supabase.auth.signInWithOtp({
+    // Create the account WITH the password.
+    //
+    // This used to call signInWithOtp() and stash the chosen password in
+    // user_metadata as `temp_password`, to be applied after verification.
+    // Nothing ever applied it — `temp_password` appears exactly once in the
+    // codebase, at the write. So every account created this way had a password
+    // the user had chosen, been shown no error about, and could not log in
+    // with: Supabase answered "Invalid login credentials", which is correct and
+    // unhelpable. It also left the password in plaintext in user_metadata,
+    // which the account holder can read and which is not a secret store.
+    //
+    // signUp() sets the password at creation and still sends the confirmation
+    // email, so verifyOTP() below is unchanged — verifyOtp({ type: 'email' })
+    // accepts a signup confirmation token.
+    const { data, error } = await supabase.auth.signUp({
       email,
+      password,
       options: {
-        shouldCreateUser: true,
-        data: {
-          // Store password in user metadata for setting after OTP verification
-          temp_password: password
-        }
+        emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback`
       }
     })
 
@@ -75,7 +85,7 @@ export async function signUp(formData: FormData) {
       action: 'CREATE',
       resourceType: 'auth',
       resourceId: undefined,
-      metadata: { email, method: 'email_otp' },
+      metadata: { email, method: 'email_password' },
       ipAddress,
       userAgent
     })
@@ -83,7 +93,7 @@ export async function signUp(formData: FormData) {
     return {
       success: true,
       email: email,
-      message: 'Verification code sent to your email'
+      message: 'Check your email to confirm your account'
     }
   } catch (error: any) {
     return {
