@@ -34,7 +34,10 @@ import { sql } from 'drizzle-orm';
 import { logger } from '@/lib/logger';
 import { requireAdmin } from '@/lib/auth/api-guard';
 
-export const maxDuration = 120;
+// Vercel caps this at the plan limit (60s on Hobby), so declaring 120 does not buy
+// 120 — it just hides where the ceiling is. Phase 1 (all 16 source searches, run in
+// parallel) measures ~6s against the pooler; the rest is AI ranking.
+export const maxDuration = 60;
 
 const SmartSearchSchema = z.object({
   canonicalName: z.string().min(1),
@@ -705,6 +708,11 @@ export async function POST(request: NextRequest): Promise<Response> {
       'Content-Type': 'text/event-stream',
       'Cache-Control': 'no-cache',
       Connection: 'keep-alive',
+      // Without this a proxy is free to buffer the whole body and deliver it at the
+      // end — which turns per-source progress into nothing at all, and a timeout
+      // into an empty response. The client cannot tell those apart from "still
+      // working", so it used to spin forever.
+      'X-Accel-Buffering': 'no',
     },
   });
 }

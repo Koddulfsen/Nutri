@@ -12,9 +12,16 @@ import type { SourceStatus } from './types';
 
 interface SearchingPhaseProps {
   sourceStatuses: Record<string, SourceStatus>;
+  /** Set when the search could not run or did not finish. Null while it is working. */
+  searchError?: string | null;
+  onRetry?: () => void;
 }
 
-export default function SearchingPhase({ sourceStatuses }: SearchingPhaseProps) {
+export default function SearchingPhase({
+  sourceStatuses,
+  searchError,
+  onRetry,
+}: SearchingPhaseProps) {
   const enabledSources = FOOD_SOURCES.filter((s) => s.enabled);
 
   const totalSources = enabledSources.length;
@@ -25,6 +32,22 @@ export default function SearchingPhase({ sourceStatuses }: SearchingPhaseProps) 
   const progressPercent = Math.round(
     ((searchedCount + rankedCount) / (totalSources * 2)) * 100
   );
+
+  if (searchError) {
+    return (
+      <div className="searching-phase">
+        <div className="searching-header">
+          <div className="searching-title">Search failed</div>
+        </div>
+        <p className="search-error-detail">{searchError}</p>
+        {onRetry && (
+          <button type="button" className="btn-secondary" onClick={onRetry}>
+            Try again
+          </button>
+        )}
+      </div>
+    );
+  }
 
   return (
     <div className="searching-phase">

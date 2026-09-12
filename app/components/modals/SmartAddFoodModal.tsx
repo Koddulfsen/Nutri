@@ -330,6 +330,7 @@ export default function SmartAddFoodModal({
     chatLoading,
     clarifyResult,
     sourceStatuses,
+    searchError,
     sourceResults,
     selections,
     skipped,
@@ -346,6 +347,7 @@ export default function SmartAddFoodModal({
     sourcesWithResults,
     sendMessage,
     startSearch,
+    retrySearch,
     selectFood,
     skipSource,
     goToSource,
@@ -421,7 +423,11 @@ export default function SmartAddFoodModal({
             )}
 
             {phase === 'searching' && (
-              <SearchingPhase sourceStatuses={sourceStatuses} />
+              <SearchingPhase
+                sourceStatuses={sourceStatuses}
+                searchError={searchError}
+                onRetry={retrySearch}
+              />
             )}
 
             {phase === 'carousel' && (

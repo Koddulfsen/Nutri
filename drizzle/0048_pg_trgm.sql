@@ -1,0 +1,11 @@
+-- Restore the pg_trgm extension, lost in the 2026-08-22 move to hosted Supabase.
+--
+-- Two code paths call similarity() and both have been failing in production ever
+-- since: lib/services/SearchService.ts:147 (the fuzzy branch of /api/compounds/search)
+-- and lib/services/foodb-client.ts:501 (FooDB staging search, which returned
+-- "function similarity(text, unknown) does not exist" on every call).
+--
+-- Installed into `extensions`, the schema Supabase keeps extensions in and which is
+-- already on the default search_path ("$user", public, extensions), so unqualified
+-- similarity() resolves for the app role without a search_path change.
+CREATE EXTENSION IF NOT EXISTS pg_trgm WITH SCHEMA extensions;

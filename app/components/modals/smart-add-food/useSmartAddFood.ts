@@ -21,6 +21,47 @@ import type {
 
 const ENABLED_SOURCES = FOOD_SOURCES.filter((s) => s.enabled);
 
+/**
+ * Turn a non-2xx response into a thrown Error.
+ *
+ * `fetch()` only rejects on a network failure, so a 401, 403, 404 or 504 arrives
+ * as a perfectly ordinary response — and `res.json()` on its body succeeds. Every
+ * call here used to take the success path with an error object as its data, which
+ * is how a missing admin grant, a stale basePath and a function timeout all ended
+ * up rendering as the same spinner that never resolves.
+ */
+async function assertOk(res: Response, what: string): Promise<void> {
+  if (res.ok) return;
+
+  let detail = '';
+  try {
+    const text = await res.clone().text();
+    try {
+      const body = JSON.parse(text);
+      detail = body.error || body.message || '';
+    } catch {
+      // An HTML error page (a 404 from a wrong basePath, a proxy 504) — the body
+      // is not worth showing, the status is.
+      detail = '';
+    }
+  } catch {
+    // Body already consumed or unreadable; the status still tells us something.
+  }
+
+  const reason =
+    res.status === 401
+      ? 'you are not signed in'
+      : res.status === 403
+        ? 'your account is not allowed to use this'
+        : res.status === 404
+          ? 'the endpoint was not found'
+          : res.status === 504 || res.status === 502
+            ? 'the server took too long'
+            : detail || 'unexpected error';
+
+  throw new Error(`${what} failed (HTTP ${res.status}: ${reason})`);
+}
+
 export function useSmartAddFood(onSuccess?: (food: any) => void, onClose?: () => void) {
   const [phase, setPhase] = useState<SmartAddPhase>('clarify');
   const [agent, setAgent] = useState<'clarify' | 'selection' | 'review'>('clarify');
@@ -29,6 +70,7 @@ export function useSmartAddFood(onSuccess?: (food: any) => void, onClose?: () =>
   const [chatLoading, setChatLoading] = useState(false);
   const [clarifyResult, setClarifyResult] = useState<ClarifyResult | null>(null);
   const [sourceStatuses, setSourceStatuses] = useState<Record<string, SourceStatus>>({});
+  const [searchError, setSearchError] = useState<string | null>(null);
   const [sourceResults, setSourceResults] = useState<Record<string, SourceSearchResults>>({});
   const [selections, setSelections] = useState<Record<string, NormalizedResult | null>>({});
   const [skipped, setSkipped] = useState<Set<string>>(new Set());
@@ -105,16 +147,18 @@ export function useSmartAddFood(onSuccess?: (food: any) => void, onClose?: () =>
               agentType: agent,
             }),
           });
+          await assertOk(res, 'Chat');
           const data = await res.json();
           const assistantMsg: ChatMessage = {
             role: 'assistant',
             content: data.response || "I'm not sure, but skip any source where nothing looks right.",
           };
           setChatMessages((prev) => [...prev, assistantMsg]);
-        } catch {
+        } catch (error) {
+          const why = error instanceof Error ? error.message : 'Chat failed';
           setChatMessages((prev) => [
             ...prev,
-            { role: 'assistant', content: "Something went wrong — skip any source where nothing fits." },
+            { role: 'assistant', content: `${why} — skip any source where nothing fits.` },
           ]);
         } finally {
           setChatLoading(false);
@@ -132,6 +176,8 @@ export function useSmartAddFood(onSuccess?: (food: any) => void, onClose?: () =>
           }),
         });
 
+        await assertOk(res, 'Interpreting the food name');
+
         const data = await res.json();
         const assistantMsg: ChatMessage = {
           role: 'assistant',
@@ -142,10 +188,13 @@ export function useSmartAddFood(onSuccess?: (food: any) => void, onClose?: () =>
         setFoodName(data.canonicalName || text);
         if (data.metadata) setMetadata(data.metadata);
         if (data.categoryPath) setCategoryPath(data.categoryPath);
-      } catch {
+      } catch (error) {
+        // The AI step is genuinely optional — a plain text search still works — but
+        // say so, rather than pretending the interpretation succeeded.
+        const why = error instanceof Error ? error.message : 'AI unavailable';
         const fallbackMsg: ChatMessage = {
           role: 'assistant',
-          content: `I'll search for **${text}** across all databases.`,
+          content: `${why}. Searching for **${text}** across all databases without AI interpretation.`,
         };
         setChatMessages((prev) => [...prev, fallbackMsg]);
         setClarifyResult({
@@ -170,6 +219,7 @@ export function useSmartAddFood(onSuccess?: (food: any) => void, onClose?: () =>
     if (!clarifyResult) return;
 
     setPhase('searching');
+    setSearchError(null);
 
     // Switch to selection agent and inject opening message
     setAgentHistoryStart(chatMessages.length);
@@ -207,11 +257,22 @@ export function useSmartAddFood(onSuccess?: (food: any) => void, onClose?: () =>
         signal: controller.signal,
       });
 
+      await assertOk(res, 'Database search');
+
       const reader = res.body?.getReader();
-      if (!reader) return;
+      if (!reader) {
+        setSearchError('Database search returned no response body.');
+        return;
+      }
 
       const decoder = new TextDecoder();
       let buffer = '';
+
+      // A stream that ends without a `complete` event is a failure, not a result.
+      // Vercel returning a 504 mid-stream, or a proxy buffering the whole body and
+      // then dropping it, both look exactly like a clean end-of-stream here.
+      let sawComplete = false;
+      let sawAnyEvent = false;
 
       while (true) {
         const { done, value } = await reader.read();
@@ -225,6 +286,7 @@ export function useSmartAddFood(onSuccess?: (food: any) => void, onClose?: () =>
           if (!line.startsWith('data: ')) continue;
           try {
             const event = JSON.parse(line.slice(6));
+            sawAnyEvent = true;
 
             if (event.type === 'source_searched') {
               setSourceStatuses((prev) => ({
@@ -242,23 +304,30 @@ export function useSmartAddFood(onSuccess?: (food: any) => void, onClose?: () =>
                 [event.source]: { ...prev[event.source], ranked: true },
               }));
             } else if (event.type === 'complete') {
+              sawComplete = true;
               setSourceResults(event.results || {});
               setPhase('carousel');
               setCurrentSourceIndex(0);
             } else if (event.type === 'error') {
-              console.error('Smart search error:', event.error);
-              // Still go to carousel with whatever we got
-              setPhase('carousel');
+              sawComplete = true;
+              setSearchError(event.error || 'The search failed on the server.');
             }
           } catch {
             // Ignore parse errors
           }
         }
       }
+
+      if (!sawComplete) {
+        setSearchError(
+          sawAnyEvent
+            ? 'The search stopped partway through — the server ended the stream before finishing.'
+            : 'The search never started. The server accepted the request but sent nothing back.'
+        );
+      }
     } catch (error) {
       if ((error as Error).name !== 'AbortError') {
-        console.error('Smart search failed:', error);
-        setPhase('carousel');
+        setSearchError(error instanceof Error ? error.message : 'Database search failed.');
       }
     }
   }, [clarifyResult, chatMessages]);
@@ -593,6 +662,7 @@ export function useSmartAddFood(onSuccess?: (food: any) => void, onClose?: () =>
     chatLoading,
     clarifyResult,
     sourceStatuses,
+    searchError,
     sourceResults,
     selections,
     skipped,
@@ -612,6 +682,7 @@ export function useSmartAddFood(onSuccess?: (food: any) => void, onClose?: () =>
     // Actions
     sendMessage,
     startSearch,
+    retrySearch: startSearch,
     selectFood,
     skipSource,
     goToSource,
