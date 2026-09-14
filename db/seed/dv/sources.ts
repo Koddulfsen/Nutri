@@ -68,4 +68,13 @@ export const SOURCES: Record<string, SourceMeta> = {
     note: 'Appendix 1 Tables 1-2 (RNIs) transcribed from the FAO HTML appendix (snapshot in dv-sources/who-fao/source/). RNI stored as RDA; vitamin A is a recommended safe intake, vitamin E an acceptable intake (AI). Iron at 12% and zinc at moderate bioavailability, alternatives in notes.',
     retrievedDate: '2026-09-14',
   },
+  UK: {
+    region: 'UK',
+    slug: 'sacn-rni',
+    authorityName: 'UK Dietary Reference Values (COMA 1991, SACN updates)',
+    versionYear: 2016,
+    url: 'https://www.nutrition.org.uk/media/nmmewdug/nutrition-requirements.pdf',
+    note: 'COMA 1991 RNIs with SACN 2011 energy, 2015 carbohydrate/fibre and 2016 vitamin D, as reproduced in the British Nutrition Foundation summary (2021), transcribed in dv-sources/sacn-rni/extract.ts. RNI stored as RDA, energy EAR as EER (MJ). Salt maxima stored as sodium CDRR. Adult protein (per kg) not stored.',
+    retrievedDate: '2026-09-14',
+  },
 };

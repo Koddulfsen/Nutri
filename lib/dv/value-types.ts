@@ -70,7 +70,7 @@ export const SOURCE_VALUE_TYPES: Record<string, SourceVocabulary> = {
   },
   UK: {
     terms: {
-      RNI: 'RDA', EAR: 'EAR', 'Safe Intake': 'AI', 'EAR (energy)': 'EER',
+      RNI: 'RDA', 'Safe Intake': 'AI', 'EAR (energy)': 'EER', 'fibre recommended intake': 'AI',
       'max salt/sugar/fat': 'CDRR', 'carb target': 'AMDR',
     },
   },
