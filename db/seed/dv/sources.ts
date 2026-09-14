@@ -59,4 +59,13 @@ export const SOURCES: Record<string, SourceMeta> = {
     note: 'AESAN-2019-003 INR for vitamins and minerals (Tables 6a-7d), parsed from a text snapshot in dv-sources/aesan-2019/source/. Only the AESAN INR column is stored; FESNAD/EFSA comparison columns and the EFSA-derived Tables 1-5 are not. INR stored as RDA although it also covers AI-derived values.',
     retrievedDate: '2026-09-14',
   },
+  WHO_FAO: {
+    region: 'WHO_FAO',
+    slug: 'who-fao',
+    authorityName: 'FAO/WHO — Vitamin and mineral requirements in human nutrition (2nd ed.)',
+    versionYear: 2004,
+    url: 'https://www.fao.org/4/y2809e/y2809e0o.htm',
+    note: 'Appendix 1 Tables 1-2 (RNIs) transcribed from the FAO HTML appendix (snapshot in dv-sources/who-fao/source/). RNI stored as RDA; vitamin A is a recommended safe intake, vitamin E an acceptable intake (AI). Iron at 12% and zinc at moderate bioavailability, alternatives in notes.',
+    retrievedDate: '2026-09-14',
+  },
 };

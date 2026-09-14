@@ -109,8 +109,8 @@ export const SOURCE_VALUE_TYPES: Record<string, SourceVocabulary> = {
     terms: { 'норма (RDA)': 'RDA', AI: 'AI', 'added sugars limit': 'CDRR', 'energy requirement': 'EER' },
   },
   WHO_FAO: {
-    terms: { RNI: 'RDA' },
-    knownIssues: ['Vitamin E is an "acceptable intake" (AI), not an RNI, but stored as RDA'],
+    terms: { RNI: 'RDA', 'recommended safe intake (vitamin A)': 'RDA', 'acceptable intake (vitamin E)': 'AI' },
+    knownIssues: ['Iron and zinc RNIs are printed per bioavailability level; stored at 12% (iron) and moderate (zinc), with the alternatives in notes'],
   },
   SINGAPORE: {
     terms: { RDA: 'RDA', 'energy requirement': 'EER' },
