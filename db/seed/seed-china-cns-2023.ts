@@ -2,36 +2,26 @@
  * CNS 2023 — Chinese Nutrition Society Dietary Reference Intakes
  * Published Sept 2023. Revises 2013 edition.
  *
- * See dv-sources/cns-2023/NOTES.md and raw-values.ts.
+ * Every value comes from a cell-by-cell transcription of the printed appendix tables in
+ * dv-sources/cns-2023/printed/. Verify with scripts/dv-verify/check-cns-db.ts and
+ * scripts/dv-verify/check-cns-consistency.ts.
  *
  * Run: npx tsx db/seed/seed-china-cns-2023.ts
  */
 
 import 'dotenv/config';
 import postgres from 'postgres';
-import {
-  DEMOGRAPHICS, demo, DEMO_KEYS,
-  ENERGY_PAL2_EER,
-  PROTEIN_AI, PROTEIN_EAR, PROTEIN_RNI,
-  CARB_AI, CARB_EAR, FIBER_AI,
-  CALCIUM_EAR, PHOSPHORUS_EAR, MAGNESIUM_EAR, IRON_EAR, IODINE_EAR, ZINC_EAR,
-  SELENIUM_EAR, COPPER_EAR, MOLYBDENUM_EAR,
-  VITAMIN_A_EAR, VITAMIN_D_EAR, THIAMIN_EAR, RIBOFLAVIN_EAR, NIACIN_EAR,
-  B6_EAR, FOLATE_EAR, B12_EAR, VITAMIN_C_EAR,
-  CALCIUM_RNI, PHOSPHORUS_RNI, POTASSIUM_AI, SODIUM_AI, MAGNESIUM_RNI, CHLORIDE_AI,
-  IRON_RNI_M, IRON_RNI_F, IODINE_RNI, ZINC_RNI, SELENIUM_RNI, COPPER_RNI,
-  FLUORIDE_AI, CHROMIUM_AI, MANGANESE_AI, MOLYBDENUM_RNI,
-  VITAMIN_A_RNI_M, VITAMIN_A_RNI_F, VITAMIN_D_RNI, VITAMIN_E_AI, VITAMIN_K_AI,
-  THIAMIN_RNI_M, THIAMIN_RNI_F, RIBOFLAVIN_RNI_M, RIBOFLAVIN_RNI_F,
-  NIACIN_RNI_M, NIACIN_RNI_F, B6_RNI, FOLATE_RNI, B12_RNI,
-  PANTOTHENIC_AI, BIOTIN_AI, CHOLINE_AI_M, CHOLINE_AI_F, VITAMIN_C_RNI,
-  POTASSIUM_PI_NCD, SODIUM_PI_NCD, VITAMIN_C_PI_NCD,
-  CALCIUM_UL, PHOSPHORUS_UL, IRON_UL, IODINE_UL, ZINC_UL, SELENIUM_UL,
-  COPPER_UL, FLUORIDE_UL, MANGANESE_UL, MOLYBDENUM_UL,
-  VITAMIN_A_UL, VITAMIN_D_UL, VITAMIN_E_UL, NIACIN_UL, B6_UL, FOLATE_UL, CHOLINE_UL, VITAMIN_C_UL,
-  WATER_TOTAL_AI_M, WATER_TOTAL_AI_F,
-} from '../../dv-sources/cns-2023/raw-values';
 import { TABLE_3_6_EAR, type PrintedNutrient } from '../../dv-sources/cns-2023/printed/table-3-6-ear';
+import { TABLE_3_7_MINERALS } from '../../dv-sources/cns-2023/printed/table-3-7-minerals';
+import { TABLE_3_8_VITAMINS } from '../../dv-sources/cns-2023/printed/table-3-8-vitamins';
+import { TABLE_3_1_ENERGY } from '../../dv-sources/cns-2023/printed/table-3-1-energy';
+import { YEARLY_ROWS, BAND_ROWS } from '../../dv-sources/cns-2023/printed/types';
+import { TABLE_3_2_PROTEIN } from '../../dv-sources/cns-2023/printed/table-3-2-protein';
+import { TABLE_3_3_FAT, FAT_ROWS } from '../../dv-sources/cns-2023/printed/table-3-3-fat';
+import { TABLE_3_4_CARBOHYDRATE } from '../../dv-sources/cns-2023/printed/table-3-4-carbohydrate';
+import { TABLE_3_9_PINCD } from '../../dv-sources/cns-2023/printed/table-3-9-pincd';
+import { TABLE_3_10_UL } from '../../dv-sources/cns-2023/printed/table-3-10-ul';
+import { TABLE_3_11_WATER_TOTAL, WATER_ROWS } from '../../dv-sources/cns-2023/printed/table-3-11-water';
 
 const sql = postgres(process.env.DATABASE_URL!);
 
@@ -62,6 +52,7 @@ const COMPOUND_NAME_MAP: Record<string, string> = {
   'Iron': 'Iron (Total)',
   'LA': 'Linoleic Acid',
   'ALA': 'Alpha-Linolenic Acid (ALA)',
+  'Nicotinamide': 'Nicotinamide',
   'Carbohydrate': 'Carbohydrates',
 };
 function resolveDbName(n: string): string {
@@ -70,6 +61,7 @@ function resolveDbName(n: string): string {
 
 type Sex = 'MALE' | 'FEMALE';
 type LifeStage = 'NONE' | 'PREGNANT_T1' | 'PREGNANT_T2' | 'PREGNANT_T3' | 'LACTATING';
+type Activity = 'SEDENTARY' | 'MODERATE' | 'ACTIVE';
 type ValueType = 'RDA' | 'AI' | 'EAR' | 'EER' | 'UL' | 'CDRR' | 'AMDR';
 
 interface SeedRow {
@@ -84,152 +76,156 @@ interface SeedRow {
   valueMax?: number | null;
   unit: string;
   isPercentOfEnergy?: boolean;
+  activityLevel?: Activity | null;
   valueNote?: string | null;
 }
 
-function expandDemo(key: string): Array<{ sex: Sex; lifeStage: LifeStage; min: number; max: number | null }> {
-  const d = demo(key);
-  if (d.sex === 'BOTH') {
-    return [
-      { sex: 'MALE',   lifeStage: d.lifeStage, min: d.minMonths, max: d.maxMonths },
-      { sex: 'FEMALE', lifeStage: d.lifeStage, min: d.minMonths, max: d.maxMonths },
-    ];
-  }
-  return [{ sex: d.sex, lifeStage: d.lifeStage, min: d.minMonths, max: d.maxMonths }];
-}
-
-// CNS publishes pregnancy/lactation as "+x over same-age non-pregnant women"
-// (附录三 footnote: "+" 表示在相应年龄阶段的成年女性需要量基础上增加的需要量).
-// These arrays were transcribed already converted to totals; every other
-// EAR/RNI/AI/PI-NCD array holds the published increment. ULs are absolute.
-const PREGNANCY_ALREADY_TOTAL = new Set<object>([
-  ENERGY_PAL2_EER, PROTEIN_EAR, PROTEIN_RNI, CARB_EAR, FIBER_AI,
-]);
-const PREG_KEYS = new Set(['PREG_T1', 'PREG_T2', 'PREG_T3', 'LACT']);
-// Pregnancy rows cover 18-49 y; the base differs between these two bands.
-const PREG_BASES = [
-  { key: 'F_18_29', min: 216, max: 359 },
-  { key: 'F_30_49', min: 360, max: 599 },
-] as const;
-
-// Arrays split by sex: [male array, female array]. Children's demographics are
-// unisex ('BOTH'). Where BOTH arrays hold a value for an age (CNS prints 男/女
-// columns from 1 y for these), each array writes only its own sex — before, the
-// _F array overwrote boys' values. Where only one array holds it (a unisex
-// infant cell), it is written for both sexes.
-const SEX_PAIRS: Array<[Record<string, number | null>, Record<string, number | null>]> = [
-  [VITAMIN_A_RNI_M, VITAMIN_A_RNI_F], [THIAMIN_RNI_M, THIAMIN_RNI_F],
-  [RIBOFLAVIN_RNI_M, RIBOFLAVIN_RNI_F], [NIACIN_RNI_M, NIACIN_RNI_F],
-  [CHOLINE_AI_M, CHOLINE_AI_F], [WATER_TOTAL_AI_M, WATER_TOTAL_AI_F],
-  [IRON_RNI_M, IRON_RNI_F],
-];
-const SEX_OF_MAP = new Map<object, { sex: Sex; other: Record<string, number | null> }>(
-  SEX_PAIRS.flatMap(([m, f]) => [[m, { sex: 'MALE' as Sex, other: f }], [f, { sex: 'FEMALE' as Sex, other: m }]]),
-);
-
-// Printed-table rows in order: 6 unisex infant/child bands, then 7 sex-split bands.
-const PRINTED_BANDS = [
-  'INFANT_0_6', 'INFANT_6_12', 'CHILD_1_3', 'CHILD_4_6', 'CHILD_7_8', 'CHILD_9_11',
-  '12_14', '15_17', '18_29', '30_49', '50_64', '65_74', '75P',
-] as const;
 const PREG_STAGES: LifeStage[] = ['PREGNANT_T1', 'PREGNANT_T2', 'PREGNANT_T3', 'LACTATING'];
 
 /** Emit rows from a verified printed transcription (dv-sources/cns-2023/printed/). */
 function pushPrinted(
   rows: SeedRow[], compound: string, unit: string, valueType: ValueType,
-  p: PrintedNutrient, note?: string,
+  p: PrintedNutrient, note?: string, ageRows: Array<[number, number | null]> = BAND_ROWS,
 ) {
-  PRINTED_BANDS.forEach((band, i) => {
+  if (p.m.length !== ageRows.length || p.f.length !== ageRows.length) {
+    throw new Error(`${compound} ${valueType}: ${p.m.length}/${p.f.length} cells for ${ageRows.length} printed rows`);
+  }
+  ageRows.forEach(([min, max], i) => {
+    const range = p.ranges?.[i];
     for (const sex of ['MALE', 'FEMALE'] as Sex[]) {
       const value = sex === 'MALE' ? p.m[i] : p.f[i];
       if (value == null) continue;
-      const d = demo(i < 6 ? band : `${sex === 'MALE' ? 'M' : 'F'}_${band}`);
       rows.push({
-        compoundName: compound, ageMinMonths: d.minMonths, ageMaxMonths: d.maxMonths,
-        sex, lifeStage: 'NONE', valueType, value, unit, valueNote: note ?? null,
+        compoundName: compound, ageMinMonths: min, ageMaxMonths: max,
+        sex, lifeStage: 'NONE', valueType: p.aiRows?.includes(i) ? 'AI' : valueType,
+        value, valueMin: range?.[0] ?? null, valueMax: range?.[1] ?? null,
+        unit, valueNote: note ?? null,
       });
     }
   });
-  // Printed "+x" over same-age non-pregnant women; the table's 18 and 30 bands.
+  // Printed "+x" over same-age non-pregnant women; the table's 18 and 30 rows.
+  const at = (m: number) => ageRows.findIndex(([min, max]) => min <= m && (max == null || m <= max));
   const bases = [
-    { min: 216, max: 359, base: p.f[8] },
-    { min: 360, max: 599, base: p.f[9] },
+    { min: 216, max: 359, base: p.f[at(216)], range: p.ranges?.[at(216)] },
+    { min: 360, max: 599, base: p.f[at(360)], range: p.ranges?.[at(360)] },
   ];
   PREG_STAGES.forEach((lifeStage, i) => {
     const inc = p.preg[i];
     const totals = bases.map((b) => {
       if (b.base == null) throw new Error(`${compound} ${valueType}: no base for ${lifeStage}`);
-      return { min: b.min, max: b.max, total: Number((b.base + inc).toFixed(4)) };
+      const shifted = b.range ? [b.range[0] + inc, b.range[1] + inc] as [number, number] : null;
+      return { min: b.min, max: b.max, total: Number((b.base + inc).toFixed(4)), range: shifted };
     });
-    const merged = totals[0].total === totals[1].total ? [{ min: 216, max: 599, total: totals[0].total }] : totals;
+    const merged = totals[0].total === totals[1].total ? [{ ...totals[0], min: 216, max: 599 }] : totals;
     for (const b of merged) {
       rows.push({
         compoundName: compound, ageMinMonths: b.min, ageMaxMonths: b.max,
         sex: 'FEMALE', lifeStage, valueType, value: b.total, unit,
+        valueMin: b.range?.[0] ?? null, valueMax: b.range?.[1] ?? null,
         valueNote: `${note ? note + ' ' : ''}Printed as +${inc} over same-age non-pregnant women; stored as total.`,
       });
     }
   });
 }
 
-function pushFromMap(
-  rows: SeedRow[], compound: string, unit: string, valueType: ValueType,
-  map: Record<string, number | null>, note?: string,
-) {
-  const split = SEX_OF_MAP.get(map);
-  const isIncrement = valueType !== 'UL' && !PREGNANCY_ALREADY_TOTAL.has(map);
-  const hasPregnancy = [...PREG_KEYS].some((k) => map[k] != null);
+type Cell = number | [number | null, number | null] | null;
 
-  for (const demoKey of DEMO_KEYS) {
-    if (PREG_KEYS.has(demoKey) && isIncrement) {
-      if (!hasPregnancy) continue;
-      // A blank cell beside published increments is "+0" (e.g. iron T1 is printed "+0").
-      const inc = map[demoKey] ?? 0;
-      const bases = PREG_BASES.map((b) => {
-        const base = map[b.key];
-        if (base == null) throw new Error(`${compound} ${valueType}: no ${b.key} base for ${demoKey} increment`);
-        return { ...b, total: Number((base + inc).toFixed(4)) };
+/**
+ * %-of-energy cells: a point (e.g. LA AI 4.0) or a [min, max] range (AMDR 20-30,
+ * "<10" as [null, 10]). Pregnancy/lactation cells are printed absolute.
+ */
+function pushCells(
+  rows: SeedRow[], compound: string,
+  t: { valueType: ValueType; cells: Cell[]; preg: Cell; aiCells?: number[]; unit?: string },
+  ageRows: Array<[number, number | null]>, note: string,
+) {
+  const unit = t.unit ?? '%';
+  const isPercentOfEnergy = unit === '%';
+  if (t.cells.length !== ageRows.length) throw new Error(`${compound} ${t.valueType}: ${t.cells.length} cells for ${ageRows.length} rows`);
+  const shape = (c: Exclude<Cell, null>) => Array.isArray(c)
+    ? { value: c[0] != null && c[1] != null ? (c[0] + c[1]) / 2 : (c[1] ?? c[0])!, valueMin: c[0], valueMax: c[1] }
+    : { value: c, valueMin: null, valueMax: null };
+  ageRows.forEach(([min, max], i) => {
+    const c = t.cells[i];
+    if (c == null) return;
+    for (const sex of ['MALE', 'FEMALE'] as Sex[]) {
+      rows.push({
+        compoundName: compound, ageMinMonths: min, ageMaxMonths: max, sex, lifeStage: 'NONE',
+        valueType: t.aiCells?.includes(i) ? 'AI' : t.valueType, ...shape(c), unit, isPercentOfEnergy, valueNote: note,
       });
-      const merged = bases[0].total === bases[1].total
-        ? [{ min: 216, max: 599, total: bases[0].total }]
-        : bases;
-      const { lifeStage } = demo(demoKey);
-      for (const b of merged) {
+    }
+  });
+  if (t.preg == null) return;
+  for (const lifeStage of PREG_STAGES) {
+    rows.push({
+      compoundName: compound, ageMinMonths: 216, ageMaxMonths: 599, sex: 'FEMALE', lifeStage,
+      valueType: t.valueType, ...shape(t.preg), unit, isPercentOfEnergy, valueNote: note,
+    });
+  }
+}
+
+const PAL_ACTIVITY: Record<'I' | 'II' | 'III', Activity> = { I: 'SEDENTARY', II: 'MODERATE', III: 'ACTIVE' };
+
+/**
+ * Energy by PAL. Where a row publishes PAL II only (ages 1-5), the value applies at
+ * every activity level, so activity_level is NULL. Infants are printed per kg and
+ * are not stored (see table-3-1-energy.ts).
+ */
+function pushEnergy(rows: SeedRow[]) {
+  const T = TABLE_3_1_ENERGY;
+  const pals = ['I', 'II', 'III'] as const;
+  YEARLY_ROWS.forEach(([min, max], i) => {
+    for (const sex of ['MALE', 'FEMALE'] as Sex[]) {
+      const col = (pal: typeof pals[number]) => (sex === 'MALE' ? T[pal].m[i] : T[pal].f[i]);
+      const split = col('I') != null || col('III') != null;
+      for (const pal of pals) {
+        const value = col(pal);
+        if (value == null) continue;
         rows.push({
-          compoundName: compound, ageMinMonths: b.min, ageMaxMonths: b.max,
-          sex: 'FEMALE', lifeStage: lifeStage as LifeStage, valueType, value: b.total, unit,
-          valueNote: `${note ? note + ' ' : ''}Published as +${inc} over same-age non-pregnant women; stored as total.`,
+          compoundName: 'Energy', ageMinMonths: min, ageMaxMonths: max, sex, lifeStage: 'NONE',
+          valueType: 'EER', value, unit: 'kcal', activityLevel: split ? PAL_ACTIVITY[pal] : null,
+          valueNote: split ? `PAL ${pal}.` : 'Printed at PAL II only; applies at every activity level.',
         });
       }
-      continue;
     }
-    const value = map[demoKey];
-    if (value == null) continue;
-    for (const { sex, lifeStage, min, max } of expandDemo(demoKey)) {
-      if (split && split.other[demoKey] != null && sex !== split.sex) continue;
-      rows.push({
-        compoundName: compound, ageMinMonths: min, ageMaxMonths: max,
-        sex, lifeStage, valueType, value, unit, valueNote: note ?? null,
-      });
-    }
+  });
+  // Pregnancy/lactation: printed "+x" identically under each PAL, over the same-age woman.
+  const i18 = YEARLY_ROWS.findIndex(([min]) => min === 216);
+  const i30 = YEARLY_ROWS.findIndex(([min]) => min === 360);
+  for (const pal of pals) {
+    PREG_STAGES.forEach((lifeStage, k) => {
+      const inc = T.preg[k];
+      const a = T[pal].f[i18]! + inc, b = T[pal].f[i30]! + inc;
+      const bands = a === b ? [{ min: 216, max: 599, total: a }] : [{ min: 216, max: 359, total: a }, { min: 360, max: 599, total: b }];
+      for (const band of bands) {
+        rows.push({
+          compoundName: 'Energy', ageMinMonths: band.min, ageMaxMonths: band.max, sex: 'FEMALE', lifeStage,
+          valueType: 'EER', value: band.total, unit: 'kcal', activityLevel: PAL_ACTIVITY[pal],
+          valueNote: `PAL ${pal}. Printed as +${inc} over same-age non-pregnant women; stored as total.`,
+        });
+      }
+    });
   }
 }
 
 function buildAllRows(): SeedRow[] {
   const rows: SeedRow[] = [];
 
-  // ─── ENERGY at PAL II (moderate) ───
-  pushFromMap(rows, 'Energy', 'kcal', 'EER', ENERGY_PAL2_EER,
-    'EER at PAL II (moderate activity, PAL ~1.7). Infants from per-kg × reference weight.');
+  // ─── ENERGY (附表 3-1) — from the verified printed transcription ───
+  pushEnergy(rows);
 
   // ─── MACROS ───
-  pushFromMap(rows, 'Protein', 'g', 'AI', PROTEIN_AI);
-  pushFromMap(rows, 'Protein', 'g', 'EAR', PROTEIN_EAR);
-  pushFromMap(rows, 'Protein', 'g', 'RDA', PROTEIN_RNI,
-    'Pregnancy cumulative: T1 +0, T2 +15, T3 +30. Lact +25.');
-  pushFromMap(rows, 'Carbohydrate', 'g', 'AI', CARB_AI);
-  pushFromMap(rows, 'Carbohydrate', 'g', 'EAR', CARB_EAR);
-  pushFromMap(rows, 'Dietary Fiber', 'g', 'AI', FIBER_AI);
+  // Protein (附表 3-2) — from the verified printed transcription
+  pushPrinted(rows, 'Protein', 'g', 'EAR', TABLE_3_2_PROTEIN.ear, undefined, YEARLY_ROWS);
+  pushPrinted(rows, 'Protein', 'g', 'RDA', TABLE_3_2_PROTEIN.rni, undefined, YEARLY_ROWS);
+  pushCells(rows, 'Protein', { valueType: 'AMDR', cells: TABLE_3_2_PROTEIN.amdr, preg: TABLE_3_2_PROTEIN.amdrPreg }, YEARLY_ROWS, '附表 3-2.');
+  // Carbohydrate, fiber, added sugars (附表 3-4) — from the verified printed transcription
+  const CARB = TABLE_3_4_CARBOHYDRATE;
+  pushPrinted(rows, 'Carbohydrate', 'g', 'EAR', CARB.carbEar);
+  pushCells(rows, 'Carbohydrate', { valueType: 'AMDR', cells: CARB.carbAmdr.cells, preg: CARB.carbAmdr.preg }, BAND_ROWS, '附表 3-4.');
+  pushPrinted(rows, 'Dietary Fiber', 'g', 'AI', CARB.fiberAi, 'Printed as a range; value is the midpoint.');
+  pushCells(rows, 'Added Sugars', { valueType: 'AMDR', cells: CARB.addedSugarsAmdr.cells, preg: CARB.addedSugarsAmdr.preg }, BAND_ROWS,
+    '附表 3-4. Footnote: no more than 50 g/d, preferably below 25 g/d.');
 
   // ─── EAR (附表 3-6) — from the verified printed transcription ───
   const EAR = TABLE_3_6_EAR;
@@ -252,145 +248,72 @@ function buildAllRows(): SeedRow[] {
   pushPrinted(rows, 'Vitamin B12', 'µg', 'EAR', EAR.vitaminB12);
   pushPrinted(rows, 'Vitamin C', 'mg', 'EAR', EAR.vitaminC);
 
-  // ─── MINERAL RNI / AI (Table 3-7) ───
-  pushFromMap(rows, 'Calcium', 'mg', 'RDA', CALCIUM_RNI);
-  pushFromMap(rows, 'Phosphorus', 'mg', 'RDA', PHOSPHORUS_RNI);
-  pushFromMap(rows, 'Potassium', 'mg', 'AI', POTASSIUM_AI);
-  pushFromMap(rows, 'Sodium', 'mg', 'AI', SODIUM_AI);
-  pushFromMap(rows, 'Magnesium', 'mg', 'RDA', MAGNESIUM_RNI);
-  pushFromMap(rows, 'Chloride', 'mg', 'AI', CHLORIDE_AI);
+  // ─── MINERAL RNI / AI (附表 3-7) — from the verified printed transcription ───
+  const MIN = TABLE_3_7_MINERALS;
+  pushPrinted(rows, 'Calcium', 'mg', MIN.calcium.valueType, MIN.calcium);
+  pushPrinted(rows, 'Phosphorus', 'mg', MIN.phosphorus.valueType, MIN.phosphorus);
+  pushPrinted(rows, 'Potassium', 'mg', MIN.potassium.valueType, MIN.potassium);
+  pushPrinted(rows, 'Sodium', 'mg', MIN.sodium.valueType, MIN.sodium, MIN.sodium.note);
+  pushPrinted(rows, 'Magnesium', 'mg', MIN.magnesium.valueType, MIN.magnesium);
+  pushPrinted(rows, 'Chloride', 'mg', MIN.chloride.valueType, MIN.chloride, MIN.chloride.note);
+  pushPrinted(rows, 'Iron', 'mg', MIN.iron.valueType, MIN.iron, MIN.iron.note);
+  pushPrinted(rows, 'Iodine', 'µg', MIN.iodine.valueType, MIN.iodine);
+  pushPrinted(rows, 'Zinc', 'mg', MIN.zinc.valueType, MIN.zinc);
+  pushPrinted(rows, 'Selenium', 'µg', MIN.selenium.valueType, MIN.selenium);
+  pushPrinted(rows, 'Copper', 'mg', MIN.copper.valueType, MIN.copper);
+  pushPrinted(rows, 'Fluoride', 'mg', MIN.fluoride.valueType, MIN.fluoride);
+  pushPrinted(rows, 'Chromium', 'µg', MIN.chromium.valueType, MIN.chromium);
+  pushPrinted(rows, 'Manganese', 'mg', MIN.manganese.valueType, MIN.manganese);
+  pushPrinted(rows, 'Molybdenum', 'µg', MIN.molybdenum.valueType, MIN.molybdenum);
 
-  // Iron RDA — Male map only has males, Female map has females; merge
-  pushFromMap(rows, 'Iron', 'mg', 'RDA', IRON_RNI_M,
-    'F 50-64 premenopausal: 18 mg (menstruating); store postmeno = 10. Split by dietary_context future work.');
-  pushFromMap(rows, 'Iron', 'mg', 'RDA', IRON_RNI_F,
-    'F 50-64 premenopausal: 18 mg (menstruating); store postmeno = 10.');
+  // ─── VITAMIN RNI / AI (附表 3-8) — from the verified printed transcription ───
+  const VIT = TABLE_3_8_VITAMINS;
+  pushPrinted(rows, 'Vitamin A', 'µg', VIT.vitaminA.valueType, VIT.vitaminA, 'µg RAE.');
+  pushPrinted(rows, 'Vitamin D', 'µg', VIT.vitaminD.valueType, VIT.vitaminD);
+  pushPrinted(rows, 'Vitamin E', 'mg', VIT.vitaminE.valueType, VIT.vitaminE, 'α-TE.');
+  pushPrinted(rows, 'Vitamin K', 'µg', VIT.vitaminK.valueType, VIT.vitaminK);
+  pushPrinted(rows, 'Thiamin', 'mg', VIT.thiamin.valueType, VIT.thiamin);
+  pushPrinted(rows, 'Riboflavin', 'mg', VIT.riboflavin.valueType, VIT.riboflavin);
+  pushPrinted(rows, 'Niacin', 'mg', VIT.niacin.valueType, VIT.niacin, 'mg NE.');
+  pushPrinted(rows, 'Vitamin B6', 'mg', VIT.vitaminB6.valueType, VIT.vitaminB6);
+  pushPrinted(rows, 'Folate', 'µg', VIT.folate.valueType, VIT.folate, 'µg DFE.');
+  pushPrinted(rows, 'Vitamin B12', 'µg', VIT.vitaminB12.valueType, VIT.vitaminB12);
+  pushPrinted(rows, 'Pantothenic acid', 'mg', VIT.pantothenic.valueType, VIT.pantothenic);
+  pushPrinted(rows, 'Biotin', 'µg', VIT.biotin.valueType, VIT.biotin);
+  pushPrinted(rows, 'Choline', 'mg', VIT.choline.valueType, VIT.choline);
+  pushPrinted(rows, 'Vitamin C', 'mg', VIT.vitaminC.valueType, VIT.vitaminC);
 
-  pushFromMap(rows, 'Iodine', 'µg', 'RDA', IODINE_RNI);
-  pushFromMap(rows, 'Zinc', 'mg', 'RDA', ZINC_RNI);
-  pushFromMap(rows, 'Selenium', 'µg', 'RDA', SELENIUM_RNI);
-  pushFromMap(rows, 'Copper', 'mg', 'RDA', COPPER_RNI);
-  pushFromMap(rows, 'Fluoride', 'mg', 'AI', FLUORIDE_AI);
-  pushFromMap(rows, 'Chromium', 'µg', 'AI', CHROMIUM_AI);
-  pushFromMap(rows, 'Manganese', 'mg', 'AI', MANGANESE_AI);
-  pushFromMap(rows, 'Molybdenum', 'µg', 'RDA', MOLYBDENUM_RNI);
+  // ─── PI-NCD (附表 3-9) → CDRR — from the verified printed transcription ───
+  const PI = TABLE_3_9_PINCD;
+  pushCells(rows, 'Potassium', { valueType: 'CDRR', cells: PI.potassium.cells, preg: PI.potassium.preg, unit: 'mg' }, BAND_ROWS, 'PI-NCD: intake to reach.');
+  pushCells(rows, 'Sodium', { valueType: 'CDRR', cells: PI.sodium.cells, preg: PI.sodium.preg, unit: 'mg' }, BAND_ROWS, 'PI-NCD: printed ≤, stay at or below.');
+  pushCells(rows, 'Vitamin C', { valueType: 'CDRR', cells: PI.vitaminC.cells, preg: PI.vitaminC.preg, unit: 'mg' }, BAND_ROWS, 'PI-NCD: intake to reach.');
 
-  // ─── VITAMIN RNI / AI (Table 3-8) ───
-  pushFromMap(rows, 'Vitamin A', 'µg', 'RDA', VITAMIN_A_RNI_M, 'µg RAE (male).');
-  pushFromMap(rows, 'Vitamin A', 'µg', 'RDA', VITAMIN_A_RNI_F, 'µg RAE (female).');
-  pushFromMap(rows, 'Vitamin D', 'µg', 'RDA', VITAMIN_D_RNI);
-  pushFromMap(rows, 'Vitamin E', 'mg', 'AI', VITAMIN_E_AI, 'α-TE.');
-  pushFromMap(rows, 'Vitamin K', 'µg', 'AI', VITAMIN_K_AI);
-  pushFromMap(rows, 'Thiamin', 'mg', 'RDA', THIAMIN_RNI_M);
-  pushFromMap(rows, 'Thiamin', 'mg', 'RDA', THIAMIN_RNI_F);
-  pushFromMap(rows, 'Riboflavin', 'mg', 'RDA', RIBOFLAVIN_RNI_M);
-  pushFromMap(rows, 'Riboflavin', 'mg', 'RDA', RIBOFLAVIN_RNI_F);
-  pushFromMap(rows, 'Niacin', 'mg', 'RDA', NIACIN_RNI_M, 'mg NE.');
-  pushFromMap(rows, 'Niacin', 'mg', 'RDA', NIACIN_RNI_F, 'mg NE.');
-  pushFromMap(rows, 'Vitamin B6', 'mg', 'RDA', B6_RNI);
-  pushFromMap(rows, 'Folate', 'µg', 'RDA', FOLATE_RNI, 'µg DFE. Preg: +200 all trimesters; women of childbearing age should consume 400 µg folic acid supplement.');
-  pushFromMap(rows, 'Vitamin B12', 'µg', 'RDA', B12_RNI);
-  pushFromMap(rows, 'Pantothenic acid', 'mg', 'AI', PANTOTHENIC_AI);
-  pushFromMap(rows, 'Biotin', 'µg', 'AI', BIOTIN_AI);
-  pushFromMap(rows, 'Choline', 'mg', 'AI', CHOLINE_AI_M);
-  pushFromMap(rows, 'Choline', 'mg', 'AI', CHOLINE_AI_F);
-  pushFromMap(rows, 'Vitamin C', 'mg', 'RDA', VITAMIN_C_RNI);
-
-  // ─── PI-NCD (Table 3-9) → CDRR ───
-  pushFromMap(rows, 'Potassium', 'mg', 'CDRR', POTASSIUM_PI_NCD,
-    'PI-NCD (disease risk reduction target) — aim for this or higher for cardiovascular benefits.');
-  pushFromMap(rows, 'Sodium', 'mg', 'CDRR', SODIUM_PI_NCD,
-    'PI-NCD ceiling — stay under.');
-  pushFromMap(rows, 'Vitamin C', 'mg', 'CDRR', VITAMIN_C_PI_NCD,
-    'PI-NCD 200 mg/d adults — disease prevention target.');
-
-  // ─── UL (Table 3-10) ───
-  pushFromMap(rows, 'Calcium', 'mg', 'UL', CALCIUM_UL);
-  pushFromMap(rows, 'Phosphorus', 'mg', 'UL', PHOSPHORUS_UL);
-  pushFromMap(rows, 'Iron', 'mg', 'UL', IRON_UL);
-  pushFromMap(rows, 'Iodine', 'µg', 'UL', IODINE_UL);
-  pushFromMap(rows, 'Zinc', 'mg', 'UL', ZINC_UL);
-  pushFromMap(rows, 'Selenium', 'µg', 'UL', SELENIUM_UL);
-  pushFromMap(rows, 'Copper', 'mg', 'UL', COPPER_UL);
-  pushFromMap(rows, 'Fluoride', 'mg', 'UL', FLUORIDE_UL);
-  pushFromMap(rows, 'Manganese', 'mg', 'UL', MANGANESE_UL);
-  pushFromMap(rows, 'Molybdenum', 'µg', 'UL', MOLYBDENUM_UL);
-  pushFromMap(rows, 'Vitamin A', 'µg', 'UL', VITAMIN_A_UL);
-  pushFromMap(rows, 'Vitamin D', 'µg', 'UL', VITAMIN_D_UL);
-  pushFromMap(rows, 'Vitamin E', 'mg', 'UL', VITAMIN_E_UL);
-  pushFromMap(rows, 'Niacin', 'mg', 'UL', NIACIN_UL, 'Nicotinic acid form (stricter).');
-  pushFromMap(rows, 'Vitamin B6', 'mg', 'UL', B6_UL);
-  pushFromMap(rows, 'Folate', 'µg', 'UL', FOLATE_UL, 'Folic acid form from fortified foods/supplements.');
-  pushFromMap(rows, 'Choline', 'mg', 'UL', CHOLINE_UL);
-  pushFromMap(rows, 'Vitamin C', 'mg', 'UL', VITAMIN_C_UL);
-
-  // ─── WATER (Table 3-11) ───
-  pushFromMap(rows, 'Water', 'mL', 'AI', WATER_TOTAL_AI_M,
-    'Total water AI including food and drink (M).');
-  pushFromMap(rows, 'Water', 'mL', 'AI', WATER_TOTAL_AI_F,
-    'Total water AI including food and drink (F).');
-
-  // ─── AMDR ranges (Tables 3-3, 3-4, 3-5) ───
-  const amdrAges = [
-    { key: 'CHILD_1_3', min: 12, max: 47 },
-    { key: 'CHILD_4_6', min: 48, max: 83 },
-    { key: 'CHILD_7_8', min: 84, max: 107 },
-    { key: 'CHILD_9_11', min: 108, max: 143 },
-    { key: 'M_12_14', min: 144, max: 179 }, { key: 'F_12_14', min: 144, max: 179 },
-    { key: 'M_15_17', min: 180, max: 215 }, { key: 'F_15_17', min: 180, max: 215 },
-    { key: 'M_18_29', min: 216, max: 359 }, { key: 'F_18_29', min: 216, max: 359 },
-    { key: 'M_30_49', min: 360, max: 599 }, { key: 'F_30_49', min: 360, max: 599 },
-    { key: 'M_50_64', min: 600, max: 779 }, { key: 'F_50_64', min: 600, max: 779 },
-    { key: 'M_65_74', min: 780, max: 899 }, { key: 'F_65_74', min: 780, max: 899 },
-    { key: 'M_75P', min: 900, max: null }, { key: 'F_75P', min: 900, max: null },
-    { key: 'PREG_T1', min: 216, max: 599 },
-    { key: 'PREG_T2', min: 216, max: 599 },
-    { key: 'PREG_T3', min: 216, max: 599 },
-    { key: 'LACT', min: 216, max: 599 },
-  ] as const;
-  function amdrPush(compound: string, value: number, valueMin: number | null, valueMax: number | null, valueType: ValueType, note: string, ages = amdrAges) {
-    for (const a of ages) {
-      for (const { sex, lifeStage, min, max } of expandDemo(a.key)) {
-        rows.push({
-          compoundName: compound, ageMinMonths: min, ageMaxMonths: max,
-          sex, lifeStage, valueType, value, unit: '%',
-          valueMin: valueMin ?? null, valueMax: valueMax ?? null,
-          isPercentOfEnergy: true,
-          valueNote: note,
-        });
-      }
-    }
+  // ─── UL (附表 3-10) — from the verified printed transcription ───
+  const UL_COMPOUND: Record<string, string> = {
+    calcium: 'Calcium', phosphorus: 'Phosphorus', iron: 'Iron', iodine: 'Iodine', zinc: 'Zinc', selenium: 'Selenium',
+    copper: 'Copper', fluoride: 'Fluoride', manganese: 'Manganese', molybdenum: 'Molybdenum', vitaminA: 'Vitamin A',
+    vitaminD: 'Vitamin D', vitaminE: 'Vitamin E', niacin: 'Niacin', nicotinamide: 'Nicotinamide', vitaminB6: 'Vitamin B6',
+    folate: 'Folate', choline: 'Choline', vitaminC: 'Vitamin C',
+  };
+  for (const [key, u] of Object.entries(TABLE_3_10_UL)) {
+    if (new Set(u.preg).size !== 1) throw new Error(`UL ${key}: pregnancy cells differ; pushCells stores one`);
+    pushCells(rows, UL_COMPOUND[key], { valueType: 'UL', cells: u.cells, preg: u.preg[0], unit: u.unit }, BAND_ROWS, '附表 3-10.');
   }
 
-  // Carbohydrate AMDR 50-65% (1y+)
-  amdrPush('Carbohydrate', 57.5, 50, 65, 'AMDR', 'Carbohydrate AMDR 50-65% of total energy.');
-  // Protein AMDR varies by age
-  amdrPush('Protein', 14, 8, 20, 'AMDR', 'Protein AMDR 8-20% (4-5 y).',
-           [{ key: 'CHILD_4_6', min: 48, max: 83 }]);
-  amdrPush('Protein', 15, 10, 20, 'AMDR', 'Protein AMDR 10-20% (6+ y).',
-           amdrAges.filter((a) => a.key !== 'CHILD_4_6' && a.key !== 'CHILD_1_3'));
-  // Fat AMDR: 1-3y 35%, 4+ 20-30%
-  amdrPush('Total Fat', 35, null, 35, 'AMDR', 'Total Fat AI (1-3 y).',
-           [{ key: 'CHILD_1_3', min: 12, max: 47 }]);
-  amdrPush('Total Fat', 25, 20, 30, 'AMDR', 'Total fat AMDR 20-30% (4y+).',
-           amdrAges.filter((a) => a.key !== 'CHILD_1_3'));
-  // Saturated fat <8% for 4-17y, <10% for 18+
-  amdrPush('Saturated Fat', 8, null, 8, 'AMDR', 'Saturated fat <8% (4-17 y).',
-           amdrAges.filter((a) => ['CHILD_4_6','CHILD_7_8','CHILD_9_11','M_12_14','F_12_14','M_15_17','F_15_17'].includes(a.key as string)));
-  amdrPush('Saturated Fat', 10, null, 10, 'AMDR', 'Saturated fat <10% (18y+).',
-           amdrAges.filter((a) => ['M_18_29','F_18_29','M_30_49','F_30_49','M_50_64','F_50_64','M_65_74','F_65_74','M_75P','F_75P','PREG_T1','PREG_T2','PREG_T3','LACT'].includes(a.key as string)));
-  // n-6 PUFA (LA) AMDR 2.5-9.0 %E (18+)
-  amdrPush('LA', 5.75, 2.5, 9.0, 'AMDR', 'Linoleic acid (n-6) AMDR 2.5-9% energy (18y+).',
-           amdrAges.filter((a) => ['M_18_29','F_18_29','M_30_49','F_30_49','M_50_64','F_50_64','M_65_74','F_65_74','M_75P','F_75P','PREG_T1','PREG_T2','PREG_T3','LACT'].includes(a.key as string)));
-  // n-3 PUFA (ALA) AMDR 0.5-2% (18+)
-  amdrPush('ALA', 1.25, 0.5, 2.0, 'AMDR', 'α-linolenic acid (n-3) AMDR 0.5-2% energy (18y+).',
-           amdrAges.filter((a) => ['M_18_29','F_18_29','M_30_49','F_30_49','M_50_64','F_50_64','M_65_74','F_65_74','M_75P','F_75P','PREG_T1','PREG_T2','PREG_T3','LACT'].includes(a.key as string)));
-  // LA AI 4% energy for 1y+
-  amdrPush('LA', 4, null, null, 'AI', 'Linoleic acid AI 4% energy (1-17 y).',
-           amdrAges.filter((a) => !['M_18_29','F_18_29','M_30_49','F_30_49','M_50_64','F_50_64','M_65_74','F_65_74','M_75P','F_75P','PREG_T1','PREG_T2','PREG_T3','LACT'].includes(a.key as string)));
-  // Added sugars CDRR <10% (4+)
-  amdrPush('Added Sugars', 10, null, 10, 'CDRR', 'Added sugars <10% energy (4y+). ≤50 g/d, ideally <25 g/d.',
-           amdrAges.filter((a) => a.key !== 'CHILD_1_3'));
+  // ─── WATER (附表 3-11) — total intake, from the verified printed transcription ───
+  pushPrinted(rows, 'Water', 'mL', 'AI', TABLE_3_11_WATER_TOTAL,
+    'Total water (food + drink), temperate climate at low activity.', WATER_ROWS);
+
+  // ─── FATS (附表 3-3) — from the verified printed transcription ───
+  const FAT = TABLE_3_3_FAT;
+  const fatNote = '附表 3-3.';
+  pushCells(rows, 'Total Fat', FAT.totalFat, FAT_ROWS, fatNote);
+  pushCells(rows, 'Saturated Fat', FAT.saturatedFat, FAT_ROWS, fatNote);
+  pushCells(rows, 'Omega-6', FAT.n6Pufa, FAT_ROWS, 'n-6 PUFA (total), 附表 3-3.');
+  pushCells(rows, 'Omega-3', FAT.n3Pufa, FAT_ROWS, 'n-3 PUFA (total), 附表 3-3.');
+  pushCells(rows, 'LA', FAT.linoleicAcid, FAT_ROWS, fatNote);
+  pushCells(rows, 'ALA', FAT.alphaLinolenicAcid, FAT_ROWS, fatNote);
 
   return rows;
 }
@@ -423,7 +346,7 @@ async function seed() {
   const seenKeys = new Map<string, SeedRow>();
   const dupes: string[] = [];
   for (const r of rows) {
-    const key = [resolveDbName(r.compoundName), r.ageMinMonths, r.ageMaxMonths, r.sex, r.lifeStage, r.valueType].join('|');
+    const key = [resolveDbName(r.compoundName), r.ageMinMonths, r.ageMaxMonths, r.sex, r.lifeStage, r.valueType, r.activityLevel ?? ''].join('|');
     const prev = seenKeys.get(key);
     if (prev) dupes.push(`${key}: ${prev.value} ${prev.unit} vs ${r.value} ${r.unit}`);
     seenKeys.set(key, r);
@@ -438,56 +361,39 @@ async function seed() {
   const idByName = new Map(compoundRows.map((r: any) => [r.name, r.id]));
   const missing = names.filter((n) => !idByName.has(n));
   if (missing.length > 0) {
-    // Fatal: a skipped compound silently drops its rows (the pregnancy delete
-    // above would then lose them), and the old rows go stale without warning.
+    // Fatal: a skipped compound would silently drop its rows.
     throw new Error(`Compounds not found: ${missing.join(', ')}`);
   }
 
-  // Pregnancy/lactation rows changed shape (increments -> totals, 18-49 y split
-  // where the base differs). Upsert alone would leave the old rows behind.
-  const removed = await sql`
-    DELETE FROM reference_daily_values
-    WHERE source_region = ${SOURCE.regionCode} AND life_stage <> 'NONE'`;
-  console.log(`Removed ${removed.count} existing pregnancy/lactation rows before re-inserting.\n`);
-
-  let inserted = 0, updated = 0, skipped = 0;
-  for (const row of rows) {
-    const compoundId = idByName.get(resolveDbName(row.compoundName));
-    if (!compoundId) { skipped++; continue; }
-
-    const result = await sql`
-      INSERT INTO reference_daily_values (
-        compound_id, source_region, source_id,
-        age_min_months, age_max_months,
-        sex, life_stage, value_type,
-        value, value_min, value_max, unit,
-        is_percent_of_energy, is_provisional, value_note
-      ) VALUES (
-        ${compoundId}, ${SOURCE.regionCode}, ${source.id},
-        ${row.ageMinMonths}, ${row.ageMaxMonths},
-        ${row.sex}, ${row.lifeStage}, ${row.valueType},
-        ${row.value}, ${row.valueMin ?? null}, ${row.valueMax ?? null}, ${row.unit},
-        ${row.isPercentOfEnergy ?? false}, false, ${row.valueNote ?? null}
-      )
-      ON CONFLICT (compound_id, source_region, age_min_months, age_max_months, sex, life_stage, value_type, activity_level, dietary_context)
-      DO UPDATE SET
-        value = EXCLUDED.value,
-        value_min = EXCLUDED.value_min,
-        value_max = EXCLUDED.value_max,
-        unit = EXCLUDED.unit,
-        source_id = EXCLUDED.source_id,
-        is_percent_of_energy = EXCLUDED.is_percent_of_energy,
-        value_note = EXCLUDED.value_note
-      RETURNING (xmax = 0) AS inserted
-    `;
-    if (result[0]?.inserted) inserted++; else updated++;
-  }
+  // Full replacement in one transaction: the table then holds exactly what this
+  // seed produces (no stale rows when a key changes, e.g. an infant cell moving
+  // from RDA to AI), and a failure leaves the previous data untouched.
+  // Nothing references reference_daily_values.id, so replacing rows is safe.
+  const { removed, inserted } = await sql.begin(async (tx) => {
+    const del = await tx`DELETE FROM reference_daily_values WHERE source_region = ${SOURCE.regionCode}`;
+    let n = 0;
+    for (const row of rows) {
+      await tx`
+        INSERT INTO reference_daily_values (
+          compound_id, source_region, source_id,
+          age_min_months, age_max_months,
+          sex, life_stage, value_type, activity_level,
+          value, value_min, value_max, unit,
+          is_percent_of_energy, is_provisional, value_note
+        ) VALUES (
+          ${idByName.get(resolveDbName(row.compoundName))}, ${SOURCE.regionCode}, ${source.id},
+          ${row.ageMinMonths}, ${row.ageMaxMonths},
+          ${row.sex}, ${row.lifeStage}, ${row.valueType}, ${row.activityLevel ?? null},
+          ${row.value}, ${row.valueMin ?? null}, ${row.valueMax ?? null}, ${row.unit},
+          ${row.isPercentOfEnergy ?? false}, false, ${row.valueNote ?? null}
+        )`;
+      n++;
+    }
+    return { removed: del.count, inserted: n };
+  });
 
   console.log('─'.repeat(60));
-  console.log(`✅ Seed complete`);
-  console.log(`   Inserted: ${inserted}`);
-  console.log(`   Updated:  ${updated}`);
-  console.log(`   Skipped:  ${skipped}`);
+  console.log(`✅ Seed complete — replaced ${removed} ${SOURCE.regionCode} rows with ${inserted}`);
   console.log('─'.repeat(60));
 }
 

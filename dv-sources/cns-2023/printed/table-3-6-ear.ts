@@ -8,17 +8,9 @@
  * null = printed "—".
  */
 
-export const ROWS = ['0', '0.5', '1', '4', '7', '9', '12', '15', '18', '30', '50', '65', '75'] as const;
+import { same, type PrintedNutrient, type PrintedTable } from './types';
+export type { PrintedNutrient } from './types';
 
-export interface PrintedNutrient {
-  unit: string;
-  m: (number | null)[];
-  f: (number | null)[];
-  preg: [number, number, number, number];
-  note?: string;
-}
-
-const same = (v: (number | null)[]) => ({ m: v, f: v });
 const _ = null;
 
 export const TABLE_3_6_EAR: Record<string, PrintedNutrient> = {

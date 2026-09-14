@@ -84,7 +84,6 @@ export const SOURCE_VALUE_TYPES: Record<string, SourceVocabulary> = {
     terms: {
       EAR: 'EAR', RNI: 'RDA', AI: 'AI', UL: 'UL', AMDR: 'AMDR', 'PI-NCD': 'CDRR', EER: 'EER',
     },
-    knownIssues: ['Pregnancy/lactation rows stored as increments over the base value, not absolute'],
   },
   AU_NZ: {
     terms: { RDI: 'RDA', AI: 'AI', EAR: 'EAR', UL: 'UL', EER: 'EER', AMDR: 'AMDR', SDT: 'SDT' },
