@@ -42,10 +42,16 @@ async function main() {
   }
 
   const names = [...new Set(values.map((v) => v.compound))];
-  const compounds = await sql<{ id: string; name: string }[]>`
-    SELECT id, name FROM compounds WHERE name = ANY(${names}) AND tier = 'core'`;
-  const idByName = new Map(compounds.map((c) => [c.name, c.id]));
-  for (const n of names) if (!idByName.has(n)) problems.push(`compound not found: ${n}`);
+  // Names are unique apart from one core/advanced pair (Adrenic Acid); prefer core on a tie.
+  const compounds = await sql<{ id: string; name: string; tier: string }[]>`
+    SELECT id, name, tier FROM compounds WHERE name = ANY(${names})`;
+  const idByName = new Map<string, string>();
+  for (const n of names) {
+    const hits = compounds.filter((c) => c.name === n);
+    const pick = hits.length > 1 ? hits.filter((c) => c.tier === 'core') : hits;
+    if (pick.length === 1) idByName.set(n, pick[0].id);
+    else problems.push(pick.length === 0 ? `compound not found: ${n}` : `compound name ambiguous: ${n}`);
+  }
 
   if (problems.length) {
     console.error(`Refusing to load ${region}:\n  ${problems.slice(0, 50).join('\n  ')}`);

@@ -32,4 +32,13 @@ export const SOURCES: Record<string, SourceMeta> = {
     note: 'English edition, pages 10-44. Age rows parsed from a text snapshot (dv-sources/mhlw-2025/source/); pregnancy/lactation rows transcribed and stored as totals. DG mapped to AMDR (range/floor) or CDRR (ceiling); sodium DG converted from salt g with the table\'s 2.54 factor. Iron for women 10-64 y stored for menstruating women. Magnesium UL (350 mg/d adults) applies to non-food sources only.',
     retrievedDate: '2026-09-14',
   },
+  AU_NZ: {
+    region: 'AU_NZ',
+    slug: 'nhmrc-nrv',
+    authorityName: 'NHMRC / NZ MoH — Nutrient Reference Values for Australia and New Zealand',
+    versionYear: 2006,
+    url: 'https://www.nhmrc.gov.au/about-us/publications/nutrient-reference-values-australia-and-new-zealand-including-recommended-dietary-intakes',
+    note: 'NRV 2006 with the 2017 fluoride and sodium updates. Summary Tables 1, 2, 4-9 and chronic-disease Tables 1 (SDT) and 2 (AMDR) transcribed in dv-sources/nhmrc-nrv/extract.ts. RDI stored as RDA. n-6/n-3 AIs are total (Omega-6/Omega-3); LC n-3 as Long Chain Omega-3. Adult EER not stored (depends on height and weight).',
+    retrievedDate: '2026-09-14',
+  },
 };
