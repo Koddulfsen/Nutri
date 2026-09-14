@@ -77,4 +77,13 @@ export const SOURCES: Record<string, SourceMeta> = {
     note: 'COMA 1991 RNIs with SACN 2011 energy, 2015 carbohydrate/fibre and 2016 vitamin D, as reproduced in the British Nutrition Foundation summary (2021), transcribed in dv-sources/sacn-rni/extract.ts. RNI stored as RDA, energy EAR as EER (MJ). Salt maxima stored as sodium CDRR. Adult protein (per kg) not stored.',
     retrievedDate: '2026-09-14',
   },
+  INDIA: {
+    region: 'INDIA',
+    slug: 'icmr-2020',
+    authorityName: 'ICMR-NIN Nutrient Requirements for Indians (RDA and EAR 2020)',
+    versionYear: 2020,
+    url: 'https://www.nin.res.in/rdabook/brief_note.pdf',
+    note: 'ICMR-NIN 2020 brief note, Tables 1a/1b, 2a, 3 and 4, transcribed in dv-sources/icmr-2020/extract.ts. Micronutrients for adults only (the full book is paid). Adult ages not given; stored from 18 y. Vitamin D converted from IU (1 µg = 40 IU).',
+    retrievedDate: '2026-09-14',
+  },
 };

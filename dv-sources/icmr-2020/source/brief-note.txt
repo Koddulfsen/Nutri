@@ -1,0 +1,285 @@
+                                      A Brief Note on
+  Nutrient Requirements for Indians, the Recommended Dietary Allowances (RDA) and the
+                         Estimated Average Requirements (EAR),
+                                    ICMR - NIN, 2020
+
+    The Nutrient requirements book defines nutrient distribution and requirements for normal
+individuals of all age groups, physiological groups and different physical activity groups of Indian
+population. Nutrient requirement is not the same in all people and can vary considerably (distributed)
+even among normal, healthy individuals. In order to derive a single value for the requirement, two
+features of the distribution of requirements are used. First, the median of this distribution is called
+the estimated average requirement (EAR), second, the 97.5th percentile of the distribution is called
+the Recommended Daily Allowance.
+
+    The first Nutrient Recommendations was developed in 1944, and was revised by the NAC of the
+ICMR in 1958 in the wake of reports by the Food and Agriculture Organization (FAO) on energy
+and protein. Subsequently, in 1968 and 1978 the ICMR committee revised the requirements for all
+nutrients except energy. The ICMR 2010 committee RDA recommendations further revised and
+upgraded the RDAs for Indians based on the international data provided by FAO/WHO/UNU 2004
+expert committee, but derived only one value that is RDA (EAR was not derived).
+
+    The present (2020) committee used recent data on energy expenditure, protein metabolism; and
+available data on minerals and vitamins losses and absorption to estimate nutrient requirements for
+Indians. Latest statistical approaches were applied to derive the requirements through definitions of
+their distributions, such that the estimated average requirement (EAR) could be defined for
+population requirements and adequacies, and the upper 95th percentile of the distribution- the
+recommended dietary allowances (RDA) could be used to address deficiencies. In addition, since
+several foods are now being fortified with nutrients, the tolerable upper limits of intake of nutrients
+were also defined in the Nutrient requirements 2020 book.
+
+    RDA had been the recognized standard globally, but from 1990s four sets of nutrient values
+(EAR, RDA, AI-adequate intake and TUL-tolerable upper limits) are expressed as part of the dietary
+reference intakes. The RDAs are not recommended for use in menu planning for groups or
+individuals and are not used for calculation of nutrient inadequacies. Usually the EARs are
+approximately 80% of the RDA. And, in healthy population the distribution of nutrient requirement
+and dietary intake is expected to superimpose. Also, when we consider RDA as the reference the
+distribution shifts to the right with RDA as the mean and the entire population will shift beyond and
+above the requirements and a significant proportion may be at TUL. Hence, the present committee
+recommended EAR for population requirement/ adequacy estimations and menu or diet planning for
+individuals, which is in alignment with global recommendations.
+
+Recommendation on energy requirement
+     The total energy requirement or the total energy expenditure (TEE) is calculated based on a
+multiplication of basal metabolic rate (BMR) to physical activity level (PAL): TEE = BMR X PAL.
+
+Physical activity level (PAL): In the earlier report (ICMR-NIN, 2010), the energy cost of each
+activity was taken from FAO/WHO/UNU, 2004. However, the physical activity ratio (PAR) values
+used by FAO/WHO/UNU were obtained from the studies conducted in Western populations. Studies
+
+                                                  1
+carried out in India indicate that energy spent for different physical activity are lower. This could be
+because energy expended for a given activity (physical activity ratio- PAR) is not constant across the
+range of body weight and extrapolation from a heavy weight individual can overestimate energy
+spent for lower weight individual. Energy spent for each physical activity is lower for Indians,
+therefore a recalculation was performed using the PAR values reported for Indian population and this
+showed that the PAR was lower from 1.53 that was used in the previous recommendation (RDA-
+2010) to 1.40 for sedentary population and was relatively lower for other physical activities as well.
+
+BMR: The Basal Metabolic Rate (BMR) is either measured directly (using DLW or HRM methods),
+or predicted from body weight, gender and age specific equations that were derived from a large
+international dataset by the FAO/WHO/UNU. However, the comparison of BMR derived from
+FAO/WHO/UNU equations and BMR observed among Indians suggest that the equation can
+overestimate the BMR by 10-12%, because the FAO/WHO/UNU data set included young and
+muscular subjects. The body composition among Indians includes relatively more fat and hence
+would result in a lower BMR as observed in studies conducted in India (refer- ICMR-NIN Expert Group
+on Nutrient Requirement for Indians, Recommended Dietary Allowances (RDA) and Estimated Average Requirements
+(EAR) - 2020). The earlier ICMR-NIN committee used 5% reduction in BMR calculation from
+FAO/WHO/UNU equations for deriving energy requirements for Indian adults, while the present
+committee reviewed the literature on BMR and based on the evidence, further reduced the BMR by
+another 5 % for adults.
+
+      Hence, the recommended energy requirement is lower by 3 to 8 kcal/kg/day for adults compared
+to the previous recommendation (RDA-2010) (Tables 1a & 1b). However, for children, since there
+is no recent evidence to show that the BMR of Indian children is lower than that of their Western
+counterparts, the present committee retained the BMR derived from the FAO/WHO/UNU 2004.
+
+Recommendation on protein requirement
+      The human protein requirement should satisfy the currently established indispensable amino
+acid requirements as recommended by FAO/WHO/UNU Consultation of 2007.
+      The present Expert Group (ICMR-NIN 2020) adopted the FAO/WHO/UNU(2007) approaches
+to define the protein requirements for Indians of different age groups. A median obligatory nitrogen
+loss (WHO, 2007) has been used to compute mean (0.66 g/kg/day-EAR) and safe protein
+requirements (0.83 g/kg/day-RDA) for healthy Indian adults. Considering high quality protein
+sources as the premise for defining requirements, a newer protein quality index, digestible
+indispensable amino acid score (DIAAS), which is based on true ileal digestibility (instead of
+PDCAAS) of individual amino acids has been introduced in the current document.
+     In addition, the cereal-legume-milk composition of the diet has been improved to 3:1:2.5
+(ICMR-NIN, 2020) as compared to the earlier 11:1:3 (ICMR-NIN, 2010).
+      Hence in the 2020 recommendation the RDA for protein is 0.83g/kg/day instead of 1g/kg/day
+(RDA 2010) and the EAR is 0.66 g/kg/day (Table 2a & 2b). A foot note is mentioned under the Table
+2a- that for people consuming cereal-based diet with low quality protein, the protein requirements
+are 1 g/kg per day.
+
+Recommendation on fats and oil requirement
+       There are three types of fatty acids (FA) in our diets, saturated fatty acids (SFA), mono
+unsaturated fatty acids (MUFA) and poly unsaturated fatty acids (PUFA). Our body can synthesize
+                                                     2
+SFAs, MUFAs besides obtaining them from the diet, while the PUFAs, namely, linoleic acid (also
+known as n-6 or omega 6 or LA) and alpha linolenic (also known as n-3 or omega 3 or ALA) cannot
+be synthesized. Hence, n-6 and n-3 are termed essential fatty acids (EFAs). Our body depends on
+dietary sources for n-3 and n-6 FA as they are not made in our body. Hence, one should take adequate
+amounts of nuts, oilseeds along with recommended levels of diverse foods (My Plate for the Day),
+to meet the required amounts of 6.6 grams of n-6 PUFA and 2.2 grams of n-3 PUFA for all the
+essential functions in the body. The visible fat (cooking oil) must be limited to 20-50g (4 to 10
+teaspoon full) per person/ day depending on the level of energy (calorie) requirement, which is based
+on physical activity and physiological status. (For example, not more than 27g visible fat/ cooking
+oil is recommended for a 2000 kcal diet/ day).
+
+Recommendation on vitamins and mineral requirement
+    For vitamins and minerals, the EAR and RDA are determined among normal individuals by using
+approaches such as (1) Factorial: calculate losses in feces, urine, sweat and estimate the
+bioavailability, then add the requirement for growth in children or milk output in lactating women
+(2) balance studies: minimum required to maintain homeostasis; intake – losses = 0, (3) or calculate
+from maintenance of optimal function, such as BP and sodium, calcium and bone density etc. The
+present committee has done extensive deliberations on recommendations for minerals like iron,
+calcium, phosphorus, zinc, selenium and iodine, and vitamins such as B vitamins and vitamin A.
+Data available on dietary intakes, balance studies, fecal loss- urinary loss in different geographical
+states, absorption studies, turnover studies were considered. For some nutrients (B1, B2, B6) enzyme
+activity coefficient studies were considered. As can be seen from the Tables 3 (males) and 4 (females)
+the RDA for all the vitamins and minerals are higher in the ICMR-NIN 2020 recommendation
+compared to the 2010. However, as the distribution of nutrient requirement and dietary intake is
+expected to superimpose among healthy population groups, considering RDA as the reference the
+distribution shifts to the right with RDA as the mean and the entire population will shift beyond and
+above the requirements and a significant proportion may be at TUL. Hence, the present committee
+recommended EAR for population requirement/ adequacy estimations, menu or diet planning for
+individuals, which is in alignment with global recommendation.
+
+
+
+
+                                                  3
+                 Table 1a. Summary of recommended energy requirement for Indians
+                                                            ICMR 2020           ICMR 2010      Difference
+                 Age group              Category
+                                                                                 Kcal/d
+                                    Sedentary work               2110             2320             -210
+               Adult Men            Moderate work                2710             2730              -20
+                                    Heavy work                   3470             3490              -20
+                                    Sedentary work               1660             1900             -240
+                                    Moderate work                2130             2230             -100
+                                    Heavy work                   2720             2850             -130
+               Adult Women
+                                    Pregnant                     + 350            + 350              --
+                                    Lactating (0-6m)             +600             +600               --
+                                    Lactating (7-12m)            +520             +520               --
+                                    0-6 months                    530              520             +10
+               Infants
+                                    6-12 months                   660              670              -10
+                                    1-3 y                        1070             1060             +10
+               Children*            4-6 y                        1360             1350             +10
+                                    7-9 y                        1700             1690             +10
+               Boys                 10-12 y                      2220             2190             +30
+               Girls                10-12 y                      2060             2010             +50
+               Boys                 13-15 y                      2860             2750             +110
+               Girls                13-15 y                      2400             2330             +70
+               Boys                 16-18 y                      3320             3020             +300
+               Girls                16-18 y                      2500             2440             +60
+        *For children 1% increase over the previous recommendations.
+
+
+                                            Table 1b. Energy Requirement*
+                                                                       a
+ Age Group               Category       Body weights        (kcal/d)       (kcal/kg/day)
+                                                                                           a Rounded off to the nearest 10
+                   Sedentary work            65.0             2110              32         kcal/d
+Men                Moderate work             65.0             2710              42         b
+                                                                                                GWG: Energy need in
+                   Heavy work                65.0             3470              53         pregnancy should be adjusted for
+                   Sedentary work            55.0             1660              30         actual bodyweight, observed
+                                                                                           weight gain and activity pattern
+                   Moderate work             55.0             2130              39         for the population
+                   Heavy work                55.0             2720              49         c Energy needs of children and
+Women                                                   b                                  adolescents have been computed
+                   Pregnant             55.0 + GWG           + 350
+                                                                                           for reference children and
+                                                             +600                          adolescents; with a moderate
+                   Lactating                55.0+                                          daily physical activity level.
+                                                             +520
+                   0-6 m                     5.8              530               90         *The actual requirement in
+Infants                                                                                    specific population groups should
+                   6-12m                     8.5              660               80         be adjusted for the actual weight
+                   1-3y                      12.9            1110               83         and physical activity of that
+           c                                                                               population
+Children           4-6y                      18.3            1360               74
+                   7-9 y                     25.3            1700               67
+Boys               10-12y                    34.9            2220               64
+Girls              10-12y                    36.4            2060               57
+Boys               13-15y                    50.5            2860               57
+Girls              13-15y                    49.6            2400               49
+Boys               16-18y                    64.4            3320               52
+Girls              16-18y                    55.7            2500               45
+
+                                                             4
+           Table 2a. Summary of recommended protein requirements for Indians 2020
+
+                                                   Body            EAR           RDA            EAR     RDA
+                                                 weight (kg)     (g/kg/d)       (g/kg/d)        (g/d)   (g/d)
+                      Sedentary
+      Adult Men       Moderate                        65           0.66          0.83           42.9    54.0
+                      Heavy Work
+                      Sedentary
+      Adult
+                      Moderate                        55           0.66          0.83           36.3    45.7
+      Women
+                      Heavy Work
+      Pregnant        2nd Trimester                                                             +7.6    +9.5
+      Women           3rd Trimester                                                             +17.6   +22.0
+      Lactating       0-6 months                                                                +13.6   +16.9
+      Women           6-12 months                                                               +10.6   +13.2
+                      0-6 months                      5.8          1.16          1.40             6.7     8.1
+      Infants
+                      6-12 months                     8.5          1.04          1.23             8.8    10.5
+                      1-3y                           12.9          0.79          0.97            10.2    12.5
+      Children        4-6y                           18.3          0.70          0.87            12.8    15.9
+                      7-9y                           25.3          0.75          0.92            19.0    23.3
+      Boys            10-12y                         34.9          0.75          0.91            26.2    31.8
+      Girls           10-12y                         36.4          0.73          0.90            26.6    32.8
+      Boys            13-15y                         50.5          0.72          0.89            36.4    44.9
+      Girls           13-15y                         49.6          0.70          0.87            34.7    43.2
+      Boys            16-18y                         64.4          0.70          0.86            45.1    55.4
+      Girls           16-18y                         55.7          0.67          0.83            37.3    46.2
+For people consuming cereal-based diet with low quality protein, the protein requirements are 1 g/kg per day
+Note: The cereal-legume-milk composition of the diet should be 3:1:2.5 for good protein quality.
+
+
+                              Table 2b. Recommended protein for vegetarians
+
+
+                  Protein recommendation:           Body weight       Protein      Total daily
+                  RDA 2010                          kg                g/kg/d       Requirement (g)
+                    Males                                   60            1.0              60
+                    Females                                 55            1.0              55
+        Note: The cereal-legume-milk composition of the diet should be 3:1:2.5 for good protein quality.
+
+
+
+
+                                                            5
+ Table 3. (Males) Nutrient values comparison ICMR-2010/2020 and IOM
+
+                            ICMR-NIN                         IOM
+      Nutrients
+                       RDA 2010  RDA 2020       EAR 2020
+   Calcium (mg)       600       1000          800          1000
+   Magnesium (mg)     340       440           370          400
+   Iron (mg)          17        19            11           8
+   Zinc (mg)          12        17            14           11
+   Iodine (µg)        150       150           95           150
+   Thiamine (mg)      1.4       1.8           1.5          1.2
+   Riboflavin (mg)    1.6       2.5           2.1          1.3
+   Niacin (mg)        18        18            15           16
+   Vitamin B6 (mg)    2         2.4           2.1          1.3
+   Folate (µg) DFE    200       300           250          400
+   Vitamin B12        1         2.2           2            2.4
+   (µg)
+   Vitamin C (mg)     40        80            65           90
+   Vitamin A (µg)     600       1000          460          900
+   Vitamin D (IU)     400       600           400          600
+
+
+
+Table 4. (Females) Nutrient values comparison ICMR-2010/2020 and IOM
+
+                               ICMR                         IOM
+       Nutrients
+                        RDA 2010   RDA 2020    EAR 2020
+   Calcium (mg)        600        1000         800         1000
+   Magnesium (mg)      310        370          310         310
+   Iron (mg)           21         29           15          18
+   Zinc (mg)           10         13.0         11          8
+   Iodine (µg)         150        150          95          150
+   Thiamine (mg)       1.1        1.7          1.4         1.2
+   Riboflavin (mg)     1.3        2.4          2.0         1.3
+   Niacin (mg)         14         14           12          16
+   Vitamin B6 (mg)     2          1.9          1.6         1.3
+   Folate (µg) DFE     200        220          180         400
+   Vitamin B12 (µg)    1          2.2          2           2.4
+   Vitamin C (mg)      40         65           55          75
+   Vitamin A (µg)      600        840          390         700
+   Vitamin D (IU)      400        600          400         600
+
+
+
+
+                                  6
+
