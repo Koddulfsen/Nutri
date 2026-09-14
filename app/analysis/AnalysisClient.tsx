@@ -396,22 +396,6 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
 
   // Center column tab — AI chat vs manual food search
   const [centerTab, setCenterTab] = useState<'chat' | 'search'>('chat');
-  const [logOpen, setLogOpen] = useState(false);
-
-  // Esc closes the logging modal; body scroll is locked while it's open.
-  useEffect(() => {
-    if (!logOpen) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setLogOpen(false);
-    };
-    const prevOverflow = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-    window.addEventListener('keydown', onKey);
-    return () => {
-      window.removeEventListener('keydown', onKey);
-      document.body.style.overflow = prevOverflow;
-    };
-  }, [logOpen]);
 
   // Day strip scroll offset (independent of selected date)
   const [dayStripOffset, setDayStripOffset] = useState(0);
@@ -1167,20 +1151,108 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
             />
           </div>
 
+          {/* ── PANEL — logging: the AI chat is the page's primary action ── */}
+          <section className="an-panel an-panel--log">
+                  <div className="cc-tabs">
+                    <button
+                      type="button"
+                      className={`cc-tab${centerTab === 'chat' ? ' cc-tab--active' : ''}`}
+                      onClick={() => setCenterTab('chat')}
+                    >
+                      AI chat
+                    </button>
+                    <span className="cc-tab-sep" aria-hidden="true" />
+                    <button
+                      type="button"
+                      className={`cc-tab${centerTab === 'search' ? ' cc-tab--active' : ''}`}
+                      onClick={() => setCenterTab('search')}
+                    >
+                      Manual search
+                    </button>
+                  </div>
+
+                  {centerTab === 'chat' ? (
+                    <FoodLogChat
+                      date={selectedDate}
+                      onMealLogged={() => {
+                        fetchMealsForDate(selectedDate, true);
+                      }}
+                    />
+                  ) : (
+                    <div className="cc-search-pane" ref={searchWrapperRef}>
+                      <div className="search-field-outer">
+                        <div className="search-bar-wrap" ref={searchBarRef}>
+                          <span className="search-icon">
+                            <svg viewBox="0 0 24 24" fill="none" strokeLinecap="round" strokeLinejoin="round">
+                              <circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="21" y2="21"/>
+                            </svg>
+                          </span>
+                          <input
+                            type="text"
+                            className="search-input-clean"
+                            placeholder="Search foods..."
+                            value={selectedFood ? selectedFood.name : searchQuery}
+                            onChange={(e) => {
+                              if (selectedFood) { setSelectedFood(null); setSelectedQuantity('100'); setSelectedUnit('g'); }
+                              setSearchQuery(e.target.value);
+                              setDropdownOpen(true);
+                            }}
+                            onFocus={() => {
+                              setSearchFocused(true);
+                              if (selectedFood) { setSelectedFood(null); setSelectedQuantity('100'); setSelectedUnit('g'); setSearchQuery(''); }
+                              else if (searchQuery) { setDropdownOpen(true); }
+                            }}
+                            onBlur={() => setSearchFocused(false)}
+                            readOnly={!!selectedFood}
+                          />
+                          {selectedFood && (
+                            <button className="search-clear-btn" onClick={handleRemoveSelectedFood}>✕</button>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="add-row">
+                        <input
+                          type="number"
+                          className="quantity-input"
+                          value={selectedQuantity}
+                          onChange={(e) => setSelectedQuantity(e.target.value)}
+                          min="1"
+                        />
+                        <select
+                          className="unit-select"
+                          value={selectedUnit}
+                          onChange={(e) => setSelectedUnit(e.target.value)}
+                        >
+                          {foodPortions.length > 0 ? (
+                            foodPortions.map((p) => (
+                              <option key={p.id} value={p.id}>{p.description}</option>
+                            ))
+                          ) : (
+                            <>
+                              <option value="g">g</option>
+                              <option value="oz">oz</option>
+                              <option value="cup">cup</option>
+                              <option value="tbsp">tbsp</option>
+                            </>
+                          )}
+                        </select>
+                        <button
+                          className="add-btn"
+                          onClick={handleAddFoodToMeal}
+                          disabled={addingFood}
+                        >
+                          {addingFood ? 'Adding…' : 'Add food'}
+                        </button>
+                      </div>
+                    </div>
+                  )}
+          </section>{/* end log panel */}
+
           {/* ── PANEL — today's food list ── */}
           <section className="an-panel an-panel--foods">
             <div className="an-foods-head">
               <p className="section-label">Today</p>
-              <button
-                type="button"
-                className="an-add"
-                onClick={() => setLogOpen(true)}
-                aria-label="Add food"
-              >
-                <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
-                  <path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round"/>
-                </svg>
-              </button>
             </div>
             <div className="an-foods">
               <div className="food-list">
@@ -1358,127 +1430,6 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
           </section>{/* end panel 2 */}
         </div>{/* end an-container */}
       </main>
-
-      {/* ── Logging modal — AI chat / manual search ── */}
-      {logOpen && (
-        <div
-          className="an-log-scrim"
-          onClick={() => setLogOpen(false)}
-          role="dialog"
-          aria-modal="true"
-          aria-label="Add food"
-        >
-          <div className="an-log-modal" onClick={(e) => e.stopPropagation()}>
-            <div className="an-log-head">
-              <p className="section-label">Add food</p>
-              <button
-                type="button"
-                className="an-log-close"
-                onClick={() => setLogOpen(false)}
-                aria-label="Close"
-              >
-                &#x2715;
-              </button>
-            </div>
-            <div className="an-log-body">
-                  <div className="cc-tabs">
-                    <button
-                      type="button"
-                      className={`cc-tab${centerTab === 'chat' ? ' cc-tab--active' : ''}`}
-                      onClick={() => setCenterTab('chat')}
-                    >
-                      AI chat
-                    </button>
-                    <span className="cc-tab-sep" aria-hidden="true" />
-                    <button
-                      type="button"
-                      className={`cc-tab${centerTab === 'search' ? ' cc-tab--active' : ''}`}
-                      onClick={() => setCenterTab('search')}
-                    >
-                      Manual search
-                    </button>
-                  </div>
-
-                  {centerTab === 'chat' ? (
-                    <FoodLogChat
-                      date={selectedDate}
-                      onMealLogged={() => {
-                        fetchMealsForDate(selectedDate, true);
-                      }}
-                    />
-                  ) : (
-                    <div className="cc-search-pane" ref={searchWrapperRef}>
-                      <div className="search-field-outer">
-                        <div className="search-bar-wrap" ref={searchBarRef}>
-                          <span className="search-icon">
-                            <svg viewBox="0 0 24 24" fill="none" strokeLinecap="round" strokeLinejoin="round">
-                              <circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="21" y2="21"/>
-                            </svg>
-                          </span>
-                          <input
-                            type="text"
-                            className="search-input-clean"
-                            placeholder="Search foods..."
-                            value={selectedFood ? selectedFood.name : searchQuery}
-                            onChange={(e) => {
-                              if (selectedFood) { setSelectedFood(null); setSelectedQuantity('100'); setSelectedUnit('g'); }
-                              setSearchQuery(e.target.value);
-                              setDropdownOpen(true);
-                            }}
-                            onFocus={() => {
-                              setSearchFocused(true);
-                              if (selectedFood) { setSelectedFood(null); setSelectedQuantity('100'); setSelectedUnit('g'); setSearchQuery(''); }
-                              else if (searchQuery) { setDropdownOpen(true); }
-                            }}
-                            onBlur={() => setSearchFocused(false)}
-                            readOnly={!!selectedFood}
-                          />
-                          {selectedFood && (
-                            <button className="search-clear-btn" onClick={handleRemoveSelectedFood}>✕</button>
-                          )}
-                        </div>
-                      </div>
-
-                      <div className="add-row">
-                        <input
-                          type="number"
-                          className="quantity-input"
-                          value={selectedQuantity}
-                          onChange={(e) => setSelectedQuantity(e.target.value)}
-                          min="1"
-                        />
-                        <select
-                          className="unit-select"
-                          value={selectedUnit}
-                          onChange={(e) => setSelectedUnit(e.target.value)}
-                        >
-                          {foodPortions.length > 0 ? (
-                            foodPortions.map((p) => (
-                              <option key={p.id} value={p.id}>{p.description}</option>
-                            ))
-                          ) : (
-                            <>
-                              <option value="g">g</option>
-                              <option value="oz">oz</option>
-                              <option value="cup">cup</option>
-                              <option value="tbsp">tbsp</option>
-                            </>
-                          )}
-                        </select>
-                        <button
-                          className="add-btn"
-                          onClick={handleAddFoodToMeal}
-                          disabled={addingFood}
-                        >
-                          {addingFood ? 'Adding…' : 'Add food'}
-                        </button>
-                      </div>
-                    </div>
-                  )}
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Smart Add Food Modal (AI-Assisted) */}
       {/* Search dropdown portal — renders above all containers to avoid overflow clipping */}
@@ -3274,10 +3225,10 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
         .an-page :global(.macro-label) { font-size: 12px !important; }
         .an-page :global(.macros-grid) { column-gap: 20px !important; }
 
-        /* ═══ Layout v2 (2026-08-24) — logging moved out to a modal ═══
-           The page is now read-only at a glance: today's food, then macros,
-           then the compound analysis. Logging is one deliberate action away
-           behind the FAB, which is what makes this work on a phone. */
+        /* ═══ Layout v3 (2026-09-14) — the AI chat is the page ═══
+           Logging sits inline at the top, full width: chat first, manual
+           search as a secondary tab. Below it: today's food and macros side
+           by side, then the compound analysis. The + button / modal is gone. */
 
         .an-panel--foods,
         .an-panel--macros {
@@ -3307,88 +3258,16 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
           gap: 12px;
         }
         .an-foods-head :global(.section-label) { margin: 0 !important; }
-        .an-add {
-          flex: 0 0 auto;
-          width: 34px;
-          height: 34px;
-          border-radius: 50%;
-          border: none;
-          background: var(--coral);
-          color: var(--coral-ink);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          cursor: pointer;
-          box-shadow: 1px 3px 0 var(--coral-dark), 2px 5px 12px rgba(46, 26, 14, 0.22);
-          transition: transform 0.08s ease, box-shadow 0.08s ease;
-        }
-        .an-add:hover {
-          transform: translate(1px, 1px);
-          box-shadow: 0 2px 0 var(--coral-dark), 1px 4px 10px rgba(46, 26, 14, 0.2);
-        }
-        .an-add:active {
-          transform: translate(1px, 3px);
-          box-shadow: 0 0 0 var(--coral-dark), 1px 2px 7px rgba(46, 26, 14, 0.18);
-        }
-        .an-add:focus-visible {
-          outline: none;
-          box-shadow: 1px 3px 0 var(--coral-dark), 0 0 0 4px rgba(46, 26, 14, 0.3);
-        }
-
-        /* ── Logging modal ── */
-        .an-log-scrim {
-          position: fixed;
-          inset: 0;
-          z-index: 3500;
-          background: rgba(46, 26, 14, 0.34);
-          backdrop-filter: blur(3px);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          padding: 24px;
-        }
-        .an-log-modal {
-          width: 100%;
-          max-width: 620px;
-          max-height: min(760px, 88vh);
+        /* ── Log panel — chat first, full width, always open ── */
+        .an-panel--log {
+          grid-column: 1 / -1;
           display: flex;
           flex-direction: column;
-          background: var(--panel);
-          border-radius: 18px;
-          box-shadow: 0 24px 60px rgba(46, 26, 14, 0.34);
-          overflow: hidden;
         }
-        .an-log-head {
-          flex: 0 0 auto;
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          gap: 12px;
-          padding: 20px 22px 0;
-        }
-        .an-log-head :global(.section-label) { margin: 0 !important; }
-        .an-log-close {
-          background: none;
-          border: none;
-          color: rgba(46, 26, 14, 0.5);
-          font-size: 15px;
-          line-height: 1;
-          padding: 8px;
-          cursor: pointer;
-          border-radius: 8px;
-        }
-        .an-log-close:hover { color: #2e1a0e; }
-        .an-log-body {
+        .an-panel--log :global(.fc-root) {
           flex: 1;
-          min-height: 0;
-          display: flex;
-          flex-direction: column;
-          padding: 14px 22px 22px;
-          overflow-y: auto;
-        }
-        .an-log-body :global(.fc-root) {
-          flex: 1;
-          min-height: 300px;
+          height: min(640px, 70vh);
+          min-height: 420px;
         }
 
         /* ── Phone ── */
@@ -3396,17 +3275,6 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
           .an-container {
             grid-template-columns: 1fr;
           }
-          .an-log-scrim {
-            padding: 0;
-            align-items: flex-end;
-          }
-          .an-log-modal {
-            max-width: none;
-            max-height: 92vh;
-            border-radius: 18px 18px 0 0;
-          }
-          .an-log-body { padding: 12px 16px 20px; }
-          .an-log-head { padding: 16px 16px 0; }
         }
 
         /* ── Grid children must be allowed to shrink ──

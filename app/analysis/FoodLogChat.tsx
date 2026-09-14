@@ -1,7 +1,15 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
-import { apiUrl } from '@/lib/utils/base-path';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import {
+  arriveInChat,
+  postChat,
+  STATUS_INTERVAL_MS,
+  takeHandoff,
+  takePendingChat,
+  WORKING_STATUSES,
+  type ChatReply,
+} from '@/lib/chat-handoff';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -27,32 +35,58 @@ export default function FoodLogChat({ date, onMealLogged }: FoodLogChatProps) {
   const threadRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
+  // Grow the textarea with its content: one line when empty, capped so a
+  // long message scrolls inside the box instead of eating the thread.
+  useEffect(() => {
+    const el = inputRef.current;
+    if (!el) return;
+    el.style.height = 'auto';
+    // scrollHeight excludes the border, but the box is border-box — add it
+    // back or the box is a few px short and shows a scrollbar.
+    const border = el.offsetHeight - el.clientHeight;
+    const full = el.scrollHeight + border;
+    el.style.height = `${Math.min(full, 160)}px`;
+    el.style.overflowY = full > 160 ? 'auto' : 'hidden';
+  }, [input]);
+
   useEffect(() => {
     threadRef.current?.scrollTo({ top: threadRef.current.scrollHeight, behavior: 'smooth' });
   }, [messages, sending]);
 
-  async function send() {
-    const text = input.trim();
-    if (!text || sending) return;
-    setError(null);
-    const newUser: Message = { role: 'user', content: text };
-    const history = messages.filter((m) => m !== GREETING);
-    const nextMessages = [...messages, newUser];
-    setMessages(nextMessages);
-    setInput('');
-    setSending(true);
+  // A message typed on the front page arrives as this chat's first message,
+  // usually with its request already in flight. The ref survives StrictMode's
+  // double effect run, so it is picked up once.
+  const handoffDone = useRef(false);
+  const rootRef = useRef<HTMLDivElement>(null);
+  useLayoutEffect(() => {
+    if (handoffDone.current) return;
+    handoffDone.current = true;
+    const h = takeHandoff();
+    if (h) {
+      if (rootRef.current) arriveInChat(rootRef.current);
+      setMessages([GREETING, { role: 'user', content: h.text }]);
+      setSending(true);
+      receive(h.text, h.reply);
+      return;
+    }
+    const pending = takePendingChat();
+    if (pending?.trim()) send(pending);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
+  // Cycles the working status while a reply is pending — same wording the
+  // front-page transition shows, so the hand-off reads as one conversation.
+  const [statusIdx, setStatusIdx] = useState(0);
+  useEffect(() => {
+    if (!sending) return;
+    setStatusIdx(0);
+    const t = setInterval(() => setStatusIdx((i) => (i + 1) % WORKING_STATUSES.length), STATUS_INTERVAL_MS);
+    return () => clearInterval(t);
+  }, [sending]);
+
+  async function receive(text: string, reply: Promise<ChatReply>) {
     try {
-      const res = await fetch(apiUrl('/api/ai/log-food'), {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: text, history, date }),
-      });
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        throw new Error(data.message || data.error || `HTTP ${res.status}`);
-      }
-      const data = (await res.json()) as { response: string; loggedAny?: boolean };
+      const data = await reply;
       setMessages((prev) => [...prev, { role: 'assistant', content: data.response }]);
       if (data.loggedAny) onMealLogged?.();
     } catch (err) {
@@ -64,8 +98,19 @@ export default function FoodLogChat({ date, onMealLogged }: FoodLogChatProps) {
     }
   }
 
+  function send(override?: string) {
+    const text = (override ?? input).trim();
+    if (!text || sending) return;
+    setError(null);
+    const history = messages.filter((m) => m !== GREETING);
+    setMessages([...messages, { role: 'user', content: text }]);
+    setInput('');
+    setSending(true);
+    receive(text, postChat(text, history, date));
+  }
+
   return (
-    <div className="fc-root">
+    <div className="fc-root" ref={rootRef}>
       <div className="fc-thread" ref={threadRef}>
         {messages.map((m, i) => (
           <div key={i} className={`fc-msg fc-msg-${m.role}`}>
@@ -74,7 +119,7 @@ export default function FoodLogChat({ date, onMealLogged }: FoodLogChatProps) {
         ))}
         {sending && (
           <div className="fc-msg fc-msg-assistant">
-            <div className="fc-bubble fc-typing">…</div>
+            <div className="fc-bubble fc-typing">{WORKING_STATUSES[statusIdx]}…</div>
           </div>
         )}
         {error && <div className="fc-error">{error}</div>}
@@ -86,7 +131,7 @@ export default function FoodLogChat({ date, onMealLogged }: FoodLogChatProps) {
           className="fc-input"
           placeholder="Tell me what you ate…"
           value={input}
-          rows={4}
+          rows={1}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => {
             if (e.key === 'Enter' && !e.shiftKey) {
@@ -99,7 +144,7 @@ export default function FoodLogChat({ date, onMealLogged }: FoodLogChatProps) {
         <button
           type="button"
           className="fc-send"
-          onClick={send}
+          onClick={() => send()}
           disabled={sending || !input.trim()}
         >
           Send
@@ -156,7 +201,7 @@ export default function FoodLogChat({ date, onMealLogged }: FoodLogChatProps) {
         }
         .fc-typing {
           color: rgba(46, 26, 14, 0.5);
-          letter-spacing: 0.3em;
+          font-style: italic;
         }
         .fc-error {
           color: var(--warn);
@@ -182,11 +227,15 @@ export default function FoodLogChat({ date, onMealLogged }: FoodLogChatProps) {
           color: #2e1a0e;
           border: 1px solid rgba(46, 26, 14, 0.2);
           border-radius: 10px;
-          padding: 9px 11px;
+          box-sizing: border-box;
+          min-height: 42px;
+          padding: 8px 11px;
           font-family: var(--font-body);
           font-size: 15px;
           line-height: 1.45;
           resize: none;
+          overflow-y: hidden;
+          max-height: 160px;
           outline: none;
           transition: border-color 0.12s;
         }
@@ -204,7 +253,9 @@ export default function FoodLogChat({ date, onMealLogged }: FoodLogChatProps) {
           color: #fff5f1;
           border: none;
           border-radius: 10px;
-          padding: 10px 18px;
+          box-sizing: border-box;
+          height: 42px;
+          padding: 0 18px;
           font-family: var(--font-body);
           font-size: 13px;
           font-weight: 500;
