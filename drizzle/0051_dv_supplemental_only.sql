@@ -1,0 +1,1 @@
+ALTER TABLE "reference_daily_values" ADD COLUMN "supplemental_only" boolean DEFAULT false NOT NULL;

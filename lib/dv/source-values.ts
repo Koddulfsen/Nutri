@@ -31,6 +31,8 @@ export interface SourceValue {
   unit: string;
   isPercentOfEnergy: boolean;
   isProvisional: boolean;
+  /** Applies only to supplements / fortified or synthetic forms, not to total food intake. */
+  supplementalOnly: boolean;
   note: string | null;
   /** Where in the source document this value was read, e.g. "Table J-3, Iron, Females 19–30 y". */
   from: string;

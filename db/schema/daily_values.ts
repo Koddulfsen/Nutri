@@ -94,6 +94,10 @@ export const referenceDailyValues = pgTable('reference_daily_values', {
 
   // Provisional flag — NNR distinguishes "provisional AR" from established AR; lower confidence.
   isProvisional: boolean('is_provisional').notNull().default(false),
+  // True when the value applies only to supplements / fortified or synthetic forms, not to
+  // total food intake (e.g. magnesium UL, synthetic folic acid UL). Never compare such a
+  // value against intake computed from foods.
+  supplementalOnly: boolean('supplemental_only').notNull().default(false),
 
   // Per-row caveat note (e.g., "assuming menstruation", "mixed animal/vegetable diet").
   // Row-level, distinct from source-level note on dv_sources.

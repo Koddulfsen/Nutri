@@ -30,6 +30,7 @@ async function main() {
     const k = valueKey(v);
     if (seen.has(k)) problems.push(`duplicate key ${k} (${seen.get(k)} / ${v.from})`);
     seen.set(k, v.from);
+    if (typeof v.supplementalOnly !== 'boolean') problems.push(`supplementalOnly missing at ${v.from}`);
     for (const [field, x] of [['value', v.value], ['valueMin', v.valueMin], ['valueMax', v.valueMax]] as const) {
       if (x == null) continue;
       if (!Number.isFinite(x)) problems.push(`non-numeric ${field} at ${v.from}`);
@@ -66,11 +67,11 @@ async function main() {
         INSERT INTO reference_daily_values (
           compound_id, source_region, source_id, age_min_months, age_max_months, sex, life_stage,
           value_type, activity_level, dietary_context, value, value_min, value_max, unit,
-          is_percent_of_energy, is_provisional, value_note, source_note
+          is_percent_of_energy, is_provisional, supplemental_only, value_note, source_note
         ) VALUES (
           ${idByName.get(v.compound)!}, ${meta.region}, ${source.id}, ${v.ageMinMonths}, ${v.ageMaxMonths}, ${v.sex}, ${v.lifeStage},
           ${v.valueType}, ${v.activityLevel}, ${v.dietaryContext}, ${v.value}, ${v.valueMin}, ${v.valueMax}, ${v.unit},
-          ${v.isPercentOfEnergy}, ${v.isProvisional}, ${v.note}, ${v.from}
+          ${v.isPercentOfEnergy}, ${v.isProvisional}, ${v.supplementalOnly}, ${v.note}, ${v.from}
         )`;
     }
     return { removed: removed.count, inserted: values.length };

@@ -20,7 +20,7 @@ async function main() {
     SELECT c.name compound, r.value_type "valueType", r.sex, r.life_stage "lifeStage", r.age_min_months "ageMinMonths",
       r.age_max_months "ageMaxMonths", r.activity_level "activityLevel", r.dietary_context "dietaryContext",
       r.value, r.value_min "valueMin", r.value_max "valueMax", r.unit, r.is_percent_of_energy "isPercentOfEnergy",
-      r.is_provisional "isProvisional"
+      r.is_provisional "isProvisional", r.supplemental_only "supplementalOnly"
     FROM reference_daily_values r JOIN compounds c ON c.id = r.compound_id
     WHERE r.source_region = ${meta.region}`;
   const num = (x: unknown) => (x == null ? null : Number(x));
@@ -38,6 +38,7 @@ async function main() {
       r.unit !== e.unit && `unit ${r.unit} vs ${e.unit}`,
       r.isPercentOfEnergy !== e.isPercentOfEnergy && 'isPercentOfEnergy',
       r.isProvisional !== e.isProvisional && 'isProvisional',
+      r.supplementalOnly !== e.supplementalOnly && 'supplementalOnly',
     ].filter(Boolean);
     if (diffs.length) { fails++; console.log(`FAIL ${k}: ${diffs.join('; ')} (${e.from})`); }
   }

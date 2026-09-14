@@ -60,7 +60,7 @@ const AGES: Record<string, [number, number | null]> = {
   '51–70 y': [612, 851], '> 70 y': [852, null],
 };
 
-interface Column { compound: string; unit: string; note?: string; isPercentOfEnergy?: boolean }
+interface Column { compound: string; unit: string; note?: string; isPercentOfEnergy?: boolean; supplementalOnly?: boolean }
 const out: SourceValue[] = [];
 
 /** A life-stage table: header row, then section rows ("Males") and group rows ("19–30 y"). */
@@ -87,7 +87,7 @@ function lifeStageTable(file: string, tableName: string, columns: Record<string,
           compound: col.compound, valueType: p.ai ? types.asterisk! : types.plain, sex, lifeStage: section!.lifeStage,
           ageMinMonths: ages[0], ageMaxMonths: ages[1], activityLevel: null, dietaryContext: null,
           value: p.value, valueMin: null, valueMax: null, unit: col.unit, isPercentOfEnergy: col.isPercentOfEnergy ?? false,
-          isProvisional: false, note: col.note ?? null, from: `${tableName}, ${h}, ${label}`,
+          isProvisional: false, supplementalOnly: col.supplementalOnly ?? false, note: col.note ?? null, from: `${tableName}, ${h}, ${label}`,
         });
       }
     });
@@ -175,11 +175,11 @@ lifeStageTable('tab8.html', 'Table J-8 UL vitamins', {
   'Vitamin A (μg/d)^a': { compound: 'Retinol', unit: 'µg', note: 'As preformed vitamin A only.' },
   'Vitamin C (mg/d)': { compound: 'Vitamin C (Total)', unit: 'mg' },
   'Vitamin D (Rg/d)': { compound: 'Vitamin D (Total)', unit: 'µg' },
-  'Vitamin E (mg/d)^b,c': { compound: 'Vitamin E (Total)', unit: 'mg', note: 'Any form of supplemental α-tocopherol; synthetic forms from supplements/fortified foods.' },
+  'Vitamin E (mg/d)^b,c': { compound: 'Vitamin E (Total)', unit: 'mg', supplementalOnly: true, note: 'Any form of supplemental α-tocopherol; synthetic forms from supplements/fortified foods.' },
   'Vitamin K': null, 'Thiamin': null, 'Riboflavin': null,
-  'Niacin (mg/d)^c': { compound: 'Niacin (B3)', unit: 'mg', note: 'Synthetic forms from supplements and/or fortified foods.' },
+  'Niacin (mg/d)^c': { compound: 'Niacin (B3)', unit: 'mg', supplementalOnly: true, note: 'Synthetic forms from supplements and/or fortified foods.' },
   'Vitamin B6 (mg/d)': { compound: 'Vitamin B6', unit: 'mg' },
-  'Folate (Rg/d)^c': { compound: 'Folic Acid (Synthetic)', unit: 'µg', note: 'Synthetic forms from supplements and/or fortified foods.' },
+  'Folate (Rg/d)^c': { compound: 'Folic Acid (Synthetic)', unit: 'µg', supplementalOnly: true, note: 'Synthetic forms from supplements and/or fortified foods.' },
   'Vitamin B12': null, 'Pantothenic Acid': null, 'Biotin': null,
   'Choline (g/d)': { compound: 'Choline (Total)', unit: 'g' },
   'Carotenoids^d': null,
@@ -195,7 +195,7 @@ lifeStageTable('tab9.html', 'Table J-9 UL elements', {
   'Fluoride (mg/d)': { compound: 'Fluoride', unit: 'mg' },
   'Iodine (μg/d)': { compound: 'Iodine', unit: 'µg' },
   'Iron (mg/d)': { compound: 'Iron (Total)', unit: 'mg' },
-  'Magnesium (mg/d)^b': { compound: 'Magnesium', unit: 'mg', note: 'From pharmacological agents only; excludes food and water.' },
+  'Magnesium (mg/d)^b': { compound: 'Magnesium', unit: 'mg', supplementalOnly: true, note: 'From pharmacological agents only; excludes food and water.' },
   'Manganese (mg/d)': { compound: 'Manganese', unit: 'mg' },
   'Molybdenum (μg/d)': { compound: 'Molybdenum', unit: 'µg' },
   'Nickel (mg/d)': { compound: 'Nickel', unit: 'mg', note: 'As soluble nickel salts.' },
@@ -233,7 +233,7 @@ lifeStageTable('tab9.html', 'Table J-9 UL elements', {
         out.push({
           compound: c.compound, valueType: 'AMDR', sex, lifeStage: 'NONE', ageMinMonths: ages[0], ageMaxMonths: ages[1],
           activityLevel: null, dietaryContext: null, value: Number(((lo + hi) / 2).toFixed(4)), valueMin: lo, valueMax: hi, unit: '%',
-          isPercentOfEnergy: true, isProvisional: false, note: c.note ?? null, from: `Table J-5 AMDR, ${row[0]}, ${label}`,
+          isPercentOfEnergy: true, isProvisional: false, supplementalOnly: false, note: c.note ?? null, from: `Table J-5 AMDR, ${row[0]}, ${label}`,
         });
       }
     });
@@ -257,7 +257,7 @@ lifeStageTable('tab9.html', 'Table J-9 UL elements', {
       out.push({
         compound: 'Sodium', valueType: 'CDRR', sex, lifeStage: 'NONE', ageMinMonths: ages[0], ageMaxMonths: ages[1],
         activityLevel: null, dietaryContext: null, value: v, valueMin: null, valueMax: v, unit: 'mg',
-        isPercentOfEnergy: false, isProvisional: false,
+        isPercentOfEnergy: false, isProvisional: false, supplementalOnly: false,
         note: ages[0] < 228 ? 'Reduce intakes if above; extrapolated from the adult CDRR using sedentary EERs.' : 'Reduce intakes if above.',
         from: `Table J-7 CDRR, Sodium, ${group}`,
       });
