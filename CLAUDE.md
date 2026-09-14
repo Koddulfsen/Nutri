@@ -56,7 +56,7 @@ exist to keep them out. This project is built to repel them.
 | Authorization | ⚠️ Admin routes and pages ARE gated. But the app connects as the table owner, so RLS does not apply to its own queries — every user-scoped query depends on a hand-written `userId` filter, and nobody has checked them all |
 | Privacy compliance | Erasure and export return an honest 501. Article 9 columns are unencrypted; consent has no UI and 0 rows |
 | Tests | Vitest works (`lib/food-health` passes). The 13 legacy Jest files still fail; 4 assert nothing |
-| Deployment | Repo `Koddulfsen/Nutri` exists; **`origin/main` is 1 commit behind everything.** `basePath: '/nutri'` — decide before a public deploy |
+| Deployment | Repo `Koddulfsen/Nutri` exists; **`origin/main` is 1 commit behind everything.** No `basePath` — the app is served at the root (verified 2026-09-14: `/` 200, `/nutri` 404) |
 
 **Alpha access is gated by `app/components/AlphaGate.tsx`.** Signups are open in Supabase
 (`disable_signup: false`), so anyone can create an account — but `dashboard/page.tsx` and
@@ -143,7 +143,7 @@ This does *not* weaken the verify-your-claims door above — it changes which ch
 Verify by inspecting what the server actually serves, not by trusting the source file:
 
 ```bash
-CSS=$(curl -sL http://localhost:3003/nutri | grep -oE 'href="[^"]*\.css[^"]*"' | head -1 | sed 's/href="//;s/"//')
+CSS=$(curl -sL http://localhost:3003/ | grep -oE 'href="[^"]*\.css[^"]*"' | head -1 | sed 's/href="//;s/"//')
 curl -s "http://localhost:3003$CSS" | grep -A12 '\.home-page'
 ```
 
@@ -295,7 +295,7 @@ What is actually true, as of 2026-08-11. **Add to this rather than trusting comm
 | Admin APIs require admin | ✅ VERIFIED — non-admin gets 403 JSON on all 18 |
 | Admin pages require admin | ✅ VERIFIED — non-admin redirected to /analysis |
 | Erasure/export endpoints | ✅ HONEST — now 501; they no longer claim to work |
-| Middleware `basePath` matching | ✅ VERIFIED — Next strips it; page protection works in prod |
+| Middleware `basePath` matching | ⚪ MOOT 2026-09-14 — `basePath` removed from `next.config.js`; app now served at root |
 | Production build | ✅ VERIFIED passing — was broken (3 TS errors); fixed 2026-08-11 |
 | Middleware runs in dev | ✅ VERIFIED — short-circuit removed; headers now present in dev |
 | App runs as DB superuser | ⚠️ **REGRESSED 2026-08-22** — was `nutri_app` on local Postgres; the move to Supabase runs the app as `postgres` (table owner, full DDL, bypasses RLS). Least-privilege role needs recreating on Supabase |
@@ -558,7 +558,7 @@ The DAL comments claiming RLS are false.
   ⚠️ Both currently authenticate as `postgres`. The least-privilege split that existed
   locally (`nutri_app`) is REGRESSED — see the trust ledger.
 - Dev server **always port 3003**: `npx next dev -p 3003`
-- App is served under basePath **`/nutri`** — `http://localhost:3003/nutri/...`
+- App is served at the root — `http://localhost:3003/...` (no `basePath` since 2026-09; `/nutri` 404s)
 - `DEV_AUTH_BYPASS=true` makes every request one fixed admin. **Local only, never deployed.**
 
 ### The dev-auth shim is incomplete
