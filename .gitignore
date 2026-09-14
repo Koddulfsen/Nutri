@@ -48,8 +48,10 @@ next-env.d.ts
 .venv/
 venv/
 
-# Large reference PDFs
-dv-sources/
+# Large reference PDFs. The extracted values (raw-values.ts) and NOTES.md are
+# tracked: the DV seed scripts import them.
+dv-sources/**/*.pdf
+dv-sources/**/*.html
 
 # Root design assets
 /texture*.png
