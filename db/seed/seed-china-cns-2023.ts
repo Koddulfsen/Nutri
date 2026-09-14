@@ -31,6 +31,7 @@ import {
   VITAMIN_A_UL, VITAMIN_D_UL, VITAMIN_E_UL, NIACIN_UL, B6_UL, FOLATE_UL, CHOLINE_UL, VITAMIN_C_UL,
   WATER_TOTAL_AI_M, WATER_TOTAL_AI_F,
 } from '../../dv-sources/cns-2023/raw-values';
+import { TABLE_3_6_EAR, type PrintedNutrient } from '../../dv-sources/cns-2023/printed/table-3-6-ear';
 
 const sql = postgres(process.env.DATABASE_URL!);
 
@@ -58,12 +59,9 @@ const COMPOUND_NAME_MAP: Record<string, string> = {
   'Vitamin D': 'Vitamin D (Total)',
   'Vitamin E': 'Vitamin E (Total)',
   'Vitamin K': 'Vitamin K (Total)',
-  'Calcium': 'Calcium (Total)',
-  'Magnesium': 'Magnesium (Total)',
   'Iron': 'Iron (Total)',
-  'Zinc': 'Zinc (Total)',
-  'Chromium': 'Chromium (Total)',
-  'Selenium': 'Selenium (Total)',
+  'LA': 'Linoleic Acid',
+  'ALA': 'Alpha-Linolenic Acid (ALA)',
   'Carbohydrate': 'Carbohydrates',
 };
 function resolveDbName(n: string): string {
@@ -100,14 +98,115 @@ function expandDemo(key: string): Array<{ sex: Sex; lifeStage: LifeStage; min: n
   return [{ sex: d.sex, lifeStage: d.lifeStage, min: d.minMonths, max: d.maxMonths }];
 }
 
+// CNS publishes pregnancy/lactation as "+x over same-age non-pregnant women"
+// (附录三 footnote: "+" 表示在相应年龄阶段的成年女性需要量基础上增加的需要量).
+// These arrays were transcribed already converted to totals; every other
+// EAR/RNI/AI/PI-NCD array holds the published increment. ULs are absolute.
+const PREGNANCY_ALREADY_TOTAL = new Set<object>([
+  ENERGY_PAL2_EER, PROTEIN_EAR, PROTEIN_RNI, CARB_EAR, FIBER_AI,
+]);
+const PREG_KEYS = new Set(['PREG_T1', 'PREG_T2', 'PREG_T3', 'LACT']);
+// Pregnancy rows cover 18-49 y; the base differs between these two bands.
+const PREG_BASES = [
+  { key: 'F_18_29', min: 216, max: 359 },
+  { key: 'F_30_49', min: 360, max: 599 },
+] as const;
+
+// Arrays split by sex: [male array, female array]. Children's demographics are
+// unisex ('BOTH'). Where BOTH arrays hold a value for an age (CNS prints 男/女
+// columns from 1 y for these), each array writes only its own sex — before, the
+// _F array overwrote boys' values. Where only one array holds it (a unisex
+// infant cell), it is written for both sexes.
+const SEX_PAIRS: Array<[Record<string, number | null>, Record<string, number | null>]> = [
+  [VITAMIN_A_RNI_M, VITAMIN_A_RNI_F], [THIAMIN_RNI_M, THIAMIN_RNI_F],
+  [RIBOFLAVIN_RNI_M, RIBOFLAVIN_RNI_F], [NIACIN_RNI_M, NIACIN_RNI_F],
+  [CHOLINE_AI_M, CHOLINE_AI_F], [WATER_TOTAL_AI_M, WATER_TOTAL_AI_F],
+  [IRON_RNI_M, IRON_RNI_F],
+];
+const SEX_OF_MAP = new Map<object, { sex: Sex; other: Record<string, number | null> }>(
+  SEX_PAIRS.flatMap(([m, f]) => [[m, { sex: 'MALE' as Sex, other: f }], [f, { sex: 'FEMALE' as Sex, other: m }]]),
+);
+
+// Printed-table rows in order: 6 unisex infant/child bands, then 7 sex-split bands.
+const PRINTED_BANDS = [
+  'INFANT_0_6', 'INFANT_6_12', 'CHILD_1_3', 'CHILD_4_6', 'CHILD_7_8', 'CHILD_9_11',
+  '12_14', '15_17', '18_29', '30_49', '50_64', '65_74', '75P',
+] as const;
+const PREG_STAGES: LifeStage[] = ['PREGNANT_T1', 'PREGNANT_T2', 'PREGNANT_T3', 'LACTATING'];
+
+/** Emit rows from a verified printed transcription (dv-sources/cns-2023/printed/). */
+function pushPrinted(
+  rows: SeedRow[], compound: string, unit: string, valueType: ValueType,
+  p: PrintedNutrient, note?: string,
+) {
+  PRINTED_BANDS.forEach((band, i) => {
+    for (const sex of ['MALE', 'FEMALE'] as Sex[]) {
+      const value = sex === 'MALE' ? p.m[i] : p.f[i];
+      if (value == null) continue;
+      const d = demo(i < 6 ? band : `${sex === 'MALE' ? 'M' : 'F'}_${band}`);
+      rows.push({
+        compoundName: compound, ageMinMonths: d.minMonths, ageMaxMonths: d.maxMonths,
+        sex, lifeStage: 'NONE', valueType, value, unit, valueNote: note ?? null,
+      });
+    }
+  });
+  // Printed "+x" over same-age non-pregnant women; the table's 18 and 30 bands.
+  const bases = [
+    { min: 216, max: 359, base: p.f[8] },
+    { min: 360, max: 599, base: p.f[9] },
+  ];
+  PREG_STAGES.forEach((lifeStage, i) => {
+    const inc = p.preg[i];
+    const totals = bases.map((b) => {
+      if (b.base == null) throw new Error(`${compound} ${valueType}: no base for ${lifeStage}`);
+      return { min: b.min, max: b.max, total: Number((b.base + inc).toFixed(4)) };
+    });
+    const merged = totals[0].total === totals[1].total ? [{ min: 216, max: 599, total: totals[0].total }] : totals;
+    for (const b of merged) {
+      rows.push({
+        compoundName: compound, ageMinMonths: b.min, ageMaxMonths: b.max,
+        sex: 'FEMALE', lifeStage, valueType, value: b.total, unit,
+        valueNote: `${note ? note + ' ' : ''}Printed as +${inc} over same-age non-pregnant women; stored as total.`,
+      });
+    }
+  });
+}
+
 function pushFromMap(
   rows: SeedRow[], compound: string, unit: string, valueType: ValueType,
   map: Record<string, number | null>, note?: string,
 ) {
+  const split = SEX_OF_MAP.get(map);
+  const isIncrement = valueType !== 'UL' && !PREGNANCY_ALREADY_TOTAL.has(map);
+  const hasPregnancy = [...PREG_KEYS].some((k) => map[k] != null);
+
   for (const demoKey of DEMO_KEYS) {
+    if (PREG_KEYS.has(demoKey) && isIncrement) {
+      if (!hasPregnancy) continue;
+      // A blank cell beside published increments is "+0" (e.g. iron T1 is printed "+0").
+      const inc = map[demoKey] ?? 0;
+      const bases = PREG_BASES.map((b) => {
+        const base = map[b.key];
+        if (base == null) throw new Error(`${compound} ${valueType}: no ${b.key} base for ${demoKey} increment`);
+        return { ...b, total: Number((base + inc).toFixed(4)) };
+      });
+      const merged = bases[0].total === bases[1].total
+        ? [{ min: 216, max: 599, total: bases[0].total }]
+        : bases;
+      const { lifeStage } = demo(demoKey);
+      for (const b of merged) {
+        rows.push({
+          compoundName: compound, ageMinMonths: b.min, ageMaxMonths: b.max,
+          sex: 'FEMALE', lifeStage: lifeStage as LifeStage, valueType, value: b.total, unit,
+          valueNote: `${note ? note + ' ' : ''}Published as +${inc} over same-age non-pregnant women; stored as total.`,
+        });
+      }
+      continue;
+    }
     const value = map[demoKey];
     if (value == null) continue;
     for (const { sex, lifeStage, min, max } of expandDemo(demoKey)) {
+      if (split && split.other[demoKey] != null && sex !== split.sex) continue;
       rows.push({
         compoundName: compound, ageMinMonths: min, ageMaxMonths: max,
         sex, lifeStage, valueType, value, unit, valueNote: note ?? null,
@@ -132,26 +231,26 @@ function buildAllRows(): SeedRow[] {
   pushFromMap(rows, 'Carbohydrate', 'g', 'EAR', CARB_EAR);
   pushFromMap(rows, 'Dietary Fiber', 'g', 'AI', FIBER_AI);
 
-  // ─── MICROMINERAL EAR ───
-  pushFromMap(rows, 'Calcium', 'mg', 'EAR', CALCIUM_EAR);
-  pushFromMap(rows, 'Phosphorus', 'mg', 'EAR', PHOSPHORUS_EAR);
-  pushFromMap(rows, 'Magnesium', 'mg', 'EAR', MAGNESIUM_EAR);
-  pushFromMap(rows, 'Iron', 'mg', 'EAR', IRON_EAR);
-  pushFromMap(rows, 'Iodine', 'µg', 'EAR', IODINE_EAR);
-  pushFromMap(rows, 'Zinc', 'mg', 'EAR', ZINC_EAR);
-  pushFromMap(rows, 'Selenium', 'µg', 'EAR', SELENIUM_EAR);
-  pushFromMap(rows, 'Copper', 'mg', 'EAR', COPPER_EAR);
-  pushFromMap(rows, 'Molybdenum', 'µg', 'EAR', MOLYBDENUM_EAR);
-  pushFromMap(rows, 'Vitamin A', 'µg', 'EAR', VITAMIN_A_EAR,
-    'µg RAE. Male values (F similar for children).');
-  pushFromMap(rows, 'Vitamin D', 'µg', 'EAR', VITAMIN_D_EAR);
-  pushFromMap(rows, 'Thiamin', 'mg', 'EAR', THIAMIN_EAR);
-  pushFromMap(rows, 'Riboflavin', 'mg', 'EAR', RIBOFLAVIN_EAR);
-  pushFromMap(rows, 'Niacin', 'mg', 'EAR', NIACIN_EAR, 'mg NE.');
-  pushFromMap(rows, 'Vitamin B6', 'mg', 'EAR', B6_EAR);
-  pushFromMap(rows, 'Folate', 'µg', 'EAR', FOLATE_EAR, 'µg DFE.');
-  pushFromMap(rows, 'Vitamin B12', 'µg', 'EAR', B12_EAR);
-  pushFromMap(rows, 'Vitamin C', 'mg', 'EAR', VITAMIN_C_EAR);
+  // ─── EAR (附表 3-6) — from the verified printed transcription ───
+  const EAR = TABLE_3_6_EAR;
+  pushPrinted(rows, 'Calcium', 'mg', 'EAR', EAR.calcium);
+  pushPrinted(rows, 'Phosphorus', 'mg', 'EAR', EAR.phosphorus);
+  pushPrinted(rows, 'Magnesium', 'mg', 'EAR', EAR.magnesium);
+  pushPrinted(rows, 'Iron', 'mg', 'EAR', EAR.iron, EAR.iron.note);
+  pushPrinted(rows, 'Iodine', 'µg', 'EAR', EAR.iodine);
+  pushPrinted(rows, 'Zinc', 'mg', 'EAR', EAR.zinc);
+  pushPrinted(rows, 'Selenium', 'µg', 'EAR', EAR.selenium);
+  pushPrinted(rows, 'Copper', 'mg', 'EAR', EAR.copper);
+  pushPrinted(rows, 'Molybdenum', 'µg', 'EAR', EAR.molybdenum);
+  pushPrinted(rows, 'Vitamin A', 'µg', 'EAR', EAR.vitaminA, 'µg RAE.');
+  pushPrinted(rows, 'Vitamin D', 'µg', 'EAR', EAR.vitaminD);
+  pushPrinted(rows, 'Thiamin', 'mg', 'EAR', EAR.thiamin);
+  pushPrinted(rows, 'Riboflavin', 'mg', 'EAR', EAR.riboflavin);
+  pushPrinted(rows, 'Niacin', 'mg', 'EAR', EAR.niacin, 'mg NE.');
+  pushPrinted(rows, 'Vitamin B6', 'mg', 'EAR', EAR.vitaminB6);
+  pushPrinted(rows, 'Folate', 'µg', 'EAR', EAR.folate, 'µg DFE.');
+  pushPrinted(rows, 'Vitamin B12', 'µg', 'EAR', EAR.vitaminB12);
+  pushPrinted(rows, 'Vitamin C', 'mg', 'EAR', EAR.vitaminC);
 
   // ─── MINERAL RNI / AI (Table 3-7) ───
   pushFromMap(rows, 'Calcium', 'mg', 'RDA', CALCIUM_RNI);
@@ -317,7 +416,19 @@ async function seed() {
   `;
   console.log(`✓ Source row: ${source.id}\n`);
 
-  const rows = buildAllRows().filter((r) => r.value !== 0);  // Drop "+0" pregnancy zero-addition placeholder rows
+  const rows = buildAllRows();
+
+  // Two rows with the same unique key would upsert over each other, and the
+  // first value would vanish without a trace. Fail instead.
+  const seenKeys = new Map<string, SeedRow>();
+  const dupes: string[] = [];
+  for (const r of rows) {
+    const key = [resolveDbName(r.compoundName), r.ageMinMonths, r.ageMaxMonths, r.sex, r.lifeStage, r.valueType].join('|');
+    const prev = seenKeys.get(key);
+    if (prev) dupes.push(`${key}: ${prev.value} ${prev.unit} vs ${r.value} ${r.unit}`);
+    seenKeys.set(key, r);
+  }
+  if (dupes.length > 0) throw new Error(`${dupes.length} duplicate keys:\n  ${dupes.join('\n  ')}`);
   console.log(`Prepared ${rows.length} reference values.\n`);
 
   const names = [...new Set(rows.map((r) => resolveDbName(r.compoundName)))];
@@ -327,8 +438,17 @@ async function seed() {
   const idByName = new Map(compoundRows.map((r: any) => [r.name, r.id]));
   const missing = names.filter((n) => !idByName.has(n));
   if (missing.length > 0) {
-    console.log(`⚠️  Compounds not found: ${missing.join(', ')}\n`);
+    // Fatal: a skipped compound silently drops its rows (the pregnancy delete
+    // above would then lose them), and the old rows go stale without warning.
+    throw new Error(`Compounds not found: ${missing.join(', ')}`);
   }
+
+  // Pregnancy/lactation rows changed shape (increments -> totals, 18-49 y split
+  // where the base differs). Upsert alone would leave the old rows behind.
+  const removed = await sql`
+    DELETE FROM reference_daily_values
+    WHERE source_region = ${SOURCE.regionCode} AND life_stage <> 'NONE'`;
+  console.log(`Removed ${removed.count} existing pregnancy/lactation rows before re-inserting.\n`);
 
   let inserted = 0, updated = 0, skipped = 0;
   for (const row of rows) {
