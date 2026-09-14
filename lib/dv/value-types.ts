@@ -88,7 +88,7 @@ export const SOURCE_VALUE_TYPES: Record<string, SourceVocabulary> = {
     terms: { RDI: 'RDA', AI: 'AI', EAR: 'EAR', UL: 'UL', EER: 'EER', AMDR: 'AMDR', SDT: 'SDT' },
   },
   NORDIC: {
-    terms: { RI: 'RDA', AI: 'AI', AR: 'EAR', UL: 'UL', CDRR: 'CDRR' },
+    terms: { RI: 'RDA', AI: 'AI', AR: 'EAR', 'provisional AR': 'EAR', UL: 'UL', CDRR: 'CDRR', 'recommended intake range': 'AMDR', 'energy reference value': 'EER' },
   },
   ITALY: {
     terms: { PRI: 'RDA', AI: 'AI' },

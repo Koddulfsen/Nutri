@@ -41,4 +41,13 @@ export const SOURCES: Record<string, SourceMeta> = {
     note: 'NRV 2006 with the 2017 fluoride and sodium updates. Summary Tables 1, 2, 4-9 and chronic-disease Tables 1 (SDT) and 2 (AMDR) transcribed in dv-sources/nhmrc-nrv/extract.ts. RDI stored as RDA. n-6/n-3 AIs are total (Omega-6/Omega-3); LC n-3 as Long Chain Omega-3. Adult EER not stored (depends on height and weight).',
     retrievedDate: '2026-09-14',
   },
+  NORDIC: {
+    region: 'NORDIC',
+    slug: 'nnr-2023',
+    authorityName: 'Nordic Nutrition Recommendations 2023',
+    versionYear: 2023,
+    url: 'https://pub.norden.org/nord2023-003',
+    note: 'NNR2023 Tables 8, 10, 12-21 and Boxes 2-8 transcribed in dv-sources/nnr-2023/extract.ts; merged superscripts read from the rendered pages. RI stored as RDA, AR (incl. provisional, flagged) as EAR, intake ranges as AMDR, energy reference values as EER (MJ, PAL 1.4/1.6/1.8 for adults). Thiamin and niacin per MJ. Protein and infant energy (per kg) not stored.',
+    retrievedDate: '2026-09-14',
+  },
 };
