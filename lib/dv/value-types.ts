@@ -78,7 +78,6 @@ export const SOURCE_VALUE_TYPES: Record<string, SourceVocabulary> = {
     // DG (Dietary Goal) has three shapes: a range (macros), a floor (fiber >= x),
     // and a ceiling (sodium < x). Ranges and floors are AMDR; ceilings are CDRR.
     terms: { EAR: 'EAR', RDA: 'RDA', AI: 'AI', UL: 'UL', DG: 'AMDR', 'DG (ceiling)': 'CDRR', EER: 'EER' },
-    knownIssues: ['Pregnancy/lactation value_note says "Additional intake", but values are absolute totals (verified vs base: folate 480 vs 240)'],
   },
   CHINA: {
     terms: {

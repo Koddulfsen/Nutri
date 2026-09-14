@@ -23,4 +23,13 @@ export const SOURCES: Record<string, SourceMeta> = {
     note: 'EFSA DRV summary tables v4 (Sept 2017) and UL overview v11 (Aug 2025), transcribed cell by cell in dv-sources/efsa-drv/extract.ts. PRI stored as RDA, AR as EAR, energy AR as EER (MJ, by PAL). Thiamin and niacin stored per MJ. Protein (per kg), SFA/TFA (ALAP), EPA+DHA and safe levels of intake not stored.',
     retrievedDate: '2026-09-14',
   },
+  JAPAN: {
+    region: 'JAPAN',
+    slug: 'mhlw-2025',
+    authorityName: 'MHLW Dietary Reference Intakes for Japanese (2020)',
+    versionYear: 2020,
+    url: 'https://www.mhlw.go.jp/content/001151422.pdf',
+    note: 'English edition, pages 10-44. Age rows parsed from a text snapshot (dv-sources/mhlw-2025/source/); pregnancy/lactation rows transcribed and stored as totals. DG mapped to AMDR (range/floor) or CDRR (ceiling); sodium DG converted from salt g with the table\'s 2.54 factor. Iron for women 10-64 y stored for menstruating women. Magnesium UL (350 mg/d adults) applies to non-food sources only.',
+    retrievedDate: '2026-09-14',
+  },
 };
