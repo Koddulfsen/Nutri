@@ -34,7 +34,7 @@ export async function POST(req: NextRequest) {
     { role: 'user', content: message },
   ];
 
-  const response = await chatCompletion(getSystemPrompt(), messages, { maxTokens: 256 });
+  const response = await chatCompletion(getSystemPrompt(), messages, { maxTokens: 256, label: 'chat' });
 
   return NextResponse.json({ response });
 }

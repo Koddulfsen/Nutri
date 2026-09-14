@@ -305,7 +305,7 @@ export async function POST(req: NextRequest) {
       getFoodLogChatSystemPrompt(),
       messages,
       tools,
-      { maxTokens: 1024, maxIterations: 6 }
+      { maxTokens: 1024, maxIterations: 6, label: 'log-food' }
     );
 
     const loggedAny = toolCalls.some(

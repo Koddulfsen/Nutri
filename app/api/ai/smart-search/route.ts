@@ -466,9 +466,9 @@ async function rankOneBatch(
     }))
   );
 
-  const raw = await chatCompletion(getRankSystemPrompt(), messages);
+  const raw = await chatCompletion(getRankSystemPrompt(), messages, { label: `smart-search:rank:${sourceDef.code}` });
   const cleaned = raw.replace(/```json\s*/g, '').replace(/```\s*/g, '').trim();
-  const ranked: Array<{ id: string; rank: number; reason: string }> = JSON.parse(cleaned);
+  const ranked: Array<{ id: string; rank: number }> = JSON.parse(cleaned);
 
   const picks: NormalizedResult[] = [];
   for (const pick of ranked.sort((a, b) => a.rank - b.rank)) {

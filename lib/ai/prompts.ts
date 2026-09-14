@@ -162,7 +162,7 @@ Composites: If the target is a single ingredient (e.g., "chicken breast"), rejec
 Return ONLY a valid JSON array, no markdown fences, no explanation.
 Return at most 5 results. If fewer than 5 are relevant, return fewer.
 
-[{ "id": "result_id", "rank": 1, "reason": "brief reason" }]`;
+[{ "id": "result_id", "rank": 1 }]`;
 
 export function getRankSystemPrompt(): string {
   return RANK_SYSTEM;

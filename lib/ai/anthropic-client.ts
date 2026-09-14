@@ -6,6 +6,30 @@
  */
 
 import Anthropic from '@anthropic-ai/sdk';
+import { logger } from '@/lib/logger';
+
+/** Log token usage per call so spend can be attributed to a route. */
+export function logUsage(label: string, model: string, usage: Anthropic.Messages.Usage) {
+  // The installed SDK's Usage type predates these fields; the API still sends them.
+  const extra = usage as unknown as {
+    cache_read_input_tokens?: number | null;
+    cache_creation_input_tokens?: number | null;
+    server_tool_use?: { web_search_requests?: number } | null;
+  };
+  logger.info(
+    {
+      service: 'anthropic-usage',
+      label,
+      model,
+      inputTokens: usage.input_tokens,
+      outputTokens: usage.output_tokens,
+      cacheReadTokens: extra.cache_read_input_tokens ?? 0,
+      cacheWriteTokens: extra.cache_creation_input_tokens ?? 0,
+      webSearches: extra.server_tool_use?.web_search_requests ?? 0,
+    },
+    'anthropic usage'
+  );
+}
 
 let client: Anthropic | null = null;
 
@@ -28,7 +52,7 @@ export interface ChatMessage {
 export async function chatCompletion(
   systemPrompt: string,
   messages: ChatMessage[],
-  options?: { maxTokens?: number; temperature?: number }
+  options?: { maxTokens?: number; temperature?: number; label?: string }
 ): Promise<string> {
   const anthropic = getClient();
 
@@ -42,6 +66,7 @@ export async function chatCompletion(
       content: m.content,
     })),
   });
+  logUsage(options?.label ?? 'chatCompletion', response.model, response.usage);
 
   const textBlock = response.content.find((block) => block.type === 'text');
   return textBlock?.text ?? '';
@@ -69,7 +94,7 @@ export async function chatWithTools(
   systemPrompt: string,
   messages: ChatMessage[],
   tools: ChatTool[],
-  options?: { maxTokens?: number; maxIterations?: number; model?: string }
+  options?: { maxTokens?: number; maxIterations?: number; model?: string; label?: string }
 ): Promise<ChatWithToolsResult> {
   const anthropic = getClient();
   const maxIterations = options?.maxIterations ?? 6;
@@ -96,6 +121,7 @@ export async function chatWithTools(
       tools: sdkTools,
       messages: conversation,
     });
+    logUsage(`${options?.label ?? 'chatWithTools'}:iter${i}`, response.model, response.usage);
 
     if (response.stop_reason !== 'tool_use') {
       const textBlock = response.content.find((b) => b.type === 'text');

@@ -8,6 +8,7 @@
  * System prompt is cached — repeat calls drop to ~$0.025 + web search.
  */
 import Anthropic from '@anthropic-ai/sdk';
+import { logUsage } from '@/lib/ai/anthropic-client';
 
 export interface SanityCheckInput {
   compoundName: string;
@@ -114,6 +115,7 @@ Find 2-3 external sources (not in our database) that report ${input.compoundName
     ],
     messages: [{ role: 'user', content: userPrompt }],
   });
+  logUsage('sanity-check', response.model, response.usage);
 
   // Extract the JSON from the final text block. Haiku sometimes wraps in ```json fences.
   const textBlocks = response.content.filter((b): b is Anthropic.TextBlock => b.type === 'text');

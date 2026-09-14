@@ -59,7 +59,7 @@ export async function POST(request: NextRequest) {
 
     const messages = buildClarifyMessages(query, history);
 
-    const raw = await chatCompletion(getClarifySystemPrompt(), messages);
+    const raw = await chatCompletion(getClarifySystemPrompt(), messages, { label: 'clarify' });
 
     // Parse AI response - strip markdown fences if present
     const cleaned = raw.replace(/```json\s*/g, '').replace(/```\s*/g, '').trim();

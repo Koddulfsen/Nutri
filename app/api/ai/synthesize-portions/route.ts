@@ -56,7 +56,7 @@ export async function POST(request: NextRequest) {
     }
 
     const messages = buildPortionMessages(canonicalName, metadata as FoodMetadata | null);
-    const raw = await chatCompletion(getPortionSystemPrompt(), messages);
+    const raw = await chatCompletion(getPortionSystemPrompt(), messages, { label: 'synthesize-portions' });
 
     const cleaned = raw.replace(/```json\s*/g, '').replace(/```\s*/g, '').trim();
 
