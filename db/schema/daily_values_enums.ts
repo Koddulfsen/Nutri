@@ -108,6 +108,7 @@ export const dvTypeEnum = pgEnum('dv_type_enum', [
   'AI',       // Adequate Intake
   'UL',       // Tolerable Upper Intake Level
   'EAR',      // Estimated Average Requirement
+  'EER',      // Estimated Energy Requirement (energy only; see lib/dv/value-types.ts)
   'AMDR',     // Acceptable Macronutrient Distribution Range
   'CDRR',     // Chronic Disease Risk Reduction (US sodium 2019)
   'SDT',      // Suggested Dietary Target (Italy LARN)

@@ -1,0 +1,1 @@
+ALTER TYPE "public"."dv_type_enum" ADD VALUE 'EER' BEFORE 'AMDR';

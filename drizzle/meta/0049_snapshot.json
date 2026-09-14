@@ -1,6 +1,6 @@
 {
-  "id": "87045a72-86aa-4876-9140-415b39f4c67d",
-  "prevId": "f3c85e1f-f1f3-4657-91f1-c27514d9178c",
+  "id": "5772c2bb-b505-49c8-a459-5e924fc16407",
+  "prevId": "87045a72-86aa-4876-9140-415b39f4c67d",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -5526,6 +5526,18 @@
           "primaryKey": false,
           "notNull": false
         },
+        "birth_year": {
+          "name": "birth_year",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "birth_month": {
+          "name": "birth_month",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": false
+        },
         "biological_sex": {
           "name": "biological_sex",
           "type": "biological_sex_enum",
@@ -5569,18 +5581,6 @@
           "primaryKey": false,
           "notNull": true,
           "default": "now()"
-        },
-        "birth_year": {
-          "name": "birth_year",
-          "type": "smallint",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "birth_month": {
-          "name": "birth_month",
-          "type": "smallint",
-          "primaryKey": false,
-          "notNull": false
         }
       },
       "indexes": {
@@ -9909,6 +9909,7 @@
         "AI",
         "UL",
         "EAR",
+        "EER",
         "AMDR",
         "CDRR",
         "SDT",

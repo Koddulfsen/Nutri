@@ -52,7 +52,7 @@ function resolveDbName(n: string): string {
 type Sex = 'MALE' | 'FEMALE';
 type LifeStage = 'NONE' | 'PREGNANT' | 'PREGNANT_T1' | 'PREGNANT_T2' | 'PREGNANT_T3' | 'LACTATING';
 type Activity = 'SEDENTARY' | 'MODERATE' | 'ACTIVE' | null;
-type VT = 'RDA' | 'AI' | 'EAR' | 'UL' | 'AMDR' | 'CDRR';
+type VT = 'RDA' | 'AI' | 'EAR' | 'EER' | 'UL' | 'AMDR' | 'CDRR';
 
 interface SeedRow {
   compoundName: string;
@@ -98,9 +98,12 @@ function addPregLact(
   compound: string, unit: string, valueType: VT,
   additions: { preg?: number; pregEarly?: number; pregMid?: number; pregLate?: number; lact?: number },
   note?: string,
+  /** For floor-style goals (DG "≥ x"): store the value as value_min too. */
+  asFloor = false,
 ) {
+  const floor = (v: number) => (asFloor ? { valueMin: v } : {});
   if (additions.preg != null) {
-    rows.push({ compoundName: compound, ageMinMonths: 180, ageMaxMonths: 611, sex: 'FEMALE', lifeStage: 'PREGNANT', valueType, value: additions.preg, unit, valueNote: note ?? 'Additional intake for pregnancy' });
+    rows.push({ compoundName: compound, ageMinMonths: 180, ageMaxMonths: 611, sex: 'FEMALE', lifeStage: 'PREGNANT', valueType, value: additions.preg, ...floor(additions.preg), unit, valueNote: note ?? 'Additional intake for pregnancy' });
   }
   if (additions.pregEarly != null) {
     rows.push({ compoundName: compound, ageMinMonths: 180, ageMaxMonths: 611, sex: 'FEMALE', lifeStage: 'PREGNANT_T1', valueType, value: additions.pregEarly, unit, valueNote: 'Early-stage pregnancy additional' });
@@ -112,7 +115,7 @@ function addPregLact(
     rows.push({ compoundName: compound, ageMinMonths: 180, ageMaxMonths: 611, sex: 'FEMALE', lifeStage: 'PREGNANT_T3', valueType, value: additions.pregLate, unit, valueNote: 'Late-stage pregnancy additional' });
   }
   if (additions.lact != null) {
-    rows.push({ compoundName: compound, ageMinMonths: 180, ageMaxMonths: 611, sex: 'FEMALE', lifeStage: 'LACTATING', valueType, value: additions.lact, unit, valueNote: note ?? 'Additional intake for lactation' });
+    rows.push({ compoundName: compound, ageMinMonths: 180, ageMaxMonths: 611, sex: 'FEMALE', lifeStage: 'LACTATING', valueType, value: additions.lact, ...floor(additions.lact), unit, valueNote: note ?? 'Additional intake for lactation' });
   }
 }
 
@@ -148,14 +151,14 @@ function buildAllRows(): SeedRow[] {
     for (const [offset, activity] of PALS) {
       const mVal = e[offset] as number | null;
       const fVal = e[offset + 3] as number | null;
-      if (mVal != null) rows.push({ compoundName: 'Energy', ageMinMonths: ageMin, ageMaxMonths: ageMax, sex: 'MALE', lifeStage: 'NONE', activityLevel: activity, valueType: 'EAR', value: mVal, unit: 'kcal' });
-      if (fVal != null) rows.push({ compoundName: 'Energy', ageMinMonths: ageMin, ageMaxMonths: ageMax, sex: 'FEMALE', lifeStage: 'NONE', activityLevel: activity, valueType: 'EAR', value: fVal, unit: 'kcal' });
+      if (mVal != null) rows.push({ compoundName: 'Energy', ageMinMonths: ageMin, ageMaxMonths: ageMax, sex: 'MALE', lifeStage: 'NONE', activityLevel: activity, valueType: 'EER', value: mVal, unit: 'kcal' });
+      if (fVal != null) rows.push({ compoundName: 'Energy', ageMinMonths: ageMin, ageMaxMonths: ageMax, sex: 'FEMALE', lifeStage: 'NONE', activityLevel: activity, valueType: 'EER', value: fVal, unit: 'kcal' });
     }
   }
   // Pregnancy energy additions (early +50, mid +250, late +450)
-  addPregLact(rows, 'Energy', 'kcal', 'EAR', { pregEarly: 2050, pregMid: 2250, pregLate: 2450 }, 'Base F PAL II ~2000 + addition');
+  addPregLact(rows, 'Energy', 'kcal', 'EER', { pregEarly: 2050, pregMid: 2250, pregLate: 2450 }, 'Base F PAL II ~2000 + addition');
   // Lactation +350
-  addPregLact(rows, 'Energy', 'kcal', 'EAR', { lact: 2350 }, 'Base F PAL II ~2000 + 350');
+  addPregLact(rows, 'Energy', 'kcal', 'EER', { lact: 2350 }, 'Base F PAL II ~2000 + 350');
 
   // ═══════════════════════════════════════════════════════════
   // Protein (g/d) — EAR, RDA, AI
@@ -649,7 +652,7 @@ function buildAllRows(): SeedRow[] {
       rows.push({ compoundName: 'Dietary Fiber', ageMinMonths: ageMin, ageMaxMonths: ageMax, sex: 'FEMALE', lifeStage: 'NONE', valueType: 'AMDR', value: FIBER_DG_F[i]!, valueMin: FIBER_DG_F[i]!, unit: 'g', valueNote: 'DG: dietary goal ≥ this amount' });
     }
   }
-  addPregLact(rows, 'Dietary Fiber', 'g', 'AMDR', { preg: 18, lact: 18 }, 'DG: dietary goal ≥ this amount');
+  addPregLact(rows, 'Dietary Fiber', 'g', 'AMDR', { preg: 18, lact: 18 }, 'DG: dietary goal ≥ this amount', true);
 
   return rows;
 }

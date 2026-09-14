@@ -70,7 +70,7 @@ type Sex = 'MALE' | 'FEMALE';
 type LifeStage =
   | 'NONE' | 'PREGNANT' | 'PREGNANT_T1' | 'PREGNANT_T2' | 'PREGNANT_T3'
   | 'LACTATING' | 'LACTATING_0_6M' | 'LACTATING_7_12M';
-type ValueType = 'RDA' | 'AI' | 'EAR' | 'UL' | 'CDRR' | 'AMDR';
+type ValueType = 'RDA' | 'AI' | 'EAR' | 'EER' | 'UL' | 'CDRR' | 'AMDR';
 
 interface SeedRow {
   compoundName: string;
@@ -546,10 +546,10 @@ function buildAllRows(): SeedRow[] {
   // ENERGY (SACN 2011 — Estimated Average Requirements, mixed-feeding for infants)
   // ───────────────────────────────────────────────────────────────
   // Mixed feeding infants (kcal/d)
-  pushSexed(rows, 'Energy', [1, 2],   574, 502, 'kcal', 'EAR', 'SACN 2011 — mixed/unknown feeding mode.', 'SACN 2011 — mixed/unknown feeding mode.');
-  pushSexed(rows, 'Energy', [3, 4],   598, 550, 'kcal', 'EAR', 'SACN 2011 — mixed/unknown feeding mode.', 'SACN 2011 — mixed/unknown feeding mode.');
-  pushSexed(rows, 'Energy', [5, 6],   622, 574, 'kcal', 'EAR', 'SACN 2011 — mixed/unknown feeding mode.', 'SACN 2011 — mixed/unknown feeding mode.');
-  pushSexed(rows, 'Energy', [7, 12],  718, 646, 'kcal', 'EAR', 'SACN 2011 — mixed/unknown feeding mode.', 'SACN 2011 — mixed/unknown feeding mode.');
+  pushSexed(rows, 'Energy', [1, 2],   574, 502, 'kcal', 'EER', 'SACN 2011 — mixed/unknown feeding mode.', 'SACN 2011 — mixed/unknown feeding mode.');
+  pushSexed(rows, 'Energy', [3, 4],   598, 550, 'kcal', 'EER', 'SACN 2011 — mixed/unknown feeding mode.', 'SACN 2011 — mixed/unknown feeding mode.');
+  pushSexed(rows, 'Energy', [5, 6],   622, 574, 'kcal', 'EER', 'SACN 2011 — mixed/unknown feeding mode.', 'SACN 2011 — mixed/unknown feeding mode.');
+  pushSexed(rows, 'Energy', [7, 12],  718, 646, 'kcal', 'EER', 'SACN 2011 — mixed/unknown feeding mode.', 'SACN 2011 — mixed/unknown feeding mode.');
 
   // Children single-year buckets (1y..18y)
   // Ages 1-3 y come from mixed-feeding table; 4-18 from children table
@@ -577,23 +577,23 @@ function buildAllRows(): SeedRow[] {
   for (const [year, m, f] of kidsByYear) {
     const ageMin = year * 12;
     const ageMax = ageMin + 11;
-    pushSexed(rows, 'Energy', [ageMin, ageMax], m, f, 'kcal', 'EAR',
+    pushSexed(rows, 'Energy', [ageMin, ageMax], m, f, 'kcal', 'EER',
               'SACN 2011.', 'SACN 2011.');
   }
 
   // Adults
-  pushSexed(rows, 'Energy', E_19_24, 2772, 2175, 'kcal', 'EAR', 'SACN 2011 — moderately active.', 'SACN 2011 — moderately active.');
-  pushSexed(rows, 'Energy', E_25_34, 2749, 2175, 'kcal', 'EAR', 'SACN 2011 — moderately active.', 'SACN 2011 — moderately active.');
-  pushSexed(rows, 'Energy', E_35_44, 2629, 2103, 'kcal', 'EAR', 'SACN 2011 — moderately active.', 'SACN 2011 — moderately active.');
-  pushSexed(rows, 'Energy', E_45_54, 2581, 2103, 'kcal', 'EAR', 'SACN 2011 — moderately active.', 'SACN 2011 — moderately active.');
-  pushSexed(rows, 'Energy', E_55_64, 2581, 2079, 'kcal', 'EAR', 'SACN 2011 — moderately active.', 'SACN 2011 — moderately active.');
-  pushSexed(rows, 'Energy', E_65_74, 2342, 1912, 'kcal', 'EAR', 'SACN 2011 — moderately active.', 'SACN 2011 — moderately active.');
-  pushSexed(rows, 'Energy', E_75P,   2294, 1840, 'kcal', 'EAR', 'SACN 2011 — moderately active.', 'SACN 2011 — moderately active.');
+  pushSexed(rows, 'Energy', E_19_24, 2772, 2175, 'kcal', 'EER', 'SACN 2011 — moderately active.', 'SACN 2011 — moderately active.');
+  pushSexed(rows, 'Energy', E_25_34, 2749, 2175, 'kcal', 'EER', 'SACN 2011 — moderately active.', 'SACN 2011 — moderately active.');
+  pushSexed(rows, 'Energy', E_35_44, 2629, 2103, 'kcal', 'EER', 'SACN 2011 — moderately active.', 'SACN 2011 — moderately active.');
+  pushSexed(rows, 'Energy', E_45_54, 2581, 2103, 'kcal', 'EER', 'SACN 2011 — moderately active.', 'SACN 2011 — moderately active.');
+  pushSexed(rows, 'Energy', E_55_64, 2581, 2079, 'kcal', 'EER', 'SACN 2011 — moderately active.', 'SACN 2011 — moderately active.');
+  pushSexed(rows, 'Energy', E_65_74, 2342, 1912, 'kcal', 'EER', 'SACN 2011 — moderately active.', 'SACN 2011 — moderately active.');
+  pushSexed(rows, 'Energy', E_75P,   2294, 1840, 'kcal', 'EER', 'SACN 2011 — moderately active.', 'SACN 2011 — moderately active.');
 
   // Pregnancy energy: +200 kcal/d last trimester only
   rows.push({
     compoundName: 'Energy', ageMinMonths: 180, ageMaxMonths: 611,
-    sex: 'FEMALE', lifeStage: 'PREGNANT_T3', valueType: 'EAR',
+    sex: 'FEMALE', lifeStage: 'PREGNANT_T3', valueType: 'EER',
     value: 2375, unit: 'kcal',
     valueNote: 'SACN 2011: pregnancy increment +200 kcal/d (0.8 MJ) for last trimester only. Base 2175 + 200 = 2375.',
   });

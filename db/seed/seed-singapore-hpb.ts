@@ -55,7 +55,7 @@ interface SeedRow {
   ageMaxMonths: number | null;
   sex: Sex;
   lifeStage: LifeStage;
-  valueType: 'RDA';
+  valueType: 'RDA' | 'EER';
   value: number;
   unit: string;
   activityLevel?: ActivityLevel;
@@ -112,7 +112,7 @@ function buildAllRows(): SeedRow[] {
     for (const sex of sexes) {
       rows.push({
         compoundName: 'Energy', ageMinMonths: d.minMonths, ageMaxMonths: d.maxMonths,
-        sex, lifeStage: d.lifeStage as LifeStage, valueType: 'RDA',
+        sex, lifeStage: d.lifeStage as LifeStage, valueType: 'EER',
         value: e.kcal, unit: 'kcal', activityLevel: e.activity,
         valueNote: e.demoKey.startsWith('PREG') ? 'Pregnancy T3 addition (+480 over non-preg base).'
                 : e.demoKey.startsWith('LACT') ? 'Lactation +500 kcal over non-lact base.'
@@ -126,13 +126,13 @@ function buildAllRows(): SeedRow[] {
     const d = demo(c.demoKey);
     rows.push({
       compoundName: 'Energy', ageMinMonths: d.minMonths, ageMaxMonths: d.maxMonths,
-      sex: 'MALE', lifeStage: 'NONE', valueType: 'RDA',
+      sex: 'MALE', lifeStage: 'NONE', valueType: 'EER',
       value: c.sexM, unit: 'kcal', activityLevel: null,
       valueNote: 'Single value (no activity split for this age).',
     });
     rows.push({
       compoundName: 'Energy', ageMinMonths: d.minMonths, ageMaxMonths: d.maxMonths,
-      sex: 'FEMALE', lifeStage: 'NONE', valueType: 'RDA',
+      sex: 'FEMALE', lifeStage: 'NONE', valueType: 'EER',
       value: c.sexF, unit: 'kcal', activityLevel: null,
       valueNote: 'Single value (no activity split for this age).',
     });

@@ -83,7 +83,7 @@ function resolveDbName(n: string): string {
 
 type Sex = 'MALE' | 'FEMALE';
 type LifeStage = 'NONE' | 'PREGNANT_T1' | 'PREGNANT_T2' | 'PREGNANT_T3' | 'LACTATING';
-type ValueType = 'RDA' | 'AI' | 'EAR' | 'UL' | 'CDRR' | 'AMDR';
+type ValueType = 'RDA' | 'AI' | 'EAR' | 'EER' | 'UL' | 'CDRR' | 'AMDR';
 type ActivityLevel = 'SEDENTARY' | 'MODERATE' | 'ACTIVE' | 'VERY_ACTIVE' | null;
 
 interface SeedRow {
@@ -135,7 +135,7 @@ function buildAllRows(): SeedRow[] {
   const rows: SeedRow[] = [];
 
   // ─── ENERGY at 稍低 (Light, PAL ~1.45, mapped to MODERATE) ───
-  pushFromMap(rows, 'Energy', 'kcal', 'EAR', ENERGY_LIGHT_EAR,
+  pushFromMap(rows, 'Energy', 'kcal', 'EER', ENERGY_LIGHT_EAR,
     'EER at 稍低 (light) activity level (PAL ≈ 1.45). Infants use AI basis (100 or 90 kcal/kg × reference weight). Preg T2/T3 +300 kcal; Lact +500 kcal.',
     'MODERATE');
 

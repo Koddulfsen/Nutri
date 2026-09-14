@@ -98,7 +98,7 @@ function resolveDbName(n: string): string {
 
 type Sex = 'MALE' | 'FEMALE';
 type LifeStage = 'NONE' | 'PREGNANT' | 'LACTATING';
-type ValueType = 'RDA' | 'AI' | 'EAR' | 'UL' | 'CDRR' | 'AMDR';
+type ValueType = 'RDA' | 'AI' | 'EAR' | 'EER' | 'UL' | 'CDRR' | 'AMDR';
 
 interface SeedRow {
   compoundName: string;
@@ -150,7 +150,7 @@ function buildAllRows(): SeedRow[] {
   const rows: SeedRow[] = [];
 
   // ─── ENERGY ───
-  pushFromMap(rows, 'Energy', 'kcal', 'EAR', ENERGY_EER,
+  pushFromMap(rows, 'Energy', 'kcal', 'EER', ENERGY_EER,
     'EER (Estimated Energy Requirement). Preg/Lact = +340 kcal (2nd+3rd trimester avg) over non-preg/non-lact 19-29 base.');
 
   // ─── MACROS ───

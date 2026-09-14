@@ -62,7 +62,7 @@ function resolveDbName(n: string): string {
 
 type Sex = 'MALE' | 'FEMALE';
 type LifeStage = 'NONE' | 'PREGNANT' | 'LACTATING';
-type ValueType = 'RDA' | 'AI' | 'CDRR';
+type ValueType = 'RDA' | 'AI' | 'EER' | 'CDRR';
 type ActivityLevel = 'SEDENTARY' | 'MODERATE' | 'ACTIVE' | 'VERY_ACTIVE' | null;
 
 interface SeedRow {
@@ -116,7 +116,7 @@ function buildAllRows(): SeedRow[] {
       ageMinMonths: d.minMonths, ageMaxMonths: d.maxMonths,
       sex, lifeStage: 'NONE' as LifeStage, activityLevel: row.activityLevel,
     };
-    rows.push({ compoundName: 'Energy', ...base, valueType: 'RDA', value: row.kcal, unit: 'kcal',
+    rows.push({ compoundName: 'Energy', ...base, valueType: 'EER', value: row.kcal, unit: 'kcal',
       valueNote: `КФА ${row.activityLevel === 'SEDENTARY' ? '1.4' : row.activityLevel === 'MODERATE' ? '1.6 (elderly 1.7)' : row.activityLevel === 'ACTIVE' ? '1.9' : '2.2'} activity level.` });
     rows.push({ compoundName: 'Protein', ...base, valueType: 'RDA', value: row.proteinG, unit: 'g' });
     rows.push({ compoundName: 'Total Fat', ...base, valueType: 'RDA', value: row.fatG, unit: 'g' });
@@ -130,7 +130,7 @@ function buildAllRows(): SeedRow[] {
       : null;
     for (const { sex, lifeStage, min, max } of expandDemo(row.demoKey)) {
       const base = { ageMinMonths: min, ageMaxMonths: max, sex, lifeStage, activityLevel: null };
-      rows.push({ compoundName: 'Energy', ...base, valueType: 'RDA', value: row.kcal as number, unit: 'kcal', valueNote: perKgNote });
+      rows.push({ compoundName: 'Energy', ...base, valueType: 'EER', value: row.kcal as number, unit: 'kcal', valueNote: perKgNote });
       if (typeof row.proteinG === 'number') {
         rows.push({ compoundName: 'Protein', ...base, valueType: 'RDA', value: row.proteinG, unit: 'g', valueNote: perKgNote });
       }

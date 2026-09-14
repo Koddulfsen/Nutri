@@ -59,7 +59,7 @@ interface SeedRow {
   sex: Sex;
   lifeStage: LifeStage;
   activityLevel: Activity;
-  valueType: 'RDA' | 'EAR';
+  valueType: 'RDA' | 'EAR' | 'EER';
   value: number;
   unit: string;
   valueNote?: string | null;
@@ -177,7 +177,7 @@ function buildAllRows(): SeedRow[] {
         compoundName: 'Energy',
         ageMinMonths: e.minMo, ageMaxMonths: e.maxMo,
         sex, lifeStage: e.lifeStage, activityLevel: e.activity,
-        valueType: 'RDA', value: e.kcal, unit: 'kcal',
+        valueType: 'EER', value: e.kcal, unit: 'kcal',
       });
     }
   }

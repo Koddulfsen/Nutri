@@ -74,7 +74,7 @@ type Sex = 'MALE' | 'FEMALE';
 type LifeStage =
   | 'NONE' | 'PREGNANT' | 'PREGNANT_T1' | 'PREGNANT_T2' | 'PREGNANT_T3'
   | 'LACTATING' | 'LACTATING_0_6M' | 'LACTATING_7_12M';
-type ValueType = 'RDA' | 'AI' | 'EAR' | 'UL' | 'CDRR' | 'SDT' | 'AMDR';
+type ValueType = 'RDA' | 'AI' | 'EAR' | 'EER' | 'UL' | 'CDRR' | 'SDT' | 'AMDR';
 type ActivityLevel = 'SEDENTARY' | 'MODERATE' | 'ACTIVE' | 'VERY_ACTIVE' | null;
 
 interface SeedRow {
@@ -242,13 +242,13 @@ function buildAllRows(): SeedRow[] {
   for (const r of ENERGY_INFANTS_MONTHLY) {
     rows.push({
       compoundName: 'Energy', ageMinMonths: r.ageMonth, ageMaxMonths: r.ageMonth,
-      sex: 'MALE', lifeStage: 'NONE', valueType: 'EAR',
+      sex: 'MALE', lifeStage: 'NONE', valueType: 'EER',
       value: r.kcalM, unit: 'kcal',
       valueNote: `NHMRC Table 1 infant EER at month ${r.ageMonth}.`,
     });
     rows.push({
       compoundName: 'Energy', ageMinMonths: r.ageMonth, ageMaxMonths: r.ageMonth,
-      sex: 'FEMALE', lifeStage: 'NONE', valueType: 'EAR',
+      sex: 'FEMALE', lifeStage: 'NONE', valueType: 'EER',
       value: r.kcalF, unit: 'kcal',
       valueNote: `NHMRC Table 1 infant EER at month ${r.ageMonth}.`,
     });
@@ -260,13 +260,13 @@ function buildAllRows(): SeedRow[] {
     const ageMax = ageMin + 11;
     rows.push({
       compoundName: 'Energy', ageMinMonths: ageMin, ageMaxMonths: ageMax,
-      sex: 'MALE', lifeStage: 'NONE', valueType: 'EAR',
+      sex: 'MALE', lifeStage: 'NONE', valueType: 'EER',
       value: r.kcalM, unit: 'kcal', activityLevel: 'MODERATE',
       valueNote: 'NHMRC Table 2 child/adolescent EER at PAL 1.6 (Light), Schofield BMR × PAL.',
     });
     rows.push({
       compoundName: 'Energy', ageMinMonths: ageMin, ageMaxMonths: ageMax,
-      sex: 'FEMALE', lifeStage: 'NONE', valueType: 'EAR',
+      sex: 'FEMALE', lifeStage: 'NONE', valueType: 'EER',
       value: r.kcalF, unit: 'kcal', activityLevel: 'MODERATE',
       valueNote: 'NHMRC Table 2 child/adolescent EER at PAL 1.6 (Light), Schofield BMR × PAL.',
     });
@@ -278,7 +278,7 @@ function buildAllRows(): SeedRow[] {
     if (d.sex === 'MALE') {
       rows.push({
         compoundName: 'Energy', ageMinMonths: d.minMonths, ageMaxMonths: d.maxMonths,
-        sex: 'MALE', lifeStage: 'NONE', valueType: 'EAR',
+        sex: 'MALE', lifeStage: 'NONE', valueType: 'EER',
         value: vals.kcalM, unit: 'kcal', activityLevel: 'MODERATE',
         valueNote: 'NHMRC Table 3 adult EER at PAL 1.6 (Light), 1.7m / 63.6kg reference (male).',
       });
@@ -289,7 +289,7 @@ function buildAllRows(): SeedRow[] {
       const fd = demo(fDemoKey);
       rows.push({
         compoundName: 'Energy', ageMinMonths: fd.minMonths, ageMaxMonths: fd.maxMonths,
-        sex: 'FEMALE', lifeStage: 'NONE', valueType: 'EAR',
+        sex: 'FEMALE', lifeStage: 'NONE', valueType: 'EER',
         value: vals.kcalF, unit: 'kcal', activityLevel: 'MODERATE',
         valueNote: 'NHMRC Table 3 adult EER at PAL 1.6 (Light), 1.6m / 56.3kg reference (female).',
       });

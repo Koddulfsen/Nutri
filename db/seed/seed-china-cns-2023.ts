@@ -72,7 +72,7 @@ function resolveDbName(n: string): string {
 
 type Sex = 'MALE' | 'FEMALE';
 type LifeStage = 'NONE' | 'PREGNANT_T1' | 'PREGNANT_T2' | 'PREGNANT_T3' | 'LACTATING';
-type ValueType = 'RDA' | 'AI' | 'EAR' | 'UL' | 'CDRR' | 'AMDR';
+type ValueType = 'RDA' | 'AI' | 'EAR' | 'EER' | 'UL' | 'CDRR' | 'AMDR';
 
 interface SeedRow {
   compoundName: string;
@@ -120,7 +120,7 @@ function buildAllRows(): SeedRow[] {
   const rows: SeedRow[] = [];
 
   // ─── ENERGY at PAL II (moderate) ───
-  pushFromMap(rows, 'Energy', 'kcal', 'EAR', ENERGY_PAL2_EER,
+  pushFromMap(rows, 'Energy', 'kcal', 'EER', ENERGY_PAL2_EER,
     'EER at PAL II (moderate activity, PAL ~1.7). Infants from per-kg × reference weight.');
 
   // ─── MACROS ───
