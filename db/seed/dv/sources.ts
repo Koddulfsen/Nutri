@@ -50,4 +50,13 @@ export const SOURCES: Record<string, SourceMeta> = {
     note: 'NNR2023 Tables 8, 10, 12-21 and Boxes 2-8 transcribed in dv-sources/nnr-2023/extract.ts; merged superscripts read from the rendered pages. RI stored as RDA, AR (incl. provisional, flagged) as EAR, intake ranges as AMDR, energy reference values as EER (MJ, PAL 1.4/1.6/1.8 for adults). Thiamin and niacin per MJ. Protein and infant energy (per kg) not stored.',
     retrievedDate: '2026-09-14',
   },
+  SPAIN: {
+    region: 'SPAIN',
+    slug: 'aesan-2019',
+    authorityName: 'AESAN — Ingestas Nutricionales de Referencia (Spain 2019)',
+    versionYear: 2019,
+    url: 'https://www.aesan.gob.es/AECOSAN/docs/documentos/seguridad_alimentaria/evaluacion_riesgos/informes_comite/INR.pdf',
+    note: 'AESAN-2019-003 INR for vitamins and minerals (Tables 6a-7d), parsed from a text snapshot in dv-sources/aesan-2019/source/. Only the AESAN INR column is stored; FESNAD/EFSA comparison columns and the EFSA-derived Tables 1-5 are not. INR stored as RDA although it also covers AI-derived values.',
+    retrievedDate: '2026-09-14',
+  },
 };

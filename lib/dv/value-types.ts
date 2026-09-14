@@ -116,7 +116,8 @@ export const SOURCE_VALUE_TYPES: Record<string, SourceVocabulary> = {
     terms: { RDA: 'RDA', 'energy requirement': 'EER' },
   },
   SPAIN: {
-    terms: { INR: 'RDA', AI: 'AI' },
+    terms: { INR: 'RDA' },
+    knownIssues: ['INR stored as RDA, but AESAN uses INR for both PRI/RDA- and AI-derived values (report section 3), so AI-type values cannot be told apart'],
   },
 };
 
