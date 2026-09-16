@@ -113,4 +113,13 @@ export const SOURCES: Record<string, SourceMeta> = {
     note: 'English summary tables, Book 1 Appendix 2 (printed pp. 255-264), transcribed cell by cell in dv-sources/kdri-2020/extract.ts from page renders, with the 2021 errata applied (amino acids). RNI stored as RDA. Pregnancy/lactation increments stored as totals over women 19-29 and 30-49 y. Methionine+Cysteine, Phe+Tyr and EPA+DHA (except infant DHA) not stored.',
     retrievedDate: '2026-09-16',
   },
+  TAIWAN: {
+    region: 'TAIWAN',
+    slug: 'taiwan-dri-8',
+    authorityName: 'Taiwan HPA — Dietary Reference Intakes, 8th edition (國人膳食營養素參考攝取量 第八版)',
+    versionYear: 2022,
+    url: 'https://www.hpa.gov.tw/',
+    note: 'Total table (pp. 718-722) and UL table (p. 724), transcribed cell by cell in dv-sources/taiwan-dri-8/extract.ts from page renders; vitamin B6 from its chapter table (p. 330). Unmarked values are RDA, AI as marked. Energy and fibre per activity level (PAL 1.3/1.5/1.7/1.9). Pregnancy per trimester, stored as totals over women 19-30 and 31-50 y.',
+    retrievedDate: '2026-09-16',
+  },
 };
