@@ -122,4 +122,13 @@ export const SOURCES: Record<string, SourceMeta> = {
     note: 'Total table (pp. 718-722) and UL table (p. 724), transcribed cell by cell in dv-sources/taiwan-dri-8/extract.ts from page renders; vitamin B6 from its chapter table (p. 330). Unmarked values are RDA, AI as marked. Energy and fibre per activity level (PAL 1.3/1.5/1.7/1.9). Pregnancy per trimester, stored as totals over women 19-30 and 31-50 y.',
     retrievedDate: '2026-09-16',
   },
+  RUSSIA: {
+    region: 'RUSSIA',
+    slug: 'russia-mr-2021',
+    authorityName: 'Rospotrebnadzor — MR 2.3.1.0253-21 Norms of physiological needs for energy and nutrients (Russia)',
+    versionYear: 2021,
+    url: 'https://www.garant.ru/products/ipo/prime/doc/402716140/',
+    note: 'Official text of MR 2.3.1.0253-21 (approved 22 July 2021) as published by Garant, parsed from an HTML snapshot in dv-sources/russia-mr-2021/source/ (tables 7-23; subscript pictures read and mapped). Norms stored as RDA, adequate levels as AI, optimal energy shares as AMDR. Adult energy and macronutrients per activity level (КФА 1.4/1.6/1.9/2.2); 65+ at a single КФА 1.7. Pregnancy additions stored as totals.',
+    retrievedDate: '2026-09-16',
+  },
 };

@@ -104,7 +104,10 @@ export const SOURCE_VALUE_TYPES: Record<string, SourceVocabulary> = {
     terms: { EAR: 'EAR', RDA: 'RDA', AI: 'AI', UL: 'UL', AMDR: 'AMDR', CDRR: 'CDRR', EER: 'EER' },
   },
   RUSSIA: {
-    terms: { 'норма (RDA)': 'RDA', AI: 'AI', 'added sugars limit': 'CDRR', 'energy requirement': 'EER' },
+    terms: {
+      'норма физиологической потребности': 'RDA', 'адекватный уровень потребления': 'AI', 'потребность в энергии': 'EER',
+      'оптимальная доля в калорийности': 'AMDR', '<x% (добавленные сахара, холестерин)': 'CDRR',
+    },
   },
   WHO_FAO: {
     terms: { RNI: 'RDA', 'recommended safe intake (vitamin A)': 'RDA', 'acceptable intake (vitamin E)': 'AI' },
