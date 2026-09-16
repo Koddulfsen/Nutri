@@ -86,4 +86,13 @@ export const SOURCES: Record<string, SourceMeta> = {
     note: 'ICMR-NIN 2020 brief note, Tables 1a/1b, 2a, 3 and 4, transcribed in dv-sources/icmr-2020/extract.ts. Micronutrients for adults only (the full book is paid). Adult ages not given; stored from 18 y. Vitamin D converted from IU (1 µg = 40 IU).',
     retrievedDate: '2026-09-14',
   },
+  SINGAPORE: {
+    region: 'SINGAPORE',
+    slug: 'hpb-singapore',
+    authorityName: 'Singapore HPB / MOH — Recommended Dietary Allowances',
+    versionYear: 2022,
+    url: 'https://www.healthhub.sg/well-being-and-lifestyle/food-diet-and-nutrition/recommended_dietary_allowances',
+    note: 'HealthHub RDA page (reviewed 15 Nov 2022), all tables incl. energy by activity level, transcribed in dv-sources/hpb-singapore/extract.ts from an HTML snapshot. Vitamin A as retinol equivalents; vitamin D 2.5 µg reflects tropical sunlight.',
+    retrievedDate: '2026-09-14',
+  },
 };
