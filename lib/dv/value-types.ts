@@ -91,10 +91,8 @@ export const SOURCE_VALUE_TYPES: Record<string, SourceVocabulary> = {
     terms: { RI: 'RDA', AI: 'AI', AR: 'EAR', 'provisional AR': 'EAR', UL: 'UL', CDRR: 'CDRR', 'recommended intake range': 'AMDR', 'energy reference value': 'EER' },
   },
   ITALY: {
-    terms: { PRI: 'RDA', AI: 'AI' },
-    knownIssues: [
-      'All 616 rows stored as RDA: the free LARN 2014 web tables do not mark PRI vs AI, so AIs are mislabelled as RDA',
-    ],
+    // PRI vs AI is read from the SINU tables' formatting (bold PRI, italic AI).
+    terms: { PRI: 'RDA', AI: 'AI', AR: 'EAR', UL: 'UL', SDT: 'SDT', RI: 'AMDR', 'AR (energy)': 'EER' },
   },
   INDIA: {
     terms: { RDA: 'RDA', EAR: 'EAR', 'RDA (energy)': 'EER' },

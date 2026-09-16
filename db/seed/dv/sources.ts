@@ -95,4 +95,13 @@ export const SOURCES: Record<string, SourceMeta> = {
     note: 'HealthHub RDA page (reviewed 15 Nov 2022), all tables incl. energy by activity level, transcribed in dv-sources/hpb-singapore/extract.ts from an HTML snapshot. Vitamin A as retinol equivalents; vitamin D 2.5 µg reflects tropical sunlight.',
     retrievedDate: '2026-09-14',
   },
+  ITALY: {
+    region: 'ITALY',
+    slug: 'larn-2014',
+    authorityName: 'SINU — LARN IV Revisione (Italy)',
+    versionYear: 2014,
+    url: 'https://eng.sinu.it/tabelle-larn-2014/',
+    note: 'The 13 open LARN 2014 tables on eng.sinu.it, parsed from HTML snapshots in dv-sources/larn-2014/source/ (lipid and carbohydrate prose cells transcribed). PRI (bold) stored as RDA, AI (italic) as AI, AR as EAR, RI as AMDR, SDT as SDT. Energy stored for infants and children at median PAL; adult energy is printed per body height and not stored. Vitamin A as retinol equivalents. LARN V (2024) values are in the paid book and not used.',
+    retrievedDate: '2026-09-16',
+  },
 };
