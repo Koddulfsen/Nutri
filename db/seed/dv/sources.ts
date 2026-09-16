@@ -104,4 +104,13 @@ export const SOURCES: Record<string, SourceMeta> = {
     note: 'The 13 open LARN 2014 tables on eng.sinu.it, parsed from HTML snapshots in dv-sources/larn-2014/source/ (lipid and carbohydrate prose cells transcribed). PRI (bold) stored as RDA, AI (italic) as AI, AR as EAR, RI as AMDR, SDT as SDT. Energy stored for infants and children at median PAL; adult energy is printed per body height and not stored. Vitamin A as retinol equivalents. LARN V (2024) values are in the paid book and not used.',
     retrievedDate: '2026-09-16',
   },
+  KOREA: {
+    region: 'KOREA',
+    slug: 'kdri-2020',
+    authorityName: 'MOHW / Korean Nutrition Society — Dietary Reference Intakes for Koreans (KDRIs)',
+    versionYear: 2020,
+    url: 'https://www.kns.or.kr/',
+    note: 'English summary tables, Book 1 Appendix 2 (printed pp. 255-264), transcribed cell by cell in dv-sources/kdri-2020/extract.ts from page renders, with the 2021 errata applied (amino acids). RNI stored as RDA. Pregnancy/lactation increments stored as totals over women 19-29 and 30-49 y. Methionine+Cysteine, Phe+Tyr and EPA+DHA (except infant DHA) not stored.',
+    retrievedDate: '2026-09-16',
+  },
 };
