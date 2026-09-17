@@ -11,7 +11,7 @@ export const SOURCES: Record<string, SourceMeta> = {
     authorityName: 'NIH/NAM Dietary Reference Intakes (USA + Canada)',
     versionYear: 2019,
     url: 'https://www.ncbi.nlm.nih.gov/books/NBK545442/',
-    note: 'National Academies DRI summary tables (Appendix J of the 2019 Sodium and Potassium report), parsed from HTML snapshots in dv-sources/nih-dri/source/. EAR, RDA/AI (AI marked *), UL, AMDR, sodium CDRR. No EER (published as equations, not values). Protein EAR omitted: published per kg body weight.',
+    note: 'National Academies DRI summary tables (Appendix J of the 2019 Sodium and Potassium report), parsed from HTML snapshots in dv-sources/nih-dri/source/. EAR, RDA/AI (AI marked *), UL, AMDR, sodium CDRR, added sugars limit (Table J-6). EER from the 2023 Energy DRI report, Appendix M Tables M-1 to M-4 (U.S., normal weight, median height/weight, 4 PAL categories); infants, 1-2 y and pregnancy EER are equations only. Protein EAR omitted: published per kg body weight.',
     retrievedDate: '2026-09-14',
   },
   EU: {

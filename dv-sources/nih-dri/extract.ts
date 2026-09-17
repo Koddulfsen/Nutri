@@ -13,7 +13,7 @@
  */
 import { readFileSync, writeFileSync } from 'fs';
 import path from 'path';
-import type { SourceValue, Sex, LifeStage } from '../../lib/dv/source-values';
+import type { SourceValue, Sex, LifeStage, Activity } from '../../lib/dv/source-values';
 import type { DvValueType } from '../../lib/dv/value-types';
 
 const DIR = path.join(process.cwd(), 'dv-sources', 'nih-dri');
@@ -237,6 +237,67 @@ lifeStageTable('tab9.html', 'Table J-9 UL elements', {
         });
       }
     });
+  }
+}
+
+// J-6 Additional macronutrient recommendations. Cholesterol, trans and saturated fatty acids are "as low as
+// possible" (no number, not stored). Added sugars "Limit to no more than 25% of total energy" is stored as an
+// AMDR ceiling: footnote a says it is not a recommended intake. The table gives no ages; stored from 1 y.
+{
+  const rows = grid('tab6.html');
+  const sugars = rows.find((r) => /^Added sugars/.test(r[0]));
+  if (!sugars || !/no more than 25% of total energy/.test(sugars[1])) throw new Error('J-6 added sugars row changed');
+  for (const sex of ['MALE', 'FEMALE'] as Sex[]) {
+    out.push({
+      compound: 'Added Sugars', valueType: 'AMDR', sex, lifeStage: 'NONE', ageMinMonths: 12, ageMaxMonths: null,
+      activityLevel: null, dietaryContext: null, value: 25, valueMin: null, valueMax: 25, unit: '%',
+      isPercentOfEnergy: true, isProvisional: false, supplementalOnly: false,
+      note: 'Limit to no more than 25% of total energy. Not a recommended intake (footnote a). The table gives no ages; stored from 1 year.',
+      from: 'Table J-6 Additional Macronutrient Recommendations, Added sugars',
+    });
+  }
+}
+
+// Energy: NASEM "Dietary Reference Intakes for Energy" (2023), Appendix M, Tables M-1 to M-4 (U.S. boys, girls,
+// men, women), snapshots in source/energy-2023-tab-M-*.html. EER in kcal/d at the median height and weight of
+// each age group. Only the "Normal weight" block is stored (BMI 18.5 to <25 for adults; 5th to <85th percentile
+// for children): the other blocks describe under- or overweight bodies, not a reference. The "19+" summary row
+// is not stored (the age bands are). Inactive / low active / active / very active -> SEDENTARY / MODERATE /
+// ACTIVE / VERY_ACTIVE. Infants, 1-2 y and pregnancy / lactation are published only as equations (not stored).
+{
+  const ACT: Activity[] = ['SEDENTARY', 'MODERATE', 'ACTIVE', 'VERY_ACTIVE'];
+  const ACT_LABEL = ['Inactive', 'Low active', 'Active', 'Very active'];
+  const AGES: Record<string, [number, number | null]> = {
+    '3': [36, 47], '4–8': [48, 107], '9–13': [108, 167], '14–18': [168, 227],
+    '19–30': [228, 371], '31–50': [372, 611], '51–70': [612, 851], '> 70': [852, null],
+  };
+  const tables: Array<[string, Sex, string]> = [['M-1', 'MALE', 'boys'], ['M-2', 'FEMALE', 'girls'], ['M-3', 'MALE', 'men'], ['M-4', 'FEMALE', 'women']];
+  for (const [tab, sex, who] of tables) {
+    const rows = grid(`energy-2023-tab-${tab}.html`);
+    let block = ''; let stored = 0;
+    for (const r of rows) {
+      if (r.length === 1) { block = r[0].replace(/\s*\^.*$/, ''); continue; }
+      if (block !== 'Normal weight') continue;
+      const age = r[0].replace(/\s*\^.*$/, '');
+      if (age === '19+') continue;
+      const ages = AGES[age];
+      if (!ages) throw new Error(`Table ${tab}: unknown age "${r[0]}"`);
+      if (r.length !== 9) throw new Error(`Table ${tab} ${age}: ${r.length} cells`);
+      const [h, , w] = [r[1], r[2], r[3]].map((c) => c.replace(/\s*\^.*$/, ''));
+      ACT.forEach((activity, i) => {
+        const cell = parse(r[5 + i]);
+        if (!cell) throw new Error(`Table ${tab} ${age}: empty EER`);
+        out.push({
+          compound: 'Energy', valueType: 'EER', sex, lifeStage: 'NONE', ageMinMonths: ages[0], ageMaxMonths: ages[1],
+          activityLevel: activity, dietaryContext: null, value: cell.value, valueMin: null, valueMax: null, unit: 'kcal',
+          isPercentOfEnergy: false, isProvisional: false, supplementalOnly: false,
+          note: `${ACT_LABEL[i]} PAL, normal weight, at median height ${h} cm and weight ${w} kg (NHANES 2015-2018).`,
+          from: `Energy DRI 2023, Table ${tab} (U.S. ${who}), Normal weight, ${age} y, ${ACT_LABEL[i]}`,
+        });
+      });
+      stored++;
+    }
+    if (stored !== 4) throw new Error(`Table ${tab}: ${stored} normal-weight age rows`);
   }
 }
 
