@@ -417,6 +417,11 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
 
   // Meal state
   const [meals, setMeals] = useState<any[]>([]);
+  // Always the real, server-confirmed "Today" meal id (or null) — not
+  // affected by any optimistic item currently showing on screen. Reading
+  // this instead of `meals[0]` in handleAddFoodToMeal is what makes adding
+  // two foods back-to-back safe even before the first one's request lands.
+  const mealIdRef = useRef<string | null>(null);
   const [mealsLoading, setMealsLoading] = useState(false);
   const [addingFood, setAddingFood] = useState(false);
 
@@ -658,9 +663,13 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
     }
   }
 
-  async function fetchMealsForDate(date: string, preserveActiveTab = false) {
+  async function fetchMealsForDate(date: string, preserveActiveTab = false, options?: { silent?: boolean }) {
+    const silent = options?.silent ?? false;
     try {
-      setMealsLoading(true);
+      // Silent: this is reconciling an optimistic add/remove with the
+      // server's real data. The list already shows the right thing, so
+      // don't flash "Loading…" over it while we double-check.
+      if (!silent) setMealsLoading(true);
       if (!preserveActiveTab) {
         setActiveTab(''); // Reset active tab only when changing dates
       }
@@ -674,6 +683,7 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
       const data = await res.json();
       const loadedMeals = data.meals || [];
       setMeals(loadedMeals);
+      mealIdRef.current = loadedMeals[0]?.id ?? null;
 
       // Initialize selected meals to ALL meals (default behavior)
       const allMealIds = loadedMeals.map((m: any) => m.id);
@@ -689,10 +699,12 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
       fetchDailyTotals(date, allMealIds);
     } catch (error) {
       console.error('Failed to fetch meals:', error);
-      setMeals([]);
-      setSelectedMealIds([]);
+      if (!silent) {
+        setMeals([]);
+        setSelectedMealIds([]);
+      }
     } finally {
-      setMealsLoading(false);
+      if (!silent) setMealsLoading(false);
     }
   }
 
@@ -726,8 +738,21 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
 
   const handleRemoveMealItem = async (mealItemId: string) => {
     setActionError(null);
-    try {
 
+    // Optimistic: gone from the screen immediately; put it back if the
+    // server disagrees.
+    const previousMeals = meals;
+    setMeals((prev) => prev.map((m) => ({ ...m, items: (m.items || []).filter((it: any) => it.id !== mealItemId) })));
+
+    // An item still being added has no server-side id to delete yet, so
+    // there is nothing to send a DELETE for. Known gap: if the add's own
+    // request is still in flight, it will still succeed and the item will
+    // reappear once the reconciliation fetch below runs — removing something
+    // mid-add is rare enough that this hasn't been worth building a cancel
+    // path for.
+    if (mealItemId.startsWith('optimistic-')) return;
+
+    try {
       const res = await fetch(apiUrl(`/api/meals/items/${mealItemId}`), {
         method: 'DELETE',
       });
@@ -736,12 +761,13 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
         throw new Error('Failed to remove meal item');
       }
 
-      // Refresh meals to show updated list (preserve active tab)
-      await fetchMealsForDate(selectedDate, true);
+      // Reconcile silently — no loading flash, the list is already right.
+      await fetchMealsForDate(selectedDate, true, { silent: true });
 
     } catch (error) {
       console.error('Failed to remove meal item:', error);
       setActionError(error instanceof Error ? error.message : 'Failed to remove item');
+      setMeals(previousMeals);
     }
   };
 
@@ -749,18 +775,46 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
     if (!selectedFood) return;
     setActionError(null);
 
+    // Compute actual grams — if a portion is selected, multiply quantity by its gramWeight.
+    // Otherwise treat selectedQuantity as raw grams (legacy hardcoded-unit fallback).
+    const qty = parseFloat(selectedQuantity);
+    const chosenPortion = foodPortions.find((p) => p.id === selectedUnit);
+    const portionGrams = chosenPortion ? qty * chosenPortion.gramWeight : qty;
+    const portionLabel = chosenPortion ? chosenPortion.description : selectedUnit;
+    const foodBeingAdded = selectedFood;
+
+    // Optimistic: on screen the instant you click, before the server has
+    // even heard about it. previousMeals is the rollback if it fails.
+    const previousMeals = meals;
+    const optimisticItem = {
+      id: `optimistic-${Date.now()}`,
+      food: { name: foodBeingAdded.name },
+      portionSize: Math.round(portionGrams * 100) / 100,
+      portionType: portionLabel,
+    };
+    setMeals((prev) => {
+      if (prev.length > 0) {
+        const [first, ...rest] = prev;
+        return [{ ...first, items: [...(first.items || []), optimisticItem] }, ...rest];
+      }
+      // No meal for today yet — show one so the item has somewhere to land;
+      // the real meal (with its real id) arrives on reconciliation below.
+      return [{ id: 'optimistic-meal', mealType: 'Today', items: [optimisticItem] }];
+    });
+    handleRemoveSelectedFood();
+
     // Import USDA food if needed (if it's not already in database)
-    let foodId = selectedFood.id;
+    let foodId = foodBeingAdded.id;
 
     try {
       setAddingFood(true);
 
       // If food is from USDA (not imported), import it first
-      if (!selectedFood.isImported) {
+      if (!foodBeingAdded.isImported) {
         const importRes = await fetch(apiUrl('/api/foods/import'), {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ fdcId: selectedFood.fdcId })
+          body: JSON.stringify({ fdcId: foodBeingAdded.fdcId })
         });
 
         if (!importRes.ok) {
@@ -771,19 +825,13 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
         foodId = importData.food.id;
       }
 
-      // Compute actual grams — if a portion is selected, multiply quantity by its gramWeight.
-      // Otherwise treat selectedQuantity as raw grams (legacy hardcoded-unit fallback).
-      const qty = parseFloat(selectedQuantity);
-      const chosenPortion = foodPortions.find((p) => p.id === selectedUnit);
-      const portionGrams = chosenPortion ? qty * chosenPortion.gramWeight : qty;
-      const portionLabel = chosenPortion ? chosenPortion.description : selectedUnit;
-
-      // Use first existing meal for the day, or auto-create "Today"
-      const existingMeal = meals[0];
+      // The real meal id, if there is one — never the optimistic one above
+      // (it has no server-side id to POST to).
+      const existingMealId = mealIdRef.current;
 
       let res;
-      if (existingMeal) {
-        res = await fetch(apiUrl(`/api/meals/${existingMeal.id}/items`), {
+      if (existingMealId) {
+        res = await fetch(apiUrl(`/api/meals/${existingMealId}/items`), {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -815,13 +863,14 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
         throw new Error(errorData.message || 'Failed to add food to meal');
       }
 
-      // Refresh meals (preserve active tab) and clear food selection
-      await fetchMealsForDate(selectedDate, true);
-      handleRemoveSelectedFood();
+      // Reconcile silently with the real data (real id, real meal) — no
+      // loading flash, the list already shows the right thing.
+      await fetchMealsForDate(selectedDate, true, { silent: true });
 
     } catch (error) {
       console.error('Failed to add food to meal:', error);
       setActionError(error instanceof Error ? error.message : 'Failed to add food');
+      setMeals(previousMeals);
     } finally {
       setAddingFood(false);
     }
@@ -1158,7 +1207,7 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
                         aside={foodListAside}
                         date={selectedDate}
                         onMealLogged={() => {
-                          fetchMealsForDate(selectedDate, true);
+                          fetchMealsForDate(selectedDate, true, { silent: true });
                         }}
                       />
                     ) : (
