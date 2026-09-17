@@ -20026,7 +20026,7 @@
   "from": "Box 2, Fats"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "EAR",
   "sex": "FEMALE",
   "lifeStage": "LACTATING",
@@ -20042,10 +20042,10 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "note": "As retinol equivalents, not RAE.",
-  "from": "Table 17 AR vitamins, Vitamin A (RAE), Lactating"
+  "from": "Table 17 AR vitamins, Vitamin A (RE), Lactating"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "EAR",
   "sex": "FEMALE",
   "lifeStage": "NONE",
@@ -20061,10 +20061,10 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "note": "As retinol equivalents, not RAE.",
-  "from": "Table 17 AR vitamins, Vitamin A (RAE), 7-11 mo"
+  "from": "Table 17 AR vitamins, Vitamin A (RE), 7-11 mo"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "EAR",
   "sex": "FEMALE",
   "lifeStage": "NONE",
@@ -20080,10 +20080,10 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "note": "As retinol equivalents, not RAE.",
-  "from": "Table 17 AR vitamins, Vitamin A (RAE), 1-3 y"
+  "from": "Table 17 AR vitamins, Vitamin A (RE), 1-3 y"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "EAR",
   "sex": "FEMALE",
   "lifeStage": "NONE",
@@ -20099,10 +20099,10 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "note": "As retinol equivalents, not RAE.",
-  "from": "Table 17 AR vitamins, Vitamin A (RAE), 4-6 y"
+  "from": "Table 17 AR vitamins, Vitamin A (RE), 4-6 y"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "EAR",
   "sex": "FEMALE",
   "lifeStage": "NONE",
@@ -20118,10 +20118,10 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "note": "As retinol equivalents, not RAE.",
-  "from": "Table 17 AR vitamins, Vitamin A (RAE), 7-10 y"
+  "from": "Table 17 AR vitamins, Vitamin A (RE), 7-10 y"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "EAR",
   "sex": "FEMALE",
   "lifeStage": "NONE",
@@ -20137,10 +20137,10 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "note": "As retinol equivalents, not RAE.",
-  "from": "Table 17 AR vitamins, Vitamin A (RAE), Females 11-14 y"
+  "from": "Table 17 AR vitamins, Vitamin A (RE), Females 11-14 y"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "EAR",
   "sex": "FEMALE",
   "lifeStage": "NONE",
@@ -20156,10 +20156,10 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "note": "As retinol equivalents, not RAE.",
-  "from": "Table 17 AR vitamins, Vitamin A (RAE), Females 15-17 y"
+  "from": "Table 17 AR vitamins, Vitamin A (RE), Females 15-17 y"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "EAR",
   "sex": "FEMALE",
   "lifeStage": "NONE",
@@ -20175,10 +20175,10 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "note": "As retinol equivalents, not RAE.",
-  "from": "Table 17 AR vitamins, Vitamin A (RAE), Females 18-24 y"
+  "from": "Table 17 AR vitamins, Vitamin A (RE), Females 18-24 y"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "EAR",
   "sex": "FEMALE",
   "lifeStage": "NONE",
@@ -20194,10 +20194,10 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "note": "As retinol equivalents, not RAE.",
-  "from": "Table 17 AR vitamins, Vitamin A (RAE), Females 25-50 y"
+  "from": "Table 17 AR vitamins, Vitamin A (RE), Females 25-50 y"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "EAR",
   "sex": "FEMALE",
   "lifeStage": "NONE",
@@ -20213,10 +20213,10 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "note": "As retinol equivalents, not RAE.",
-  "from": "Table 17 AR vitamins, Vitamin A (RAE), Females 51-70 y"
+  "from": "Table 17 AR vitamins, Vitamin A (RE), Females 51-70 y"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "EAR",
   "sex": "FEMALE",
   "lifeStage": "NONE",
@@ -20232,10 +20232,10 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "note": "As retinol equivalents, not RAE.",
-  "from": "Table 17 AR vitamins, Vitamin A (RAE), Females >70 y"
+  "from": "Table 17 AR vitamins, Vitamin A (RE), Females >70 y"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "EAR",
   "sex": "MALE",
   "lifeStage": "NONE",
@@ -20251,10 +20251,10 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "note": "As retinol equivalents, not RAE.",
-  "from": "Table 17 AR vitamins, Vitamin A (RAE), 7-11 mo"
+  "from": "Table 17 AR vitamins, Vitamin A (RE), 7-11 mo"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "EAR",
   "sex": "MALE",
   "lifeStage": "NONE",
@@ -20270,10 +20270,10 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "note": "As retinol equivalents, not RAE.",
-  "from": "Table 17 AR vitamins, Vitamin A (RAE), 1-3 y"
+  "from": "Table 17 AR vitamins, Vitamin A (RE), 1-3 y"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "EAR",
   "sex": "MALE",
   "lifeStage": "NONE",
@@ -20289,10 +20289,10 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "note": "As retinol equivalents, not RAE.",
-  "from": "Table 17 AR vitamins, Vitamin A (RAE), 4-6 y"
+  "from": "Table 17 AR vitamins, Vitamin A (RE), 4-6 y"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "EAR",
   "sex": "MALE",
   "lifeStage": "NONE",
@@ -20308,10 +20308,10 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "note": "As retinol equivalents, not RAE.",
-  "from": "Table 17 AR vitamins, Vitamin A (RAE), 7-10 y"
+  "from": "Table 17 AR vitamins, Vitamin A (RE), 7-10 y"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "EAR",
   "sex": "MALE",
   "lifeStage": "NONE",
@@ -20327,10 +20327,10 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "note": "As retinol equivalents, not RAE.",
-  "from": "Table 17 AR vitamins, Vitamin A (RAE), Males 11-14 y"
+  "from": "Table 17 AR vitamins, Vitamin A (RE), Males 11-14 y"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "EAR",
   "sex": "MALE",
   "lifeStage": "NONE",
@@ -20346,10 +20346,10 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "note": "As retinol equivalents, not RAE.",
-  "from": "Table 17 AR vitamins, Vitamin A (RAE), Males 15-17 y"
+  "from": "Table 17 AR vitamins, Vitamin A (RE), Males 15-17 y"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "EAR",
   "sex": "MALE",
   "lifeStage": "NONE",
@@ -20365,10 +20365,10 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "note": "As retinol equivalents, not RAE.",
-  "from": "Table 17 AR vitamins, Vitamin A (RAE), Males 18-24 y"
+  "from": "Table 17 AR vitamins, Vitamin A (RE), Males 18-24 y"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "EAR",
   "sex": "MALE",
   "lifeStage": "NONE",
@@ -20384,10 +20384,10 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "note": "As retinol equivalents, not RAE.",
-  "from": "Table 17 AR vitamins, Vitamin A (RAE), Males 25-50 y"
+  "from": "Table 17 AR vitamins, Vitamin A (RE), Males 25-50 y"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "EAR",
   "sex": "MALE",
   "lifeStage": "NONE",
@@ -20403,10 +20403,10 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "note": "As retinol equivalents, not RAE.",
-  "from": "Table 17 AR vitamins, Vitamin A (RAE), Males 51-70 y"
+  "from": "Table 17 AR vitamins, Vitamin A (RE), Males 51-70 y"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "EAR",
   "sex": "MALE",
   "lifeStage": "NONE",
@@ -20422,10 +20422,10 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "note": "As retinol equivalents, not RAE.",
-  "from": "Table 17 AR vitamins, Vitamin A (RAE), Males >70 y"
+  "from": "Table 17 AR vitamins, Vitamin A (RE), Males >70 y"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "EAR",
   "sex": "FEMALE",
   "lifeStage": "PREGNANT_T1",
@@ -20441,10 +20441,10 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "note": "As retinol equivalents, not RAE.",
-  "from": "Table 17 AR vitamins, Vitamin A (RAE), Pregnant trimester 1"
+  "from": "Table 17 AR vitamins, Vitamin A (RE), Pregnant trimester 1"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "EAR",
   "sex": "FEMALE",
   "lifeStage": "PREGNANT_T2",
@@ -20460,10 +20460,10 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "note": "As retinol equivalents, not RAE.",
-  "from": "Table 17 AR vitamins, Vitamin A (RAE), Pregnant trimester 2"
+  "from": "Table 17 AR vitamins, Vitamin A (RE), Pregnant trimester 2"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "EAR",
   "sex": "FEMALE",
   "lifeStage": "PREGNANT_T3",
@@ -20479,10 +20479,10 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "note": "As retinol equivalents, not RAE.",
-  "from": "Table 17 AR vitamins, Vitamin A (RAE), Pregnant trimester 3"
+  "from": "Table 17 AR vitamins, Vitamin A (RE), Pregnant trimester 3"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "FEMALE",
   "lifeStage": "LACTATING",
@@ -20498,10 +20498,10 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "note": "As retinol equivalents, not RAE.",
-  "from": "Table 12 RI vitamins, Vitamin A (RAE), Lactating"
+  "from": "Table 12 RI vitamins, Vitamin A (RE), Lactating"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "FEMALE",
   "lifeStage": "NONE",
@@ -20517,10 +20517,10 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "note": "As retinol equivalents, not RAE.",
-  "from": "Table 12 RI vitamins, Vitamin A (RAE), 7-11 mo"
+  "from": "Table 12 RI vitamins, Vitamin A (RE), 7-11 mo"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "FEMALE",
   "lifeStage": "NONE",
@@ -20536,10 +20536,10 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "note": "As retinol equivalents, not RAE.",
-  "from": "Table 12 RI vitamins, Vitamin A (RAE), 1-3 y"
+  "from": "Table 12 RI vitamins, Vitamin A (RE), 1-3 y"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "FEMALE",
   "lifeStage": "NONE",
@@ -20555,10 +20555,10 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "note": "As retinol equivalents, not RAE.",
-  "from": "Table 12 RI vitamins, Vitamin A (RAE), 4-6 y"
+  "from": "Table 12 RI vitamins, Vitamin A (RE), 4-6 y"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "FEMALE",
   "lifeStage": "NONE",
@@ -20574,10 +20574,10 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "note": "As retinol equivalents, not RAE.",
-  "from": "Table 12 RI vitamins, Vitamin A (RAE), 7-10 y"
+  "from": "Table 12 RI vitamins, Vitamin A (RE), 7-10 y"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "FEMALE",
   "lifeStage": "NONE",
@@ -20593,10 +20593,10 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "note": "As retinol equivalents, not RAE.",
-  "from": "Table 12 RI vitamins, Vitamin A (RAE), Females 11-14 y"
+  "from": "Table 12 RI vitamins, Vitamin A (RE), Females 11-14 y"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "FEMALE",
   "lifeStage": "NONE",
@@ -20612,10 +20612,10 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "note": "As retinol equivalents, not RAE.",
-  "from": "Table 12 RI vitamins, Vitamin A (RAE), Females 15-17 y"
+  "from": "Table 12 RI vitamins, Vitamin A (RE), Females 15-17 y"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "FEMALE",
   "lifeStage": "NONE",
@@ -20631,10 +20631,10 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "note": "As retinol equivalents, not RAE.",
-  "from": "Table 12 RI vitamins, Vitamin A (RAE), Females 18-24 y"
+  "from": "Table 12 RI vitamins, Vitamin A (RE), Females 18-24 y"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "FEMALE",
   "lifeStage": "NONE",
@@ -20650,10 +20650,10 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "note": "As retinol equivalents, not RAE.",
-  "from": "Table 12 RI vitamins, Vitamin A (RAE), Females 25-50 y"
+  "from": "Table 12 RI vitamins, Vitamin A (RE), Females 25-50 y"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "FEMALE",
   "lifeStage": "NONE",
@@ -20669,10 +20669,10 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "note": "As retinol equivalents, not RAE.",
-  "from": "Table 12 RI vitamins, Vitamin A (RAE), Females 51-70 y"
+  "from": "Table 12 RI vitamins, Vitamin A (RE), Females 51-70 y"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "FEMALE",
   "lifeStage": "NONE",
@@ -20688,10 +20688,10 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "note": "As retinol equivalents, not RAE.",
-  "from": "Table 12 RI vitamins, Vitamin A (RAE), Females >70 y"
+  "from": "Table 12 RI vitamins, Vitamin A (RE), Females >70 y"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "MALE",
   "lifeStage": "NONE",
@@ -20707,10 +20707,10 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "note": "As retinol equivalents, not RAE.",
-  "from": "Table 12 RI vitamins, Vitamin A (RAE), 7-11 mo"
+  "from": "Table 12 RI vitamins, Vitamin A (RE), 7-11 mo"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "MALE",
   "lifeStage": "NONE",
@@ -20726,10 +20726,10 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "note": "As retinol equivalents, not RAE.",
-  "from": "Table 12 RI vitamins, Vitamin A (RAE), 1-3 y"
+  "from": "Table 12 RI vitamins, Vitamin A (RE), 1-3 y"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "MALE",
   "lifeStage": "NONE",
@@ -20745,10 +20745,10 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "note": "As retinol equivalents, not RAE.",
-  "from": "Table 12 RI vitamins, Vitamin A (RAE), 4-6 y"
+  "from": "Table 12 RI vitamins, Vitamin A (RE), 4-6 y"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "MALE",
   "lifeStage": "NONE",
@@ -20764,10 +20764,10 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "note": "As retinol equivalents, not RAE.",
-  "from": "Table 12 RI vitamins, Vitamin A (RAE), 7-10 y"
+  "from": "Table 12 RI vitamins, Vitamin A (RE), 7-10 y"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "MALE",
   "lifeStage": "NONE",
@@ -20783,10 +20783,10 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "note": "As retinol equivalents, not RAE.",
-  "from": "Table 12 RI vitamins, Vitamin A (RAE), Males 11-14 y"
+  "from": "Table 12 RI vitamins, Vitamin A (RE), Males 11-14 y"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "MALE",
   "lifeStage": "NONE",
@@ -20802,10 +20802,10 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "note": "As retinol equivalents, not RAE.",
-  "from": "Table 12 RI vitamins, Vitamin A (RAE), Males 15-17 y"
+  "from": "Table 12 RI vitamins, Vitamin A (RE), Males 15-17 y"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "MALE",
   "lifeStage": "NONE",
@@ -20821,10 +20821,10 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "note": "As retinol equivalents, not RAE.",
-  "from": "Table 12 RI vitamins, Vitamin A (RAE), Males 18-24 y"
+  "from": "Table 12 RI vitamins, Vitamin A (RE), Males 18-24 y"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "MALE",
   "lifeStage": "NONE",
@@ -20840,10 +20840,10 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "note": "As retinol equivalents, not RAE.",
-  "from": "Table 12 RI vitamins, Vitamin A (RAE), Males 25-50 y"
+  "from": "Table 12 RI vitamins, Vitamin A (RE), Males 25-50 y"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "MALE",
   "lifeStage": "NONE",
@@ -20859,10 +20859,10 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "note": "As retinol equivalents, not RAE.",
-  "from": "Table 12 RI vitamins, Vitamin A (RAE), Males 51-70 y"
+  "from": "Table 12 RI vitamins, Vitamin A (RE), Males 51-70 y"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "MALE",
   "lifeStage": "NONE",
@@ -20878,10 +20878,10 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "note": "As retinol equivalents, not RAE.",
-  "from": "Table 12 RI vitamins, Vitamin A (RAE), Males >70 y"
+  "from": "Table 12 RI vitamins, Vitamin A (RE), Males >70 y"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "FEMALE",
   "lifeStage": "PREGNANT_T1",
@@ -20897,10 +20897,10 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "note": "As retinol equivalents, not RAE.",
-  "from": "Table 12 RI vitamins, Vitamin A (RAE), Pregnant trimester 1"
+  "from": "Table 12 RI vitamins, Vitamin A (RE), Pregnant trimester 1"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "FEMALE",
   "lifeStage": "PREGNANT_T2",
@@ -20916,10 +20916,10 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "note": "As retinol equivalents, not RAE.",
-  "from": "Table 12 RI vitamins, Vitamin A (RAE), Pregnant trimester 2"
+  "from": "Table 12 RI vitamins, Vitamin A (RE), Pregnant trimester 2"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "FEMALE",
   "lifeStage": "PREGNANT_T3",
@@ -20935,7 +20935,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "note": "As retinol equivalents, not RAE.",
-  "from": "Table 12 RI vitamins, Vitamin A (RAE), Pregnant trimester 3"
+  "from": "Table 12 RI vitamins, Vitamin A (RE), Pregnant trimester 3"
  },
  {
   "compound": "Vitamin B12 (Total)",

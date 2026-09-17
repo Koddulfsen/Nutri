@@ -11,7 +11,6 @@
  *   - Protein AR/PRI (Table 2): published per kg body weight; pregnancy/lactation increments
  *     are g/d on top of that per-kg base.
  *   - SFA, TFA: "as low as possible" — no number.
- *   - EPA+DHA (Table 3): Nutri has no "EPA + DHA" compound ("Omega-3" holds total n-3 elsewhere).
  *   - Safe levels of intake (UL Table 2: iron, manganese, fluoride ≥ 9 y): EFSA states they are
  *     not ULs; storing them as UL would mislabel them.
  *   - Copper, niacin UL for pregnancy/lactation: printed ND / "Inadequate data".
@@ -126,6 +125,9 @@ const r4 = (x: number) => Number(x.toFixed(4));
   });
   add({ compound: 'DHA (Docosahexaenoic Acid)', type: 'AI', age: [6, 11], value: 100, unit: 'mg', from: `${from}, DHA AI, 7-11 mo` });
   add({ compound: 'DHA (Docosahexaenoic Acid)', type: 'AI', age: [12, 23], value: 100, unit: 'mg', from: `${from}, DHA AI, 1` });
+  for (const [label, age] of [['2-3', [24, 47]], ['4-17', [48, 215]], ['≥ 18', ADULT]] as Array<[string, Age]>) {
+    add({ compound: 'EPA + DHA', type: 'AI', age, value: 250, unit: 'mg', from: `${from}, EPA+DHA AI, ${label}` });
+  }
   for (const [stage, label] of [['PREGNANT', 'Pregnancy'], ['LACTATING', 'Lactation']] as const) {
     add({ compound: 'Total Fat', type: 'AMDR', sexes: F, stage, age: ADULT, value: 27.5, min: 20, max: 35, unit: '%', pct: true, from: `${from}, Total fat RI, ${label}` });
     add({ compound: 'Linoleic Acid', type: 'AI', sexes: F, stage, age: ADULT, value: 4, unit: '%', pct: true, from: `${from}, LA AI, ${label}` });
@@ -134,6 +136,7 @@ const r4 = (x: number) => Number(x.toFixed(4));
       compound: 'DHA (Docosahexaenoic Acid)', type: 'AI', sexes: F, stage, age: ADULT, value: 150, min: 100, max: 200, unit: 'mg',
       note: 'Printed "+100-200" mg/d DHA in addition to the 250 mg/d EPA+DHA AI.', from: `${from}, DHA AI, ${label}`,
     });
+    add({ compound: 'EPA + DHA', type: 'AI', sexes: F, stage, age: ADULT, value: 250, unit: 'mg', from: `${from}, EPA+DHA AI, ${label}` });
     add({ compound: 'Water', type: 'AI', sexes: F, stage, age: ADULT, value: stage === 'PREGNANT' ? 2.3 : 2.7, unit: 'L', note: 'Water from beverages of all kinds and food moisture.', from: `${from}, Water AI, ${label}` });
   }
   const carbAges: Array<[string, Age, number]> = [['1-3', [12, 47], 10], ['4-6', [48, 83], 14], ['7-10', [84, 131], 16], ['11-14', [132, 179], 19], ['15-17', [180, 215], 21], ['≥ 18', ADULT, 25]];
@@ -273,7 +276,7 @@ const LPI: Array<[DietaryContext, number]> = [['PHYTATE_LOW', 300], ['PHYTATE_ME
     { compound: 'Niacin (B3)', unit: 'mg NE/MJ', note: 'Per MJ of energy.', m: [1.3, 1.3, 1.3, 1.3, 1.3, 1.3, 1.3], f: [1.3, 1.3, 1.3, 1.3, 1.3, 1.3, 1.3], preg: 1.3, lact: 1.3 },
     { compound: 'Riboflavin (B2)', unit: 'mg', m: [null, 0.5, 0.6, 0.8, 1.1, 1.4, 1.3], f: [null, 0.5, 0.6, 0.8, 1.1, 1.4, 1.3], preg: 1.5, lact: 1.7 },
     { compound: 'Thiamin (B1)', unit: 'mg/MJ', note: 'Per MJ of energy.', m: [0.072, 0.072, 0.072, 0.072, 0.072, 0.072, 0.072], f: [0.072, 0.072, 0.072, 0.072, 0.072, 0.072, 0.072], preg: 0.072, lact: 0.072 },
-    { compound: 'Vitamin A (RAE)', unit: 'µg RE', note: 'As retinol equivalents (1 µg RE = 6 µg β-carotene), not RAE.', m: [190, 205, 245, 320, 480, 580, 570], f: [190, 205, 245, 320, 480, 490, 490], preg: 540, lact: 1020 },
+    { compound: 'Vitamin A (RE)', unit: 'µg RE', note: 'As retinol equivalents (1 µg RE = 6 µg β-carotene), not RAE.', m: [190, 205, 245, 320, 480, 580, 570], f: [190, 205, 245, 320, 480, 490, 490], preg: 540, lact: 1020 },
     { compound: 'Vitamin B6', unit: 'mg', m: [null, 0.5, 0.6, 0.9, 1.2, 1.5, 1.5], f: [null, 0.5, 0.6, 0.9, 1.2, 1.3, 1.3], preg: 1.5, lact: 1.4 },
     { compound: 'Vitamin C (Total)', unit: 'mg', m: [null, 15, 25, 40, 60, 85, 90], f: [null, 15, 25, 40, 60, 75, 80], preg: null, lact: 145 },
   ];
@@ -313,7 +316,7 @@ const LPI: Array<[DietaryContext, number]> = [['PHYTATE_LOW', 300], ['PHYTATE_ME
     { compound: 'Pantothenic Acid (B5)', unit: 'mg', pri: [], m: [3, 4, 4, 4, 5, 5, 5], f: [3, 4, 4, 4, 5, 5, 5], preg: 5, lact: 7, pregPri: false },
     { compound: 'Riboflavin (B2)', unit: 'mg', pri: fromOne, m: [0.4, 0.6, 0.7, 1.0, 1.4, 1.6, 1.6], f: [0.4, 0.6, 0.7, 1.0, 1.4, 1.6, 1.6], preg: 1.9, lact: 2.0, pregPri: true },
     { compound: 'Thiamin (B1)', unit: 'mg/MJ', note: 'Per MJ of energy.', pri: all, m: [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1], f: [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1], preg: 0.1, lact: 0.1, pregPri: true },
-    { compound: 'Vitamin A (RAE)', unit: 'µg RE', note: 'As retinol equivalents (1 µg RE = 6 µg β-carotene), not RAE.', pri: all, m: [250, 250, 300, 400, 600, 750, 750], f: [250, 250, 300, 400, 600, 650, 650], preg: 700, lact: 1300, pregPri: true },
+    { compound: 'Vitamin A (RE)', unit: 'µg RE', note: 'As retinol equivalents (1 µg RE = 6 µg β-carotene), not RAE.', pri: all, m: [250, 250, 300, 400, 600, 750, 750], f: [250, 250, 300, 400, 600, 650, 650], preg: 700, lact: 1300, pregPri: true },
     { compound: 'Vitamin B6', unit: 'mg', pri: fromOne, m: [0.3, 0.6, 0.7, 1.0, 1.4, 1.7, 1.7], f: [0.3, 0.6, 0.7, 1.0, 1.4, 1.6, 1.6], preg: 1.8, lact: 1.7, pregPri: true },
     { compound: 'Vitamin C (Total)', unit: 'mg', pri: all, m: [20, 20, 30, 45, 70, 100, 110], f: [20, 20, 30, 45, 70, 90, 95], preg: 105, lact: 155, pregPri: true },
     { compound: 'Vitamin D (Total)', unit: 'µg', pri: [], m: [10, 15, 15, 15, 15, 15, 15], f: [10, 15, 15, 15, 15, 15, 15], preg: 15, lact: 15, pregPri: false },

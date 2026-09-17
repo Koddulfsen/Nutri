@@ -20406,7 +20406,7 @@
   "from": "Total table p. 719, 反式脂肪酸 <1%"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "AI",
   "sex": "FEMALE",
   "lifeStage": "NONE",
@@ -20425,7 +20425,7 @@
   "from": "Total table p. 720, 維生素 A, 0-6月"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "AI",
   "sex": "FEMALE",
   "lifeStage": "NONE",
@@ -20444,7 +20444,7 @@
   "from": "Total table p. 720, 維生素 A, 7-12月"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "AI",
   "sex": "MALE",
   "lifeStage": "NONE",
@@ -20463,7 +20463,7 @@
   "from": "Total table p. 720, 維生素 A, 0-6月"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "AI",
   "sex": "MALE",
   "lifeStage": "NONE",
@@ -20482,7 +20482,7 @@
   "from": "Total table p. 720, 維生素 A, 7-12月"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "FEMALE",
   "lifeStage": "LACTATING",
@@ -20501,7 +20501,7 @@
   "from": "Total table p. 720, 維生素 A, 哺乳期 +400 over women 19-30 y"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "FEMALE",
   "lifeStage": "LACTATING",
@@ -20520,7 +20520,7 @@
   "from": "Total table p. 720, 維生素 A, 哺乳期 +400 over women 31-50 y"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "FEMALE",
   "lifeStage": "NONE",
@@ -20539,7 +20539,7 @@
   "from": "Total table p. 720, 維生素 A, 1-3歲"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "FEMALE",
   "lifeStage": "NONE",
@@ -20558,7 +20558,7 @@
   "from": "Total table p. 720, 維生素 A, 4-6歲"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "FEMALE",
   "lifeStage": "NONE",
@@ -20577,7 +20577,7 @@
   "from": "Total table p. 720, 維生素 A, 7-9歲"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "FEMALE",
   "lifeStage": "NONE",
@@ -20596,7 +20596,7 @@
   "from": "Total table p. 720, 維生素 A, 10-12歲"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "FEMALE",
   "lifeStage": "NONE",
@@ -20615,7 +20615,7 @@
   "from": "Total table p. 720, 維生素 A, 13-15歲"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "FEMALE",
   "lifeStage": "NONE",
@@ -20634,7 +20634,7 @@
   "from": "Total table p. 720, 維生素 A, 16-18歲"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "FEMALE",
   "lifeStage": "NONE",
@@ -20653,7 +20653,7 @@
   "from": "Total table p. 720, 維生素 A, 19-30歲"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "FEMALE",
   "lifeStage": "NONE",
@@ -20672,7 +20672,7 @@
   "from": "Total table p. 720, 維生素 A, 31-50歲"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "FEMALE",
   "lifeStage": "NONE",
@@ -20691,7 +20691,7 @@
   "from": "Total table p. 720, 維生素 A, 51-70歲"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "FEMALE",
   "lifeStage": "NONE",
@@ -20710,7 +20710,7 @@
   "from": "Total table p. 720, 維生素 A, 71歲-"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "MALE",
   "lifeStage": "NONE",
@@ -20729,7 +20729,7 @@
   "from": "Total table p. 720, 維生素 A, 1-3歲"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "MALE",
   "lifeStage": "NONE",
@@ -20748,7 +20748,7 @@
   "from": "Total table p. 720, 維生素 A, 4-6歲"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "MALE",
   "lifeStage": "NONE",
@@ -20767,7 +20767,7 @@
   "from": "Total table p. 720, 維生素 A, 7-9歲"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "MALE",
   "lifeStage": "NONE",
@@ -20786,7 +20786,7 @@
   "from": "Total table p. 720, 維生素 A, 10-12歲"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "MALE",
   "lifeStage": "NONE",
@@ -20805,7 +20805,7 @@
   "from": "Total table p. 720, 維生素 A, 13-15歲"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "MALE",
   "lifeStage": "NONE",
@@ -20824,7 +20824,7 @@
   "from": "Total table p. 720, 維生素 A, 16-18歲"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "MALE",
   "lifeStage": "NONE",
@@ -20843,7 +20843,7 @@
   "from": "Total table p. 720, 維生素 A, 19-30歲"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "MALE",
   "lifeStage": "NONE",
@@ -20862,7 +20862,7 @@
   "from": "Total table p. 720, 維生素 A, 31-50歲"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "MALE",
   "lifeStage": "NONE",
@@ -20881,7 +20881,7 @@
   "from": "Total table p. 720, 維生素 A, 51-70歲"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "MALE",
   "lifeStage": "NONE",
@@ -20900,7 +20900,7 @@
   "from": "Total table p. 720, 維生素 A, 71歲-"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "FEMALE",
   "lifeStage": "PREGNANT_T1",
@@ -20919,7 +20919,7 @@
   "from": "Total table p. 720, 維生素 A, 懷孕第一期 +0 over women 19-30 y"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "FEMALE",
   "lifeStage": "PREGNANT_T1",
@@ -20938,7 +20938,7 @@
   "from": "Total table p. 720, 維生素 A, 懷孕第一期 +0 over women 31-50 y"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "FEMALE",
   "lifeStage": "PREGNANT_T2",
@@ -20957,7 +20957,7 @@
   "from": "Total table p. 720, 維生素 A, 懷孕第二期 +0 over women 19-30 y"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "FEMALE",
   "lifeStage": "PREGNANT_T2",
@@ -20976,7 +20976,7 @@
   "from": "Total table p. 720, 維生素 A, 懷孕第二期 +0 over women 31-50 y"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "FEMALE",
   "lifeStage": "PREGNANT_T3",
@@ -20995,7 +20995,7 @@
   "from": "Total table p. 720, 維生素 A, 懷孕第三期 +100 over women 19-30 y"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "FEMALE",
   "lifeStage": "PREGNANT_T3",
@@ -21014,7 +21014,7 @@
   "from": "Total table p. 720, 維生素 A, 懷孕第三期 +100 over women 31-50 y"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "UL",
   "sex": "FEMALE",
   "lifeStage": "LACTATING",
@@ -21033,7 +21033,7 @@
   "from": "UL table p. 724, 維生素 A UL, 哺乳期"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "UL",
   "sex": "FEMALE",
   "lifeStage": "NONE",
@@ -21052,7 +21052,7 @@
   "from": "UL table p. 724, 維生素 A UL, 0-6月"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "UL",
   "sex": "FEMALE",
   "lifeStage": "NONE",
@@ -21071,7 +21071,7 @@
   "from": "UL table p. 724, 維生素 A UL, 7-12月"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "UL",
   "sex": "FEMALE",
   "lifeStage": "NONE",
@@ -21090,7 +21090,7 @@
   "from": "UL table p. 724, 維生素 A UL, 1-3歲"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "UL",
   "sex": "FEMALE",
   "lifeStage": "NONE",
@@ -21109,7 +21109,7 @@
   "from": "UL table p. 724, 維生素 A UL, 4-6歲"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "UL",
   "sex": "FEMALE",
   "lifeStage": "NONE",
@@ -21128,7 +21128,7 @@
   "from": "UL table p. 724, 維生素 A UL, 7-9歲"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "UL",
   "sex": "FEMALE",
   "lifeStage": "NONE",
@@ -21147,7 +21147,7 @@
   "from": "UL table p. 724, 維生素 A UL, 10-12歲"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "UL",
   "sex": "FEMALE",
   "lifeStage": "NONE",
@@ -21166,7 +21166,7 @@
   "from": "UL table p. 724, 維生素 A UL, 13-15歲"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "UL",
   "sex": "FEMALE",
   "lifeStage": "NONE",
@@ -21185,7 +21185,7 @@
   "from": "UL table p. 724, 維生素 A UL, 16-18歲"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "UL",
   "sex": "FEMALE",
   "lifeStage": "NONE",
@@ -21204,7 +21204,7 @@
   "from": "UL table p. 724, 維生素 A UL, 19-30歲"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "UL",
   "sex": "FEMALE",
   "lifeStage": "NONE",
@@ -21223,7 +21223,7 @@
   "from": "UL table p. 724, 維生素 A UL, 31-50歲"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "UL",
   "sex": "FEMALE",
   "lifeStage": "NONE",
@@ -21242,7 +21242,7 @@
   "from": "UL table p. 724, 維生素 A UL, 51-70歲"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "UL",
   "sex": "FEMALE",
   "lifeStage": "NONE",
@@ -21261,7 +21261,7 @@
   "from": "UL table p. 724, 維生素 A UL, 71歲-"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "UL",
   "sex": "MALE",
   "lifeStage": "NONE",
@@ -21280,7 +21280,7 @@
   "from": "UL table p. 724, 維生素 A UL, 0-6月"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "UL",
   "sex": "MALE",
   "lifeStage": "NONE",
@@ -21299,7 +21299,7 @@
   "from": "UL table p. 724, 維生素 A UL, 7-12月"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "UL",
   "sex": "MALE",
   "lifeStage": "NONE",
@@ -21318,7 +21318,7 @@
   "from": "UL table p. 724, 維生素 A UL, 1-3歲"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "UL",
   "sex": "MALE",
   "lifeStage": "NONE",
@@ -21337,7 +21337,7 @@
   "from": "UL table p. 724, 維生素 A UL, 4-6歲"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "UL",
   "sex": "MALE",
   "lifeStage": "NONE",
@@ -21356,7 +21356,7 @@
   "from": "UL table p. 724, 維生素 A UL, 7-9歲"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "UL",
   "sex": "MALE",
   "lifeStage": "NONE",
@@ -21375,7 +21375,7 @@
   "from": "UL table p. 724, 維生素 A UL, 10-12歲"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "UL",
   "sex": "MALE",
   "lifeStage": "NONE",
@@ -21394,7 +21394,7 @@
   "from": "UL table p. 724, 維生素 A UL, 13-15歲"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "UL",
   "sex": "MALE",
   "lifeStage": "NONE",
@@ -21413,7 +21413,7 @@
   "from": "UL table p. 724, 維生素 A UL, 16-18歲"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "UL",
   "sex": "MALE",
   "lifeStage": "NONE",
@@ -21432,7 +21432,7 @@
   "from": "UL table p. 724, 維生素 A UL, 19-30歲"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "UL",
   "sex": "MALE",
   "lifeStage": "NONE",
@@ -21451,7 +21451,7 @@
   "from": "UL table p. 724, 維生素 A UL, 31-50歲"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "UL",
   "sex": "MALE",
   "lifeStage": "NONE",
@@ -21470,7 +21470,7 @@
   "from": "UL table p. 724, 維生素 A UL, 51-70歲"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "UL",
   "sex": "MALE",
   "lifeStage": "NONE",
@@ -21489,7 +21489,7 @@
   "from": "UL table p. 724, 維生素 A UL, 71歲-"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "UL",
   "sex": "FEMALE",
   "lifeStage": "PREGNANT_T1",
@@ -21508,7 +21508,7 @@
   "from": "UL table p. 724, 維生素 A UL, 懷孕第一期"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "UL",
   "sex": "FEMALE",
   "lifeStage": "PREGNANT_T2",
@@ -21527,7 +21527,7 @@
   "from": "UL table p. 724, 維生素 A UL, 懷孕第二期"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "UL",
   "sex": "FEMALE",
   "lifeStage": "PREGNANT_T3",

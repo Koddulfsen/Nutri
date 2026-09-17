@@ -6536,6 +6536,158 @@
   "from": "Table 19, Энергия, ккал, 3 триместр +350 over women 30-44 y КФА 2,2"
  },
  {
+  "compound": "EPA + DHA",
+  "valueType": "RDA",
+  "sex": "FEMALE",
+  "lifeStage": "NONE",
+  "ageMinMonths": 36,
+  "ageMaxMonths": 83,
+  "activityLevel": null,
+  "dietaryContext": null,
+  "value": 250,
+  "valueMin": null,
+  "valueMax": null,
+  "unit": "mg",
+  "isPercentOfEnergy": false,
+  "isProvisional": false,
+  "supplementalOnly": false,
+  "note": null,
+  "from": "Table 21, ДГК+ЭПК, мг, 3-6 лет (д)"
+ },
+ {
+  "compound": "EPA + DHA",
+  "valueType": "RDA",
+  "sex": "FEMALE",
+  "lifeStage": "NONE",
+  "ageMinMonths": 84,
+  "ageMaxMonths": 131,
+  "activityLevel": null,
+  "dietaryContext": null,
+  "value": 250,
+  "valueMin": null,
+  "valueMax": null,
+  "unit": "mg",
+  "isPercentOfEnergy": false,
+  "isProvisional": false,
+  "supplementalOnly": false,
+  "note": null,
+  "from": "Table 21, ДГК+ЭПК, мг, 7-10 лет (д)"
+ },
+ {
+  "compound": "EPA + DHA",
+  "valueType": "RDA",
+  "sex": "FEMALE",
+  "lifeStage": "NONE",
+  "ageMinMonths": 132,
+  "ageMaxMonths": 179,
+  "activityLevel": null,
+  "dietaryContext": null,
+  "value": 250,
+  "valueMin": null,
+  "valueMax": null,
+  "unit": "mg",
+  "isPercentOfEnergy": false,
+  "isProvisional": false,
+  "supplementalOnly": false,
+  "note": null,
+  "from": "Table 21, ДГК+ЭПК, мг, 11-14 лет, девочки"
+ },
+ {
+  "compound": "EPA + DHA",
+  "valueType": "RDA",
+  "sex": "FEMALE",
+  "lifeStage": "NONE",
+  "ageMinMonths": 180,
+  "ageMaxMonths": 215,
+  "activityLevel": null,
+  "dietaryContext": null,
+  "value": 250,
+  "valueMin": null,
+  "valueMax": null,
+  "unit": "mg",
+  "isPercentOfEnergy": false,
+  "isProvisional": false,
+  "supplementalOnly": false,
+  "note": null,
+  "from": "Table 21, ДГК+ЭПК, мг, 15-17 лет, девушки"
+ },
+ {
+  "compound": "EPA + DHA",
+  "valueType": "RDA",
+  "sex": "MALE",
+  "lifeStage": "NONE",
+  "ageMinMonths": 36,
+  "ageMaxMonths": 83,
+  "activityLevel": null,
+  "dietaryContext": null,
+  "value": 250,
+  "valueMin": null,
+  "valueMax": null,
+  "unit": "mg",
+  "isPercentOfEnergy": false,
+  "isProvisional": false,
+  "supplementalOnly": false,
+  "note": null,
+  "from": "Table 21, ДГК+ЭПК, мг, 3-6 лет (м)"
+ },
+ {
+  "compound": "EPA + DHA",
+  "valueType": "RDA",
+  "sex": "MALE",
+  "lifeStage": "NONE",
+  "ageMinMonths": 84,
+  "ageMaxMonths": 131,
+  "activityLevel": null,
+  "dietaryContext": null,
+  "value": 250,
+  "valueMin": null,
+  "valueMax": null,
+  "unit": "mg",
+  "isPercentOfEnergy": false,
+  "isProvisional": false,
+  "supplementalOnly": false,
+  "note": null,
+  "from": "Table 21, ДГК+ЭПК, мг, 7-10 лет (м)"
+ },
+ {
+  "compound": "EPA + DHA",
+  "valueType": "RDA",
+  "sex": "MALE",
+  "lifeStage": "NONE",
+  "ageMinMonths": 132,
+  "ageMaxMonths": 179,
+  "activityLevel": null,
+  "dietaryContext": null,
+  "value": 250,
+  "valueMin": null,
+  "valueMax": null,
+  "unit": "mg",
+  "isPercentOfEnergy": false,
+  "isProvisional": false,
+  "supplementalOnly": false,
+  "note": null,
+  "from": "Table 21, ДГК+ЭПК, мг, 11-14 лет, мальчики"
+ },
+ {
+  "compound": "EPA + DHA",
+  "valueType": "RDA",
+  "sex": "MALE",
+  "lifeStage": "NONE",
+  "ageMinMonths": 180,
+  "ageMaxMonths": 215,
+  "activityLevel": null,
+  "dietaryContext": null,
+  "value": 250,
+  "valueMin": null,
+  "valueMax": null,
+  "unit": "mg",
+  "isPercentOfEnergy": false,
+  "isProvisional": false,
+  "supplementalOnly": false,
+  "note": null,
+  "from": "Table 21, ДГК+ЭПК, мг, 15-17 лет, юноши"
+ },
+ {
   "compound": "Fluoride",
   "valueType": "AI",
   "sex": "FEMALE",
@@ -18050,7 +18202,7 @@
   "from": "Table 13, Ванадий, мкг, старше 18 лет (мужчины)"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "FEMALE",
   "lifeStage": "LACTATING_0_6M",
@@ -18069,7 +18221,7 @@
   "from": "Table 20, Витамин А, мкг рет. экв., кормящие 1-6 мес."
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "FEMALE",
   "lifeStage": "LACTATING_7_12M",
@@ -18088,7 +18240,7 @@
   "from": "Table 20, Витамин А, мкг рет. экв., кормящие 7-12 мес."
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "FEMALE",
   "lifeStage": "NONE",
@@ -18107,7 +18259,7 @@
   "from": "Table 21, Витамин А, мкг рет. экв., 0-3 мес."
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "FEMALE",
   "lifeStage": "NONE",
@@ -18126,7 +18278,7 @@
   "from": "Table 21, Витамин А, мкг рет. экв., 4-6 мес."
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "FEMALE",
   "lifeStage": "NONE",
@@ -18145,7 +18297,7 @@
   "from": "Table 21, Витамин А, мкг рет. экв., 7-11 мес."
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "FEMALE",
   "lifeStage": "NONE",
@@ -18164,7 +18316,7 @@
   "from": "Table 21, Витамин А, мкг рет. экв., 1-2 г."
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "FEMALE",
   "lifeStage": "NONE",
@@ -18183,7 +18335,7 @@
   "from": "Table 21, Витамин А, мкг рет. экв., 3-6 лет (д)"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "FEMALE",
   "lifeStage": "NONE",
@@ -18202,7 +18354,7 @@
   "from": "Table 21, Витамин А, мкг рет. экв., 7-10 лет (д)"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "FEMALE",
   "lifeStage": "NONE",
@@ -18221,7 +18373,7 @@
   "from": "Table 21, Витамин А, мкг рет. экв., 11-14 лет, девочки"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "FEMALE",
   "lifeStage": "NONE",
@@ -18240,7 +18392,7 @@
   "from": "Table 21, Витамин А, мкг рет. экв., 15-17 лет, девушки"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "FEMALE",
   "lifeStage": "NONE",
@@ -18259,7 +18411,7 @@
   "from": "Table 16, Витамин А, мкг рет. экв., старше 18 лет (женщины)"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "MALE",
   "lifeStage": "NONE",
@@ -18278,7 +18430,7 @@
   "from": "Table 21, Витамин А, мкг рет. экв., 0-3 мес."
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "MALE",
   "lifeStage": "NONE",
@@ -18297,7 +18449,7 @@
   "from": "Table 21, Витамин А, мкг рет. экв., 4-6 мес."
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "MALE",
   "lifeStage": "NONE",
@@ -18316,7 +18468,7 @@
   "from": "Table 21, Витамин А, мкг рет. экв., 7-11 мес."
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "MALE",
   "lifeStage": "NONE",
@@ -18335,7 +18487,7 @@
   "from": "Table 21, Витамин А, мкг рет. экв., 1-2 г."
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "MALE",
   "lifeStage": "NONE",
@@ -18354,7 +18506,7 @@
   "from": "Table 21, Витамин А, мкг рет. экв., 3-6 лет (м)"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "MALE",
   "lifeStage": "NONE",
@@ -18373,7 +18525,7 @@
   "from": "Table 21, Витамин А, мкг рет. экв., 7-10 лет (м)"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "MALE",
   "lifeStage": "NONE",
@@ -18392,7 +18544,7 @@
   "from": "Table 21, Витамин А, мкг рет. экв., 11-14 лет, мальчики"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "MALE",
   "lifeStage": "NONE",
@@ -18411,7 +18563,7 @@
   "from": "Table 21, Витамин А, мкг рет. экв., 15-17 лет, юноши"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "MALE",
   "lifeStage": "NONE",
@@ -18430,7 +18582,7 @@
   "from": "Table 11, Витамин А, мкг рет. экв., старше 18 лет (мужчины)"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "FEMALE",
   "lifeStage": "PREGNANT_T1",
@@ -18449,7 +18601,7 @@
   "from": "Table 20, Витамин А, мкг рет. экв., 1 триместр"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "FEMALE",
   "lifeStage": "PREGNANT_T2",
@@ -18468,7 +18620,7 @@
   "from": "Table 20, Витамин А, мкг рет. экв., 2 триместр"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "FEMALE",
   "lifeStage": "PREGNANT_T3",

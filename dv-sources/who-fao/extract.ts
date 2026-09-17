@@ -111,7 +111,7 @@ function add(p: { compound: string; type: DvValueType; sexes: Sex[]; stage?: Lif
     { compound: 'Pantothenic Acid (B5)', unit: 'mg', type: 'RDA' }, { compound: 'Biotin (B7)', unit: 'µg', type: 'RDA' },
     { compound: 'Folate (Total)', unit: 'µg DFE', type: 'RDA', note: 'As dietary folate equivalents.' }, { compound: 'Vitamin B12 (Total)', unit: 'µg', type: 'RDA' },
     { compound: 'Vitamin C (Total)', unit: 'mg', type: 'RDA' },
-    { compound: 'Vitamin A (RAE)', unit: 'µg RE', type: 'RDA', note: 'Recommended safe intake (not an RNI), as retinol equivalents, not RAE.' },
+    { compound: 'Vitamin A (RE)', unit: 'µg RE', type: 'RDA', note: 'Recommended safe intake (not an RNI), as retinol equivalents, not RAE.' },
     { compound: 'Vitamin D (Total)', unit: 'µg', type: 'RDA' },
     { compound: 'Vitamin E (Total)', unit: 'mg α-TE', type: 'AI', note: 'Acceptable intake: data insufficient for a recommendation.' },
     { compound: 'Vitamin K (Total)', unit: 'µg', type: 'RDA', note: '1 µg/kg/day of phylloquinone.' },

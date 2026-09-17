@@ -101,7 +101,7 @@ const _ = null;
 // ───────────── Table 12: RI for vitamins ─────────────
 {
   const t = 'Table 12 RI vitamins';
-  column({ compound: 'Vitamin A (RAE)', unit: 'µg RE', type: 'RDA', table: t, note: 'As retinol equivalents, not RAE.', cells: cells(_, 250, 300, 350, 450, 650, 650, 700, 700, 700, 650, 750, 750, 750, 1400, 700, 750, 800, 800, 800, 750) });
+  column({ compound: 'Vitamin A (RE)', unit: 'µg RE', type: 'RDA', table: t, note: 'As retinol equivalents, not RAE.', cells: cells(_, 250, 300, 350, 450, 650, 650, 700, 700, 700, 650, 750, 750, 750, 1400, 700, 750, 800, 800, 800, 750) });
   column({ compound: 'Vitamin D (Total)', unit: 'µg', type: 'RDA', table: t, cells: cells(_, 10, 10, 10, 10, 10, 10, 10, 10, 10, 20, 10, 10, 10, 10, 10, 10, 10, 10, 10, 20),
     notes: { f70: 'Printed 20 for age 75 and older (footnote 8).', m70: 'Printed 20 for age 75 and older (footnote 8).' } });
   column({ compound: 'Thiamin (B1)', unit: 'mg/MJ', type: 'RDA', table: t, note: 'Per MJ of energy.', cells: cells(_, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1) });
@@ -163,7 +163,7 @@ const _ = null;
 {
   const t = 'Table 17 AR vitamins';
   const infantProv: Key[] = ['le6', 'm7_11'];
-  column({ compound: 'Vitamin A (RAE)', unit: 'µg RE', type: 'EAR', table: t, note: 'As retinol equivalents, not RAE.', cells: cells(_, 200, 240, 270, 340, 490, 500, 540, 540, 530, 510, 590, 590, 590, 1070, 520, 600, 630, 630, 610, 590) });
+  column({ compound: 'Vitamin A (RE)', unit: 'µg RE', type: 'EAR', table: t, note: 'As retinol equivalents, not RAE.', cells: cells(_, 200, 240, 270, 340, 490, 500, 540, 540, 530, 510, 590, 590, 590, 1070, 520, 600, 630, 630, 610, 590) });
   column({ compound: 'Vitamin D (Total)', unit: 'µg', type: 'EAR', table: t, cells: cells(_, 7.5, 7.5, 7.5, 7.5, 7.5, 7.5, 7.5, 7.5, 7.5, 7.5, 7.5, 7.5, 7.5, 7.5, 7.5, 7.5, 7.5, 7.5, 7.5, 7.5) });
   column({ compound: 'Thiamin (B1)', unit: 'mg/MJ', type: 'EAR', table: t, note: 'Per MJ of energy.', cells: cells(_, 0.07, 0.07, 0.07, 0.07, 0.07, 0.07, 0.07, 0.07, 0.07, 0.07, 0.07, 0.07, 0.07, 0.07, 0.07, 0.07, 0.07, 0.07, 0.07, 0.07) });
   column({ compound: 'Riboflavin (B2)', unit: 'mg', type: 'EAR', table: t, provisional: infantProv, cells: cells(0.2, 0.3, 0.5, 0.6, 0.8, 1.2, 1.3, 1.3, 1.3, 1.3, 1.3, 1.4, 1.4, 1.5, 1.6, 1.1, 1.3, 1.3, 1.3, 1.3, 1.3) });

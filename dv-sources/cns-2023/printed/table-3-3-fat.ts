@@ -6,9 +6,9 @@
  * A cell is a point value (AI) or a [min, max] range (AMDR); "<8" is [null, 8].
  * Pregnancy/lactation: AMDR ranges are printed absolute; LA/ALA are printed "+0".
  *
- * NOT transcribed: EPA+DHA (g/d). Nutri has no "EPA + DHA" compound — "Omega-3"
- * holds total n-3 PUFA elsewhere — so storing it would mislabel it. Printed:
- * 0.1 (DHA) 0-2 y, 0.2 3-11 y, 0.25 12-17 y, 0.25-2.00 AMDR 18 y+, 0.25 (0.2 DHA) pregnancy/lactation.
+ * EPA+DHA column (g/d), added 2026-09-17 from the same page: 0-2 y "0.1ᵇ" (footnote b: DHA) -> DHA AI;
+ * 3-11 y 0.2 and 12-17 y 0.25 -> EPA + DHA AI; 18 y+ "0.25~2.00 (AMDR)" -> EPA + DHA AMDR;
+ * pregnancy/lactation "0.25 (0.2ᵇ)" -> EPA + DHA AI 0.25 and DHA AI 0.2.
  */
 const _ = null;
 type Cell = number | [number | null, number | null] | null;
@@ -20,7 +20,7 @@ export const FAT_ROWS: Array<[number, number | null]> = [
 
 const adult = (v: Cell): Cell[] => [_, _, _, _, _, _, _, _, _, _, _, v, v, v, v, v];
 
-export const TABLE_3_3_FAT: Record<string, { valueType: 'AI' | 'AMDR'; cells: Cell[]; preg: Cell; aiCells?: number[] }> = {
+export const TABLE_3_3_FAT: Record<string, { valueType: 'AI' | 'AMDR'; cells: Cell[]; preg: Cell; aiCells?: number[]; unit?: string }> = {
   // Rows 0-3 printed "(AI)" as a point %E; from 4 y an AMDR range.
   totalFat: {
     valueType: 'AMDR',
@@ -45,4 +45,7 @@ export const TABLE_3_3_FAT: Record<string, { valueType: 'AI' | 'AMDR'; cells: Ce
     cells: [0.90, 0.67, 0.60, 0.60, 0.60, 0.60, 0.60, 0.60, 0.60, 0.60, 0.60, 0.60, 0.60, 0.60, 0.60, 0.60],
     preg: 0.60, // printed +0 over the adult 0.60
   },
+  dha: { valueType: 'AI', unit: 'g', cells: [0.1, 0.1, 0.1, _, _, _, _, _, _, _, _, _, _, _, _, _], preg: 0.2 },
+  epaDhaAi: { valueType: 'AI', unit: 'g', cells: [_, _, _, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.25, 0.25, _, _, _, _, _], preg: 0.25 },
+  epaDhaAmdr: { valueType: 'AMDR', unit: 'g', cells: adult([0.25, 2.0]), preg: null },
 };

@@ -7,10 +7,10 @@
  * 2015 KDRI tables and are NOT used.
  *
  * Errata applied (정오표 rounds 1-4, 2021). Only the amino-acid rows change summary-table values:
- *   - "Methionine" is Methionine+Cysteine (not stored: no combined compound).
- *   - Men 30-49 y Methionine+Cysteine RNI 1.3 -> 1.4 (not stored, as above).
+ *   - "Methionine" is Methionine+Cysteine.
+ *   - Men 30-49 y Methionine+Cysteine RNI 1.3 -> 1.4.
  *   - Pregnancy / lactation Phe+Tyr, threonine and histidine were printed in the wrong columns. Corrected:
- *     Phe+Tyr 3.0/3.8 and 3.7/4.7 (not stored: no combined compound); threonine 1.2/1.5 and 1.3/1.7;
+ *     Phe+Tyr 3.0/3.8 and 3.7/4.7; threonine 1.2/1.5 and 1.3/1.7;
  *     histidine 0.8/1.0 and 0.8/1.1. Amino-acid pregnancy / lactation values are absolute, not increments.
  *   The other corrections are to the chapter text (carbohydrate 180 -> 175 and 215 -> 210 g, water and
  *   energy worked examples, pantothenic acid RNI -> AI wording), which the summary tables already match.
@@ -24,8 +24,7 @@
  *     lactation AI as women 19-29 y + 200 / + 700 mL (2,300 / 2,800 mL), so that total is stored for 19-49 y.
  *   - Energy pregnancy "+0 / +340 / +450" -> PREGNANT_T1 / T2 / T3. Protein "+12 / +25" is "per the second
  *     and third trimester" -> PREGNANT_T2 / T3 (the first trimester has no addition).
- *   - Infant EPA+DHA AI (200 / 300 mg) is footnoted as DHA -> DHA. Other EPA+DHA values are not stored
- *     (no EPA+DHA compound yet).
+ *   - Infant EPA+DHA AI (200 / 300 mg) is footnoted as DHA -> DHA. From 6 y the column is EPA + DHA.
  *   - Niacin UL "nicotinic acid / nicotinamide" -> Nicotinic Acid and Nicotinamide, supplementalOnly (the
  *     chapter bases them on supplements and fortified foods). Folate UL -> Folic Acid (Synthetic),
  *     supplementalOnly (footnote: supplements or fortified foods only). Magnesium UL -> supplementalOnly
@@ -35,8 +34,7 @@
  *   - Sugars (total 10-20% of energy; added sugars no more than 10%) and cholesterol (less than 300 mg for
  *     19 y and older) are text notes to the tables. Sugars carry no age, so they are stored from 1 year.
  *
- * Not stored: Methionine+Cysteine and Phenylalanine+Tyrosine (no combined compounds), EPA+DHA beyond
- * infancy, water from food / plain water / beverages / liquids (only total water).
+ * Not stored: water from food / plain water / beverages / liquids (only total water).
  *
  * Run: npx tsx dv-sources/kdri-2020/extract.ts
  */
@@ -119,9 +117,13 @@ const COLS: Col[] = [
   { table: T.macro, compound: 'Alpha-Linolenic Acid (ALA)', type: 'AI', unit: 'g', cells: '0.6 0.8 0.6 0.9  1.1 1.3 1.5 1.7 1.6 1.4 1.4 1.2 0.9  0.8 1.1 1.2 1.1 1.2 1.2 1.2 1.0 0.4  +0 +0' },
   { table: T.macro, compound: 'DHA (Docosahexaenoic Acid)', type: 'AI', unit: 'mg', cells: '200 300 - -  - - - - - - - - -  - - - - - - - - -  - -', note: 'Printed in the EPA+DHA column; footnoted as DHA for infants.' },
   // ── p. 257-258 Protein and amino acids ──
+  { table: T.macro, compound: 'EPA + DHA', type: 'AI', unit: 'mg', cells: '- - - -  200 220 230 230 210 400 500 310 280  200 150 210 100 150 260 240 150 140  +0 +0' },
   { table: T.amino1, compound: 'Protein', type: 'EAR', unit: 'g', cells: '- 12 15 20  30 40 50 55 50 50 50 50 50  30 40 45 45 45 40 40 40 40  +12/+25 +20' },
   { table: T.amino1, compound: 'Protein', type: 'RDA', unit: 'g', cells: '- 15 20 25  35 50 60 65 65 65 60 60 60  35 45 55 55 55 50 50 50 50  +15/+30 +25' },
   { table: T.amino1, compound: 'Protein', type: 'AI', unit: 'g', cells: '10 - - -  - - - - - - - - -  - - - - - - - - -  - -' },
+  { table: T.amino1, compound: 'Methionine + Cysteine', type: 'EAR', unit: 'g', cells: '- 0.3 0.3 0.3  0.5 0.7 1.0 1.2 1.0 1.1 1.1 1.0 0.9  0.5 0.6 0.8 0.8 0.8 0.8 0.8 0.7 0.7  1.1 1.1', note: 'Printed "Methionine"; corrected to Methionine+Cysteine by the 2021 errata.' },
+  { table: T.amino1, compound: 'Methionine + Cysteine', type: 'RDA', unit: 'g', cells: '- 0.4 0.4 0.4  0.6 0.8 1.2 1.4 1.4 1.4 1.3 1.3 1.1  0.6 0.7 1.0 1.1 1.0 1.0 1.1 0.9 0.9  1.4 1.5', note: 'Printed "Methionine"; corrected to Methionine+Cysteine by the 2021 errata. Men 30-49 y RNI printed 1.3, corrected to 1.4.' },
+  { table: T.amino1, compound: 'Methionine + Cysteine', type: 'AI', unit: 'g', cells: '0.4 - - -  - - - - - - - - -  - - - - - - - - -  - -', note: 'Printed "Methionine"; corrected to Methionine+Cysteine by the 2021 errata.' },
   { table: T.amino1, compound: 'Leucine', type: 'EAR', unit: 'g', cells: '- 0.6 0.6 0.7  1.1 1.5 2.2 2.6 2.4 2.4 2.3 2.2 2.1  1.0 1.5 1.9 2.0 2.0 1.9 1.9 1.8 1.7  2.5 2.8' },
   { table: T.amino1, compound: 'Leucine', type: 'RDA', unit: 'g', cells: '- 0.8 0.8 1.0  1.3 1.9 2.7 3.2 3.1 3.1 2.8 2.8 2.7  1.3 1.8 2.4 2.4 2.5 2.4 2.3 2.2 2.1  3.1 3.5' },
   { table: T.amino1, compound: 'Leucine', type: 'AI', unit: 'g', cells: '1.0 - - -  - - - - - - - - -  - - - - - - - - -  - -' },
@@ -134,6 +136,9 @@ const COLS: Col[] = [
   { table: T.amino1, compound: 'Lysine', type: 'EAR', unit: 'g', cells: '- 0.6 0.6 0.6  1.0 1.4 2.1 2.3 2.5 2.4 2.3 2.2 2.2  0.9 1.3 1.8 1.8 2.1 2.0 1.9 1.8 1.7  2.3 2.5' },
   { table: T.amino1, compound: 'Lysine', type: 'RDA', unit: 'g', cells: '- 0.8 0.7 0.8  1.2 1.8 2.5 2.9 3.1 3.1 2.9 2.9 2.7  1.3 1.6 2.2 2.2 2.6 2.5 2.4 2.3 2.1  2.9 3.1' },
   { table: T.amino1, compound: 'Lysine', type: 'AI', unit: 'g', cells: '0.7 - - -  - - - - - - - - -  - - - - - - - - -  - -' },
+  { table: T.amino2, compound: 'Phenylalanine + Tyrosine', type: 'EAR', unit: 'g', cells: '- 0.5 0.5 0.6  0.9 1.3 1.8 2.1 2.8 2.9 2.7 2.5 2.5  0.8 1.2 1.6 1.6 2.3 2.3 2.2 2.1 2.0  3.0 3.7', note: 'Pregnancy/lactation per erratum (printed 0.8 / 0.8 in error).' },
+  { table: T.amino2, compound: 'Phenylalanine + Tyrosine', type: 'RDA', unit: 'g', cells: '- 0.7 0.7 0.7  1.0 1.6 2.3 2.6 3.6 3.5 3.4 3.3 3.1  1.0 1.5 1.9 2.0 2.9 2.8 2.7 2.6 2.4  3.8 4.7', note: 'Pregnancy/lactation per erratum (printed 1.0 / 1.1 in error).' },
+  { table: T.amino2, compound: 'Phenylalanine + Tyrosine', type: 'AI', unit: 'g', cells: '0.9 - - -  - - - - - - - - -  - - - - - - - - -  - -' },
   { table: T.amino2, compound: 'Threonine', type: 'EAR', unit: 'g', cells: '- 0.3 0.3 0.3  0.5 0.7 1.0 1.2 1.1 1.2 1.1 1.1 1.0  0.5 0.6 0.9 0.9 0.9 0.9 0.8 0.8 0.7  1.2 1.3', note: 'Pregnancy/lactation per erratum (printed 3.0 / 3.7 in error).' },
   { table: T.amino2, compound: 'Threonine', type: 'RDA', unit: 'g', cells: '- 0.4 0.4 0.4  0.6 0.9 1.3 1.5 1.5 1.5 1.4 1.3 1.3  0.6 0.9 1.2 1.2 1.1 1.2 1.1 1.0 0.9  1.5 1.7', note: 'Pregnancy/lactation per erratum (printed 3.8 / 4.7 in error).' },
   { table: T.amino2, compound: 'Threonine', type: 'AI', unit: 'g', cells: '0.5 - - -  - - - - - - - - -  - - - - - - - - -  - -' },

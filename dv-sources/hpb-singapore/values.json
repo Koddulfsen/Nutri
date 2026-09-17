@@ -6213,7 +6213,7 @@
   "from": "RDA adults (table 3), Thiamin (B1), Pregnant, reduced activities +0.08"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "FEMALE",
   "lifeStage": "LACTATING_0_6M",
@@ -6229,10 +6229,10 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "note": "As retinol equivalents.",
-  "from": "RDA adults (table 3), Vitamin A (RAE), Lactating, first 6 months"
+  "from": "RDA adults (table 3), Vitamin A (RE), Lactating, first 6 months"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "FEMALE",
   "lifeStage": "LACTATING_7_12M",
@@ -6248,10 +6248,10 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "note": "As retinol equivalents.",
-  "from": "RDA adults (table 3), Vitamin A (RAE), Lactating, after 6 months"
+  "from": "RDA adults (table 3), Vitamin A (RE), Lactating, after 6 months"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "FEMALE",
   "lifeStage": "NONE",
@@ -6270,7 +6270,7 @@
   "from": "RDA children & adolescents (table 1), Vitamin A, 3 - < 6 mths"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "FEMALE",
   "lifeStage": "NONE",
@@ -6289,7 +6289,7 @@
   "from": "RDA children & adolescents (table 1), Vitamin A, 6 - < 9 mths"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "FEMALE",
   "lifeStage": "NONE",
@@ -6308,7 +6308,7 @@
   "from": "RDA children & adolescents (table 1), Vitamin A, 9 - < 12 mths"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "FEMALE",
   "lifeStage": "NONE",
@@ -6327,7 +6327,7 @@
   "from": "RDA children & adolescents (table 1), Vitamin A, 1 - < 2 yrs"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "FEMALE",
   "lifeStage": "NONE",
@@ -6346,7 +6346,7 @@
   "from": "RDA children & adolescents (table 1), Vitamin A, 2 - < 3 yrs"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "FEMALE",
   "lifeStage": "NONE",
@@ -6365,7 +6365,7 @@
   "from": "RDA children & adolescents (table 1), Vitamin A, 3 - < 5 yrs"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "FEMALE",
   "lifeStage": "NONE",
@@ -6384,7 +6384,7 @@
   "from": "RDA children & adolescents (table 1), Vitamin A, Girls 5 - < 7 yrs"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "FEMALE",
   "lifeStage": "NONE",
@@ -6403,7 +6403,7 @@
   "from": "RDA children & adolescents (table 1), Vitamin A, Girls 7 - < 10 yrs"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "FEMALE",
   "lifeStage": "NONE",
@@ -6422,7 +6422,7 @@
   "from": "RDA children & adolescents (table 1), Vitamin A, Girls 10 - < 12 yrs"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "FEMALE",
   "lifeStage": "NONE",
@@ -6441,7 +6441,7 @@
   "from": "RDA children & adolescents (table 1), Vitamin A, Girls 12 - < 14 yrs"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "FEMALE",
   "lifeStage": "NONE",
@@ -6460,7 +6460,7 @@
   "from": "RDA children & adolescents (table 1), Vitamin A, Girls 14 - < 16 yrs"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "FEMALE",
   "lifeStage": "NONE",
@@ -6479,7 +6479,7 @@
   "from": "RDA children & adolescents (table 1), Vitamin A, Girls 16 - < 18 yrs"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "FEMALE",
   "lifeStage": "NONE",
@@ -6495,10 +6495,10 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "note": "As retinol equivalents.",
-  "from": "RDA adults (table 3), Vitamin A (RAE), Women 18 - < 30"
+  "from": "RDA adults (table 3), Vitamin A (RE), Women 18 - < 30"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "FEMALE",
   "lifeStage": "NONE",
@@ -6514,10 +6514,10 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "note": "As retinol equivalents.",
-  "from": "RDA adults (table 3), Vitamin A (RAE), Women 30 - < 60"
+  "from": "RDA adults (table 3), Vitamin A (RE), Women 30 - < 60"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "FEMALE",
   "lifeStage": "NONE",
@@ -6533,10 +6533,10 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "note": "As retinol equivalents.",
-  "from": "RDA adults (table 3), Vitamin A (RAE), Women 60+"
+  "from": "RDA adults (table 3), Vitamin A (RE), Women 60+"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "MALE",
   "lifeStage": "NONE",
@@ -6555,7 +6555,7 @@
   "from": "RDA children & adolescents (table 1), Vitamin A, 3 - < 6 mths"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "MALE",
   "lifeStage": "NONE",
@@ -6574,7 +6574,7 @@
   "from": "RDA children & adolescents (table 1), Vitamin A, 6 - < 9 mths"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "MALE",
   "lifeStage": "NONE",
@@ -6593,7 +6593,7 @@
   "from": "RDA children & adolescents (table 1), Vitamin A, 9 - < 12 mths"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "MALE",
   "lifeStage": "NONE",
@@ -6612,7 +6612,7 @@
   "from": "RDA children & adolescents (table 1), Vitamin A, 1 - < 2 yrs"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "MALE",
   "lifeStage": "NONE",
@@ -6631,7 +6631,7 @@
   "from": "RDA children & adolescents (table 1), Vitamin A, 2 - < 3 yrs"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "MALE",
   "lifeStage": "NONE",
@@ -6650,7 +6650,7 @@
   "from": "RDA children & adolescents (table 1), Vitamin A, 3 - < 5 yrs"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "MALE",
   "lifeStage": "NONE",
@@ -6669,7 +6669,7 @@
   "from": "RDA children & adolescents (table 1), Vitamin A, Boys 5 - < 7 yrs"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "MALE",
   "lifeStage": "NONE",
@@ -6688,7 +6688,7 @@
   "from": "RDA children & adolescents (table 1), Vitamin A, Boys 7 - < 10 yrs"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "MALE",
   "lifeStage": "NONE",
@@ -6707,7 +6707,7 @@
   "from": "RDA children & adolescents (table 1), Vitamin A, Boys 10 - < 12 yrs"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "MALE",
   "lifeStage": "NONE",
@@ -6726,7 +6726,7 @@
   "from": "RDA children & adolescents (table 1), Vitamin A, Boys 12 - < 14 yrs"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "MALE",
   "lifeStage": "NONE",
@@ -6745,7 +6745,7 @@
   "from": "RDA children & adolescents (table 1), Vitamin A, Boys 14 - < 16 yrs"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "MALE",
   "lifeStage": "NONE",
@@ -6764,7 +6764,7 @@
   "from": "RDA children & adolescents (table 1), Vitamin A, Boys 16 - < 18 yrs"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "MALE",
   "lifeStage": "NONE",
@@ -6780,10 +6780,10 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "note": "As retinol equivalents.",
-  "from": "RDA adults (table 3), Vitamin A (RAE), Men 18 - < 30"
+  "from": "RDA adults (table 3), Vitamin A (RE), Men 18 - < 30"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "MALE",
   "lifeStage": "NONE",
@@ -6799,10 +6799,10 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "note": "As retinol equivalents.",
-  "from": "RDA adults (table 3), Vitamin A (RAE), Men 30 - < 60"
+  "from": "RDA adults (table 3), Vitamin A (RE), Men 30 - < 60"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "MALE",
   "lifeStage": "NONE",
@@ -6818,10 +6818,10 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "note": "As retinol equivalents.",
-  "from": "RDA adults (table 3), Vitamin A (RAE), Men 60+"
+  "from": "RDA adults (table 3), Vitamin A (RE), Men 60+"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "FEMALE",
   "lifeStage": "PREGNANT",
@@ -6837,7 +6837,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "note": "As retinol equivalents.",
-  "from": "RDA adults (table 3), Vitamin A (RAE), Pregnant, full activities"
+  "from": "RDA adults (table 3), Vitamin A (RE), Pregnant, full activities"
  },
  {
   "compound": "Vitamin B12 (Total)",

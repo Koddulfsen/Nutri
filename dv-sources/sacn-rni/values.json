@@ -8360,7 +8360,7 @@
   "from": "DRVs for carbohydrate and fat, Total fat"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "FEMALE",
   "lifeStage": "LACTATING",
@@ -8371,15 +8371,15 @@
   "value": 950,
   "valueMin": null,
   "valueMax": null,
-  "unit": "µg",
+  "unit": "µg RE",
   "isPercentOfEnergy": false,
   "isProvisional": false,
   "supplementalOnly": false,
   "note": "COMA 1991 vitamin A (retinol equivalents). Printed as +350 over women 19-50 y; stored as total.",
-  "from": "RNI vitamins, Vitamin A (RAE), Lactation +350"
+  "from": "RNI vitamins, Vitamin A (RE), Lactation +350"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "FEMALE",
   "lifeStage": "NONE",
@@ -8390,15 +8390,15 @@
   "value": 350,
   "valueMin": null,
   "valueMax": null,
-  "unit": "µg",
+  "unit": "µg RE",
   "isPercentOfEnergy": false,
   "isProvisional": false,
   "supplementalOnly": false,
   "note": "COMA 1991 vitamin A (retinol equivalents).",
-  "from": "RNI vitamins, Vitamin A (RAE), 0-3 months"
+  "from": "RNI vitamins, Vitamin A (RE), 0-3 months"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "FEMALE",
   "lifeStage": "NONE",
@@ -8409,15 +8409,15 @@
   "value": 350,
   "valueMin": null,
   "valueMax": null,
-  "unit": "µg",
+  "unit": "µg RE",
   "isPercentOfEnergy": false,
   "isProvisional": false,
   "supplementalOnly": false,
   "note": "COMA 1991 vitamin A (retinol equivalents).",
-  "from": "RNI vitamins, Vitamin A (RAE), 4-6 months"
+  "from": "RNI vitamins, Vitamin A (RE), 4-6 months"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "FEMALE",
   "lifeStage": "NONE",
@@ -8428,15 +8428,15 @@
   "value": 350,
   "valueMin": null,
   "valueMax": null,
-  "unit": "µg",
+  "unit": "µg RE",
   "isPercentOfEnergy": false,
   "isProvisional": false,
   "supplementalOnly": false,
   "note": "COMA 1991 vitamin A (retinol equivalents).",
-  "from": "RNI vitamins, Vitamin A (RAE), 7-9 months"
+  "from": "RNI vitamins, Vitamin A (RE), 7-9 months"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "FEMALE",
   "lifeStage": "NONE",
@@ -8447,15 +8447,15 @@
   "value": 350,
   "valueMin": null,
   "valueMax": null,
-  "unit": "µg",
+  "unit": "µg RE",
   "isPercentOfEnergy": false,
   "isProvisional": false,
   "supplementalOnly": false,
   "note": "COMA 1991 vitamin A (retinol equivalents).",
-  "from": "RNI vitamins, Vitamin A (RAE), 10-12 months"
+  "from": "RNI vitamins, Vitamin A (RE), 10-12 months"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "FEMALE",
   "lifeStage": "NONE",
@@ -8466,15 +8466,15 @@
   "value": 400,
   "valueMin": null,
   "valueMax": null,
-  "unit": "µg",
+  "unit": "µg RE",
   "isPercentOfEnergy": false,
   "isProvisional": false,
   "supplementalOnly": false,
   "note": "COMA 1991 vitamin A (retinol equivalents).",
-  "from": "RNI vitamins, Vitamin A (RAE), 1-3 years"
+  "from": "RNI vitamins, Vitamin A (RE), 1-3 years"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "FEMALE",
   "lifeStage": "NONE",
@@ -8485,15 +8485,15 @@
   "value": 400,
   "valueMin": null,
   "valueMax": null,
-  "unit": "µg",
+  "unit": "µg RE",
   "isPercentOfEnergy": false,
   "isProvisional": false,
   "supplementalOnly": false,
   "note": "COMA 1991 vitamin A (retinol equivalents).",
-  "from": "RNI vitamins, Vitamin A (RAE), 4-6 years"
+  "from": "RNI vitamins, Vitamin A (RE), 4-6 years"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "FEMALE",
   "lifeStage": "NONE",
@@ -8504,15 +8504,15 @@
   "value": 500,
   "valueMin": null,
   "valueMax": null,
-  "unit": "µg",
+  "unit": "µg RE",
   "isPercentOfEnergy": false,
   "isProvisional": false,
   "supplementalOnly": false,
   "note": "COMA 1991 vitamin A (retinol equivalents).",
-  "from": "RNI vitamins, Vitamin A (RAE), 7-10 years"
+  "from": "RNI vitamins, Vitamin A (RE), 7-10 years"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "FEMALE",
   "lifeStage": "NONE",
@@ -8523,15 +8523,15 @@
   "value": 600,
   "valueMin": null,
   "valueMax": null,
-  "unit": "µg",
+  "unit": "µg RE",
   "isPercentOfEnergy": false,
   "isProvisional": false,
   "supplementalOnly": false,
   "note": "COMA 1991 vitamin A (retinol equivalents).",
-  "from": "RNI vitamins, Vitamin A (RAE), Females 11-14 years"
+  "from": "RNI vitamins, Vitamin A (RE), Females 11-14 years"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "FEMALE",
   "lifeStage": "NONE",
@@ -8542,15 +8542,15 @@
   "value": 600,
   "valueMin": null,
   "valueMax": null,
-  "unit": "µg",
+  "unit": "µg RE",
   "isPercentOfEnergy": false,
   "isProvisional": false,
   "supplementalOnly": false,
   "note": "COMA 1991 vitamin A (retinol equivalents).",
-  "from": "RNI vitamins, Vitamin A (RAE), Females 15-18 years"
+  "from": "RNI vitamins, Vitamin A (RE), Females 15-18 years"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "FEMALE",
   "lifeStage": "NONE",
@@ -8561,15 +8561,15 @@
   "value": 600,
   "valueMin": null,
   "valueMax": null,
-  "unit": "µg",
+  "unit": "µg RE",
   "isPercentOfEnergy": false,
   "isProvisional": false,
   "supplementalOnly": false,
   "note": "COMA 1991 vitamin A (retinol equivalents).",
-  "from": "RNI vitamins, Vitamin A (RAE), Females 19-50 years"
+  "from": "RNI vitamins, Vitamin A (RE), Females 19-50 years"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "FEMALE",
   "lifeStage": "NONE",
@@ -8580,15 +8580,15 @@
   "value": 600,
   "valueMin": null,
   "valueMax": null,
-  "unit": "µg",
+  "unit": "µg RE",
   "isPercentOfEnergy": false,
   "isProvisional": false,
   "supplementalOnly": false,
   "note": "COMA 1991 vitamin A (retinol equivalents).",
-  "from": "RNI vitamins, Vitamin A (RAE), Females 50+ years"
+  "from": "RNI vitamins, Vitamin A (RE), Females 50+ years"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "MALE",
   "lifeStage": "NONE",
@@ -8599,15 +8599,15 @@
   "value": 350,
   "valueMin": null,
   "valueMax": null,
-  "unit": "µg",
+  "unit": "µg RE",
   "isPercentOfEnergy": false,
   "isProvisional": false,
   "supplementalOnly": false,
   "note": "COMA 1991 vitamin A (retinol equivalents).",
-  "from": "RNI vitamins, Vitamin A (RAE), 0-3 months"
+  "from": "RNI vitamins, Vitamin A (RE), 0-3 months"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "MALE",
   "lifeStage": "NONE",
@@ -8618,15 +8618,15 @@
   "value": 350,
   "valueMin": null,
   "valueMax": null,
-  "unit": "µg",
+  "unit": "µg RE",
   "isPercentOfEnergy": false,
   "isProvisional": false,
   "supplementalOnly": false,
   "note": "COMA 1991 vitamin A (retinol equivalents).",
-  "from": "RNI vitamins, Vitamin A (RAE), 4-6 months"
+  "from": "RNI vitamins, Vitamin A (RE), 4-6 months"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "MALE",
   "lifeStage": "NONE",
@@ -8637,15 +8637,15 @@
   "value": 350,
   "valueMin": null,
   "valueMax": null,
-  "unit": "µg",
+  "unit": "µg RE",
   "isPercentOfEnergy": false,
   "isProvisional": false,
   "supplementalOnly": false,
   "note": "COMA 1991 vitamin A (retinol equivalents).",
-  "from": "RNI vitamins, Vitamin A (RAE), 7-9 months"
+  "from": "RNI vitamins, Vitamin A (RE), 7-9 months"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "MALE",
   "lifeStage": "NONE",
@@ -8656,15 +8656,15 @@
   "value": 350,
   "valueMin": null,
   "valueMax": null,
-  "unit": "µg",
+  "unit": "µg RE",
   "isPercentOfEnergy": false,
   "isProvisional": false,
   "supplementalOnly": false,
   "note": "COMA 1991 vitamin A (retinol equivalents).",
-  "from": "RNI vitamins, Vitamin A (RAE), 10-12 months"
+  "from": "RNI vitamins, Vitamin A (RE), 10-12 months"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "MALE",
   "lifeStage": "NONE",
@@ -8675,15 +8675,15 @@
   "value": 400,
   "valueMin": null,
   "valueMax": null,
-  "unit": "µg",
+  "unit": "µg RE",
   "isPercentOfEnergy": false,
   "isProvisional": false,
   "supplementalOnly": false,
   "note": "COMA 1991 vitamin A (retinol equivalents).",
-  "from": "RNI vitamins, Vitamin A (RAE), 1-3 years"
+  "from": "RNI vitamins, Vitamin A (RE), 1-3 years"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "MALE",
   "lifeStage": "NONE",
@@ -8694,15 +8694,15 @@
   "value": 400,
   "valueMin": null,
   "valueMax": null,
-  "unit": "µg",
+  "unit": "µg RE",
   "isPercentOfEnergy": false,
   "isProvisional": false,
   "supplementalOnly": false,
   "note": "COMA 1991 vitamin A (retinol equivalents).",
-  "from": "RNI vitamins, Vitamin A (RAE), 4-6 years"
+  "from": "RNI vitamins, Vitamin A (RE), 4-6 years"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "MALE",
   "lifeStage": "NONE",
@@ -8713,15 +8713,15 @@
   "value": 500,
   "valueMin": null,
   "valueMax": null,
-  "unit": "µg",
+  "unit": "µg RE",
   "isPercentOfEnergy": false,
   "isProvisional": false,
   "supplementalOnly": false,
   "note": "COMA 1991 vitamin A (retinol equivalents).",
-  "from": "RNI vitamins, Vitamin A (RAE), 7-10 years"
+  "from": "RNI vitamins, Vitamin A (RE), 7-10 years"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "MALE",
   "lifeStage": "NONE",
@@ -8732,15 +8732,15 @@
   "value": 600,
   "valueMin": null,
   "valueMax": null,
-  "unit": "µg",
+  "unit": "µg RE",
   "isPercentOfEnergy": false,
   "isProvisional": false,
   "supplementalOnly": false,
   "note": "COMA 1991 vitamin A (retinol equivalents).",
-  "from": "RNI vitamins, Vitamin A (RAE), Males 11-14 years"
+  "from": "RNI vitamins, Vitamin A (RE), Males 11-14 years"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "MALE",
   "lifeStage": "NONE",
@@ -8751,15 +8751,15 @@
   "value": 700,
   "valueMin": null,
   "valueMax": null,
-  "unit": "µg",
+  "unit": "µg RE",
   "isPercentOfEnergy": false,
   "isProvisional": false,
   "supplementalOnly": false,
   "note": "COMA 1991 vitamin A (retinol equivalents).",
-  "from": "RNI vitamins, Vitamin A (RAE), Males 15-18 years"
+  "from": "RNI vitamins, Vitamin A (RE), Males 15-18 years"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "MALE",
   "lifeStage": "NONE",
@@ -8770,15 +8770,15 @@
   "value": 700,
   "valueMin": null,
   "valueMax": null,
-  "unit": "µg",
+  "unit": "µg RE",
   "isPercentOfEnergy": false,
   "isProvisional": false,
   "supplementalOnly": false,
   "note": "COMA 1991 vitamin A (retinol equivalents).",
-  "from": "RNI vitamins, Vitamin A (RAE), Males 19-50 years"
+  "from": "RNI vitamins, Vitamin A (RE), Males 19-50 years"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "MALE",
   "lifeStage": "NONE",
@@ -8789,15 +8789,15 @@
   "value": 700,
   "valueMin": null,
   "valueMax": null,
-  "unit": "µg",
+  "unit": "µg RE",
   "isPercentOfEnergy": false,
   "isProvisional": false,
   "supplementalOnly": false,
   "note": "COMA 1991 vitamin A (retinol equivalents).",
-  "from": "RNI vitamins, Vitamin A (RAE), Males 50+ years"
+  "from": "RNI vitamins, Vitamin A (RE), Males 50+ years"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "FEMALE",
   "lifeStage": "PREGNANT",
@@ -8808,12 +8808,12 @@
   "value": 700,
   "valueMin": null,
   "valueMax": null,
-  "unit": "µg",
+  "unit": "µg RE",
   "isPercentOfEnergy": false,
   "isProvisional": false,
   "supplementalOnly": false,
   "note": "COMA 1991 vitamin A (retinol equivalents). Printed as +100 over women 19-50 y; stored as total.",
-  "from": "RNI vitamins, Vitamin A (RAE), Pregnancy +100"
+  "from": "RNI vitamins, Vitamin A (RE), Pregnancy +100"
  },
  {
   "compound": "Vitamin B12 (Total)",

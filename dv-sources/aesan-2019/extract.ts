@@ -83,7 +83,7 @@ function table(title: string, nutrients: Array<{ compound: string; unit: string;
 }
 
 table('Tabla 6a. Ingestas Nutricionales de Referencia para vitaminas', [
-  { compound: 'Vitamin A (RAE)', unit: 'µg RE', note: 'As retinol equivalents, not RAE.' },
+  { compound: 'Vitamin A (RE)', unit: 'µg RE', note: 'As retinol equivalents, not RAE.' },
   { compound: 'Thiamin (B1)', unit: 'mg' }, { compound: 'Riboflavin (B2)', unit: 'mg' },
   { compound: 'Niacin (B3)', unit: 'mg NE', note: 'As niacin equivalents.' },
 ]);

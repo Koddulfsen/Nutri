@@ -64,7 +64,7 @@ const ironNote = 'Applies when 10-25% of dietary energy comes from animal foods 
   for (const [label, sexes, age, fe, a, d, b1, b2, b3] of rows) {
     const f = (n: string) => `${t}, ${n}, ${label}`;
     add({ compound: 'Iron (Total)', sexes, age, value: fe, unit: 'mg', note: ironNote, from: f('Iron') });
-    add({ compound: 'Vitamin A (RAE)', sexes, age, value: a, unit: 'µg RE', note: vitA, from: f('Vitamin A') });
+    add({ compound: 'Vitamin A (RE)', sexes, age, value: a, unit: 'µg RE', note: vitA, from: f('Vitamin A') });
     const dNote = [vitD, d === 2.5 ? tropical : null, label === 'Girls 5 - < 7 yrs' ? 'Printed 10.5 µg; boys and neighbouring cells are 10.0 or 2.5 (possible typo in the source).' : null].filter(Boolean).join(' ');
     add({ compound: 'Vitamin D (Total)', sexes, age, value: d, unit: 'µg', note: dNote, from: f('Vitamin D') });
     add({ compound: 'Thiamin (B1)', sexes, age, value: b1, unit: 'mg', from: f('Thiamin') });
@@ -92,7 +92,7 @@ const ironNote = 'Applies when 10-25% of dietary energy comes from animal foods 
   const t = 'RDA adults (table 3)';
   const bands: Array<[string, Sex, Age]> = [['Men 18 - < 30', 'MALE', [216, 359]], ['Men 30 - < 60', 'MALE', [360, 719]], ['Men 60+', 'MALE', [720, null]], ['Women 18 - < 30', 'FEMALE', [216, 359]], ['Women 30 - < 60', 'FEMALE', [360, 719]], ['Women 60+', 'FEMALE', [720, null]]];
   const cols: Array<[string, string, number[], string?]> = [
-    ['Iron (Total)', 'mg', [8, 8, 8, 18, 18, 8], ironNote], ['Vitamin A (RAE)', 'µg RE', [750, 750, 750, 750, 750, 750], vitA],
+    ['Iron (Total)', 'mg', [8, 8, 8, 18, 18, 8], ironNote], ['Vitamin A (RE)', 'µg RE', [750, 750, 750, 750, 750, 750], vitA],
     ['Vitamin D (Total)', 'µg', [2.5, 2.5, 2.5, 2.5, 2.5, 2.5], `${vitD} ${tropical}`], ['Thiamin (B1)', 'mg', [1.18, 1.16, 0.98, 0.84, 0.86, 0.80]],
     ['Riboflavin (B2)', 'mg', [1.77, 1.74, 1.47, 1.26, 1.29, 1.20]], ['Niacin (B3)', 'mg NE', [19.5, 19.1, 16.2, 13.9, 14.2, 13.2], 'As niacin equivalents.'],
   ];
@@ -100,7 +100,7 @@ const ironNote = 'Applies when 10-25% of dietary energy comes from animal foods 
   // Pregnant (full / reduced activities) and lactating (first 6 months / after 6 months).
   const W: Array<[number, number | null, number]> = [[216, 359, 3], [360, 599, 4]]; // women's age band -> column index
   const preg: Array<[string, string, Array<string | number>, string?]> = [
-    ['Iron (Total)', 'mg', [27, 27, 9, 18], ironNote], ['Vitamin A (RAE)', 'µg RE', [750, 750, 1200, 1200], vitA], ['Vitamin D (Total)', 'µg', [10.0, 10.0, 10.0, 10.0], vitD],
+    ['Iron (Total)', 'mg', [27, 27, 9, 18], ironNote], ['Vitamin A (RE)', 'µg RE', [750, 750, 1200, 1200], vitA], ['Vitamin D (Total)', 'µg', [10.0, 10.0, 10.0, 10.0], vitD],
     ['Thiamin (B1)', 'mg', ['+0.11', '+0.08', '+0.2', '+0.2']], ['Riboflavin (B2)', 'mg', ['+0.17', '+0.12', '+0.30', '+0.30']], ['Niacin (B3)', 'mg NE', ['+1.9', '+1.3', '+3.3', '+3.3'], 'As niacin equivalents.'],
   ];
   const stages: Array<[LifeStage, Activity | null, string]> = [['PREGNANT', 'MODERATE', 'Pregnant, full activities'], ['PREGNANT', 'SEDENTARY', 'Pregnant, reduced activities'], ['LACTATING_0_6M', null, 'Lactating, first 6 months'], ['LACTATING_7_12M', null, 'Lactating, after 6 months']];

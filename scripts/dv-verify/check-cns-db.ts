@@ -35,6 +35,7 @@ const C: Record<string, string> = {
   pantothenic: 'Pantothenic Acid (B5)', biotin: 'Biotin (B7)', choline: 'Choline (Total)', nicotinamide: 'Nicotinamide',
   totalFat: 'Total Fat', saturatedFat: 'Saturated Fat', n6Pufa: 'Omega-6', n3Pufa: 'Omega-3',
   linoleicAcid: 'Linoleic Acid', alphaLinolenicAcid: 'Alpha-Linolenic Acid (ALA)',
+  dha: 'DHA (Docosahexaenoic Acid)', epaDhaAi: 'EPA + DHA', epaDhaAmdr: 'EPA + DHA',
 };
 const STAGES = ['PREGNANT_T1', 'PREGNANT_T2', 'PREGNANT_T3', 'LACTATING'];
 type Rows = Array<[number, number | null]>;

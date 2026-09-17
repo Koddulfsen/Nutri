@@ -68,17 +68,16 @@ async function main() {
         retrieved_date = EXCLUDED.retrieved_date, updated_at = NOW()
       RETURNING id`;
     const removed = await tx`DELETE FROM reference_daily_values WHERE source_region = ${meta.region}`;
-    for (const v of values) {
-      await tx`
-        INSERT INTO reference_daily_values (
-          compound_id, source_region, source_id, age_min_months, age_max_months, sex, life_stage,
-          value_type, activity_level, dietary_context, value, value_min, value_max, unit,
-          is_percent_of_energy, is_provisional, supplemental_only, value_note, source_note
-        ) VALUES (
-          ${idByName.get(v.compound)!}, ${meta.region}, ${source.id}, ${v.ageMinMonths}, ${v.ageMaxMonths}, ${v.sex}, ${v.lifeStage},
-          ${v.valueType}, ${v.activityLevel}, ${v.dietaryContext}, ${v.value}, ${v.valueMin}, ${v.valueMax}, ${v.unit},
-          ${v.isPercentOfEnergy}, ${v.isProvisional}, ${v.supplementalOnly}, ${v.note}, ${v.from}
-        )`;
+    const rows = values.map((v) => ({
+      compound_id: idByName.get(v.compound)!, source_region: meta.region, source_id: source.id,
+      age_min_months: v.ageMinMonths, age_max_months: v.ageMaxMonths, sex: v.sex, life_stage: v.lifeStage,
+      value_type: v.valueType, activity_level: v.activityLevel, dietary_context: v.dietaryContext,
+      value: v.value, value_min: v.valueMin, value_max: v.valueMax, unit: v.unit,
+      is_percent_of_energy: v.isPercentOfEnergy, is_provisional: v.isProvisional, supplemental_only: v.supplementalOnly,
+      value_note: v.note, source_note: v.from,
+    }));
+    for (let i = 0; i < rows.length; i += 500) {
+      await tx`INSERT INTO reference_daily_values ${tx(rows.slice(i, i + 500))}`;
     }
     return { removed: removed.count, inserted: values.length };
   });

@@ -28,7 +28,7 @@
  *   - Table 22 children "в т.ч. сахара" (including sugars) is stored as Total Sugars; adults' "добавленные
  *     сахара" as Added Sugars.
  *
- * Not stored: DHA+EPA (no compound), per-kg infant values, table 23/24 bioactives without a compound
+ * Not stored: per-kg infant values, table 23/24 bioactives without a compound
  * (inositol, carnitine, CoQ10, lipoic acid, flavonoid classes, etc.), and the 15% Far North energy uplift.
  *
  * Run: npx tsx dv-sources/russia-mr-2021/extract.ts
@@ -157,7 +157,7 @@ const VIT: Array<[RegExp, string, string, string?]> = [
   [/^Витамин С, мг/, 'Vitamin C (Total)', 'mg'], [/^Витамин B1, мг/, 'Thiamin (B1)', 'mg'], [/^Витамин B2, мг/, 'Riboflavin (B2)', 'mg'],
   [/^Витамин B6, мг/, 'Vitamin B6', 'mg'], [/^Ниацин, мг/, 'Niacin (B3)', 'mg NE', 'As niacin equivalents.'], [/^Витамин B12, мкг/, 'Vitamin B12 (Total)', 'µg'],
   [/^Фолаты?, мкг/, 'Folate (Total)', 'µg'], [/^Пантотеновая кислота/, 'Pantothenic Acid (B5)', 'mg'], [/^Биотин/, 'Biotin (B7)', 'µg'],
-  [/^Витамин А, мкг/, 'Vitamin A (RAE)', 'µg RE', 'As retinol equivalents.'], [/^Бета-каротин/, 'Beta-Carotene', 'mg'],
+  [/^Витамин А, мкг/, 'Vitamin A (RE)', 'µg RE', 'As retinol equivalents.'], [/^Бета-каротин/, 'Beta-Carotene', 'mg'],
   [/^Витамин Е \(α-токоферол\), мг/, 'Vitamin E (Total)', 'mg α-TE', 'As α-tocopherol equivalents.'], [/^Витамин D, мкг/, 'Vitamin D (Total)', 'µg'], [/^Витамин К, мкг/, 'Vitamin K (Total)', 'µg'],
 ];
 const MIN: Array<[RegExp, string, string]> = [
@@ -230,7 +230,7 @@ for (const [sexes, tv, tm, ta, sexLabel] of [[['MALE'] as Sex[], '11', '12', '13
   const list: Array<[RegExp, string, DvValueType, string, number, string?]> = [
     // [label, compound, type, unit, first column to store (skips per-kg infant cells), note]
     [/^Энергия, ккал/, 'Energy', 'EER', 'kcal', 3], [/^Белок, г/, 'Protein', 'RDA', 'g', 3], [/^Жиры, г/, 'Total Fat', 'RDA', 'g', 3],
-    [/^Углеводы, г/, 'Carbohydrates', 'RDA', 'g', 3], [/^Пищевые волокна/, 'Dietary Fiber', 'RDA', 'g', 0], [/^ДГК, мг/, 'DHA (Docosahexaenoic Acid)', 'RDA', 'mg', 0],
+    [/^Углеводы, г/, 'Carbohydrates', 'RDA', 'g', 3], [/^Пищевые волокна/, 'Dietary Fiber', 'RDA', 'g', 0], [/^ДГК, мг/, 'DHA (Docosahexaenoic Acid)', 'RDA', 'mg', 0], [/^ДГК\+ЭПК, мг/, 'EPA + DHA', 'RDA', 'mg', 0],
     [/^Холестерин/, 'Cholesterol', 'CDRR', 'mg', 0],
     ...VIT.filter(([, c]) => c !== 'Beta-Carotene').map(([l, c, u, n]) => [l, c, 'RDA', u, 0, n] as [RegExp, string, DvValueType, string, number, string?]),
     ...MIN.map(([l, c, u]) => [l, c, 'RDA', u, 0] as [RegExp, string, DvValueType, string, number]),

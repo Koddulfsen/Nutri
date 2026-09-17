@@ -14,7 +14,7 @@
  *   - Iron "10/18" (girls 11-14: AR "7/10") and "18/10" (women 30-59: AR "10/6"): the menstruating
  *     value is stored, the other in the note (per the AR table footnote).
  *   - Na, K, Cl are printed in g and kept in g. Vitamin A is µg retinol equivalents (stored under
- *     Vitamin A (RAE) with unit µg RE, as for other RE sources); niacin mg NE; vitamin E mg α-TE.
+ *     Vitamin A (RE)); niacin mg NE; vitamin E mg α-TE.
  *   - Niacin UL is printed as nicotinamide (NA) and nicotinic acid (AcN), for supplement/fortified
  *     forms -> Nicotinamide / Nicotinic Acid, supplementalOnly. Folate UL is for synthetic folic acid
  *     -> Folic Acid (Synthetic), supplementalOnly. Magnesium UL is supplemental Mg -> supplementalOnly.
@@ -29,7 +29,7 @@
  *     1 year from month 13.
  *
  * Not stored: adult and geriatric energy (printed per body height, with no reference height to pick),
- * protein g/kg (the g/day at LARN's reference weights is stored), EPA+DHA (no compound yet), trans fat
+ * protein g/kg (the g/day at LARN's reference weights is stored), trans fat
  * "as low as possible", the carbohydrate guidance text, and the calcium AR for postmenopausal women not
  * on oestrogen therapy (a condition the demographic model cannot express).
  *
@@ -123,7 +123,7 @@ const VIT: Record<string, Col> = {
   Niacina: ['Niacin (B3)', 'mg NE', 'As niacin equivalents (60 mg tryptophan = 1 mg NE).'], 'Ac pantotenico': ['Pantothenic Acid (B5)', 'mg'],
   'Vit. B6': ['Vitamin B6', 'mg'], Biotina: ['Biotin (B7)', 'µg'],
   Folati: ['Folate (Total)', 'µg', 'For women who may become pregnant and in pregnancy, excludes supplements for neural tube defect prevention.'],
-  'Vit.B12': ['Vitamin B12 (Total)', 'µg'], 'Vit. A': ['Vitamin A (RAE)', 'µg RE', 'As retinol equivalents (1 RE = 1 µg retinol = 6 µg β-carotene = 12 µg other provitamin A carotenoids).'],
+  'Vit.B12': ['Vitamin B12 (Total)', 'µg'], 'Vit. A': ['Vitamin A (RE)', 'µg RE', 'As retinol equivalents (1 RE = 1 µg retinol = 6 µg β-carotene = 12 µg other provitamin A carotenoids).'],
   'Vit. D': ['Vitamin D (Total)', 'µg', 'As cholecalciferol (1 µg = 40 IU).'], 'Vit. E': ['Vitamin E (Total)', 'mg α-TE'], 'Vit. K': ['Vitamin K (Total)', 'µg'],
 };
 const MIN: Record<string, Col> = {
@@ -199,7 +199,7 @@ for (const v of out) if (v.valueType === 'SDT' && (v.compound === 'Sodium' || v.
     'Niacina NA': ['Nicotinamide', 'mg', true, `Printed as niacin UL, nicotinamide (NA). ${suppNiacin}`],
     'Niacina AcN': ['Nicotinic Acid', 'mg', true, `Printed as niacin UL, nicotinic acid (AcN). ${suppNiacin}`],
     'Vit. B6': ['Vitamin B6', 'mg', false], Folati: ['Folic Acid (Synthetic)', 'µg', true, 'Printed as folate UL; applies to synthetic folic acid.'],
-    'Vit. A': ['Vitamin A (RAE)', 'µg RE', false, 'As retinol equivalents.'], 'Vit. D': ['Vitamin D (Total)', 'µg', false, 'As cholecalciferol.'],
+    'Vit. A': ['Vitamin A (RE)', 'µg RE', false, 'As retinol equivalents.'], 'Vit. D': ['Vitamin D (Total)', 'µg', false, 'As cholecalciferol.'],
     'Vit. E': ['Vitamin E (Total)', 'mg α-TE', false, 'As α-tocopherol equivalents.'],
   };
   grid(rows, Object.keys(cols), (d, col, cell) => {
@@ -294,10 +294,17 @@ for (const v of out) if (v.valueType === 'SDT' && (v.compound === 'Sodium' || v.
     }
   }
   add({ compound: 'Total Fat', type: 'AI', sexes: BOTH, age: INF, value: 40, unit: '%', pct: true, from: `${t}, AI, LATTANTI, Lipidi totali 40% En` });
-  add({ compound: 'DHA (Docosahexaenoic Acid)', type: 'AI', sexes: BOTH, age: INF, value: 100, unit: 'mg', note: 'Printed "+DHA 100 mg" in addition to EPA-DHA 250 mg (EPA+DHA not stored).', from: `${t}, AI, LATTANTI, DHA 100 mg` });
-  add({ compound: 'DHA (Docosahexaenoic Acid)', type: 'AI', sexes: BOTH, age: [12, 23], value: 100, unit: 'mg', note: 'Printed "1-2 anni +DHA 100 mg" in addition to EPA-DHA 250 mg (EPA+DHA not stored).', from: `${t}, AI, BAMBINI-ADOLESCENTI, 1-2 anni +DHA 100 mg` });
+  add({ compound: 'DHA (Docosahexaenoic Acid)', type: 'AI', sexes: BOTH, age: INF, value: 100, unit: 'mg', note: 'Printed "+DHA 100 mg" in addition to EPA-DHA 250 mg.', from: `${t}, AI, LATTANTI, DHA 100 mg` });
+  add({ compound: 'DHA (Docosahexaenoic Acid)', type: 'AI', sexes: BOTH, age: [12, 23], value: 100, unit: 'mg', note: 'Printed "1-2 anni +DHA 100 mg" in addition to EPA-DHA 250 mg.', from: `${t}, AI, BAMBINI-ADOLESCENTI, 1-2 anni +DHA 100 mg` });
   for (const stage of ['PREGNANT', 'LACTATING'] as const) {
-    add({ compound: 'DHA (Docosahexaenoic Acid)', type: 'AI', sexes: F, stage, age: ADULT, value: 150, min: 100, max: 200, unit: 'mg', note: 'Printed "+DHA 100-200 mg" in addition to EPA-DHA 250 mg (EPA+DHA not stored).', from: `${t}, AI, GRAVIDANZA E ALLATTAMENTO, +DHA 100-200 mg` });
+    add({ compound: 'DHA (Docosahexaenoic Acid)', type: 'AI', sexes: F, stage, age: ADULT, value: 150, min: 100, max: 200, unit: 'mg', note: 'Printed "+DHA 100-200 mg" in addition to EPA-DHA 250 mg.', from: `${t}, AI, GRAVIDANZA E ALLATTAMENTO, +DHA 100-200 mg` });
+  }
+  const epaDha = 'Printed "EPA-DHA 250 mg".';
+  add({ compound: 'EPA + DHA', type: 'AI', sexes: BOTH, age: INF, value: 250, unit: 'mg', note: epaDha, from: `${t}, AI, LATTANTI, EPA-DHA 250 mg` });
+  add({ compound: 'EPA + DHA', type: 'AI', sexes: BOTH, age: KIDS, value: 250, unit: 'mg', note: epaDha, from: `${t}, AI, BAMBINI-ADOLESCENTI, EPA-DHA 250 mg` });
+  add({ compound: 'EPA + DHA', type: 'AI', sexes: BOTH, age: ADULT, value: 250, unit: 'mg', note: epaDha, from: `${t}, AI, ADULTI E ANZIANI, EPA-DHA 250 mg` });
+  for (const stage of ['PREGNANT', 'LACTATING'] as const) {
+    add({ compound: 'EPA + DHA', type: 'AI', sexes: F, stage, age: ADULT, value: 250, unit: 'mg', note: epaDha, from: `${t}, AI, GRAVIDANZA E ALLATTAMENTO, EPA-DHA 250 mg` });
   }
   pct('Total Fat', 'AMDR', BOTH, 'NONE', [12, 47], 35, 40, `${t}, RI, BAMBINI-ADOLESCENTI, 1-3 anni 35-40% En`);
   const fatNote = 'Up to 35% En applies at high activity; see table footnote.';

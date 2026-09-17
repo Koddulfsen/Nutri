@@ -52,6 +52,8 @@ const COMPOUND_NAME_MAP: Record<string, string> = {
   'Iron': 'Iron (Total)',
   'LA': 'Linoleic Acid',
   'ALA': 'Alpha-Linolenic Acid (ALA)',
+  'DHA': 'DHA (Docosahexaenoic Acid)',
+  'EPA + DHA': 'EPA + DHA',
   'Nicotinamide': 'Nicotinamide',
   'Carbohydrate': 'Carbohydrates',
 };
@@ -238,13 +240,13 @@ function buildAllRows(): SeedRow[] {
   pushPrinted(rows, 'Selenium', 'µg', 'EAR', EAR.selenium);
   pushPrinted(rows, 'Copper', 'mg', 'EAR', EAR.copper);
   pushPrinted(rows, 'Molybdenum', 'µg', 'EAR', EAR.molybdenum);
-  pushPrinted(rows, 'Vitamin A', 'µg', 'EAR', EAR.vitaminA, 'µg RAE.');
+  pushPrinted(rows, 'Vitamin A', 'µg RAE', 'EAR', EAR.vitaminA);
   pushPrinted(rows, 'Vitamin D', 'µg', 'EAR', EAR.vitaminD);
   pushPrinted(rows, 'Thiamin', 'mg', 'EAR', EAR.thiamin);
   pushPrinted(rows, 'Riboflavin', 'mg', 'EAR', EAR.riboflavin);
   pushPrinted(rows, 'Niacin', 'mg', 'EAR', EAR.niacin, 'mg NE.');
   pushPrinted(rows, 'Vitamin B6', 'mg', 'EAR', EAR.vitaminB6);
-  pushPrinted(rows, 'Folate', 'µg', 'EAR', EAR.folate, 'µg DFE.');
+  pushPrinted(rows, 'Folate', 'µg DFE', 'EAR', EAR.folate);
   pushPrinted(rows, 'Vitamin B12', 'µg', 'EAR', EAR.vitaminB12);
   pushPrinted(rows, 'Vitamin C', 'mg', 'EAR', EAR.vitaminC);
 
@@ -268,7 +270,7 @@ function buildAllRows(): SeedRow[] {
 
   // ─── VITAMIN RNI / AI (附表 3-8) — from the verified printed transcription ───
   const VIT = TABLE_3_8_VITAMINS;
-  pushPrinted(rows, 'Vitamin A', 'µg', VIT.vitaminA.valueType, VIT.vitaminA, 'µg RAE.');
+  pushPrinted(rows, 'Vitamin A', 'µg RAE', VIT.vitaminA.valueType, VIT.vitaminA);
   pushPrinted(rows, 'Vitamin D', 'µg', VIT.vitaminD.valueType, VIT.vitaminD);
   pushPrinted(rows, 'Vitamin E', 'mg', VIT.vitaminE.valueType, VIT.vitaminE, 'α-TE.');
   pushPrinted(rows, 'Vitamin K', 'µg', VIT.vitaminK.valueType, VIT.vitaminK);
@@ -276,7 +278,7 @@ function buildAllRows(): SeedRow[] {
   pushPrinted(rows, 'Riboflavin', 'mg', VIT.riboflavin.valueType, VIT.riboflavin);
   pushPrinted(rows, 'Niacin', 'mg', VIT.niacin.valueType, VIT.niacin, 'mg NE.');
   pushPrinted(rows, 'Vitamin B6', 'mg', VIT.vitaminB6.valueType, VIT.vitaminB6);
-  pushPrinted(rows, 'Folate', 'µg', VIT.folate.valueType, VIT.folate, 'µg DFE.');
+  pushPrinted(rows, 'Folate', 'µg DFE', VIT.folate.valueType, VIT.folate);
   pushPrinted(rows, 'Vitamin B12', 'µg', VIT.vitaminB12.valueType, VIT.vitaminB12);
   pushPrinted(rows, 'Pantothenic acid', 'mg', VIT.pantothenic.valueType, VIT.pantothenic);
   pushPrinted(rows, 'Biotin', 'µg', VIT.biotin.valueType, VIT.biotin);
@@ -314,6 +316,9 @@ function buildAllRows(): SeedRow[] {
   pushCells(rows, 'Omega-3', FAT.n3Pufa, FAT_ROWS, 'n-3 PUFA (total), 附表 3-3.');
   pushCells(rows, 'LA', FAT.linoleicAcid, FAT_ROWS, fatNote);
   pushCells(rows, 'ALA', FAT.alphaLinolenicAcid, FAT_ROWS, fatNote);
+  pushCells(rows, 'DHA', FAT.dha, FAT_ROWS, 'Printed in the EPA+DHA column, footnoted DHA, 附表 3-3.');
+  pushCells(rows, 'EPA + DHA', FAT.epaDhaAi, FAT_ROWS, fatNote);
+  pushCells(rows, 'EPA + DHA', FAT.epaDhaAmdr, FAT_ROWS, fatNote);
 
   return rows;
 }

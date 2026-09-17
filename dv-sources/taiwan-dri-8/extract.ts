@@ -118,7 +118,7 @@ const COLS: Col[] = [
   { page: P718, label: '膳食纖維', compound: 'Dietary Fiber', type: 'AI', unit: 'g', activity: 'A', cells: '- - 19 25/23 29/27 33/32 39/33 41/32 34/27 34/27 32/25 30/24', preg: '+0 +5 +5', lact: '+7' },
   { page: P718, label: '膳食纖維', compound: 'Dietary Fiber', type: 'AI', unit: 'g', activity: 'H', cells: '- - - - - - - 47/36 38/29 37/29 35/28 -', preg: '+0 +5 +5', lact: '+7' },
   // ── p. 720 vitamins ──
-  { page: P720, label: '維生素 A', compound: 'Vitamin A (RAE)', type: 'RDA', unit: 'µg RE', cells: 'AI=400 AI=400 400 400 400 500 600/500 700/500 600/500 600/500 600/500 600/500', preg: '+0 +0 +100', lact: '+400', note: 'As retinol equivalents (1 µg RE = 1 µg retinol = 6 µg β-carotene).' },
+  { page: P720, label: '維生素 A', compound: 'Vitamin A (RE)', type: 'RDA', unit: 'µg RE', cells: 'AI=400 AI=400 400 400 400 500 600/500 700/500 600/500 600/500 600/500 600/500', preg: '+0 +0 +100', lact: '+400', note: 'As retinol equivalents (1 µg RE = 1 µg retinol = 6 µg β-carotene).' },
   { page: P720, label: '維生素 D', compound: 'Vitamin D (Total)', type: 'AI', unit: 'µg', cells: '10 10 10 10 10 10 10 10 10 10 15 15', preg: '+0 +0 +0', lact: '+0' },
   { page: P720, label: '維生素 E', compound: 'Vitamin E (Total)', type: 'AI', unit: 'mg α-TE', cells: '3 4 5 6 8 10 12 13 12 12 12 12', preg: '+2 +2 +2', lact: '+3' },
   { page: P720, label: '維生素 K', compound: 'Vitamin K (Total)', type: 'AI', unit: 'µg', cells: '2.0 2.5 30 55 55 60 75 75 120/90 120/90 120/90 120/90', preg: '+0 +0 +0', lact: '+0' },
@@ -146,7 +146,7 @@ const COLS: Col[] = [
   { page: P722, label: '鈉', compound: 'Sodium', type: 'CDRR', unit: 'mg', cells: 'AI=100 AI=320 1300 1700 2000 2300 2300 2300 2300 2300 2300 2300', preg: '+0 +0 +0', lact: '+0' },
   { page: P722, label: '鉀', compound: 'Potassium', type: 'AI', unit: 'mg', cells: '400 900 1500 2100/1900 2400/2200 2700/2500 2800/2500 2800/2500 2800/2500 2800/2500 2800/2500 2800/2500', preg: '+0 +0 +0', lact: '+400' },
   // ── p. 724 UL (merged cells expanded per age row) ──
-  { page: P724, label: '維生素 A UL', compound: 'Vitamin A (RAE)', type: 'UL', unit: 'µg RE', cells: '600 600 600 900 900 1700 2800 2800 3000 3000 3000 3000', preg: '3000 3000 3000', lact: '3000' },
+  { page: P724, label: '維生素 A UL', compound: 'Vitamin A (RE)', type: 'UL', unit: 'µg RE', cells: '600 600 600 900 900 1700 2800 2800 3000 3000 3000 3000', preg: '3000 3000 3000', lact: '3000' },
   { page: P724, label: '維生素 D UL', compound: 'Vitamin D (Total)', type: 'UL', unit: 'µg', cells: '25 25 50 50 50 50 50 50 50 50 50 50', preg: '50 50 50', lact: '50' },
   { page: P724, label: '維生素 E UL', compound: 'Vitamin E (Total)', type: 'UL', unit: 'mg α-TE', cells: '- - 200 300 300 600 800 800 1000 1000 1000 1000', preg: '1000 1000 1000', lact: '1000' },
   { page: P724, label: '維生素 C UL', compound: 'Vitamin C (Total)', type: 'UL', unit: 'mg', cells: '- - 400 650 650 1200 1800 1800 2000 2000 2000 2000', preg: '2000 2000 2000', lact: '2000' },

@@ -139,7 +139,7 @@ rni({ compound: 'Vitamin B6', unit: 'mg', table: V, note: 'Based on protein prov
 rni({ compound: 'Vitamin B12 (Total)', unit: 'µg', table: V, cells: [0.3, 0.3, 0.4, 0.4, 0.5, 0.8, 1.0, 1.2, 1.5, 1.5, 1.5, 1.2, 1.5, 1.5, 1.5], preg: '*', lact: '+0.5' });
 rni({ compound: 'Folate (Total)', unit: 'µg', table: V, cells: [50, 50, 50, 50, 70, 100, 150, 200, 200, 200, 200, 200, 200, 200, 200], preg: '+100', lact: '+60' });
 rni({ compound: 'Vitamin C (Total)', unit: 'mg', table: V, cells: [25, 25, 25, 25, 30, 30, 30, 35, 40, 40, 40, 35, 40, 40, 40], preg: '+10', lact: '+30', pregStage: 'PREGNANT_T3', notes: { Pregnancy: 'For the last trimester only.' } });
-rni({ compound: 'Vitamin A (RAE)', unit: 'µg', table: V, note: 'COMA 1991 vitamin A (retinol equivalents).', cells: [350, 350, 350, 350, 400, 400, 500, 600, 700, 700, 700, 600, 600, 600, 600], preg: '+100', lact: '+350' });
+rni({ compound: 'Vitamin A (RE)', unit: 'µg RE', table: V, note: 'COMA 1991 vitamin A (retinol equivalents).', cells: [350, 350, 350, 350, 400, 400, 500, 600, 700, 700, 700, 600, 600, 600, 600], preg: '+100', lact: '+350' });
 rni({ compound: 'Vitamin D (Total)', unit: 'µg', table: V, note: 'SACN 2016.', infantAI: true, cells: [[8.5, 10], [8.5, 10], [8.5, 10], [8.5, 10], 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10], preg: '10', lact: '10' });
 const MN = 'RNI minerals';
 const fe = 'Insufficient for women with high menstrual losses, for whom iron supplements are the most practical way to meet requirements.';

@@ -175,7 +175,7 @@ nutrient({ compound: 'Biotin (B7)', unit: 'µg', table: 'Summary Table 5', infan
   ai: r([8, 12], [20, 30], [20, 25], rep(30, 4), rep(25, 4), rep(30, 3), rep(35, 3)) });
 
 // ───────────── Summary Table 6: vitamins A, C, D, E, K, choline ─────────────
-nutrient({ compound: 'Vitamin A (RAE)', unit: 'µg RE', table: 'Summary Table 6', note: 'As retinol equivalents, not RAE.', infantsAI: [250, 430],
+nutrient({ compound: 'Vitamin A (RE)', unit: 'µg RE', table: 'Summary Table 6', note: 'As retinol equivalents, not RAE.', infantsAI: [250, 430],
   ear: r([210, 275], [445, 630], [420, 485], rep(625, 4), rep(500, 4), [530, 550, 550], [780, 800, 800]),
   rdi: r([300, 400], [600, 900], [600, 700], rep(900, 4), rep(700, 4), [700, 800, 800], rep(1100, 3)),
   infantsUL: [600, 600], ul: r([600, 900], [1700, 2800], [1700, 2800], rep(3000, 4), rep(3000, 4), [2800, 3000, 3000], [2800, 3000, 3000]),
@@ -299,7 +299,7 @@ nutrient({ compound: 'Potassium', unit: 'mg', table: 'Summary Table 9', infantsA
 {
   const adult: Age = [228, null];
   const sdt: Array<[string, string, number, number, 'reach' | 'ceiling', string?]> = [
-    ['Vitamin A (RAE)', 'µg RE', 1500, 1220, 'reach', 'As retinol equivalents.'],
+    ['Vitamin A (RE)', 'µg RE', 1500, 1220, 'reach', 'As retinol equivalents.'],
     ['Vitamin C (Total)', 'mg', 220, 190, 'reach'],
     ['Vitamin E (Total)', 'mg α-TE', 19, 14, 'reach'],
     ['Sodium', 'mg', 2000, 2000, 'ceiling', 'Revised 2017.'],

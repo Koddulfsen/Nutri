@@ -3891,7 +3891,7 @@
   "isPercentOfEnergy": false,
   "isProvisional": false,
   "supplementalOnly": false,
-  "note": "Printed \"+DHA 100-200 mg\" in addition to EPA-DHA 250 mg (EPA+DHA not stored).",
+  "note": "Printed \"+DHA 100-200 mg\" in addition to EPA-DHA 250 mg.",
   "from": "LARN lipids, AI, GRAVIDANZA E ALLATTAMENTO, +DHA 100-200 mg"
  },
  {
@@ -3910,7 +3910,7 @@
   "isPercentOfEnergy": false,
   "isProvisional": false,
   "supplementalOnly": false,
-  "note": "Printed \"+DHA 100 mg\" in addition to EPA-DHA 250 mg (EPA+DHA not stored).",
+  "note": "Printed \"+DHA 100 mg\" in addition to EPA-DHA 250 mg.",
   "from": "LARN lipids, AI, LATTANTI, DHA 100 mg"
  },
  {
@@ -3929,7 +3929,7 @@
   "isPercentOfEnergy": false,
   "isProvisional": false,
   "supplementalOnly": false,
-  "note": "Printed \"1-2 anni +DHA 100 mg\" in addition to EPA-DHA 250 mg (EPA+DHA not stored).",
+  "note": "Printed \"1-2 anni +DHA 100 mg\" in addition to EPA-DHA 250 mg.",
   "from": "LARN lipids, AI, BAMBINI-ADOLESCENTI, 1-2 anni +DHA 100 mg"
  },
  {
@@ -3948,7 +3948,7 @@
   "isPercentOfEnergy": false,
   "isProvisional": false,
   "supplementalOnly": false,
-  "note": "Printed \"+DHA 100 mg\" in addition to EPA-DHA 250 mg (EPA+DHA not stored).",
+  "note": "Printed \"+DHA 100 mg\" in addition to EPA-DHA 250 mg.",
   "from": "LARN lipids, AI, LATTANTI, DHA 100 mg"
  },
  {
@@ -3967,7 +3967,7 @@
   "isPercentOfEnergy": false,
   "isProvisional": false,
   "supplementalOnly": false,
-  "note": "Printed \"1-2 anni +DHA 100 mg\" in addition to EPA-DHA 250 mg (EPA+DHA not stored).",
+  "note": "Printed \"1-2 anni +DHA 100 mg\" in addition to EPA-DHA 250 mg.",
   "from": "LARN lipids, AI, BAMBINI-ADOLESCENTI, 1-2 anni +DHA 100 mg"
  },
  {
@@ -3986,7 +3986,7 @@
   "isPercentOfEnergy": false,
   "isProvisional": false,
   "supplementalOnly": false,
-  "note": "Printed \"+DHA 100-200 mg\" in addition to EPA-DHA 250 mg (EPA+DHA not stored).",
+  "note": "Printed \"+DHA 100-200 mg\" in addition to EPA-DHA 250 mg.",
   "from": "LARN lipids, AI, GRAVIDANZA E ALLATTAMENTO, +DHA 100-200 mg"
  },
  {
@@ -5014,6 +5014,158 @@
   "supplementalOnly": false,
   "note": "At the median PAL for age; 25th / 75th PAL percentile: 3130 / 3480 kcal (PAL 1.66 / 1.73 / 1.85). SINU: illustrative values, not normative.",
   "from": "LARN energy AR 1-17 y, Maschi 17 anni, mediana"
+ },
+ {
+  "compound": "EPA + DHA",
+  "valueType": "AI",
+  "sex": "FEMALE",
+  "lifeStage": "LACTATING",
+  "ageMinMonths": 216,
+  "ageMaxMonths": null,
+  "activityLevel": null,
+  "dietaryContext": null,
+  "value": 250,
+  "valueMin": null,
+  "valueMax": null,
+  "unit": "mg",
+  "isPercentOfEnergy": false,
+  "isProvisional": false,
+  "supplementalOnly": false,
+  "note": "Printed \"EPA-DHA 250 mg\".",
+  "from": "LARN lipids, AI, GRAVIDANZA E ALLATTAMENTO, EPA-DHA 250 mg"
+ },
+ {
+  "compound": "EPA + DHA",
+  "valueType": "AI",
+  "sex": "FEMALE",
+  "lifeStage": "NONE",
+  "ageMinMonths": 6,
+  "ageMaxMonths": 11,
+  "activityLevel": null,
+  "dietaryContext": null,
+  "value": 250,
+  "valueMin": null,
+  "valueMax": null,
+  "unit": "mg",
+  "isPercentOfEnergy": false,
+  "isProvisional": false,
+  "supplementalOnly": false,
+  "note": "Printed \"EPA-DHA 250 mg\".",
+  "from": "LARN lipids, AI, LATTANTI, EPA-DHA 250 mg"
+ },
+ {
+  "compound": "EPA + DHA",
+  "valueType": "AI",
+  "sex": "FEMALE",
+  "lifeStage": "NONE",
+  "ageMinMonths": 12,
+  "ageMaxMonths": 215,
+  "activityLevel": null,
+  "dietaryContext": null,
+  "value": 250,
+  "valueMin": null,
+  "valueMax": null,
+  "unit": "mg",
+  "isPercentOfEnergy": false,
+  "isProvisional": false,
+  "supplementalOnly": false,
+  "note": "Printed \"EPA-DHA 250 mg\".",
+  "from": "LARN lipids, AI, BAMBINI-ADOLESCENTI, EPA-DHA 250 mg"
+ },
+ {
+  "compound": "EPA + DHA",
+  "valueType": "AI",
+  "sex": "FEMALE",
+  "lifeStage": "NONE",
+  "ageMinMonths": 216,
+  "ageMaxMonths": null,
+  "activityLevel": null,
+  "dietaryContext": null,
+  "value": 250,
+  "valueMin": null,
+  "valueMax": null,
+  "unit": "mg",
+  "isPercentOfEnergy": false,
+  "isProvisional": false,
+  "supplementalOnly": false,
+  "note": "Printed \"EPA-DHA 250 mg\".",
+  "from": "LARN lipids, AI, ADULTI E ANZIANI, EPA-DHA 250 mg"
+ },
+ {
+  "compound": "EPA + DHA",
+  "valueType": "AI",
+  "sex": "MALE",
+  "lifeStage": "NONE",
+  "ageMinMonths": 6,
+  "ageMaxMonths": 11,
+  "activityLevel": null,
+  "dietaryContext": null,
+  "value": 250,
+  "valueMin": null,
+  "valueMax": null,
+  "unit": "mg",
+  "isPercentOfEnergy": false,
+  "isProvisional": false,
+  "supplementalOnly": false,
+  "note": "Printed \"EPA-DHA 250 mg\".",
+  "from": "LARN lipids, AI, LATTANTI, EPA-DHA 250 mg"
+ },
+ {
+  "compound": "EPA + DHA",
+  "valueType": "AI",
+  "sex": "MALE",
+  "lifeStage": "NONE",
+  "ageMinMonths": 12,
+  "ageMaxMonths": 215,
+  "activityLevel": null,
+  "dietaryContext": null,
+  "value": 250,
+  "valueMin": null,
+  "valueMax": null,
+  "unit": "mg",
+  "isPercentOfEnergy": false,
+  "isProvisional": false,
+  "supplementalOnly": false,
+  "note": "Printed \"EPA-DHA 250 mg\".",
+  "from": "LARN lipids, AI, BAMBINI-ADOLESCENTI, EPA-DHA 250 mg"
+ },
+ {
+  "compound": "EPA + DHA",
+  "valueType": "AI",
+  "sex": "MALE",
+  "lifeStage": "NONE",
+  "ageMinMonths": 216,
+  "ageMaxMonths": null,
+  "activityLevel": null,
+  "dietaryContext": null,
+  "value": 250,
+  "valueMin": null,
+  "valueMax": null,
+  "unit": "mg",
+  "isPercentOfEnergy": false,
+  "isProvisional": false,
+  "supplementalOnly": false,
+  "note": "Printed \"EPA-DHA 250 mg\".",
+  "from": "LARN lipids, AI, ADULTI E ANZIANI, EPA-DHA 250 mg"
+ },
+ {
+  "compound": "EPA + DHA",
+  "valueType": "AI",
+  "sex": "FEMALE",
+  "lifeStage": "PREGNANT",
+  "ageMinMonths": 216,
+  "ageMaxMonths": null,
+  "activityLevel": null,
+  "dietaryContext": null,
+  "value": 250,
+  "valueMin": null,
+  "valueMax": null,
+  "unit": "mg",
+  "isPercentOfEnergy": false,
+  "isProvisional": false,
+  "supplementalOnly": false,
+  "note": "Printed \"EPA-DHA 250 mg\".",
+  "from": "LARN lipids, AI, GRAVIDANZA E ALLATTAMENTO, EPA-DHA 250 mg"
  },
  {
   "compound": "Fluoride",
@@ -19380,7 +19532,7 @@
   "from": "LARN carbohydrates and fibre, SDT, Zuccheri <15% En"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "AI",
   "sex": "FEMALE",
   "lifeStage": "NONE",
@@ -19399,7 +19551,7 @@
   "from": "LARN vitamins PRI/AI, Vit. A, LATTANTI 6-12 mesi"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "AI",
   "sex": "MALE",
   "lifeStage": "NONE",
@@ -19418,7 +19570,7 @@
   "from": "LARN vitamins PRI/AI, Vit. A, LATTANTI 6-12 mesi"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "EAR",
   "sex": "FEMALE",
   "lifeStage": "LACTATING",
@@ -19437,7 +19589,7 @@
   "from": "LARN vitamins AR, Vit. A, Allattamento"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "EAR",
   "sex": "FEMALE",
   "lifeStage": "NONE",
@@ -19456,7 +19608,7 @@
   "from": "LARN vitamins AR, Vit. A, BAMBINI-ADOLESCENTI 1-3 anni"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "EAR",
   "sex": "FEMALE",
   "lifeStage": "NONE",
@@ -19475,7 +19627,7 @@
   "from": "LARN vitamins AR, Vit. A, BAMBINI-ADOLESCENTI 4-6 anni"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "EAR",
   "sex": "FEMALE",
   "lifeStage": "NONE",
@@ -19494,7 +19646,7 @@
   "from": "LARN vitamins AR, Vit. A, BAMBINI-ADOLESCENTI 7-10 anni"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "EAR",
   "sex": "FEMALE",
   "lifeStage": "NONE",
@@ -19513,7 +19665,7 @@
   "from": "LARN vitamins AR, Vit. A, Femmine 11-14 anni"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "EAR",
   "sex": "FEMALE",
   "lifeStage": "NONE",
@@ -19532,7 +19684,7 @@
   "from": "LARN vitamins AR, Vit. A, Femmine 15-17 anni"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "EAR",
   "sex": "FEMALE",
   "lifeStage": "NONE",
@@ -19551,7 +19703,7 @@
   "from": "LARN vitamins AR, Vit. A, Femmine 18-29 anni"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "EAR",
   "sex": "FEMALE",
   "lifeStage": "NONE",
@@ -19570,7 +19722,7 @@
   "from": "LARN vitamins AR, Vit. A, Femmine 30-59 anni"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "EAR",
   "sex": "FEMALE",
   "lifeStage": "NONE",
@@ -19589,7 +19741,7 @@
   "from": "LARN vitamins AR, Vit. A, Femmine 60-74 anni"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "EAR",
   "sex": "FEMALE",
   "lifeStage": "NONE",
@@ -19608,7 +19760,7 @@
   "from": "LARN vitamins AR, Vit. A, Femmine ≥75 anni"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "EAR",
   "sex": "MALE",
   "lifeStage": "NONE",
@@ -19627,7 +19779,7 @@
   "from": "LARN vitamins AR, Vit. A, BAMBINI-ADOLESCENTI 1-3 anni"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "EAR",
   "sex": "MALE",
   "lifeStage": "NONE",
@@ -19646,7 +19798,7 @@
   "from": "LARN vitamins AR, Vit. A, BAMBINI-ADOLESCENTI 4-6 anni"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "EAR",
   "sex": "MALE",
   "lifeStage": "NONE",
@@ -19665,7 +19817,7 @@
   "from": "LARN vitamins AR, Vit. A, BAMBINI-ADOLESCENTI 7-10 anni"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "EAR",
   "sex": "MALE",
   "lifeStage": "NONE",
@@ -19684,7 +19836,7 @@
   "from": "LARN vitamins AR, Vit. A, Maschi 11-14 anni"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "EAR",
   "sex": "MALE",
   "lifeStage": "NONE",
@@ -19703,7 +19855,7 @@
   "from": "LARN vitamins AR, Vit. A, Maschi 15-17 anni"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "EAR",
   "sex": "MALE",
   "lifeStage": "NONE",
@@ -19722,7 +19874,7 @@
   "from": "LARN vitamins AR, Vit. A, Maschi 18 -29 anni"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "EAR",
   "sex": "MALE",
   "lifeStage": "NONE",
@@ -19741,7 +19893,7 @@
   "from": "LARN vitamins AR, Vit. A, Maschi 30-59 anni"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "EAR",
   "sex": "MALE",
   "lifeStage": "NONE",
@@ -19760,7 +19912,7 @@
   "from": "LARN vitamins AR, Vit. A, Maschi 60-74 anni"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "EAR",
   "sex": "MALE",
   "lifeStage": "NONE",
@@ -19779,7 +19931,7 @@
   "from": "LARN vitamins AR, Vit. A, Maschi ≥75 anni"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "EAR",
   "sex": "FEMALE",
   "lifeStage": "PREGNANT",
@@ -19798,7 +19950,7 @@
   "from": "LARN vitamins AR, Vit. A, Gravidanza"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "FEMALE",
   "lifeStage": "LACTATING",
@@ -19817,7 +19969,7 @@
   "from": "LARN vitamins PRI/AI, Vit. A, Allattamento"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "FEMALE",
   "lifeStage": "NONE",
@@ -19836,7 +19988,7 @@
   "from": "LARN vitamins PRI/AI, Vit. A, BAMBINI-ADOLESCENTI 1-3 anni"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "FEMALE",
   "lifeStage": "NONE",
@@ -19855,7 +20007,7 @@
   "from": "LARN vitamins PRI/AI, Vit. A, BAMBINI-ADOLESCENTI 4-6 anni"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "FEMALE",
   "lifeStage": "NONE",
@@ -19874,7 +20026,7 @@
   "from": "LARN vitamins PRI/AI, Vit. A, BAMBINI-ADOLESCENTI 7-10 anni"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "FEMALE",
   "lifeStage": "NONE",
@@ -19893,7 +20045,7 @@
   "from": "LARN vitamins PRI/AI, Vit. A, Femmine 11-14 anni"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "FEMALE",
   "lifeStage": "NONE",
@@ -19912,7 +20064,7 @@
   "from": "LARN vitamins PRI/AI, Vit. A, Femmine 15-17 anni"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "FEMALE",
   "lifeStage": "NONE",
@@ -19931,7 +20083,7 @@
   "from": "LARN vitamins PRI/AI, Vit. A, Femmine 18-29 anni"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "FEMALE",
   "lifeStage": "NONE",
@@ -19950,7 +20102,7 @@
   "from": "LARN vitamins PRI/AI, Vit. A, Femmine 30-59 anni"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "FEMALE",
   "lifeStage": "NONE",
@@ -19969,7 +20121,7 @@
   "from": "LARN vitamins PRI/AI, Vit. A, Femmine 60-74 anni"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "FEMALE",
   "lifeStage": "NONE",
@@ -19988,7 +20140,7 @@
   "from": "LARN vitamins PRI/AI, Vit. A, Femmine ≥75 anni"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "MALE",
   "lifeStage": "NONE",
@@ -20007,7 +20159,7 @@
   "from": "LARN vitamins PRI/AI, Vit. A, BAMBINI-ADOLESCENTI 1-3 anni"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "MALE",
   "lifeStage": "NONE",
@@ -20026,7 +20178,7 @@
   "from": "LARN vitamins PRI/AI, Vit. A, BAMBINI-ADOLESCENTI 4-6 anni"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "MALE",
   "lifeStage": "NONE",
@@ -20045,7 +20197,7 @@
   "from": "LARN vitamins PRI/AI, Vit. A, BAMBINI-ADOLESCENTI 7-10 anni"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "MALE",
   "lifeStage": "NONE",
@@ -20064,7 +20216,7 @@
   "from": "LARN vitamins PRI/AI, Vit. A, Maschi 11-14 anni"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "MALE",
   "lifeStage": "NONE",
@@ -20083,7 +20235,7 @@
   "from": "LARN vitamins PRI/AI, Vit. A, Maschi 15-17 anni"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "MALE",
   "lifeStage": "NONE",
@@ -20102,7 +20254,7 @@
   "from": "LARN vitamins PRI/AI, Vit. A, Maschi 18-29 anni"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "MALE",
   "lifeStage": "NONE",
@@ -20121,7 +20273,7 @@
   "from": "LARN vitamins PRI/AI, Vit. A, Maschi 30-59 anni"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "MALE",
   "lifeStage": "NONE",
@@ -20140,7 +20292,7 @@
   "from": "LARN vitamins PRI/AI, Vit. A, Maschi 60-74 anni"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "MALE",
   "lifeStage": "NONE",
@@ -20159,7 +20311,7 @@
   "from": "LARN vitamins PRI/AI, Vit. A, Maschi ≥75 anni"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "RDA",
   "sex": "FEMALE",
   "lifeStage": "PREGNANT",
@@ -20178,7 +20330,7 @@
   "from": "LARN vitamins PRI/AI, Vit. A, Gravidanza"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "UL",
   "sex": "FEMALE",
   "lifeStage": "LACTATING",
@@ -20197,7 +20349,7 @@
   "from": "LARN vitamins UL, Vit. A, Allattamento"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "UL",
   "sex": "FEMALE",
   "lifeStage": "NONE",
@@ -20216,7 +20368,7 @@
   "from": "LARN vitamins UL, Vit. A, BAMBINI-ADOLESCENTI 1-3 anni"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "UL",
   "sex": "FEMALE",
   "lifeStage": "NONE",
@@ -20235,7 +20387,7 @@
   "from": "LARN vitamins UL, Vit. A, BAMBINI-ADOLESCENTI 4-6 anni"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "UL",
   "sex": "FEMALE",
   "lifeStage": "NONE",
@@ -20254,7 +20406,7 @@
   "from": "LARN vitamins UL, Vit. A, BAMBINI-ADOLESCENTI 7-10 anni"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "UL",
   "sex": "FEMALE",
   "lifeStage": "NONE",
@@ -20273,7 +20425,7 @@
   "from": "LARN vitamins UL, Vit. A, Femmine 11-14 anni"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "UL",
   "sex": "FEMALE",
   "lifeStage": "NONE",
@@ -20292,7 +20444,7 @@
   "from": "LARN vitamins UL, Vit. A, Femmine 15-17 anni"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "UL",
   "sex": "FEMALE",
   "lifeStage": "NONE",
@@ -20311,7 +20463,7 @@
   "from": "LARN vitamins UL, Vit. A, Femmine 18-29 anni"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "UL",
   "sex": "FEMALE",
   "lifeStage": "NONE",
@@ -20330,7 +20482,7 @@
   "from": "LARN vitamins UL, Vit. A, Femmine 30-59 anni"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "UL",
   "sex": "FEMALE",
   "lifeStage": "NONE",
@@ -20349,7 +20501,7 @@
   "from": "LARN vitamins UL, Vit. A, Femmine 60-74 anni"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "UL",
   "sex": "FEMALE",
   "lifeStage": "NONE",
@@ -20368,7 +20520,7 @@
   "from": "LARN vitamins UL, Vit. A, Femmine ≥75 anni"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "UL",
   "sex": "MALE",
   "lifeStage": "NONE",
@@ -20387,7 +20539,7 @@
   "from": "LARN vitamins UL, Vit. A, BAMBINI-ADOLESCENTI 1-3 anni"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "UL",
   "sex": "MALE",
   "lifeStage": "NONE",
@@ -20406,7 +20558,7 @@
   "from": "LARN vitamins UL, Vit. A, BAMBINI-ADOLESCENTI 4-6 anni"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "UL",
   "sex": "MALE",
   "lifeStage": "NONE",
@@ -20425,7 +20577,7 @@
   "from": "LARN vitamins UL, Vit. A, BAMBINI-ADOLESCENTI 7-10 anni"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "UL",
   "sex": "MALE",
   "lifeStage": "NONE",
@@ -20444,7 +20596,7 @@
   "from": "LARN vitamins UL, Vit. A, Maschi 11-14 anni"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "UL",
   "sex": "MALE",
   "lifeStage": "NONE",
@@ -20463,7 +20615,7 @@
   "from": "LARN vitamins UL, Vit. A, Maschi 15-17 anni"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "UL",
   "sex": "MALE",
   "lifeStage": "NONE",
@@ -20482,7 +20634,7 @@
   "from": "LARN vitamins UL, Vit. A, Maschi 18 -29 anni"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "UL",
   "sex": "MALE",
   "lifeStage": "NONE",
@@ -20501,7 +20653,7 @@
   "from": "LARN vitamins UL, Vit. A, Maschi 30 -59 anni"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "UL",
   "sex": "MALE",
   "lifeStage": "NONE",
@@ -20520,7 +20672,7 @@
   "from": "LARN vitamins UL, Vit. A, Maschi 60-74 anni"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "UL",
   "sex": "MALE",
   "lifeStage": "NONE",
@@ -20539,7 +20691,7 @@
   "from": "LARN vitamins UL, Vit. A, Maschi ≥75 anni"
  },
  {
-  "compound": "Vitamin A (RAE)",
+  "compound": "Vitamin A (RE)",
   "valueType": "UL",
   "sex": "FEMALE",
   "lifeStage": "PREGNANT",
