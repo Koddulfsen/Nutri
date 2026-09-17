@@ -21,6 +21,7 @@ import { TABLE_3_8_VITAMINS } from '../../dv-sources/cns-2023/printed/table-3-8-
 import { TABLE_3_9_PINCD } from '../../dv-sources/cns-2023/printed/table-3-9-pincd';
 import { TABLE_3_10_UL } from '../../dv-sources/cns-2023/printed/table-3-10-ul';
 import { TABLE_3_11_WATER_TOTAL, WATER_ROWS } from '../../dv-sources/cns-2023/printed/table-3-11-water';
+import { TABLE_3_12_OTHER } from '../../dv-sources/cns-2023/printed/table-3-12-other';
 
 const sql = postgres(process.env.MIGRATION_DATABASE_URL ?? process.env.DATABASE_URL!, { max: 1 });
 
@@ -130,6 +131,13 @@ for (const [key, t] of Object.entries(TABLE_3_9_PINCD)) cells('3-9', C[key], 'CD
 for (const [key, u] of Object.entries(TABLE_3_10_UL)) cells('3-10', C[key], 'UL', u.cells, u.preg[0], BAND_ROWS);
 // 附表 3-11 water
 point('3-11', 'Water', 'AI', TABLE_3_11_WATER_TOTAL, WATER_ROWS);
+// 附表 3-12 other food components (adults): SPL as a floor, UL
+for (const [key, t] of Object.entries(TABLE_3_12_OTHER)) {
+  for (const sex of ['MALE', 'FEMALE']) {
+    put(t.compound, 'CDRR', sex, 'NONE', 216, null, null, { value: t.spl, min: t.spl, max: null, from: `3-12 ${key} SPL` });
+    if (t.ul != null) put(t.compound, 'UL', sex, 'NONE', 216, null, null, { value: t.ul, min: null, max: null, from: `3-12 ${key} UL` });
+  }
+}
 
 async function main() {
   const rows = await sql<{ name: string; vt: string; sex: string; ls: string; amin: number; amax: number | null; act: string | null; diet: string | null; value: string; vmin: string | null; vmax: string | null }[]>`

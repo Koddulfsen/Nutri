@@ -81,7 +81,7 @@ export const SOURCE_VALUE_TYPES: Record<string, SourceVocabulary> = {
   },
   CHINA: {
     terms: {
-      EAR: 'EAR', RNI: 'RDA', AI: 'AI', UL: 'UL', AMDR: 'AMDR', 'PI-NCD': 'CDRR', EER: 'EER',
+      EAR: 'EAR', RNI: 'RDA', AI: 'AI', UL: 'UL', AMDR: 'AMDR', 'PI-NCD': 'CDRR', 'SPL (other food components)': 'CDRR', EER: 'EER',
     },
   },
   AU_NZ: {

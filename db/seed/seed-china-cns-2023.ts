@@ -18,6 +18,7 @@ import { TABLE_3_1_ENERGY } from '../../dv-sources/cns-2023/printed/table-3-1-en
 import { YEARLY_ROWS, BAND_ROWS } from '../../dv-sources/cns-2023/printed/types';
 import { TABLE_3_2_PROTEIN } from '../../dv-sources/cns-2023/printed/table-3-2-protein';
 import { TABLE_3_3_FAT, FAT_ROWS } from '../../dv-sources/cns-2023/printed/table-3-3-fat';
+import { TABLE_3_12_OTHER } from '../../dv-sources/cns-2023/printed/table-3-12-other';
 import { TABLE_3_4_CARBOHYDRATE } from '../../dv-sources/cns-2023/printed/table-3-4-carbohydrate';
 import { TABLE_3_9_PINCD } from '../../dv-sources/cns-2023/printed/table-3-9-pincd';
 import { TABLE_3_10_UL } from '../../dv-sources/cns-2023/printed/table-3-10-ul';
@@ -303,6 +304,18 @@ function buildAllRows(): SeedRow[] {
     pushCells(rows, UL_COMPOUND[key], { valueType: 'UL', cells: u.cells, preg: u.preg[0], unit: u.unit }, BAND_ROWS, '附表 3-10.');
   }
 
+  // ─── OTHER FOOD COMPONENTS (附表 3-12) — adults, SPL -> CDRR floor, UL ───
+  for (const t of Object.values(TABLE_3_12_OTHER)) {
+    for (const sex of ['MALE', 'FEMALE'] as Sex[]) {
+      rows.push({ compoundName: t.compound, ageMinMonths: 216, ageMaxMonths: null, sex, lifeStage: 'NONE', valueType: 'CDRR',
+        value: t.spl, valueMin: t.spl, valueMax: null, unit: t.unit, isPercentOfEnergy: false,
+        valueNote: [t.note, 'SPL (特定建议值): intake to reach for lowering chronic disease risk, adults, 附表 3-12.'].filter(Boolean).join(' ') });
+      if (t.ul != null) rows.push({ compoundName: t.compound, ageMinMonths: 216, ageMaxMonths: null, sex, lifeStage: 'NONE', valueType: 'UL',
+        value: t.ul, valueMin: null, valueMax: null, unit: t.unit, isPercentOfEnergy: false,
+        valueNote: [t.note, 'Adults, 附表 3-12.'].filter(Boolean).join(' ') });
+    }
+  }
+
   // ─── WATER (附表 3-11) — total intake, from the verified printed transcription ───
   pushPrinted(rows, 'Water', 'mL', 'AI', TABLE_3_11_WATER_TOTAL,
     'Total water (food + drink), temperate climate at low activity.', WATER_ROWS);
@@ -360,8 +373,9 @@ async function seed() {
   console.log(`Prepared ${rows.length} reference values.\n`);
 
   const names = [...new Set(rows.map((r) => resolveDbName(r.compoundName)))];
+  // Any tier (as db/seed/dv/load-source.ts); core first so a core compound wins a name tie.
   const compoundRows = await sql`
-    SELECT id, name FROM compounds WHERE name = ANY(${names}) AND tier = 'core'
+    SELECT id, name FROM compounds WHERE name = ANY(${names}) ORDER BY (tier = 'core') ASC
   `;
   const idByName = new Map(compoundRows.map((r: any) => [r.name, r.id]));
   const missing = names.filter((n) => !idByName.has(n));
