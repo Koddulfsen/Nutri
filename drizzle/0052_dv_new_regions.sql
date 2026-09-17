@@ -1,0 +1,20 @@
+ALTER TYPE "public"."dv_source_preference_enum" ADD VALUE 'FRANCE';--> statement-breakpoint
+ALTER TYPE "public"."dv_source_preference_enum" ADD VALUE 'NETHERLANDS';--> statement-breakpoint
+ALTER TYPE "public"."dv_source_preference_enum" ADD VALUE 'INDONESIA';--> statement-breakpoint
+ALTER TYPE "public"."dv_source_preference_enum" ADD VALUE 'PHILIPPINES';--> statement-breakpoint
+ALTER TYPE "public"."dv_source_preference_enum" ADD VALUE 'MALAYSIA';--> statement-breakpoint
+ALTER TYPE "public"."dv_source_preference_enum" ADD VALUE 'VIETNAM';--> statement-breakpoint
+ALTER TYPE "public"."dv_source_preference_enum" ADD VALUE 'THAILAND';--> statement-breakpoint
+ALTER TYPE "public"."dv_source_preference_enum" ADD VALUE 'POLAND';--> statement-breakpoint
+ALTER TYPE "public"."dv_source_preference_enum" ADD VALUE 'BELGIUM';--> statement-breakpoint
+ALTER TYPE "public"."dv_source_preference_enum" ADD VALUE 'TURKIYE';--> statement-breakpoint
+ALTER TYPE "public"."source_region_enum" ADD VALUE 'FRANCE';--> statement-breakpoint
+ALTER TYPE "public"."source_region_enum" ADD VALUE 'NETHERLANDS';--> statement-breakpoint
+ALTER TYPE "public"."source_region_enum" ADD VALUE 'INDONESIA';--> statement-breakpoint
+ALTER TYPE "public"."source_region_enum" ADD VALUE 'PHILIPPINES';--> statement-breakpoint
+ALTER TYPE "public"."source_region_enum" ADD VALUE 'MALAYSIA';--> statement-breakpoint
+ALTER TYPE "public"."source_region_enum" ADD VALUE 'VIETNAM';--> statement-breakpoint
+ALTER TYPE "public"."source_region_enum" ADD VALUE 'THAILAND';--> statement-breakpoint
+ALTER TYPE "public"."source_region_enum" ADD VALUE 'POLAND';--> statement-breakpoint
+ALTER TYPE "public"."source_region_enum" ADD VALUE 'BELGIUM';--> statement-breakpoint
+ALTER TYPE "public"."source_region_enum" ADD VALUE 'TURKIYE';

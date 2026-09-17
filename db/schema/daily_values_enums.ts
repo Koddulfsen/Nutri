@@ -98,6 +98,16 @@ export const sourceRegionEnum = pgEnum('source_region_enum', [
   'WHO_FAO',    // WHO/FAO global reference
   'SINGAPORE',  // Singapore HPB RDAs
   'SPAIN',      // AESAN INR
+  'FRANCE',     // ANSES 2021 vitamins and minerals
+  'NETHERLANDS', // Gezondheidsraad voedingsnormen
+  'INDONESIA',  // Kemenkes AKG 2019
+  'PHILIPPINES', // FNRI PDRI 2015
+  'MALAYSIA',   // NCCFN RNI 2017
+  'VIETNAM',    // NIN RDA 2016
+  'THAILAND',   // Thai DRI 2020
+  'POLAND',     // NIZP-PZH Normy żywienia 2020
+  'BELGIUM',    // Superior Health Council 2016
+  'TURKIYE',    // TÜBER 2022
 ]);
 
 /**
@@ -149,4 +159,14 @@ export const dvSourcePreferenceEnum = pgEnum('dv_source_preference_enum', [
   'WHO_FAO',
   'SINGAPORE',
   'SPAIN',
+  'FRANCE',
+  'NETHERLANDS',
+  'INDONESIA',
+  'PHILIPPINES',
+  'MALAYSIA',
+  'VIETNAM',
+  'THAILAND',
+  'POLAND',
+  'BELGIUM',
+  'TURKIYE',
 ]);

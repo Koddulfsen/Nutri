@@ -140,4 +140,13 @@ export const SOURCES: Record<string, SourceMeta> = {
     note: 'Current official values from the DGE Referenzwerte-Tool (all 16 population groups, all nutrients, both sexes), parsed from an HTML snapshot with footnotes in dv-sources/dge-dach/source/. Empfohlene Zufuhr stored as RDA, Schätzwert as AI, Richtwert as EER (energy), AI (water, fluoride) or AMDR (fat, carbohydrate, fibre). Zinc by phytate intake. Footnoted vitamin D supplementation UL, cholesterol, trans fat and free sugars limits stored. Protein (g/kg) not stored.',
     retrievedDate: '2026-09-17',
   },
+  FRANCE: {
+    region: 'FRANCE',
+    slug: 'anses-2021',
+    authorityName: 'ANSES — Actualisation des références nutritionnelles françaises en vitamines et minéraux (France)',
+    versionYear: 2021,
+    url: 'https://www.anses.fr/fr/system/files/NUT2018SA0238Ra.pdf',
+    note: 'Avis 2018-SA-0238 (March 2021), summary Tableaux 2 and 3 transcribed from the PDF text layer and checked against page renders in dv-sources/anses-2021/source/. BNM stored as EAR, RNP as RDA, AS as AI, LSS as UL. B1 and B3 per MJ. Iron for low-to-moderate menstrual losses (high losses in notes). Zinc by phytate intake. Energy and macronutrients are separate ANSES opinions, not stored; manganese not set.',
+    retrievedDate: '2026-09-17',
+  },
 };

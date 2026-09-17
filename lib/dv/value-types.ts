@@ -97,6 +97,9 @@ export const SOURCE_VALUE_TYPES: Record<string, SourceVocabulary> = {
       'max. (saturated fat; footnoted cholesterol, trans fat, free sugars)': 'CDRR', 'UL (footnote, vitamin D supplementation)': 'UL',
     },
   },
+  FRANCE: {
+    terms: { BNM: 'EAR', RNP: 'RDA', AS: 'AI', LSS: 'UL' },
+  },
   ITALY: {
     // PRI vs AI is read from the SINU tables' formatting (bold PRI, italic AI).
     terms: { PRI: 'RDA', AI: 'AI', AR: 'EAR', UL: 'UL', SDT: 'SDT', RI: 'AMDR', 'AR (energy)': 'EER' },
