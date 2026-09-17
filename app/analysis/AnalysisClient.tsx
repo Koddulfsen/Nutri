@@ -60,26 +60,6 @@ interface AnalysisClientProps {
   initialCompoundGroups: GroupHierarchy[];
 }
 
-// Helper to get zone color for progress bars
-function getZoneColor(zone: string): string {
-  switch (zone) {
-    case 'deficient': return '#ef4444'; // Red
-    case 'low': return '#f97316'; // Orange
-    case 'optimal': return '#22c55e'; // Green
-    case 'high': return '#eab308'; // Yellow
-    case 'excess': return '#ef4444'; // Red
-    default: return '#6b7280'; // Gray for unknown
-  }
-}
-
-// Confidence badge component
-function ConfidenceBadge({ tier }: { tier: 1 | 2 | 3 | null }) {
-  if (tier === null) return <span className="confidence-badge">---</span>;
-
-  const dots = tier === 1 ? '●○○' : tier === 2 ? '●●○' : '●●●';
-  return <span className={`confidence-badge tier-${tier}`}>{dots}</span>;
-}
-
 /**
  * Progress bar for a single compound DV.
  *
@@ -140,224 +120,204 @@ function DvBar({
   );
 }
 
-// Recursive component for hierarchical group display
-function HierarchicalGroup({
-  group,
-  expandedGroups,
-  toggleGroup,
-  allCompounds,
+// ── Analysis cards ──
+// Flat cards (card → row → expandable children) built from the compound
+// group hierarchy. Every compound in CORE_COMPOUNDS lands in exactly one card
+// except Energy and Water, which the Macros section shows.
+
+interface CardRow {
+  key: string;
+  label: string;
+  compound: any | null;
+  children: CardRow[];
+}
+
+interface CardDef {
+  title: string;
+  /** Root group(s) whose contents fill the card, in display order */
+  slugs: string[];
+  /** Render these child groups as subheadings instead of rows */
+  sections?: { slug: string; heading: string }[];
+}
+
+const ANALYSIS_CARDS: CardDef[] = [
+  { title: 'Carbohydrates', slugs: ['carbohydrates'] },
+  { title: 'Fats', slugs: ['fats'] },
+  {
+    title: 'Amino acids',
+    slugs: ['proteins'],
+    sections: [
+      { slug: 'essential-amino-acids', heading: 'Essential' },
+      { slug: 'conditionally-essential-amino-acids', heading: 'Conditionally essential' },
+      { slug: 'non-essential-amino-acids', heading: 'Non-essential' },
+    ],
+  },
+  { title: 'B vitamins', slugs: ['b-complex-vitamins'] },
+  { title: 'Vitamins', slugs: ['vitamin-a', 'vitamin-c', 'vitamin-d', 'vitamin-e', 'vitamin-k', 'choline'] },
+  {
+    title: 'Minerals',
+    slugs: ['minerals'],
+    sections: [
+      { slug: 'macro-minerals', heading: 'Macro minerals' },
+      { slug: 'trace-minerals', heading: 'Trace minerals' },
+    ],
+  },
+  { title: 'Heavy metals', slugs: ['heavy-metals'] },
+];
+
+function findGroup(groups: GroupHierarchy[], slug: string): GroupHierarchy | null {
+  for (const g of groups) {
+    if (g.slug === slug) return g;
+    const hit = findGroup(g.children || [], slug);
+    if (hit) return hit;
+  }
+  return null;
+}
+
+function buildCardRows(
+  groups: GroupHierarchy[],
+  def: CardDef,
+  byName: Map<string, any>
+): { heading: string | null; rows: CardRow[] }[] {
+  const compRow = (c: any): CardRow => ({ key: c.id, label: c.name, compound: c, children: [] });
+  const compsOf = (g: GroupHierarchy) =>
+    (g.compoundNames || []).map((n) => byName.get(n)).filter(Boolean);
+
+  // A group becomes one expandable row headed by its representative compound;
+  // a group with no compounds of its own passes its children up.
+  const groupRows = (g: GroupHierarchy): CardRow[] => {
+    const comps = compsOf(g);
+    const nested = (g.children || []).flatMap(groupRows);
+    if (comps.length === 0) return nested;
+    const rep = g.representativeCompound ? byName.get(g.representativeCompound) : null;
+    if (rep) {
+      const children = [...comps.filter((c: any) => c.id !== rep.id).map(compRow), ...nested];
+      return [{ key: g.id, label: rep.name, compound: rep, children }];
+    }
+    return [{ key: g.id, label: g.name, compound: null, children: [...comps.map(compRow), ...nested] }];
+  };
+
+  // The root's own compounds are plain rows, representative first.
+  const rootRows = (g: GroupHierarchy, skip: Set<string>): CardRow[] => {
+    const comps = compsOf(g).sort((a: any, b: any) =>
+      a.name === g.representativeCompound ? -1 : b.name === g.representativeCompound ? 1 : 0
+    );
+    return [
+      ...comps.map(compRow),
+      ...(g.children || []).filter((c) => !skip.has(c.slug)).flatMap(groupRows),
+    ];
+  };
+
+  const sectionSlugs = new Set((def.sections || []).map((s) => s.slug));
+  const out: { heading: string | null; rows: CardRow[] }[] = [];
+  const top: CardRow[] = [];
+  for (const slug of def.slugs) {
+    const g = findGroup(groups, slug);
+    if (g) top.push(...(def.slugs.length > 1 ? groupRows(g) : rootRows(g, sectionSlugs)));
+  }
+  if (top.length) out.push({ heading: null, rows: top });
+  for (const sec of def.sections || []) {
+    const g = findGroup(groups, sec.slug);
+    if (g) out.push({ heading: sec.heading, rows: rootRows(g, new Set()) });
+  }
+  return out;
+}
+
+/**
+ * Splits the cards into two columns of roughly equal height, keeping reading
+ * order: each card goes to whichever column is shorter so far. Height is
+ * estimated from row counts (not measured), so expanding a row never makes
+ * a card jump columns.
+ */
+function balanceCards(
+  groups: GroupHierarchy[],
+  byName: Map<string, any>
+): { def: CardDef; index: number }[][] {
+  const cols: { def: CardDef; index: number }[][] = [[], []];
+  const heights = [0, 0];
+  ANALYSIS_CARDS.forEach((def, index) => {
+    const sections = buildCardRows(groups, def, byName);
+    // title ≈ 2 rows, subheading ≈ 0.6 row, card padding + gap ≈ 1.5 rows
+    const h =
+      2 + 1.5 +
+      sections.reduce((n, sec) => n + sec.rows.length + (sec.heading ? 0.6 : 0), 0);
+    const col = heights[0] <= heights[1] ? 0 : 1;
+    cols[col].push({ def, index });
+    heights[col] += h;
+  });
+  return cols;
+}
+
+function AnalysisCard({
+  def,
+  index,
+  groups,
+  byName,
+  expanded,
+  toggle,
   getNutrientValue,
   formatAmount,
   selectedMealIds,
-  depth = 0,
-  rowIndex = 0,
 }: {
-  group: any;
-  expandedGroups: { [key: string]: boolean };
-  toggleGroup: (id: string) => void;
-  allCompounds: any[];
-  getNutrientValue: (id: string) => {
-    amount: number;
-    unit: string;
-    rdaPercent: number | null;
-    zone: 'deficient' | 'low' | 'optimal' | 'high' | 'excess' | 'unknown';
-    dailyValue: { value: number; unit: string; source: string | null } | null;
-    showProgressBar: boolean;
-    confidence: number | null;
-    confidenceTier: 1 | 2 | 3 | null;
-  } | null;
+  def: CardDef;
+  index: number;
+  groups: GroupHierarchy[];
+  byName: Map<string, any>;
+  expanded: { [key: string]: boolean };
+  toggle: (id: string) => void;
+  getNutrientValue: (id: string) => any;
   formatAmount: (amount: number, unit: string) => string;
   selectedMealIds: string[];
-  depth?: number;
-  rowIndex?: number;
 }) {
-  const isExpanded = expandedGroups[group.id];
-  const hasChildren = group.children && group.children.length > 0;
+  const sections = buildCardRows(groups, def, byName);
 
-  // Get compounds for this group
-  const excludedCompounds = ['Energy', 'Water', 'Ash', 'Protein', 'Total Carbohydrate', 'Total Fat'];
-  const groupCompounds = allCompounds.filter((c) => {
-    if (excludedCompounds.includes(c.name)) return false;
-
-    // If group has specific compound names, match by name
-    if (group.compoundNames && group.compoundNames.length > 0) {
-      return group.compoundNames.includes(c.name);
-    }
-
-    // Otherwise match by compound type (for leaf nodes without specific names)
-    if (!hasChildren && group.compoundTypes) {
-      return group.compoundTypes.includes(c.compound_type);
-    }
-
-    return false;
-  });
-
-  // Get representative compound data (for showing value on group header)
-  // Note: We search ALL compounds here, not filtered by excludedCompounds
-  const representativeCompound = group.representativeCompound
-    ? allCompounds.find((c) => c.name === group.representativeCompound)
-    : null;
-  const representativeData = representativeCompound
-    ? getNutrientValue(representativeCompound.id)
-    : null;
-  const hasRepresentativeValue = representativeData && representativeData.amount > 0;
-  const representativeDisplayValue = hasRepresentativeValue
-    ? formatAmount(representativeData.amount, representativeData.unit)
-    : representativeCompound ? `-- ${representativeCompound.unit}` : null;
-  // Use real DV percent from API, capped at 100% for display
-  const representativeDvPercent = representativeData?.rdaPercent != null
-    ? Math.min(100, representativeData.rdaPercent)
-    : 0;
-  const representativeZone = representativeData?.zone || 'unknown';
-  const representativeShowBar = representativeData?.showProgressBar ?? false;
-
-  // Filter out the representative compound from nested display
-  const nestedCompounds = group.representativeCompound
-    ? groupCompounds.filter((c) => c.name !== group.representativeCompound)
-    : groupCompounds;
-
-  // Show compounds at leaf nodes (no children) or if group has specific compound names
-  const showCompounds = (!hasChildren || group.compoundNames) && nestedCompounds.length > 0;
-  const hasContent = hasChildren || showCompounds;
-
-  // Count total compounds in this group and all children (excluding representative)
-  const countCompounds = (g: any): number => {
-    let count = 0;
-    if (g.compoundNames) {
-      const compounds = allCompounds.filter((c) => !excludedCompounds.includes(c.name) && g.compoundNames.includes(c.name));
-      // Don't count representative compound
-      count += compounds.filter((c) => c.name !== g.representativeCompound).length;
-    } else if (!g.children && g.compoundTypes) {
-      count += allCompounds.filter((c) => !excludedCompounds.includes(c.name) && g.compoundTypes.includes(c.compound_type)).length;
-    }
-    if (g.children) {
-      g.children.forEach((child: any) => count += countCompounds(child));
-    }
-    return count;
-  };
-  const totalCount = countCompounds(group);
-
-  // Determine if this is a "value-only" group (has representative but no nested children to show)
-  const isValueOnlyGroup = group.representativeCompound && nestedCompounds.length === 0 && !hasChildren;
-
-  return (
-    <div className="category-section" style={{ marginLeft: depth > 0 ? `${depth * 12}px` : 0, marginRight: depth > 0 ? `${depth * 8}px` : 0 }}>
-      <div
-        className={`nutrient-row group-row${rowIndex % 2 === 1 ? ' banded' : ''}`}
-        onClick={() => hasContent && !isValueOnlyGroup && toggleGroup(group.id)}
-        style={{
-          cursor: hasContent && !isValueOnlyGroup ? 'pointer' : 'default',
-          paddingTop: `${8 + Math.max(0, 8 - depth * 2)}px`,
-          paddingBottom: `${8 + Math.max(0, 8 - depth * 2)}px`,
-        }}
-      >
-        <div className="nutrient-name">
-          {hasContent && !isValueOnlyGroup && (isExpanded ? '▼' : '▶')}
-          {(!hasContent || isValueOnlyGroup) && '•'}
-          {' '}
-          {group.name}
-        </div>
-        <div className={`nutrient-value ${hasRepresentativeValue ? 'has-value' : ''}`}>
-          {representativeDisplayValue || (totalCount > 0 ? `${totalCount}` : '')}
-        </div>
-        <ConfidenceBadge tier={representativeData?.confidenceTier ?? null} />
-        {representativeCompound ? (
-          <CompoundTooltip
-            compoundId={representativeCompound.id}
-            compoundName={representativeCompound.name}
-            mealIds={selectedMealIds}
+  const renderRow = (row: CardRow, child = false) => {
+    const data = row.compound ? getNutrientValue(row.compound.id) : null;
+    const hasValue = data && data.amount > 0;
+    const open = !!expanded[row.key];
+    const canOpen = row.children.length > 0;
+    return (
+      <div key={row.key} className={`ac-item${child ? ' ac-item--child' : ''}`}>
+        <div className="ac-row">
+          <button
+            type="button"
+            className="ac-name"
+            onClick={() => canOpen && toggle(row.key)}
+            disabled={!canOpen}
+            aria-expanded={canOpen ? open : undefined}
           >
-            <DvBar rdaPercent={representativeData?.rdaPercent ?? null} dailyValue={representativeData?.dailyValue ?? null} />
-          </CompoundTooltip>
-        ) : (
-          <DvBar rdaPercent={representativeData?.rdaPercent ?? null} dailyValue={representativeData?.dailyValue ?? null} />
+            {canOpen && <span className={`ac-caret${open ? ' ac-caret--open' : ''}`} aria-hidden="true">›</span>}
+            {row.label}
+          </button>
+          <span className={`ac-value${hasValue ? ' ac-value--filled' : ''}`}>
+            {row.compound ? (hasValue ? formatAmount(data.amount, data.unit) : '—') : ''}
+          </span>
+          <span className="ac-bar">
+            {row.compound && (
+              <CompoundTooltip compoundId={row.compound.id} compoundName={row.compound.name} mealIds={selectedMealIds}>
+                <DvBar rdaPercent={data?.rdaPercent ?? null} dailyValue={data?.dailyValue ?? null} />
+              </CompoundTooltip>
+            )}
+          </span>
+        </div>
+        {canOpen && open && (
+          <div className="ac-children">{row.children.map((c) => renderRow(c, true))}</div>
         )}
       </div>
+    );
+  };
 
-      {isExpanded && !isValueOnlyGroup && (
-        <div className="category-content">
-          {/* Render compounds for this group if it has specific names (excluding representative) */}
-          {group.compoundNames && nestedCompounds.map((compound: any) => {
-            const nutrientData = getNutrientValue(compound.id);
-            const hasValue = nutrientData && nutrientData.amount > 0;
-            const displayValue = hasValue
-              ? formatAmount(nutrientData.amount, nutrientData.unit)
-              : `-- ${compound.unit}`;
-            // Use real DV percent from API
-            const dvPercent = nutrientData?.rdaPercent != null
-              ? Math.min(100, nutrientData.rdaPercent)
-              : 0;
-            const zone = nutrientData?.zone || 'unknown';
-            const showBar = nutrientData?.showProgressBar ?? false;
-
-            return (
-              <div key={compound.id} className="nutrient-row">
-                <div className="nutrient-name">{compound.name}</div>
-                <div className={`nutrient-value ${hasValue ? 'has-value' : ''}`}>
-                  {displayValue}
-                </div>
-                <ConfidenceBadge tier={nutrientData?.confidenceTier ?? null} />
-                {/* Always show progress bar - active if DV exists, inactive if not */}
-                <CompoundTooltip
-                  compoundId={compound.id}
-                  compoundName={compound.name}
-                  mealIds={selectedMealIds}
-                >
-                  <DvBar rdaPercent={nutrientData?.rdaPercent ?? null} dailyValue={nutrientData?.dailyValue ?? null} />
-                </CompoundTooltip>
-              </div>
-            );
-          })}
-
-          {/* Render child groups */}
-          {hasChildren && group.children.map((child: any, index: number) => (
-            <HierarchicalGroup
-              key={child.id}
-              group={child}
-              expandedGroups={expandedGroups}
-              toggleGroup={toggleGroup}
-              allCompounds={allCompounds}
-              getNutrientValue={getNutrientValue}
-              formatAmount={formatAmount}
-              selectedMealIds={selectedMealIds}
-              depth={depth + 1}
-              rowIndex={index}
-            />
-          ))}
-
-          {/* Render compounds at leaf nodes (no children, no specific names) */}
-          {!hasChildren && !group.compoundNames && nestedCompounds.map((compound: any) => {
-            const nutrientData = getNutrientValue(compound.id);
-            const hasValue = nutrientData && nutrientData.amount > 0;
-            const displayValue = hasValue
-              ? formatAmount(nutrientData.amount, nutrientData.unit)
-              : `-- ${compound.unit}`;
-            // Use real DV percent from API
-            const dvPercent = nutrientData?.rdaPercent != null
-              ? Math.min(100, nutrientData.rdaPercent)
-              : 0;
-            const zone = nutrientData?.zone || 'unknown';
-
-            return (
-              <div key={compound.id} className="nutrient-row">
-                <div className="nutrient-name">{compound.name}</div>
-                <div className={`nutrient-value ${hasValue ? 'has-value' : ''}`}>
-                  {displayValue}
-                </div>
-                <ConfidenceBadge tier={nutrientData?.confidenceTier ?? null} />
-                {/* Always show progress bar - active if DV exists, inactive if not */}
-                <CompoundTooltip
-                  compoundId={compound.id}
-                  compoundName={compound.name}
-                  mealIds={selectedMealIds}
-                >
-                  <DvBar rdaPercent={nutrientData?.rdaPercent ?? null} dailyValue={nutrientData?.dailyValue ?? null} />
-                </CompoundTooltip>
-              </div>
-            );
-          })}
+  return (
+    // order: restores the original card order when the columns collapse
+    // into one on a phone (see .ac-col in globals.css)
+    <div className="ac-card" style={{ order: index }}>
+      <h3 className="ac-title">{def.title}</h3>
+      {sections.map((sec, i) => (
+        <div key={sec.heading ?? i} className="ac-section">
+          {sec.heading && <p className="ac-heading">{sec.heading}</p>}
+          {sec.rows.map((r) => renderRow(r))}
         </div>
-      )}
+      ))}
     </div>
   );
 }
@@ -375,9 +335,16 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
   const [activeTab, setActiveTab] = useState<string>(''); // Empty until meals load
 
   // Food search state
+  // Whole-catalog client-side search: fetched once (any tab, so it's ready
+  // the moment Manual search is opened), then every keystroke filters it in
+  // memory — no request, no debounce. See app/api/foods/catalog/route.ts;
+  // revisit this approach if the catalog grows past a few thousand foods.
+  const [foodCatalog, setFoodCatalog] = useState<any[]>([]);
+  const [catalogLoading, setCatalogLoading] = useState(true);
+  const [catalogError, setCatalogError] = useState<string | null>(null);
+  // Surfaces add/remove-meal-item failures, shown under the add-row.
+  const [actionError, setActionError] = useState<string | null>(null);
   const [searchResults, setSearchResults] = useState<any[]>([]);
-  const [searchLoading, setSearchLoading] = useState(false);
-  const [searchError, setSearchError] = useState<string | null>(null);
 
   // Selected food state (for preview before adding to meal)
   const [selectedFood, setSelectedFood] = useState<any | null>(null);
@@ -617,50 +584,44 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
     }
   }
 
-  // Debounced food search
+  // Fetch the whole food catalog once, up front — independent of which tab
+  // is open, so it has usually already arrived by the time someone switches
+  // to Manual search.
   useEffect(() => {
-    // Clear results if query is empty
-    if (!searchQuery.trim()) {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch(apiUrl('/api/foods/catalog'));
+        if (!res.ok) throw new Error(`Failed to load food catalog: ${res.statusText}`);
+        const data = await res.json();
+        if (!cancelled) setFoodCatalog(data.foods || []);
+      } catch (error) {
+        console.error('Food catalog fetch error:', error);
+        if (!cancelled) setCatalogError(error instanceof Error ? error.message : 'Failed to load foods');
+      } finally {
+        if (!cancelled) setCatalogLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  // Instant search: filters the already-loaded catalog in memory on every
+  // keystroke. No request, so nothing to debounce.
+  useEffect(() => {
+    const q = searchQuery.trim().toLowerCase();
+    if (!q) {
       setSearchResults([]);
-      setSearchError(null);
       return;
     }
-
-    // Debounce search (wait 500ms after user stops typing)
-    setSearchLoading(true);
-    const timeoutId = setTimeout(async () => {
-      try {
-        const params = new URLSearchParams({
-          q: searchQuery,
-          limit: '20',
-        });
-
-        const res = await fetch(apiUrl(`/api/foods/search?${params}`));
-
-        if (!res.ok) {
-          throw new Error(`Search failed: ${res.statusText}`);
-        }
-
-        const data = await res.json();
-        setSearchResults(data.results || []);
-
-        // Show suggestions if no results
-        if (data.metadata?.suggestions?.length > 0) {
-        }
-      } catch (error) {
-        console.error('Food search error:', error);
-        setSearchError(error instanceof Error ? error.message : 'Search failed');
-        setSearchResults([]);
-      } finally {
-        setSearchLoading(false);
-      }
-    }, 500);
-
-    // Cleanup timeout on query change
-    return () => {
-      clearTimeout(timeoutId);
-    };
-  }, [searchQuery]);
+    const terms = q.split(/\s+/);
+    const matches = foodCatalog.filter((food) => {
+      const name = food.name.toLowerCase();
+      return terms.every((term) => name.includes(term));
+    });
+    setSearchResults(matches.slice(0, 20));
+  }, [searchQuery, foodCatalog]);
 
   async function fetchDailyTotals(date: string, mealIdsToFilter?: string[]) {
     try {
@@ -736,31 +697,23 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
   }
 
   // Selected food handlers
-  const handleSelectFood = async (food: any) => {
+  const handleSelectFood = (food: any) => {
     setSelectedFood(food);
     setSearchQuery(''); // Clear search
     setDropdownOpen(false);
-    setFoodPortions([]);
-    setSelectedQuantity('100');
-    setSelectedUnit('g');
 
-    // Fetch portions for imported foods (UUIDs)
-    if (food?.isImported && food?.id) {
-      try {
-        const res = await fetch(apiUrl(`/api/foods/${food.id}/portions`));
-        if (res.ok) {
-          const data = await res.json();
-          const portions = data.portions || [];
-          if (portions.length > 0) {
-            setFoodPortions(portions);
-            const def = portions.find((p: any) => p.isDefault) || portions[0];
-            setSelectedUnit(def.id);
-            setSelectedQuantity('1');
-          }
-        }
-      } catch (error) {
-        console.error('Failed to fetch food portions:', error);
-      }
+    // Portions came bundled with the catalog entry (see /api/foods/catalog),
+    // so there is nothing left to fetch — selecting a food is instant.
+    const portions = food.portions || [];
+    setFoodPortions(portions);
+    if (portions.length > 0) {
+      const def = portions.find((p: any) => p.isDefault) || portions[0];
+      setSelectedUnit(def.id);
+      setSelectedQuantity('1');
+    } else {
+      // No portions on file for this food — grams is the only option.
+      setSelectedQuantity('100');
+      setSelectedUnit('g');
     }
   };
 
@@ -772,6 +725,7 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
   };
 
   const handleRemoveMealItem = async (mealItemId: string) => {
+    setActionError(null);
     try {
 
       const res = await fetch(apiUrl(`/api/meals/items/${mealItemId}`), {
@@ -787,12 +741,13 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
 
     } catch (error) {
       console.error('Failed to remove meal item:', error);
-      setSearchError(error instanceof Error ? error.message : 'Failed to remove item');
+      setActionError(error instanceof Error ? error.message : 'Failed to remove item');
     }
   };
 
   const handleAddFoodToMeal = async () => {
     if (!selectedFood) return;
+    setActionError(null);
 
     // Import USDA food if needed (if it's not already in database)
     let foodId = selectedFood.id;
@@ -866,7 +821,7 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
 
     } catch (error) {
       console.error('Failed to add food to meal:', error);
-      setSearchError(error instanceof Error ? error.message : 'Failed to add food');
+      setActionError(error instanceof Error ? error.message : 'Failed to add food');
     } finally {
       setAddingFood(false);
     }
@@ -1171,110 +1126,121 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
                     </button>
                   </div>
 
-                  {centerTab === 'chat' ? (
-                    <FoodLogChat
-                      date={selectedDate}
-                      onMealLogged={() => {
-                        fetchMealsForDate(selectedDate, true);
-                      }}
-                    />
-                  ) : (
-                    <div className="cc-search-pane" ref={searchWrapperRef}>
-                      <div className="search-field-outer">
-                        <div className="search-bar-wrap" ref={searchBarRef}>
-                          <span className="search-icon">
-                            <svg viewBox="0 0 24 24" fill="none" strokeLinecap="round" strokeLinejoin="round">
-                              <circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="21" y2="21"/>
-                            </svg>
-                          </span>
-                          <input
-                            type="text"
-                            className="search-input-clean"
-                            placeholder="Search foods..."
-                            value={selectedFood ? selectedFood.name : searchQuery}
-                            onChange={(e) => {
-                              if (selectedFood) { setSelectedFood(null); setSelectedQuantity('100'); setSelectedUnit('g'); }
-                              setSearchQuery(e.target.value);
-                              setDropdownOpen(true);
-                            }}
-                            onFocus={() => {
-                              setSearchFocused(true);
-                              if (selectedFood) { setSelectedFood(null); setSelectedQuantity('100'); setSelectedUnit('g'); setSearchQuery(''); }
-                              else if (searchQuery) { setDropdownOpen(true); }
-                            }}
-                            onBlur={() => setSearchFocused(false)}
-                            readOnly={!!selectedFood}
-                          />
-                          {selectedFood && (
-                            <button className="search-clear-btn" onClick={handleRemoveSelectedFood}>✕</button>
-                          )}
-                        </div>
-                      </div>
+                  {(() => {
+                    const foodListAside = mealsLoading ? (
+                      <p className="chat-aside-empty">Loading…</p>
+                    ) : (() => {
+                      const allItems = meals.flatMap(m => m.items || []);
+                      return allItems.length === 0 ? (
+                        <p className="chat-aside-empty">No foods logged</p>
+                      ) : (
+                        <ul className="chat-aside-list">
+                          {allItems.map((item: any) => (
+                            <li key={item.id} className="chat-aside-item">
+                              <span className="chat-aside-name">{item.food?.name || 'Unknown'}</span>
+                              <span className="chat-aside-meta">{item.portionSize}{item.portionType}</span>
+                              <button
+                                type="button"
+                                className="chat-aside-remove"
+                                onClick={() => handleRemoveMealItem(item.id)}
+                                aria-label={`Remove ${item.food?.name || 'item'}`}
+                              >
+                                ✕
+                              </button>
+                            </li>
+                          ))}
+                        </ul>
+                      );
+                    })();
 
-                      <div className="add-row">
-                        <input
-                          type="number"
-                          className="quantity-input"
-                          value={selectedQuantity}
-                          onChange={(e) => setSelectedQuantity(e.target.value)}
-                          min="1"
-                        />
-                        <select
-                          className="unit-select"
-                          value={selectedUnit}
-                          onChange={(e) => setSelectedUnit(e.target.value)}
-                        >
-                          {foodPortions.length > 0 ? (
-                            foodPortions.map((p) => (
-                              <option key={p.id} value={p.id}>{p.description}</option>
-                            ))
-                          ) : (
-                            <>
-                              <option value="g">g</option>
-                              <option value="oz">oz</option>
-                              <option value="cup">cup</option>
-                              <option value="tbsp">tbsp</option>
-                            </>
-                          )}
-                        </select>
-                        <button
-                          className="add-btn"
-                          onClick={handleAddFoodToMeal}
-                          disabled={addingFood}
-                        >
-                          {addingFood ? 'Adding…' : 'Add food'}
-                        </button>
+                    return centerTab === 'chat' ? (
+                      <FoodLogChat
+                        aside={foodListAside}
+                        date={selectedDate}
+                        onMealLogged={() => {
+                          fetchMealsForDate(selectedDate, true);
+                        }}
+                      />
+                    ) : (
+                      <div className="chat-box chat-box--split">
+                        <div className="chat-main">
+                          <div className="cc-search-pane" ref={searchWrapperRef}>
+                            <div className="search-field-outer">
+                              <div className="search-bar-wrap" ref={searchBarRef}>
+                                <span className="search-icon">
+                                  <svg viewBox="0 0 24 24" fill="none" strokeLinecap="round" strokeLinejoin="round">
+                                    <circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="21" y2="21"/>
+                                  </svg>
+                                </span>
+                                <input
+                                  type="text"
+                                  className="search-input-clean"
+                                  placeholder={catalogLoading ? 'Loading foods…' : 'Search foods...'}
+                                  value={selectedFood ? selectedFood.name : searchQuery}
+                                  disabled={catalogLoading}
+                                  onChange={(e) => {
+                                    if (selectedFood) { setSelectedFood(null); setSelectedQuantity('100'); setSelectedUnit('g'); }
+                                    setSearchQuery(e.target.value);
+                                    setDropdownOpen(true);
+                                  }}
+                                  onFocus={() => {
+                                    setSearchFocused(true);
+                                    if (selectedFood) { setSelectedFood(null); setSelectedQuantity('100'); setSelectedUnit('g'); setSearchQuery(''); }
+                                    else if (searchQuery) { setDropdownOpen(true); }
+                                  }}
+                                  onBlur={() => setSearchFocused(false)}
+                                  readOnly={!!selectedFood}
+                                />
+                                {selectedFood && (
+                                  <button className="search-clear-btn" onClick={handleRemoveSelectedFood}>✕</button>
+                                )}
+                              </div>
+                            </div>
+
+                            <div className="add-row">
+                              <input
+                                type="number"
+                                className="quantity-input"
+                                value={selectedQuantity}
+                                onChange={(e) => setSelectedQuantity(e.target.value)}
+                                min="1"
+                              />
+                              <select
+                                className="unit-select"
+                                value={selectedUnit}
+                                onChange={(e) => setSelectedUnit(e.target.value)}
+                              >
+                                {foodPortions.length > 0 ? (
+                                  foodPortions.map((p) => (
+                                    <option key={p.id} value={p.id}>{p.description}</option>
+                                  ))
+                                ) : (
+                                  <>
+                                    <option value="g">g</option>
+                                    <option value="oz">oz</option>
+                                    <option value="cup">cup</option>
+                                    <option value="tbsp">tbsp</option>
+                                  </>
+                                )}
+                              </select>
+                              <button
+                                className="add-btn"
+                                onClick={handleAddFoodToMeal}
+                                disabled={addingFood || !selectedFood}
+                              >
+                                {addingFood ? 'Adding…' : 'Add food'}
+                              </button>
+                            </div>
+                            {actionError && <p className="cc-action-error">{actionError}</p>}
+                          </div>
+                        </div>
+                        <aside className="chat-aside">{foodListAside}</aside>
                       </div>
-                    </div>
-                  )}
+                    );
+                  })()}
           </section>{/* end log panel */}
 
           {/* ── PANEL — today's food list ── */}
-          <section className="an-panel an-panel--foods">
-            <div className="an-foods-head">
-              <p className="section-label">Today</p>
-            </div>
-            <div className="an-foods">
-              <div className="food-list">
-                {mealsLoading ? (
-                  <div className="lc-empty">Loading…</div>
-                ) : (() => {
-                  const allItems = meals.flatMap(m => m.items || []);
-                  return allItems.length === 0 ? (
-                    <div className="lc-empty">No foods logged yet</div>
-                  ) : (
-                    allItems.map((item: any) => (
-                      <div key={item.id} className="food-item">
-                        <span className="food-item-name">{item.food?.name || 'Unknown'}</span>
-                        <span className="food-item-meta">{item.portionSize}{item.portionType}</span>
-                        <button className="food-item-remove" onClick={() => handleRemoveMealItem(item.id)}>✕</button>
-                      </div>
-                    ))
-                  );
-                })()}
-              </div>
-            </div>
-          </section>{/* end foods panel */}
 
           {/* ── PANEL — macros ── */}
           <section className="an-panel an-panel--macros">
@@ -1364,9 +1330,27 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
           {/* ── PANEL 2 — in-depth compounds ── */}
           <section className="an-panel an-panel--compounds">
               <section className="rc-compounds compounds-section">
+                <div className="an-analysis-head">
                 <p className="section-label">Analysis</p>
-                <div className="compounds-header">
-                  <div className="picker">
+                  <div className="picker picker--bare">
+                  <div className="picker-group">
+                      <span className={`picker-opt picker-opt--male${sex === 'male' ? ' sel' : ''}`} onClick={() => setSex('male')}>
+                        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                          <circle cx="10" cy="14" r="6"/>
+                          <line x1="14.5" y1="9.5" x2="20" y2="4"/>
+                          <polyline points="16 4 20 4 20 8"/>
+                        </svg>
+                      </span>
+                      <span className="picker-divider" />
+                      <span className={`picker-opt picker-opt--female${sex === 'female' ? ' sel' : ''}`} onClick={() => setSex('female')}>
+                        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                          <circle cx="12" cy="8" r="6"/>
+                          <line x1="12" y1="14" x2="12" y2="20"/>
+                          <line x1="9" y1="18" x2="15" y2="18"/>
+                        </svg>
+                      </span>
+                    </div>
+                    <div className="picker-fields">
                     <div className="picker-age-row">
                       <span className="picker-label">Age</span>
                       <input
@@ -1378,24 +1362,7 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
                         onChange={(e) => setProfileAge(parseInt(e.target.value) || 25)}
                       />
                     </div>
-                    <div className="picker-group">
-                      <span className={`picker-opt picker-opt--male${sex === 'male' ? ' sel' : ''}`} onClick={() => setSex('male')}>
-                        <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                          <circle cx="10" cy="14" r="6"/>
-                          <line x1="14.5" y1="9.5" x2="20" y2="4"/>
-                          <polyline points="16 4 20 4 20 8"/>
-                        </svg>
-                      </span>
-                      <span className="picker-divider" />
-                      <span className={`picker-opt picker-opt--female${sex === 'female' ? ' sel' : ''}`} onClick={() => setSex('female')}>
-                        <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                          <circle cx="12" cy="8" r="6"/>
-                          <line x1="12" y1="14" x2="12" y2="20"/>
-                          <line x1="9" y1="18" x2="15" y2="18"/>
-                        </svg>
-                      </span>
-                    </div>
-                    <div className="picker-activity-row">
+                      <div className="picker-activity-row">
                       <span className="picker-label">Activity</span>
                       <select
                         className="activity-select"
@@ -1408,22 +1375,56 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
                         <option value="VERY_ACTIVE">Very Active</option>
                       </select>
                     </div>
+                    </div>
                   </div>
                 </div>
-                <div className="nutrient-categories">
-                  {initialCompoundGroups.map((group, index) => (
-                    <HierarchicalGroup
-                      key={group.id}
-                      group={group}
-                      expandedGroups={expandedGroups}
-                      toggleGroup={toggleGroup}
-                      allCompounds={allCompounds}
-                      getNutrientValue={getNutrientValue}
-                      formatAmount={formatAmount}
-                      selectedMealIds={selectedMealIds}
-                      rowIndex={index}
-                    />
-                  ))}
+                <div className="compounds-header">
+                  {/* Highlighted compounds — design only, not wired to data yet */}
+                  <div className="hl-card">
+                    <h3 className="ac-title">Highlighted</h3>
+                    <div className="hl-rings">
+                      {['Vitamin D', 'Iron', 'Magnesium', 'Omega-3', 'Vitamin B12', 'Fiber'].map((label, i) => (
+                        <div key={label} className="macro-item">
+                          <div className="macro-ring">
+                            <svg width="80" height="80" viewBox="0 0 80 80">
+                              <circle cx="40" cy="40" r="37" fill="none" stroke="var(--border)" strokeWidth="6"/>
+                              <circle cx="40" cy="40" r="37" fill="none" stroke={`var(--ring-${(i % 3) + 1})`} strokeWidth="6"
+                                strokeDasharray="0 232.48" strokeLinecap="round" opacity="0.45"/>
+                            </svg>
+                            <span>
+                              <span className="macro-ring-val">--</span>
+                              <span className="macro-ring-unit">%</span>
+                            </span>
+                          </div>
+                          <p className="macro-label">{label}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+                <div className="an-divider" />
+                <div className="ac-grid">
+                  {(() => {
+                    const byName = new Map(allCompounds.map((c: any) => [c.name, c]));
+                    return balanceCards(initialCompoundGroups, byName).map((col, ci) => (
+                      <div key={ci} className="ac-col">
+                        {col.map(({ def, index }) => (
+                      <AnalysisCard
+                        key={def.title}
+                        def={def}
+                        index={index}
+                        groups={initialCompoundGroups}
+                        byName={byName}
+                        expanded={expandedGroups}
+                        toggle={toggleGroup}
+                        getNutrientValue={getNutrientValue}
+                        formatAmount={formatAmount}
+                        selectedMealIds={selectedMealIds}
+                      />
+                        ))}
+                      </div>
+                    ));
+                  })()}
                 </div>
               </section>
 
@@ -1439,24 +1440,21 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
           className="search-dropdown an-portal"
           style={{ position: 'fixed', top: dropdownPos.top, left: dropdownPos.left, width: dropdownPos.width, zIndex: 9999 }}
         >
-          {searchLoading && (
-            <div className="search-dropdown-item" style={{ color: 'var(--text-3)' }}>Searching...</div>
+          {catalogError && (
+            <div className="search-dropdown-item" style={{ color: 'var(--red)' }}>Error: {catalogError}</div>
           )}
-          {searchError && (
-            <div className="search-dropdown-item" style={{ color: 'var(--red)' }}>Error: {searchError}</div>
-          )}
-          {!searchLoading && !searchError && searchResults.length === 0 && (
+          {!catalogError && searchResults.length === 0 && (
             <div className="search-dropdown-item" style={{ color: 'var(--text-3)' }}>No results for &ldquo;{searchQuery}&rdquo;</div>
           )}
-          {!searchLoading && !searchError && searchResults.map((food, i) => (
-            <div key={food.fdcId || food.id} className={`search-dropdown-item${i % 2 === 1 ? ' banded' : ''}`} onClick={() => handleSelectFood(food)}>
+          {!catalogError && searchResults.map((food, i) => (
+            <div key={food.id} className={`search-dropdown-item${i % 2 === 1 ? ' banded' : ''}`} onClick={() => handleSelectFood(food)}>
               <div className="search-dropdown-name">{food.name}</div>
-              <div className="search-dropdown-meta">
-                {food.brand ? `${food.brand} · ` : ''}{food.dataSource}
-              </div>
+              {food.compoundCount > 0 && (
+                <div className="search-dropdown-meta">{food.compoundCount} compounds</div>
+              )}
             </div>
           ))}
-          {!searchLoading && !searchError && (
+          {!catalogError && (
             <div className="search-add-unknown">
               <button
                 className="search-add-unknown-btn"
@@ -1552,11 +1550,11 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
           border-radius: 4px;
         }
         .lc-section--calendar :global(.day-name) {
-          font-size: 9px;
+          font-size: 15px;
           letter-spacing: 0.3px;
         }
         .lc-section--calendar :global(.day-number) {
-          font-size: 14px;
+          font-size: 17px;
           margin-top: 1px;
         }
         .lc-section--foods {
@@ -1572,7 +1570,7 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
           padding: 0 18px;
           margin: 0 0 10px;
           font-family: var(--font-mono);
-          font-size: 11px;
+          font-size: 15px;
           letter-spacing: 0.1em;
           text-transform: uppercase;
           color: var(--text-3);
@@ -1586,7 +1584,7 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
         .lc-empty {
           padding: 12px 18px;
           color: var(--text-3);
-          font-size: 13px;
+          font-size: 17px;
         }
 
         /* ── CENTER column — tabbed: AI chat / Manual search ── */
@@ -1598,7 +1596,7 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
           background: var(--bg);
           border-right: 4px solid var(--divider);
         }
-        .center-col > :global(.fc-root) {
+        .center-col > :global(.chat-box) {
           flex: 1;
           min-height: 0;
         }
@@ -1619,7 +1617,7 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
           border: none;
           padding: 4px 14px;
           font-family: var(--font-mono);
-          font-size: 11px;
+          font-size: 15px;
           letter-spacing: 0.1em;
           text-transform: uppercase;
           color: var(--text-3);
@@ -1680,10 +1678,10 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
           margin-bottom: 32px;
         }
         .rc-macros :global(.hero-stat-num) {
-          font-size: 40px;
+          font-size: 48px;
         }
         .rc-macros :global(.hero-stat-label) {
-          font-size: 12px;
+          font-size: 16px;
         }
         .rc-macros :global(.hero-stat-icon) {
           margin-bottom: 4px;
@@ -1704,36 +1702,45 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
           font-size: 20px;
         }
         .rc-macros :global(.macro-ring-unit) {
-          font-size: 11px;
+          font-size: 15px;
         }
         .rc-macros :global(.macro-label) {
-          font-size: 12px;
+          font-size: 16px;
         }
 
         /* Make the analysis age/sex picker wrap nicely in narrow column */
+        /* Top of the analysis box: highlighted compounds left, personal
+           info right, on one line (stacked on a phone) */
         .rc-compounds :global(.compounds-header) {
-          flex-direction: column;
-          align-items: center;
-          gap: 14px;
-          margin-top: 18px;
-          margin-bottom: 28px;
+          flex-direction: row;
+          flex-wrap: nowrap;
+          align-items: stretch;
+          justify-content: space-between;
+          gap: 24px;
+          margin-top: 0;
+          margin-bottom: 0;
+        }
+        @media (max-width: 820px) {
+          .rc-compounds :global(.compounds-header) {
+            flex-direction: column;
+          }
         }
 
         /* Slightly larger fonts in the analysis section */
         .rc-compounds :global(.section-label) {
-          font-size: 12px;
+          font-size: 16px;
         }
         .rc-compounds :global(.nutrient-name) {
-          font-size: 15px;
+          font-size: 18px;
         }
         .rc-compounds :global(.nutrient-value) {
-          font-size: 15px;
+          font-size: 18px;
         }
         .rc-compounds :global(.picker-label) {
-          font-size: 13px;
+          font-size: 17px;
         }
         .rc-compounds :global(.age-input) {
-          font-size: 15px;
+          font-size: 18px;
         }
         .rc-compounds :global(.picker-activity-row) {
           display: flex;
@@ -1747,7 +1754,7 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
           border-radius: 3px;
           padding: 5px 26px 5px 10px;
           font-family: var(--font-body);
-          font-size: 14px;
+          font-size: 17px;
           line-height: 1.2;
           cursor: pointer;
           outline: none;
@@ -1888,7 +1895,7 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
           color: #fff;
           border: none;
           border-radius: 8px;
-          font-size: 13px;
+          font-size: 17px;
           font-weight: 500;
           cursor: pointer;
           transition: all 0.2s;
@@ -1917,7 +1924,7 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
           color: #fff;
           border: none;
           border-radius: 8px;
-          font-size: 14px;
+          font-size: 17px;
           font-weight: 600;
           cursor: pointer;
           transition: all 0.2s;
@@ -1956,7 +1963,7 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
           color: rgba(255, 255, 255, 0.4);
           cursor: pointer;
           padding: 2px 4px;
-          font-size: 12px;
+          font-size: 16px;
           opacity: 0;
           transition: all 0.2s;
         }
@@ -1981,7 +1988,7 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
           border-radius: 4px;
           color: #fff;
           padding: 4px 8px;
-          font-size: 13px;
+          font-size: 17px;
           width: 100px;
         }
 
@@ -1998,7 +2005,7 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
           color: rgba(255, 255, 255, 0.6);
           cursor: pointer;
           padding: 2px 6px;
-          font-size: 14px;
+          font-size: 17px;
         }
 
         .confirm-meal-btn:hover {
@@ -2016,7 +2023,7 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
           color: rgba(255, 255, 255, 0.5);
           cursor: pointer;
           padding: 8px 16px;
-          font-size: 18px;
+          font-size: 20px;
           transition: all 0.2s;
         }
 
@@ -2064,7 +2071,7 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
           display: flex;
           align-items: center;
           justify-content: center;
-          font-size: 12px;
+          font-size: 16px;
           color: var(--cyan, #22d3ee);
         }
 
@@ -2080,19 +2087,19 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
         }
 
         .meal-card-title {
-          font-size: 13px;
+          font-size: 17px;
           font-weight: 500;
           color: #fff;
         }
 
         .meal-card-foods {
-          font-size: 11px;
+          font-size: 15px;
           color: rgba(255, 255, 255, 0.5);
         }
 
         .no-meals-hint {
           color: rgba(255, 255, 255, 0.4);
-          font-size: 13px;
+          font-size: 17px;
           padding: 12px;
         }
 
@@ -2103,7 +2110,7 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
           color: rgba(255, 255, 255, 0.6);
           cursor: pointer;
           padding: 6px 12px;
-          font-size: 12px;
+          font-size: 16px;
           transition: all 0.2s;
         }
 
@@ -2186,7 +2193,7 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
         }
 
         .general-metric-percent {
-          font-size: 13px;
+          font-size: 17px;
           font-weight: 600;
           color: rgba(255, 255, 255, 0.7);
           min-width: 40px;
@@ -2288,7 +2295,7 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
         }
 
         .macro-card-icon {
-          font-size: 24px;
+          font-size: 30px;
         }
 
         .macro-card-info {
@@ -2339,7 +2346,7 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
         }
 
         .macro-card-dv {
-          font-size: 11px;
+          font-size: 15px;
           color: rgba(255, 255, 255, 0.5);
           text-align: right;
         }
@@ -2349,7 +2356,7 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
         }
 
         .group-count {
-          font-size: 11px;
+          font-size: 15px;
           color: rgba(255, 255, 255, 0.4);
         }
 
@@ -2402,7 +2409,7 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
         }
 
         .analysis-loading-text {
-          font-size: 14px;
+          font-size: 17px;
           color: rgba(255, 255, 255, 0.8);
           font-weight: 500;
         }
@@ -2552,7 +2559,7 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
         /* Inputs on the cream ground */
         .an-page :global(input),
         .an-page :global(select),
-        .an-page :global(textarea) {
+        .an-page :global(textarea:not(.chat-input)) {
           background: rgba(255, 255, 255, 0.7);
           border: 1px solid rgba(46, 26, 14, 0.2);
           border-radius: 8px;
@@ -2562,7 +2569,7 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
         .an-page :global(textarea::placeholder) { color: rgba(46, 26, 14, 0.42); }
         .an-page :global(input:focus-visible),
         .an-page :global(select:focus-visible),
-        .an-page :global(textarea:focus-visible) {
+        .an-page :global(textarea:not(.chat-input):focus-visible) {
           outline: none;
           box-shadow: 0 0 0 2px #2e1a0e;
         }
@@ -2680,7 +2687,7 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
         /* Section titles in the display serif, espresso */
         .an-page :global(.section-label) {
           font-family: var(--font-display) !important;
-          font-size: 22px !important;
+          font-size: 30px !important;
           font-weight: 400 !important;
           letter-spacing: -0.01em !important;
           text-transform: none !important;
@@ -2756,9 +2763,6 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
         .an-page :global(.picker-opt.sel svg) { color: #2e1a0e; }
         .an-page :global(.picker-divider) { background: rgba(46, 26, 14, 0.2); }
 
-        /* Chat pane sits directly on the cream panel */
-        .an-page :global(.fc-root) { background: transparent; }
-
         /* ── Dark-mode leftovers found in review (2026-08-23) ── */
 
         /* Macro rings: a fill just lighter than the panel, no edge.
@@ -2790,13 +2794,11 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
         }
 
         /* Send button + primary actions take the highlight colour */
-        .an-page :global(.fc-send),
         .an-page :global(.add-btn) {
           background: var(--action) !important;
           color: var(--action-ink) !important;
           box-shadow: 0 4px 0 var(--action-dark) !important;
         }
-        .an-page :global(.fc-send:hover:not(:disabled)),
         .an-page :global(.add-btn:hover:not(:disabled)) {
           box-shadow: 0 2px 0 var(--action-dark) !important;
         }
@@ -2863,13 +2865,13 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
         /* Focus rings follow the highlight */
         .an-page :global(input:focus-visible),
         .an-page :global(select:focus-visible),
-        .an-page :global(textarea:focus-visible),
-        .an-page :global(button:focus-visible) {
+        .an-page :global(textarea:not(.chat-input):focus-visible),
+        .an-page :global(button:not(.chat-send):focus-visible) {
           outline: none !important;
           box-shadow: 0 0 0 2px var(--sel-border) !important;
         }
         .an-page :global(input:focus),
-        .an-page :global(textarea:focus) {
+        .an-page :global(textarea:not(.chat-input):focus) {
           border-color: var(--sel-border) !important;
         }
 
@@ -2889,11 +2891,6 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
           border-left-color: var(--coral);
         }
 
-        /* Chat: user bubble + send button in the highlight */
-        .an-page :global(.fc-msg-user .fc-bubble) {
-          background: var(--action) !important;
-          color: var(--action-ink) !important;
-        }
         .an-page :global(.search-dropdown-item:hover) {
           background: color-mix(in srgb, var(--coral) 10%, transparent) !important;
         }
@@ -2963,13 +2960,12 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
 
         .an-page :global(input),
         .an-page :global(select),
-        .an-page :global(textarea),
+        .an-page :global(textarea:not(.chat-input)),
         .an-page :global(.search-input-clean),
         .an-page :global(.quantity-input),
         .an-page :global(.unit-select),
         .an-page :global(.age-input),
-        .an-page :global(.activity-select),
-        .an-page :global(.fc-input) {
+        .an-page :global(.activity-select) {
           box-shadow: none !important;
           border-width: 2px !important;
           border-style: solid !important;
@@ -2977,19 +2973,18 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
         }
         .an-page :global(input:focus),
         .an-page :global(select:focus),
-        .an-page :global(textarea:focus),
-        .an-page :global(.search-input-clean:focus),
-        .an-page :global(.fc-input:focus) {
+        .an-page :global(textarea:not(.chat-input):focus),
+        .an-page :global(.search-input-clean:focus) {
           box-shadow: none !important;
           border-color: var(--sel-border) !important;
         }
         .an-page :global(input:focus-visible),
         .an-page :global(select:focus-visible),
-        .an-page :global(textarea:focus-visible) {
+        .an-page :global(textarea:not(.chat-input):focus-visible) {
           box-shadow: none !important;
           border-color: var(--sel-border) !important;
         }
-        .an-page :global(button:focus-visible) {
+        .an-page :global(button:not(.chat-send):focus-visible) {
           outline: none !important;
           box-shadow: 0 0 0 2px var(--sel-border) !important;
         }
@@ -3003,13 +2998,6 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
         }
         .an-page :global(.cc-tab) {
           border-width: 2px !important;
-        }
-        .an-page :global(.fc-bubble) {
-          border-width: 2px !important;
-        }
-        .an-page :global(.fc-input-wrap) {
-          border-top-width: 2px !important;
-          border-top-color: rgba(46, 26, 14, 0.16) !important;
         }
         .an-page :global(.cc-tabs) {
           border-bottom-width: 2px !important;
@@ -3044,6 +3032,21 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
           border: none !important;
         }
 
+        /* Chat exceptions: the food-list row lines, and the
+           input's focus border (transparent at rest, so layout never shifts). */
+        .an-page :global(.chat-aside-item) {
+          border-bottom: 1px solid rgba(46, 26, 14, 0.08) !important;
+        }
+        .an-page :global(.chat-aside-item:last-child) {
+          border-bottom: none !important;
+        }
+        .an-page :global(.chat-input) {
+          border: 3px solid transparent !important;
+        }
+        .an-page :global(.chat-input:focus) {
+          border-color: #2e1a0e !important;
+        }
+
         /* The two exceptions that carry meaning rather than decoration:
            the selected date, and the accent rail on an open compound group. */
         .an-datebar :global(.week-day-card.active),
@@ -3057,25 +3060,21 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
         }
         .an-page :global(input),
         .an-page :global(select),
-        .an-page :global(textarea),
+        .an-page :global(textarea:not(.chat-input)),
         .an-page :global(.search-input-clean),
         .an-page :global(.quantity-input),
         .an-page :global(.unit-select),
         .an-page :global(.age-input),
-        .an-page :global(.activity-select),
-        .an-page :global(.fc-input) {
+        .an-page :global(.activity-select) {
           background: rgba(255, 255, 255, 0.78) !important;
         }
         .an-page :global(.cc-tab--active) {
           background: rgba(255, 255, 255, 0.78) !important;
         }
-        .an-page :global(.fc-msg-assistant .fc-bubble) {
-          background: rgba(255, 255, 255, 0.72) !important;
-        }
         .an-page :global(button:focus-visible),
         .an-page :global(input:focus-visible),
         .an-page :global(select:focus-visible),
-        .an-page :global(textarea:focus-visible) {
+        .an-page :global(textarea:not(.chat-input):focus-visible) {
           outline: none !important;
           box-shadow: 0 0 0 3px rgba(46, 26, 14, 0.30) !important;
         }
@@ -3220,9 +3219,9 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
           width: 104px !important;
           height: 104px !important;
         }
-        .an-page :global(.macro-ring-val) { font-size: 26px !important; }
-        .an-page :global(.macro-ring-unit) { font-size: 13px !important; }
-        .an-page :global(.macro-label) { font-size: 12px !important; }
+        .an-page :global(.macro-ring-val) { font-size: 30px !important; }
+        .an-page :global(.macro-ring-unit) { font-size: 17px !important; }
+        .an-page :global(.macro-label) { font-size: 16px !important; }
         .an-page :global(.macros-grid) { column-gap: 20px !important; }
 
         /* ═══ Layout v3 (2026-09-14) — the AI chat is the page ═══
@@ -3259,15 +3258,314 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
         }
         .an-foods-head :global(.section-label) { margin: 0 !important; }
         /* ── Log panel — chat first, full width, always open ── */
+        /* Bare: the chat box is its own container, styled like the front
+           page input (see FoodLogChat). Size must match CHAT_* in
+           lib/chat-handoff.ts or the front-page transition lands off-target. */
         .an-panel--log {
           grid-column: 1 / -1;
           display: flex;
           flex-direction: column;
+          background: transparent !important;
+          border: none !important;
+          box-shadow: none !important;
+          padding: 0 !important;
         }
-        .an-panel--log :global(.fc-root) {
+        .an-panel--log :global(.chat-box) {
+          width: 100%;
+          height: var(--chat-h);
+          margin: 0 auto;
+        }
+        /* Chrome-style tabs: the active tab is cut from the same material as
+           the box below and merges into it; inactive tabs sit on the page. */
+        .an-panel--log .cc-tabs {
+          width: 100%;
+          margin: 0 !important;
+          padding: 0 0 0 24px !important;
+          border: none !important;
+          background: transparent !important;
+          gap: 4px !important;
+          align-items: flex-end !important;
+          justify-content: flex-start !important;
+          position: relative;
+          z-index: 1;
+        }
+        .an-panel--log .cc-tab-sep { display: none !important; }
+        .an-panel--log .cc-tab {
+          position: relative;
+          padding: 10px 22px !important;
+          margin-bottom: -2px;
+          border: 2px solid transparent !important;
+          border-bottom: none !important;
+          border-radius: 14px 14px 0 0 !important;
+          background: rgba(255, 247, 244, 0.4) !important;
+          color: rgba(46, 26, 14, 0.55) !important;
+          box-shadow: none !important;
+        }
+        .an-panel--log .cc-tab:hover:not(.cc-tab--active) {
+          background: rgba(255, 247, 244, 0.65) !important;
+          color: #2e1a0e !important;
+        }
+        .an-panel--log .cc-tab--active {
+          background: #fff7f4 !important;
+          border-color: rgba(46, 26, 14, 0.12) !important;
+          color: #2e1a0e !important;
+          padding-bottom: 12px !important;
+        }
+        /* Covers the box's top border under the tab, so they read as one piece */
+        .an-panel--log .cc-tab--active::after {
+          content: '';
+          position: absolute;
+          left: 0;
+          right: 0;
+          bottom: -2px;
+          height: 4px;
+          background: #fff7f4;
+        }
+        /* Manual search now renders inside a .chat-box, next to the same
+           .chat-aside food list the AI chat uses (see JSX above) — so it
+           gets that box's sizing, background, shadow and divider for free.
+           This is just the content inside .chat-main: a big centered
+           search field, then a slim add-row beneath it. */
+        .an-panel--log .cc-search-pane {
           flex: 1;
-          height: min(640px, 70vh);
-          min-height: 420px;
+          min-height: 0;
+          box-sizing: border-box;
+          width: 100%;
+          padding: var(--chat-pad) 0 0;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          align-items: center;
+          gap: 24px;
+        }
+        .an-panel--log .search-field-outer,
+        .an-panel--log .add-row {
+          width: 100%;
+          max-width: 640px;
+        }
+        .an-panel--log .search-bar-wrap { max-width: 100%; }
+
+        /* Search field — same material as the chat input: white, soft
+           shadow, a border that only shows up on focus. */
+        .an-page .an-panel--log :global(.search-icon) {
+          left: 24px;
+        }
+        .an-page .an-panel--log :global(.search-icon svg) {
+          width: 22px;
+          height: 22px;
+        }
+        .an-page .an-panel--log :global(.search-input-clean) {
+          width: 100%;
+          box-sizing: border-box;
+          padding: 22px 52px 22px 58px !important;
+          font-family: var(--font-body);
+          font-size: clamp(1.1rem, 2.6vw, 1.4rem) !important;
+          background: #ffffff !important;
+          border: 3px solid transparent !important;
+          border-radius: 12px !important;
+          box-shadow: 0 6px 22px rgba(46, 26, 14, 0.12) !important;
+        }
+        .an-page .an-panel--log :global(.search-input-clean:focus) {
+          border-color: #2e1a0e !important;
+          box-shadow: 0 6px 22px rgba(46, 26, 14, 0.12) !important;
+        }
+        .an-page .an-panel--log :global(.search-input-clean:disabled) {
+          opacity: 0.6;
+          cursor: default;
+        }
+        .cc-action-error {
+          width: 100%;
+          max-width: 640px;
+          margin: 0;
+          font-family: var(--font-mono);
+          font-size: 14px;
+          color: var(--warn);
+        }
+        .an-page .an-panel--log :global(.search-clear-btn) {
+          right: 20px;
+          font-size: 20px;
+        }
+
+        /* Quantity / unit / add — a slim pill row under the search field */
+        .an-panel--log .add-row {
+          margin: 0;
+          gap: 12px;
+          flex-wrap: wrap;
+        }
+        .an-page .an-panel--log :global(.quantity-input),
+        .an-page .an-panel--log :global(.unit-select) {
+          height: 54px !important;
+          min-height: 54px;
+          font-family: var(--font-body);
+          font-size: 17px !important;
+          background: #ffffff !important;
+          border-radius: 10px !important;
+          box-shadow: 0 4px 14px rgba(46, 26, 14, 0.08) !important;
+        }
+        .an-page .an-panel--log :global(.add-btn) {
+          height: 54px !important;
+          margin-top: 0 !important;
+          padding: 0 26px !important;
+          border-radius: 10px !important;
+          font-size: 17px !important;
+          font-weight: 500 !important;
+          box-shadow: 0 5px 0 var(--action-dark) !important;
+        }
+        .an-page .an-panel--log :global(.add-btn:hover:not(:disabled)) {
+          box-shadow: 0 2px 0 var(--action-dark) !important;
+        }
+
+
+        /* Phone: quantity + unit share a row, Add food takes its own —
+           three equal flex items get too cramped to read below ~480px. */
+        @media (max-width: 480px) {
+          .an-panel--log .add-row {
+            flex-wrap: wrap;
+          }
+          .an-page .an-panel--log :global(.quantity-input) { flex: 1 1 30%; }
+          .an-page .an-panel--log :global(.unit-select) { flex: 1 1 30%; }
+          .an-page .an-panel--log :global(.add-btn) { flex: 1 1 100%; }
+        }
+
+        /* ═══ Layout v4 (2026-09-14) — one column, cause → effect ═══
+           Chat (what you say) → Today (what got logged) → Macros (what it
+           adds up to) → Compounds (the detail). Every panel full width. */
+        .an-container {
+          grid-template-columns: minmax(0, 1fr);
+        }
+
+        /* Macros: label, then kcal + water, then the rings beneath */
+        .an-panel--macros .rc-macros {
+          display: flex !important;
+          flex-direction: column;
+          align-items: center;
+          gap: 48px;
+          border-bottom: none;
+        }
+        .an-panel--macros {
+          padding: 32px 32px 64px !important;
+        }
+        .an-panel--macros .rc-macros > :global(.section-label) {
+          align-self: stretch;
+          margin: 0 !important;
+        }
+        .an-page .rc-macros :global(.hero-row) {
+          margin: 0 !important;
+          gap: 96px !important;
+        }
+        .an-page .rc-macros :global(.hero-stat-icon) {
+          width: 44px !important;
+          height: 44px !important;
+          margin: 0 auto 8px !important;
+          display: block;
+        }
+        .an-page .rc-macros :global(.macros-grid) {
+          width: 100%;
+          max-width: 640px;
+          column-gap: 32px !important;
+        }
+        .an-page .rc-macros :global(.macro-ring) {
+          width: 120px !important;
+          height: 120px !important;
+        }
+        .an-page .rc-macros :global(.macro-ring-val) { font-size: 34px !important; }
+        @media (max-width: 600px) {
+          .an-page .rc-macros :global(.hero-row) { gap: 48px !important; }
+          .an-page .rc-macros :global(.hero-stat-icon) {
+            width: 34px !important;
+            height: 34px !important;
+          }
+          .an-page .rc-macros :global(.macros-grid) { column-gap: 8px !important; }
+          .an-page .rc-macros :global(.macro-ring) {
+            width: 84px !important;
+            height: 84px !important;
+          }
+          .an-page .rc-macros :global(.macro-ring-val) { font-size: 24px !important; }
+        }
+
+        /* Today: roomy full-width rows, name left, portion + remove right */
+        .an-panel--foods :global(.food-item) {
+          padding: 14px 4px !important;
+          gap: 16px;
+        }
+        .an-panel--foods :global(.food-item-name) {
+          flex: 1;
+          min-width: 0;
+        }
+        .an-panel--foods :global(.food-item-meta) {
+          margin-left: auto;
+          white-space: nowrap;
+        }
+
+        /* ── Personal info: top right of the analysis box, no box ──
+           Sex on top, age + activity on one slim line beneath. */
+        .an-analysis-head {
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-start;
+          gap: 24px;
+          margin-bottom: 36px;
+        }
+        .picker--bare {
+          align-items: flex-end !important;
+          gap: 10px !important;
+        }
+        .picker--bare :global(.picker-group) { gap: 20px; align-self: center; }
+        .picker--bare :global(.picker-divider) { height: 36px; }
+        .picker--bare :global(.picker-opt svg) { width: 52px; height: 52px; }
+        .picker--bare :global(.picker-fields) {
+          display: flex;
+          flex-direction: row;
+          align-items: baseline;
+          gap: 20px;
+        }
+        .picker--bare :global(.picker-age-row),
+        .picker--bare :global(.picker-activity-row) {
+          display: flex;
+          align-items: baseline;
+          gap: 8px;
+        }
+        .an-page .picker--bare :global(.picker-label) {
+          font-family: var(--font-mono);
+          font-size: 12px !important;
+          font-weight: 400;
+          letter-spacing: 0.1em;
+          color: rgba(46, 26, 14, 0.5);
+        }
+        /* Inputs as bare text on a hairline underline (a box-shadow: the page
+           strips borders) */
+        .an-page .picker--bare :global(.age-input),
+        .an-page .picker--bare :global(.activity-select) {
+          appearance: none;
+          -webkit-appearance: none;
+          background-color: transparent !important;
+          border: none !important;
+          border-radius: 0 !important;
+          box-shadow: inset 0 -1px 0 rgba(46, 26, 14, 0.25) !important;
+          padding: 2px 0 !important;
+          font-family: var(--font-mono);
+          font-size: 16px !important;
+          color: #2e1a0e;
+          outline: none;
+        }
+        .an-page .picker--bare :global(.age-input) {
+          width: 32px;
+          text-align: center;
+        }
+        .an-page .picker--bare :global(.activity-select) {
+          padding-right: 16px !important;
+          background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%232e1a0e' stroke-opacity='0.5' stroke-width='1.5'/%3E%3C/svg%3E") !important;
+          background-repeat: no-repeat !important;
+          background-position: right 2px center !important;
+          cursor: pointer;
+        }
+        .an-page .picker--bare :global(.age-input:focus),
+        .an-page .picker--bare :global(.activity-select:focus) {
+          box-shadow: inset 0 -2px 0 #2e1a0e !important;
+        }
+        @media (max-width: 600px) {
+          .an-analysis-head { flex-direction: column; align-items: stretch; }
+          .picker--bare { align-items: center !important; }
         }
 
         /* ── Phone ── */
@@ -3296,17 +3594,17 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
           /* Macro rings: 3-up no longer fits at 104px — shrink the disc.
              The SVG is inset:0/100%, so only the box size needs changing. */
           .an-page :global(.macro-ring) { width: 76px !important; height: 76px !important; }
-          .an-page :global(.macro-ring-val) { font-size: 19px !important; }
-          .an-page :global(.macro-ring-unit) { font-size: 11px !important; }
+          .an-page :global(.macro-ring-val) { font-size: 20px !important; }
+          .an-page :global(.macro-ring-unit) { font-size: 15px !important; }
           .an-page :global(.macros-grid) {
             column-gap: 4px !important;
             min-width: 0;
             max-width: 100%;
           }
-          .an-page :global(.macro-label) { font-size: 11px !important; }
+          .an-page :global(.macro-label) { font-size: 15px !important; }
           /* KCAL / WATER header stats — 80px gap is too wide on a phone */
           .an-page :global(.hero-row) { gap: 24px !important; }
-          .an-page :global(.hero-stat-num) { font-size: 40px !important; }
+          .an-page :global(.hero-stat-num) { font-size: 48px !important; }
 
           /* Nutrient rows: two columns (name | value), the DV bar wraps to its
              own full-width line. flex-wrap can't overflow the way the 4-track

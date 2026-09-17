@@ -100,6 +100,9 @@ export const SOURCE_VALUE_TYPES: Record<string, SourceVocabulary> = {
   FRANCE: {
     terms: { BNM: 'EAR', RNP: 'RDA', AS: 'AI', LSS: 'UL' },
   },
+  NETHERLANDS: {
+    terms: { 'gemiddelde behoefte': 'EAR', 'aanbevolen hoeveelheid': 'RDA', 'adequate inname': 'AI' },
+  },
   ITALY: {
     // PRI vs AI is read from the SINU tables' formatting (bold PRI, italic AI).
     terms: { PRI: 'RDA', AI: 'AI', AR: 'EAR', UL: 'UL', SDT: 'SDT', RI: 'AMDR', 'AR (energy)': 'EER' },

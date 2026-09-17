@@ -149,4 +149,13 @@ export const SOURCES: Record<string, SourceMeta> = {
     note: 'Avis 2018-SA-0238 (March 2021), summary Tableaux 2 and 3 transcribed from the PDF text layer and checked against page renders in dv-sources/anses-2021/source/. BNM stored as EAR, RNP as RDA, AS as AI, LSS as UL. B1 and B3 per MJ. Iron for low-to-moderate menstrual losses (high losses in notes). Zinc by phytate intake. Energy and macronutrients are separate ANSES opinions, not stored; manganese not set.',
     retrievedDate: '2026-09-17',
   },
+  NETHERLANDS: {
+    region: 'NETHERLANDS',
+    slug: 'gr-netherlands',
+    authorityName: 'Gezondheidsraad (Health Council of the Netherlands) — Voedingsnormen voor vitamines en mineralen',
+    versionYear: 2025,
+    url: 'https://www.gezondheidsraad.nl/documenten/adviezen/2025/04/23/advies-voedingsnormen-voor-vitamines-en-mineralen-voor-zuigelingen-en-kinderen',
+    note: 'Adults from advice 2018/19 (Tabellen 3-4, https://www.gezondheidsraad.nl/documenten/2018/09/18/voedingsnormen-voor-vitamines-en-mineralen-voor-volwassenen); infants 7-11 months and children from advice 2025/06 (Tabellen 2-4, erratum 9 Sept 2025). Transcribed from the PDF text layers and checked against page renders in dv-sources/gr-netherlands/source/. Gemiddelde behoefte stored as EAR, aanbevolen hoeveelheid as RDA, adequate inname as AI. The adult origin (EFSA, NCM 2014, GR) is kept in notes. No values for infants under 7 months, pregnancy, lactation, upper levels or energy.',
+    retrievedDate: '2026-09-17',
+  },
 };

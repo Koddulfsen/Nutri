@@ -10,6 +10,7 @@ import {
   WORKING_STATUSES,
   type ChatReply,
 } from '@/lib/chat-handoff';
+import { useTypewriter } from '@/lib/use-typewriter';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -19,18 +20,16 @@ interface Message {
 interface FoodLogChatProps {
   date: string;
   onMealLogged?: () => void;
+  /** Rendered inside the box, right of the conversation, behind a divider */
+  aside?: React.ReactNode;
 }
 
-const GREETING: Message = {
-  role: 'assistant',
-  content:
-    "Hey — what did you eat? Tell me what you had with as much detail as you can. I'll estimate the portions, propose a draft, and you can confirm or refine.",
-};
 
-export default function FoodLogChat({ date, onMealLogged }: FoodLogChatProps) {
-  const [messages, setMessages] = useState<Message[]>([GREETING]);
+export default function FoodLogChat({ date, onMealLogged, aside }: FoodLogChatProps) {
+  const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [sending, setSending] = useState(false);
+  const typed = useTypewriter(!input && !sending);
   const [error, setError] = useState<string | null>(null);
   const threadRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -45,8 +44,8 @@ export default function FoodLogChat({ date, onMealLogged }: FoodLogChatProps) {
     // back or the box is a few px short and shows a scrollbar.
     const border = el.offsetHeight - el.clientHeight;
     const full = el.scrollHeight + border;
-    el.style.height = `${Math.min(full, 160)}px`;
-    el.style.overflowY = full > 160 ? 'auto' : 'hidden';
+    el.style.height = `${Math.min(full, 240)}px`;
+    el.style.overflowY = full > 240 ? 'auto' : 'hidden';
   }, [input]);
 
   useEffect(() => {
@@ -64,7 +63,7 @@ export default function FoodLogChat({ date, onMealLogged }: FoodLogChatProps) {
     const h = takeHandoff();
     if (h) {
       if (rootRef.current) arriveInChat(rootRef.current);
-      setMessages([GREETING, { role: 'user', content: h.text }]);
+      setMessages([{ role: 'user', content: h.text }]);
       setSending(true);
       receive(h.text, h.reply);
       return;
@@ -102,7 +101,7 @@ export default function FoodLogChat({ date, onMealLogged }: FoodLogChatProps) {
     const text = (override ?? input).trim();
     if (!text || sending) return;
     setError(null);
-    const history = messages.filter((m) => m !== GREETING);
+    const history = messages;
     setMessages([...messages, { role: 'user', content: text }]);
     setInput('');
     setSending(true);
@@ -110,26 +109,52 @@ export default function FoodLogChat({ date, onMealLogged }: FoodLogChatProps) {
   }
 
   return (
-    <div className="fc-root" ref={rootRef}>
-      <div className="fc-thread" ref={threadRef}>
+    <div className={`chat-box${aside ? ' chat-box--split' : ''}`} ref={rootRef}>
+      <div className="chat-main">
+      <div className="chat-thread" ref={threadRef}>
+        {messages.length === 0 && !sending && !error && (
+          <div className="chat-empty">
+            <p className="chat-empty-text">What did you eat today?</p>
+            {/* Hand-drawn arrow, looping down-left toward the input (drawn
+                pointing right, mirrored by the <g>) */}
+            <svg className="chat-empty-arrow" viewBox="0 0 120 150" fill="none" aria-hidden="true">
+              <g transform="translate(120 0) scale(-1 1)">
+              <path
+                d="M30 6 C 14 30, 12 58, 38 70 C 62 81, 84 62, 70 48 C 58 37, 40 52, 48 76 C 55 98, 74 118, 92 138"
+                stroke="currentColor"
+                strokeWidth="3"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+              <path
+                d="M76 136 C 83 138, 88 139, 93 139 C 93 132, 92 126, 90 119"
+                stroke="currentColor"
+                strokeWidth="3"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+              </g>
+            </svg>
+          </div>
+        )}
         {messages.map((m, i) => (
-          <div key={i} className={`fc-msg fc-msg-${m.role}`}>
-            <div className="fc-bubble">{m.content}</div>
+          <div key={i} className={`chat-msg chat-msg--${m.role}`}>
+            <div className="chat-bubble">{m.content}</div>
           </div>
         ))}
         {sending && (
-          <div className="fc-msg fc-msg-assistant">
-            <div className="fc-bubble fc-typing">{WORKING_STATUSES[statusIdx]}…</div>
+          <div className="chat-msg chat-msg--assistant">
+            <div className="chat-bubble chat-typing">{WORKING_STATUSES[statusIdx]}…</div>
           </div>
         )}
-        {error && <div className="fc-error">{error}</div>}
+        {error && <div className="chat-error">{error}</div>}
       </div>
 
-      <div className="fc-input-wrap">
+      <div className="chat-input-wrap">
         <textarea
           ref={inputRef}
-          className="fc-input"
-          placeholder="Tell me what you ate…"
+          className="chat-input"
+          placeholder={sending ? '' : typed ? `${typed}|` : '|'}
           value={input}
           rows={1}
           onChange={(e) => setInput(e.target.value)}
@@ -143,139 +168,20 @@ export default function FoodLogChat({ date, onMealLogged }: FoodLogChatProps) {
         />
         <button
           type="button"
-          className="fc-send"
+          className="chat-send"
           onClick={() => send()}
           disabled={sending || !input.trim()}
+          aria-label="Send"
         >
-          Send
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <line x1="5" y1="12" x2="19" y2="12" />
+            <polyline points="12 5 19 12 12 19" />
+          </svg>
         </button>
       </div>
+      </div>
 
-      <style jsx>{`
-        .fc-root {
-          display: flex;
-          flex-direction: column;
-          height: 100%;
-          min-height: 340px;
-          background: transparent;
-          color: #2e1a0e;
-        }
-
-        .fc-thread {
-          flex: 1;
-          min-height: 0;
-          overflow-y: auto;
-          padding: 14px 14px;
-          display: flex;
-          flex-direction: column;
-          gap: 10px;
-        }
-        .fc-msg {
-          display: flex;
-        }
-        .fc-msg-user {
-          justify-content: flex-end;
-        }
-        .fc-msg-assistant {
-          justify-content: flex-start;
-        }
-        .fc-bubble {
-          max-width: 90%;
-          padding: 10px 14px;
-          border-radius: 10px;
-          font-family: var(--font-body);
-          font-size: 15px;
-          line-height: 1.5;
-          white-space: pre-wrap;
-          word-break: break-word;
-        }
-        .fc-msg-user .fc-bubble {
-          background: #2e1a0e;
-          border: 1px solid #2e1a0e;
-          color: #fff5f1;
-        }
-        .fc-msg-assistant .fc-bubble {
-          background: rgba(255, 255, 255, 0.62);
-          border: 1px solid rgba(46, 26, 14, 0.16);
-          color: #2e1a0e;
-        }
-        .fc-typing {
-          color: rgba(46, 26, 14, 0.5);
-          font-style: italic;
-        }
-        .fc-error {
-          color: var(--warn);
-          font-size: 12px;
-          font-family: var(--font-mono);
-          padding: 6px 10px;
-          background: rgba(249, 115, 22, 0.06);
-          border: 1px solid rgba(249, 115, 22, 0.2);
-          border-radius: 3px;
-        }
-
-        .fc-input-wrap {
-          padding: 12px 0 0;
-          border-top: 1px solid rgba(46, 26, 14, 0.14);
-          display: flex;
-          gap: 8px;
-          align-items: flex-end;
-          background: transparent;
-        }
-        .fc-input {
-          flex: 1;
-          background: rgba(255, 255, 255, 0.7);
-          color: #2e1a0e;
-          border: 1px solid rgba(46, 26, 14, 0.2);
-          border-radius: 10px;
-          box-sizing: border-box;
-          min-height: 42px;
-          padding: 8px 11px;
-          font-family: var(--font-body);
-          font-size: 15px;
-          line-height: 1.45;
-          resize: none;
-          overflow-y: hidden;
-          max-height: 160px;
-          outline: none;
-          transition: border-color 0.12s;
-        }
-        .fc-input:focus {
-          border-color: #2e1a0e;
-        }
-        .fc-input::placeholder {
-          color: rgba(46, 26, 14, 0.42);
-        }
-        .fc-input:disabled {
-          opacity: 0.6;
-        }
-        .fc-send {
-          background: #2e1a0e;
-          color: #fff5f1;
-          border: none;
-          border-radius: 10px;
-          box-sizing: border-box;
-          height: 42px;
-          padding: 0 18px;
-          font-family: var(--font-body);
-          font-size: 13px;
-          font-weight: 500;
-          cursor: pointer;
-          box-shadow: 0 4px 0 rgba(46, 26, 14, 0.4);
-          transition: transform 0.08s, box-shadow 0.08s;
-        }
-        .fc-send:hover:not(:disabled) {
-          transform: translateY(2px);
-          box-shadow: 0 2px 0 rgba(46, 26, 14, 0.4);
-        }
-        .fc-send:active:not(:disabled) {
-          transform: translateY(4px);
-          box-shadow: 0 0 0 rgba(46, 26, 14, 0.4);
-        }
-        .fc-send:disabled {
-          opacity: 0.4;
-          cursor: not-allowed;
-        }
-      `}</style>
+      {aside && <aside className="chat-aside">{aside}</aside>}
     </div>
   );
 }

@@ -230,11 +230,11 @@ export default function CompoundTooltip({
             .tooltip-title {
               font-weight: 600;
               color: var(--accent-dark, #306070);
-              font-size: 13px;
+              font-size: 17px;
             }
 
             .confidence-badge {
-              font-size: 12px;
+              font-size: 16px;
               letter-spacing: 1px;
             }
 
@@ -242,7 +242,7 @@ export default function CompoundTooltip({
             .tooltip-error,
             .tooltip-empty {
               color: rgba(46, 26, 14, 0.6);
-              font-size: 12px;
+              font-size: 16px;
               padding: 8px 0;
             }
 
@@ -261,13 +261,13 @@ export default function CompoundTooltip({
 
             .total-label {
               color: rgba(46, 26, 14, 0.72);
-              font-size: 12px;
+              font-size: 16px;
             }
 
             .total-value {
               color: var(--accent-dark, #306070);
               font-weight: 600;
-              font-size: 14px;
+              font-size: 17px;
             }
 
             .tooltip-foods {
@@ -288,7 +288,7 @@ export default function CompoundTooltip({
 
             .food-name {
               color: #2e1a0e;
-              font-size: 12px;
+              font-size: 16px;
               flex: 1;
               white-space: nowrap;
               overflow: hidden;
@@ -297,7 +297,7 @@ export default function CompoundTooltip({
 
             .food-amount {
               color: rgba(46, 26, 14, 0.8);
-              font-size: 12px;
+              font-size: 16px;
               font-weight: 500;
             }
 
@@ -310,7 +310,7 @@ export default function CompoundTooltip({
             }
 
             .source-item {
-              font-size: 10px;
+              font-size: 15px;
               color: rgba(46, 26, 14, 0.6);
               background: rgba(46, 26, 14, 0.05);
               padding: 2px 6px;

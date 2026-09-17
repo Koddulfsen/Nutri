@@ -241,7 +241,7 @@ export default function SymptomDropdown({
           color: var(--text-1, #e8e8f4);
           cursor: pointer;
           font-family: var(--font-body, 'DM Sans', sans-serif);
-          font-size: 14px;
+          font-size: 17px;
           font-weight: 700;
           letter-spacing: 0.12em;
           text-transform: uppercase;
@@ -275,7 +275,7 @@ export default function SymptomDropdown({
           padding: 0 4px;
           background: var(--accent, #508898);
           border-radius: 8px;
-          font-size: 9px;
+          font-size: 15px;
           color: #fff;
           display: flex;
           align-items: center;
@@ -307,7 +307,7 @@ export default function SymptomDropdown({
         .row-label {
           flex-shrink: 0;
           font-family: var(--font-body, 'DM Sans', sans-serif);
-          font-size: 13px;
+          font-size: 17px;
           font-weight: 400;
           color: var(--text-3, #484860);
           transition: color 0.15s ease;
@@ -364,7 +364,7 @@ export default function SymptomDropdown({
           background: none;
           border: none;
           color: var(--text-3, #484860);
-          font-size: 16px;
+          font-size: 18px;
           line-height: 1;
           cursor: pointer;
           opacity: 0;
@@ -388,7 +388,7 @@ export default function SymptomDropdown({
           outline: none;
           color: var(--text-3, #484860);
           font-family: var(--font-body, 'DM Sans', sans-serif);
-          font-size: 18px;
+          font-size: 20px;
           text-align: center;
           cursor: pointer;
           transition: color 0.15s ease;
@@ -412,7 +412,7 @@ export default function SymptomDropdown({
           border-radius: 3px;
           color: var(--text-1, #e8e8f4);
           font-family: var(--font-body, 'DM Sans', sans-serif);
-          font-size: 12px;
+          font-size: 16px;
           outline: none;
           transition: border-color 0.15s ease;
         }
@@ -427,7 +427,7 @@ export default function SymptomDropdown({
           border-radius: 3px;
           color: #fff;
           font-family: var(--font-body, 'DM Sans', sans-serif);
-          font-size: 11px;
+          font-size: 15px;
           cursor: pointer;
           transition: opacity 0.15s ease;
         }

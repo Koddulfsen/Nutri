@@ -186,7 +186,7 @@ export default function DvSourceSelector({
 
         .dropdown-header {
           padding: 12px 16px;
-          font-size: 13px;
+          font-size: 17px;
           font-weight: 600;
           color: rgba(255, 255, 255, 0.9);
           border-bottom: 1px solid rgba(255, 255, 255, 0.1);
@@ -250,7 +250,7 @@ export default function DvSourceSelector({
         }
 
         .option-label {
-          font-size: 14px;
+          font-size: 17px;
           color: #fff;
           font-weight: 500;
         }
@@ -260,7 +260,7 @@ export default function DvSourceSelector({
         }
 
         .option-description {
-          font-size: 12px;
+          font-size: 16px;
           color: rgba(255, 255, 255, 0.5);
         }
       `}</style>
