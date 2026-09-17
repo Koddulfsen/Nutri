@@ -49,14 +49,14 @@ exist to keep them out. This project is built to repel them.
 
 | Layer | State |
 |---|---|
-| Compound reference data | **Done.** 280 compounds, 1,753 mappings, 16,832 DV rows / 15 authorities |
+| Compound reference data | 280 compounds, 1,753 mappings. **DV: 19,526 rows / 15 authorities, each re-transcribed from its source document and verified 2026-09-16** (`scripts/dv-verify/`). Gaps and sources still to add: `dv-sources/AUDIT-2026-09-16.md` |
 | Food data | **13 of 17 sources loaded — 3.2M staging rows, 34,754 foods.** 71 foods merged and verified against reference values (2026-09-08). DUKE + FOODB held back; PHENOL unmapped |
 | Tracking / user data | Schema exists; **20 meal_logs, 2 user_profiles** — the app has been used |
 | **Authentication** | ✅ **WORKS.** Supabase Auth is live — `auth` schema present, 1 confirmed user, `/auth/v1/settings` 200, sign-in/sign-up/OAuth/reset all wired in `app/(auth)/actions.ts` |
 | Authorization | ⚠️ Admin routes and pages ARE gated. But the app connects as the table owner, so RLS does not apply to its own queries — every user-scoped query depends on a hand-written `userId` filter, and nobody has checked them all |
 | Privacy compliance | Erasure and export return an honest 501. Article 9 columns are unencrypted; consent has no UI and 0 rows |
 | Tests | Vitest works (`lib/food-health` passes). The 13 legacy Jest files still fail; 4 assert nothing |
-| Deployment | Repo `Koddulfsen/Nutri` exists; **`origin/main` is 1 commit behind everything.** No `basePath` — the app is served at the root (verified 2026-09-14: `/` 200, `/nutri` 404) |
+| Deployment | Repo `Koddulfsen/Nutri`; `origin/main` synced 2026-09-17 (`04a5c05`). No `basePath` — the app is served at the root (verified 2026-09-14: `/` 200, `/nutri` 404) |
 
 **Alpha access is gated by `app/components/AlphaGate.tsx`.** Signups are open in Supabase
 (`disable_signup: false`), so anyone can create an account — but `dashboard/page.tsx` and
