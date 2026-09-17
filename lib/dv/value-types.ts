@@ -110,7 +110,7 @@ export const SOURCE_VALUE_TYPES: Record<string, SourceVocabulary> = {
     },
   },
   WHO_FAO: {
-    terms: { RNI: 'RDA', 'recommended safe intake (vitamin A)': 'RDA', 'acceptable intake (vitamin E)': 'AI', 'WHO guideline intake limit / minimum (NCD risk)': 'CDRR', 'energy requirement (FAO/WHO/UNU 2001)': 'EER' },
+    terms: { RNI: 'RDA', 'recommended safe intake (vitamin A)': 'RDA', 'acceptable intake (vitamin E)': 'AI', 'WHO guideline intake limit / minimum (NCD risk)': 'CDRR', 'energy requirement (FAO/WHO/UNU 2001)': 'EER', 'AMDR / U-AMDR / L-AMDR (FAO 2010 fats)': 'AMDR', 'EAR (FAO 2010 fats)': 'EAR', 'AI (FAO 2010 fats)': 'AI', 'UL (FAO 2010 fats)': 'UL' },
     knownIssues: ['Iron and zinc RNIs are printed per bioavailability level; stored at 12% (iron) and moderate (zinc), with the alternatives in notes'],
   },
   SINGAPORE: {

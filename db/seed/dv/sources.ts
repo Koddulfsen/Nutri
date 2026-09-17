@@ -65,7 +65,7 @@ export const SOURCES: Record<string, SourceMeta> = {
     authorityName: 'FAO/WHO — Vitamin and mineral requirements in human nutrition (2nd ed.)',
     versionYear: 2004,
     url: 'https://www.fao.org/4/y2809e/y2809e0o.htm',
-    note: 'Appendix 1 Tables 1-2 (RNIs) transcribed from the FAO HTML appendix (snapshot in dv-sources/who-fao/source/). RNI stored as RDA; vitamin A is a recommended safe intake, vitamin E an acceptable intake (AI). Iron at 12% and zinc at moderate bioavailability, alternatives in notes.',
+    note: 'Vitamin and mineral RNIs: 2004 report Appendix 1 (FAO HTML). WHO guidelines: sodium, potassium (2012), free sugars (2015), saturated/trans fat, total fat, carbohydrate/fibre (2023) as CDRR. FAO/WHO/UNU 2001 energy requirements (infants, children). FAO 2010 fats and fatty acids Tables 2.1-2.2. Snapshots in dv-sources/who-fao/source/.',
     retrievedDate: '2026-09-14',
   },
   UK: {

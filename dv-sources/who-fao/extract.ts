@@ -25,6 +25,10 @@
  * (note k: neonatal stores suffice), pregnancy iron (note n: supplements advised), vitamin E in
  * pregnancy/lactation (note i: no different from adults, no value printed), biotin 65+ (blank).
  *
+ * Also stored (sections below): WHO guidelines on sodium, potassium (2012), sugars (2015), saturated and trans
+ * fat, total fat, carbohydrate/fibre (2023); FAO/WHO/UNU human energy requirements (2001) for infants and
+ * children; FAO 2010 fats and fatty acids Tables 2.1 and 2.2.
+ *
  * Run: npx tsx dv-sources/who-fao/extract.ts
  */
 import { readFileSync, writeFileSync } from 'fs';
@@ -232,6 +236,52 @@ function add(p: { compound: string; type: DvValueType; sexes: Sex[]; stage?: Lif
     }
     if (n !== 17) throw new Error(`Table ${tab}: ${n} rows`);
   }
+}
+
+// ───────────── FAO 2010 Fats and fatty acids in human nutrition ─────────────
+// Tables 2.1 (adults) and 2.2 (infants 0-24 months, children 2-18 years), transcribed from the report PDF (text
+// snapshot: source/fao-2010-fats-report.txt, lines ~1158-1300). Adults are taken as 18 y and older (Table 2.2
+// covers children to 18 y). U-AMDR -> AMDR ceiling, L-AMDR -> AMDR floor, TFA "UL <1%E" -> UL.
+// Not stored: MUFA "by difference", total fat 6-24 mo ("gradual reduction ... to 35%E"), human-milk-based
+// values without a number, DHA 6-24 mo (10-12 mg/kg body weight), the EPA+DHA upper value of 2 g "for secondary
+// prevention of CHD" is kept as the printed range end.
+{
+  const T21 = 'FAO 2010 Fats and fatty acids, Table 2.1 (adults)';
+  const T22 = 'FAO 2010 Fats and fatty acids, Table 2.2 (infants and children)';
+  const put = (compound: string, type: DvValueType, age: Age, lo: number | null, hi: number | null, unit: string, from: string, note?: string) => {
+    const value = lo != null && hi != null ? Number(((lo + hi) / 2).toFixed(4)) : (hi ?? lo)!;
+    for (const sex of BOTH) out.push({ compound, valueType: type, sex, lifeStage: 'NONE', ageMinMonths: age[0], ageMaxMonths: age[1], activityLevel: null, dietaryContext: null,
+      value, valueMin: lo, valueMax: hi, unit, isPercentOfEnergy: unit === '%', isProvisional: false, supplementalOnly: false, note: note ?? null, from });
+  };
+  const ADULT: Age = [216, null];
+  put('Total Fat', 'AMDR', ADULT, 20, 35, '%', `${T21}, Total fat AMDR 20–35%E`, 'U-AMDR 35%E, L-AMDR 15%E.');
+  put('Saturated Fat', 'AMDR', ADULT, null, 10, '%', `${T21}, SFA U-AMDR 10%E`);
+  put('Polyunsaturated Fat', 'AMDR', ADULT, 6, 11, '%', `${T21}, Total PUFA AMDR (LA + ALA + EPA + DHA) 6–11%E`);
+  put('Polyunsaturated Fat', 'AI', ADULT, 2.5, 3.5, '%', `${T21}, Total PUFA AI 2.5–3.5%E`);
+  put('Linoleic Acid', 'AMDR', ADULT, 2.5, 9, '%', `${T21}, n-6 PUFA AMDR (LA) 2.5–9%E`);
+  put('Linoleic Acid', 'EAR', ADULT, 2, null, '%', `${T21}, n-6 PUFA EAR 2%E (SD of 0.5%)`);
+  put('Linoleic Acid', 'AI', ADULT, 2, 3, '%', `${T21}, n-6 PUFA AI 2–3%E`);
+  put('Omega-3', 'AMDR', ADULT, 0.5, 2, '%', `${T21}, n-3 PUFA AMDR (n-3) 0.5–2%E`, 'ALA + n-3 long-chain PUFA (footnote c).');
+  put('Alpha-Linolenic Acid (ALA)', 'AMDR', ADULT, 0.5, null, '%', `${T21}, n-3 PUFA L-AMDR (ALA) > 0.5%E`);
+  put('EPA + DHA', 'AMDR', ADULT, 0.25, 2, 'g', `${T21}, n-3 PUFA AMDR (EPA + DHA) 0.250–2 g/day`, 'The upper value of 2 g/day is for secondary prevention of CHD (footnote *).');
+  put('Trans Fat', 'UL', ADULT, null, 1, '%', `${T21}, TFA UL <1%E`, 'Total TFA from ruminant and industrially-produced sources.');
+
+  put('Total Fat', 'AMDR', [0, 5], 40, 60, '%', `${T22}, Total fat 0-6 mo AMDR 40-60%E`);
+  put('Total Fat', 'AMDR', [24, 215], 25, 35, '%', `${T22}, Total fat 2-18 yr AMDR 25-35%E`);
+  put('Saturated Fat', 'AMDR', [24, 215], null, 8, '%', `${T22}, SFA 2-18 yr U-AMDR 8%E`, 'Children from families with familial dyslipidaemia should receive lower SFA but not reduced total fat.');
+  put('Polyunsaturated Fat', 'AMDR', [6, 23], null, 15, '%', `${T22}, Total PUFA 6-24 mo U-AMDR <15%E`);
+  put('Polyunsaturated Fat', 'AMDR', [24, 215], null, 11, '%', `${T22}, Total PUFA 2-18 yr U-AMDR 11%E`);
+  put('Arachidonic Acid', 'AI', [0, 5], 0.2, 0.3, '%', `${T22}, AA 0-6 mo AI 0.2-0.3%E`, 'Based on human milk composition (0.4-0.6% of fatty acids), footnote b.');
+  put('Linoleic Acid', 'AI', [6, 23], 3.0, 4.5, '%', `${T22}, LA 6-12 mo and 12-24 mo AI 3.0-4.5%E`);
+  put('Linoleic Acid', 'AMDR', [6, 23], null, 10, '%', `${T22}, LA 6-12 mo and 12-24 mo U-AMDR <10%E`);
+  put('Alpha-Linolenic Acid (ALA)', 'AI', [0, 5], 0.2, 0.3, '%', `${T22}, ALA 0-6 mo AI 0.2-0.3%E`, 'Based on human milk composition (0.4-0.6% of fatty acids), footnote b.');
+  put('Alpha-Linolenic Acid (ALA)', 'AI', [6, 23], 0.4, 0.6, '%', `${T22}, ALA 6-24 mo AI 0.4-0.6%E`);
+  put('Alpha-Linolenic Acid (ALA)', 'AMDR', [6, 23], null, 3, '%', `${T22}, ALA 6-24 mo U-AMDR <3%E`);
+  put('DHA (Docosahexaenoic Acid)', 'AI', [0, 5], 0.1, 0.18, '%', `${T22}, DHA 0-6 mo AI 0.1-0.18%E`, 'Based on human milk composition (0.20-0.36% of fatty acids), footnote b.');
+  put('EPA + DHA', 'AI', [24, 47], 100, 150, 'mg', `${T22}, EPA+DHA 2-4 yr AI 100-150 mg`, 'Age adjusted for chronic disease prevention.');
+  put('EPA + DHA', 'AI', [48, 71], 150, 200, 'mg', `${T22}, EPA+DHA 4-6 yr AI 150-200 mg`, 'Bridged from an infant value of 10 mg/kg.');
+  put('EPA + DHA', 'AI', [72, 119], 200, 250, 'mg', `${T22}, EPA+DHA 6-10 yr AI 200-250 mg`, 'To the adult value assigned at age 10 years.');
+  put('Trans Fat', 'UL', [24, 215], null, 1, '%', `${T22}, TFA 2-18 yr UL <1%E`, 'Total TFA from ruminant and industrially-produced sources.');
 }
 
 out.sort((a, b) => a.compound.localeCompare(b.compound) || a.valueType.localeCompare(b.valueType) || a.lifeStage.localeCompare(b.lifeStage) || a.sex.localeCompare(b.sex) || a.ageMinMonths - b.ageMinMonths);
