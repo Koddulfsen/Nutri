@@ -375,6 +375,23 @@ const LPI: Array<[DietaryContext, number]> = [['PHYTATE_LOW', 300], ['PHYTATE_ME
   for (const [label, age, v] of fl) add({ compound: 'Fluoride', type: 'UL', age, value: v, unit: 'mg', from: `UL Table 1, Fluoride, ${label}` });
 }
 
+// ───────────── Sodium and chloride (EFSA NDA Panel, 2019) ─────────────
+// Not in the 2017 summary tables. Read from the "Summary of dietary reference values" tables of the two
+// opinions (EFSA Journal 2019;17(9):5778 sodium, 5779 chloride), full text saved in source/efsa-2019-*.xml.
+// "Safe and adequate intake" (not an AR/PRI) -> AI; infants 7-11 mo are a proper AI. The adult value also
+// applies in pregnancy and lactation (abstracts).
+{
+  const safe = 'Safe and adequate intake (EFSA 2019): not derived from an average requirement.';
+  const bands: Array<[string, Age]> = [['7–11 months', [6, 11]], ['1–3 years', [12, 47]], ['4–6 years', [48, 83]], ['7–10 years', [84, 131]], ['11–17 years', [132, 215]], ['≥ 18 years', ADULT]];
+  for (const [compound, cells, file] of [['Sodium', [0.2, 1.1, 1.3, 1.7, 2.0, 2.0], 'EFSA 2019 sodium (5778)'], ['Chloride', [0.3, 1.7, 2.0, 2.6, 3.1, 3.1], 'EFSA 2019 chloride (5779)']] as const) {
+    bands.forEach(([label, age], i) => add({ compound, type: 'AI', age, value: cells[i], unit: 'g',
+      note: i === 0 ? 'Adequate intake for infants.' : safe, from: `${file}, Summary of dietary reference values, ${label}` }));
+    for (const stage of ['PREGNANT', 'LACTATING'] as const) {
+      add({ compound, type: 'AI', sexes: F, stage, age: ADULT, value: cells[5], unit: 'g', note: `${safe} The adult value applies in pregnancy and lactation.`, from: `${file}, abstract, ${stage === 'PREGNANT' ? 'pregnant' : 'lactating'} women` });
+    }
+  }
+}
+
 out.sort((a, b) => a.compound.localeCompare(b.compound) || a.valueType.localeCompare(b.valueType) || a.lifeStage.localeCompare(b.lifeStage) || a.sex.localeCompare(b.sex) || a.ageMinMonths - b.ageMinMonths || (a.activityLevel ?? '').localeCompare(b.activityLevel ?? '') || (a.dietaryContext ?? '').localeCompare(b.dietaryContext ?? ''));
 writeFileSync(path.join(process.cwd(), 'dv-sources', 'efsa-drv', 'values.json'), JSON.stringify(out, null, 1) + '\n');
 console.log(`Wrote ${out.length} values to dv-sources/efsa-drv/values.json`);

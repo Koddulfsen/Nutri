@@ -66,7 +66,7 @@ export const SOURCE_VALUE_TYPES: Record<string, SourceVocabulary> = {
     terms: { RDA: 'RDA', AI: 'AI', EAR: 'EAR', UL: 'UL', AMDR: 'AMDR', CDRR: 'CDRR', EER: 'EER' },
   },
   EU: {
-    terms: { PRI: 'RDA', AI: 'AI', AR: 'EAR', UL: 'UL', RI: 'AMDR', 'AR (energy)': 'EER' },
+    terms: { PRI: 'RDA', AI: 'AI', AR: 'EAR', UL: 'UL', RI: 'AMDR', 'AR (energy)': 'EER', 'safe and adequate intake (sodium, chloride)': 'AI' },
   },
   UK: {
     terms: {
