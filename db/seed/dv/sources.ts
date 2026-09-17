@@ -158,4 +158,13 @@ export const SOURCES: Record<string, SourceMeta> = {
     note: 'Adults from advice 2018/19 (Tabellen 3-4, https://www.gezondheidsraad.nl/documenten/2018/09/18/voedingsnormen-voor-vitamines-en-mineralen-voor-volwassenen); infants 7-11 months and children from advice 2025/06 (Tabellen 2-4, erratum 9 Sept 2025). Transcribed from the PDF text layers and checked against page renders in dv-sources/gr-netherlands/source/. Gemiddelde behoefte stored as EAR, aanbevolen hoeveelheid as RDA, adequate inname as AI. The adult origin (EFSA, NCM 2014, GR) is kept in notes. No values for infants under 7 months, pregnancy, lactation, upper levels or energy.',
     retrievedDate: '2026-09-17',
   },
+  INDONESIA: {
+    region: 'INDONESIA',
+    slug: 'akg-indonesia-2019',
+    authorityName: 'Kementerian Kesehatan — Angka Kecukupan Gizi (Permenkes No. 28 Tahun 2019) (Indonesia)',
+    versionYear: 2019,
+    url: 'https://peraturan.bpk.go.id/Details/138621/permenkes-no-28-tahun-2019',
+    note: 'Lampiran I Tabel 1-3 of the Ministry of Health regulation (certified copy from stunting.go.id), transcribed from the PDF text layer and checked against page renders in dv-sources/akg-indonesia-2019/source/. AKG stored as RDA, energy as EER. Pregnancy (by trimester) and lactation (by 6-month period) increments stored as totals over women 19-29 and 30-49 y. No upper levels.',
+    retrievedDate: '2026-09-17',
+  },
 };
