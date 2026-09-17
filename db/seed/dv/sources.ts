@@ -26,11 +26,11 @@ export const SOURCES: Record<string, SourceMeta> = {
   JAPAN: {
     region: 'JAPAN',
     slug: 'mhlw-2025',
-    authorityName: 'MHLW Dietary Reference Intakes for Japanese (2020)',
-    versionYear: 2020,
-    url: 'https://www.mhlw.go.jp/content/001151422.pdf',
-    note: 'English edition, pages 10-44. Age rows parsed from a text snapshot (dv-sources/mhlw-2025/source/); pregnancy/lactation rows transcribed and stored as totals. DG mapped to AMDR (range/floor) or CDRR (ceiling); sodium DG converted from salt g with the table\'s 2.54 factor. Iron for women 10-64 y stored for menstruating women. Magnesium UL (350 mg/d adults) applies to non-food sources only.',
-    retrievedDate: '2026-09-14',
+    authorityName: 'MHLW — Dietary Reference Intakes for Japanese (2025) 日本人の食事摂取基準（2025年版）',
+    versionYear: 2025,
+    url: 'https://www.mhlw.go.jp/content/10904750/001316585.pdf',
+    note: '2025 edition (in force April 2025). Tables transcribed from the Kenpakusha reprint and checked cell by cell against the official MHLW report renders (dv-sources/mhlw-2025/extract.ts). DG ranges/floors as AMDR, ceilings as CDRR; sodium DG converted from salt g with the table ratio 2.54. Energy per activity level; pregnancy increments stored as totals over women 18-29 and 30-49 y. Iron for women 10-64 y stored for menstruating women. Magnesium UL (350 mg adults) applies to non-food sources only.',
+    retrievedDate: '2026-09-17',
   },
   AU_NZ: {
     region: 'AU_NZ',

@@ -1,378 +1,354 @@
 /**
- * MHLW "Dietary Reference Intakes for Japanese (2020)" (English edition) -> values.json.
+ * MHLW "日本人の食事摂取基準（2025年版）" (Dietary Reference Intakes for Japanese, 2025; in force April 2025
+ * to March 2030) -> values.json. Replaces the 2020 English edition used until 2026-09-17.
  *
- * Age rows are PARSED from source/mhlw-dri-2020-en.pages-10-44.txt (pdftotext -layout of
- * mhlw-dri-2020-en.pdf, pages 10-44): each cell is assigned to its column by horizontal
- * position, using an age row where every column is filled as the anchor. Two tokens landing
- * in one column, or a row with no anchor, is a hard error.
+ * Transcribed cell by cell, 2026-09-17, from the Kenpakusha reprint of the tables
+ * (source/2025/kenpakusha-dri-2025-summary.pdf, pages 3-12; working notes in transcription-draft.txt), then
+ * checked cell by cell against the official report "「日本人の食事摂取基準（2025年版）」策定検討会報告書"
+ * (mhlw-dri-2025-report.pdf, pages 90, 115, 138-140, 155-156, 193-196, 246-254, 293-297, 357-364): every
+ * value agreed. The report's text layer is unusable (font encoding), so both were read from renders.
  *
- * Pregnancy / lactation rows are TRANSCRIBED by hand (their layout wraps unpredictably),
- * each tagged with its page. Printed "+x" values are increments over same-age non-pregnant
- * women and are stored as totals for 18-29 y and 30-49 y.
+ * Mapping decisions (as for the 2020 edition):
+ *   - 推定平均必要量 EAR, 推奨量 RDA, 目安量 AI, 耐容上限量 UL. 目標量 (DG): a range -> AMDR [min, max];
+ *     "x以上" -> AMDR floor; "x以下" / "x未満" -> CDRR ceiling.
+ *   - Energy (参考表 推定エネルギー必要量): 低い / ふつう / 高い = PAL 1.50 / 1.75 / 2.00 for adults ->
+ *     SEDENTARY / MODERATE / ACTIVE. Ages printed with "ふつう" only (0-5 y) have no activity level.
+ *   - Pregnancy / lactation are "+x" increments (付加量) over same-age non-pregnant women, stored as totals
+ *     for 18-29 y and 30-49 y; absolute cells are stored for 18-49 y. 初期 / 中期 / 後期 -> PREGNANT_T1/T2/T3.
+ *   - Sodium DG is printed as salt equivalent (g): sodium mg = salt g × 1000 / 2.54, the table's own ratio
+ *     (600 mg = 1.5 g). EAR and AI are printed in mg (salt in parentheses).
+ *   - Iron, women 10-64 y: printed for 月経なし (not menstruating) and 月経あり (menstruating). The
+ *     menstruating value is stored with the other in the note; pregnancy / lactation increments are over the
+ *     not-menstruating value, as printed.
+ *   - Vitamin A (µg RAE): EAR/RDA include provitamin A carotenoids; AI and UL do not. The UL is stored as
+ *     Retinol. Niacin UL: nicotinamide mg, nicotinic acid mg in parentheses: both stored. Folate UL applies
+ *     to folic acid in foods other than ordinary foods -> Folic Acid (Synthetic). Magnesium UL is given only in
+ *     a footnote for non-food sources (adults 350 mg; children 5 mg/kg, not stored) -> supplementalOnly.
+ *   - Iodine UL for pregnancy and lactation is 2,000 µg (footnote), stored for 18-49 y.
+ *   - n-6 / n-3 AI are total n-6 / n-3 (Omega-6 / Omega-3).
  *
- * Mapping decisions:
- *   - DG (Tentative Dietary Goal): a range -> AMDR [min, max]; "≥ x" -> AMDR [x, null];
- *     "≤ x" / "< x" -> CDRR [null, x].
- *   - Sodium DG is printed as salt equivalent (g) only; stored as sodium mg = g × 1000 / 2.54,
- *     the factor the table itself uses (600 mg ↔ 1.5 g).
- *   - Iron, women 10-64 y: printed for menstruating and not menstruating. The menstruating value
- *     is stored (the other is in the note); pregnancy increments apply to the not-menstruating
- *     value, as printed.
- *   - Niacin UL is printed as nicotinamide, with nicotinic acid in parentheses: both stored.
- *   - Vitamin A AI/UL exclude provitamin A carotenoids: UL stored as Retinol.
- *   - Magnesium UL: "No UL for dietary intake from normal food"; 350 mg/d (adults) applies to
- *     sources other than normal food only -> not in the table grid; stored supplemental-only.
- *   - n-3 / n-6 fatty acid AI are total n-3 / n-6 (Omega-3 / Omega-6).
+ * Not stored: target BMI, reference body sizes, basal metabolic rates, per-kg magnesium UL for children, and
+ * footnoted amounts for preventing disease aggravation (cholesterol <200 mg/d for dyslipidaemia, salt <6.0 g/d
+ * for hypertension and CKD) or advice without a table value (trans fat <1% of energy, 400 µg/d folic acid
+ * before and in early pregnancy).
  *
  * Run: npx tsx dv-sources/mhlw-2025/extract.ts
  */
-import { readFileSync, writeFileSync } from 'fs';
+import { writeFileSync } from 'fs';
 import path from 'path';
 import type { SourceValue, Sex, LifeStage, Activity } from '../../lib/dv/source-values';
 import type { DvValueType } from '../../lib/dv/value-types';
 
-const DIR = path.join(process.cwd(), 'dv-sources', 'mhlw-2025');
-const TEXT = readFileSync(path.join(DIR, 'source', 'mhlw-dri-2020-en.pages-10-44.txt'), 'utf8');
-const PAGES = new Map<number, string[]>();
-for (const chunk of TEXT.split('\f').filter((c) => c.includes('=== PAGE'))) {
-  const n = Number(chunk.match(/=== PAGE (\d+) ===/)![1]);
-  PAGES.set(n, chunk.split('\n'));
-}
-
-const AGES: Array<[RegExp, [number, number | null], string]> = [
-  [/^0-5 months/, [0, 5], '0-5 months'], [/^6-8 months/, [6, 8], '6-8 months'], [/^9-11 months/, [9, 11], '9-11 months'],
-  [/^6-11 months/, [6, 11], '6-11 months'], [/^1-2 years/, [12, 35], '1-2 years'], [/^3-5 years/, [36, 71], '3-5 years'],
-  [/^6-7 years/, [72, 95], '6-7 years'], [/^8-9 years/, [96, 119], '8-9 years'], [/^10-11 years/, [120, 143], '10-11 years'],
-  [/^12-14 years/, [144, 179], '12-14 years'], [/^15-17 years/, [180, 215], '15-17 years'], [/^18-29 years/, [216, 359], '18-29 years'],
-  [/^30-49 years/, [360, 599], '30-49 years'], [/^50-64 years/, [600, 779], '50-64 years'], [/^65-74 years/, [780, 899], '65-74 years'],
-  [/^75\+ years/, [900, null], '75+ years'],
-];
-
-// A cell: number, range, bound, salt pair, niacin pair, increment, or dash.
-const CELL = /\+?\d[\d,]*(?:\.\d+)?\s?[（(]\d+(?:\.\d+)?[）)]|\(<\d+(?:\.\d+)?\)|[≥≤]\s?\d[\d,]*(?:\.\d+)?|\d+-\d+|\+?\d[\d,]*(?:\.\d+)?|[―－-]\d?/g;
-
-interface Tok { text: string; center: number }
-function tokens(line: string, labelEnd: number): Tok[] {
-  const body = line.slice(labelEnd);
-  return [...body.matchAll(CELL)].map((m) => ({ text: m[0], center: labelEnd + m.index! + m[0].length / 2 }));
-}
-
-type Parsed =
-  | { kind: 'none' }
-  | { kind: 'value'; v: number }
-  | { kind: 'range'; min: number; max: number }
-  | { kind: 'floor'; v: number }
-  | { kind: 'ceiling'; v: number }
-  | { kind: 'pair'; v: number; paren: number };
-function parse(t: string): Parsed {
-  const s = t.replace(/,/g, '');
-  if (/^[―－-]\d?$/.test(s)) return { kind: 'none' };
-  let m;
-  if ((m = s.match(/^(\d+(?:\.\d+)?)\s?[（(](\d+(?:\.\d+)?)[）)]$/))) return { kind: 'pair', v: Number(m[1]), paren: Number(m[2]) };
-  if ((m = s.match(/^\(<(\d+(?:\.\d+)?)\)$/))) return { kind: 'ceiling', v: Number(m[1]) };
-  if ((m = s.match(/^≥\s?(\d+(?:\.\d+)?)$/))) return { kind: 'floor', v: Number(m[1]) };
-  if ((m = s.match(/^≤\s?(\d+(?:\.\d+)?)$/))) return { kind: 'ceiling', v: Number(m[1]) };
-  if ((m = s.match(/^(\d+)-(\d+)$/))) return { kind: 'range', min: Number(m[1]), max: Number(m[2]) };
-  if ((m = s.match(/^(\d+(?:\.\d+)?)$/))) return { kind: 'value', v: Number(m[1]) };
-  throw new Error(`Unparseable cell "${t}"`);
-}
-
-/** Parse a page's age rows into cells per column. Columns are anchored on a fully filled age row. */
-function grid(page: number, ncols: number): Array<{ age: [number, number | null]; label: string; cells: (string | null)[] }> {
-  const lines = PAGES.get(page)!;
-  const rows: Array<{ age: [number, number | null]; label: string; toks: Tok[] }> = [];
-  for (const line of lines) {
-    const trimmed = line.trimStart();
-    const hit = AGES.find(([re]) => re.test(trimmed));
-    if (!hit) continue;
-    const indent = line.length - trimmed.length;
-    // Label ends after "months"/"years" plus an optional footnote digit(s).
-    const labelMatch = trimmed.match(/^\S+\s+(?:months|years)(?:\s?\d(?!\d*[.,]))?/)!;
-    rows.push({ age: hit[1], label: hit[2], toks: tokens(line, indent + labelMatch[0].length) });
-  }
-  const anchor = rows.find((r) => r.toks.length === ncols);
-  if (!anchor) throw new Error(`p${page}: no age row with all ${ncols} columns filled`);
-  const centers = anchor.toks.map((t) => t.center);
-  return rows.map((r) => {
-    if (r.toks.length > ncols) throw new Error(`p${page} ${r.label}: ${r.toks.length} cells for ${ncols} columns`);
-    const cells: (string | null)[] = Array(ncols).fill(null);
-    for (const t of r.toks) {
-      let best = 0;
-      for (let i = 1; i < ncols; i++) if (Math.abs(centers[i] - t.center) < Math.abs(centers[best] - t.center)) best = i;
-      if (cells[best] != null) throw new Error(`p${page} ${r.label}: two cells in column ${best} ("${cells[best]}", "${t.text}")`);
-      cells[best] = t.text;
-    }
-    return { age: r.age, label: r.label, cells };
-  });
-}
-
+type Age = [number, number | null];
 const out: SourceValue[] = [];
-function push(p: {
-  compound: string; type: DvValueType; sex: Sex; stage?: LifeStage; age: [number, number | null]; value: number;
-  min?: number | null; max?: number | null; unit: string; pct?: boolean; activity?: Activity | null;
-  supplementalOnly?: boolean; note?: string | null; from: string;
-}) {
+const r4 = (x: number) => Number(x.toFixed(4));
+
+// 15-row tables (energy, protein) split infants 0-5 / 6-8 / 9-11 months; the other tables use 0-5 / 6-11.
+const R15: Array<[string, Age]> = [
+  ['0-5 months', [0, 5]], ['6-8 months', [6, 8]], ['9-11 months', [9, 11]], ['1-2 y', [12, 35]], ['3-5 y', [36, 71]], ['6-7 y', [72, 95]],
+  ['8-9 y', [96, 119]], ['10-11 y', [120, 143]], ['12-14 y', [144, 179]], ['15-17 y', [180, 215]], ['18-29 y', [216, 359]],
+  ['30-49 y', [360, 599]], ['50-64 y', [600, 779]], ['65-74 y', [780, 899]], ['75+ y', [900, null]],
+];
+const R14: Array<[string, Age]> = [['0-5 months', [0, 5]], ['6-11 months', [6, 11]], ...R15.slice(3)];
+const W18: Age = [216, 359]; const W30: Age = [360, 599]; const W18_49: Age = [216, 599];
+
+interface Col {
+  page: string; label: string; compound: string; type: DvValueType; unit: string;
+  m: string | null; f: string | null;
+  /** Pregnancy / lactation: "T1,T2,T3|L" style tokens, e.g. "+0,+0,+60|+300" or "P9.0|9.0" (absolute). */
+  preg?: string;
+  rows?: 14 | 15; pct?: boolean; supp?: boolean; note?: string; activity?: Activity | null; dg?: boolean;
+}
+
+/** DG cells: "20-30" range, "8+" floor (以上), "10-" ceiling (以下 / 未満). Plain numbers are values. */
+function parseCell(tok: string, dg: boolean): { value: number; min: number | null; max: number | null; kind: 'value' | 'range' | 'floor' | 'ceiling' } {
+  const range = /^(\d+(?:\.\d+)?)~(\d+(?:\.\d+)?)$/.exec(tok);
+  if (range) return { value: r4((Number(range[1]) + Number(range[2])) / 2), min: Number(range[1]), max: Number(range[2]), kind: 'range' };
+  if (dg && tok.endsWith('+')) { const v = Number(tok.slice(0, -1)); return { value: v, min: v, max: null, kind: 'floor' }; }
+  if (dg && tok.endsWith('<')) { const v = Number(tok.slice(0, -1)); return { value: v, min: null, max: v, kind: 'ceiling' }; }
+  const v = Number(tok);
+  if (Number.isNaN(v)) throw new Error(`Cannot parse "${tok}"`);
+  return { value: v, min: null, max: null, kind: 'value' };
+}
+
+function emit(p: { col: Col; sex: Sex; stage: LifeStage; age: Age; tok: string; label: string; note?: string | null }) {
+  const c = p.col;
+  const cell = parseCell(p.tok, !!c.dg);
+  let type = c.type;
+  if (c.dg) type = cell.kind === 'ceiling' ? 'CDRR' : 'AMDR';
   out.push({
-    compound: p.compound, valueType: p.type, sex: p.sex, lifeStage: p.stage ?? 'NONE',
-    ageMinMonths: p.age[0], ageMaxMonths: p.age[1], activityLevel: p.activity ?? null, dietaryContext: null,
-    value: Number(p.value.toFixed(4)), valueMin: p.min ?? null, valueMax: p.max ?? null, unit: p.unit,
-    isPercentOfEnergy: p.pct ?? false, isProvisional: false, supplementalOnly: p.supplementalOnly ?? false,
-    note: p.note ?? null, from: p.from,
+    compound: c.compound, valueType: type, sex: p.sex, lifeStage: p.stage, ageMinMonths: p.age[0], ageMaxMonths: p.age[1],
+    activityLevel: c.activity ?? null, dietaryContext: null, value: cell.value, valueMin: cell.min, valueMax: cell.max, unit: c.unit,
+    isPercentOfEnergy: c.pct ?? false, isProvisional: false, supplementalOnly: c.supp ?? false,
+    note: [c.note, p.note].filter(Boolean).join(' ') || null, from: `${c.page}, ${c.label}, ${p.label}`,
   });
 }
 
-/**
- * A column: which sex, what it stores, and how.
- * as: 'value' plain | 'dg' DG cell (range/floor/ceiling) | 'salt' sodium from salt g | 'niacinUl' nicotinamide + nicotinic acid.
- */
-interface Col { sex: Sex; type: DvValueType; compound: string; unit: string; as?: 'value' | 'dg' | 'salt' | 'niacinUl'; pct?: boolean; activity?: Activity | null; note?: string; skip?: boolean }
-
-const SALT_TO_NA = 1000 / 2.54;
-
-function emit(page: number, title: string, col: Col, age: [number, number | null], label: string, cell: string | null, stage: LifeStage = 'NONE') {
-  if (col.skip || cell == null) return;
-  const p = parse(cell);
-  if (p.kind === 'none') return;
-  const base = { compound: col.compound, sex: col.sex, stage, age, unit: col.unit, pct: col.pct, activity: col.activity ?? null, note: col.note ?? null, from: `p${page} ${title}, ${col.sex === 'MALE' ? 'Males' : 'Females'} ${col.type}, ${label}` };
-  if (col.as === 'salt') {
-    if (p.kind === 'pair') return push({ ...base, type: col.type, value: Math.round(p.v * 10000) / 10000, note: `Printed ${p.v} mg (salt ${p.paren} g).` });
-    if (p.kind === 'value') return push({ ...base, type: col.type, value: p.v });
-    if (p.kind === 'ceiling') {
-      const na = Number((p.v * SALT_TO_NA).toFixed(4));
-      return push({ ...base, compound: 'Sodium', type: 'CDRR', value: na, max: na, unit: 'mg', note: `DG printed as salt equivalent < ${p.v} g/day; sodium = salt × 1000 / 2.54.` });
-    }
-  }
-  if (col.as === 'niacinUl' && p.kind === 'pair') {
-    push({ ...base, compound: 'Nicotinamide', type: 'UL', value: p.v, unit: 'mg', note: 'Printed as nicotinamide.' });
-    return push({ ...base, compound: 'Nicotinic Acid', type: 'UL', value: p.paren, unit: 'mg', note: 'Printed in parentheses as nicotinic acid.' });
-  }
-  if (col.as === 'dg') {
-    if (p.kind === 'range') return push({ ...base, type: 'AMDR', value: (p.min + p.max) / 2, min: p.min, max: p.max });
-    if (p.kind === 'floor') return push({ ...base, type: 'AMDR', value: p.v, min: p.v });
-    if (p.kind === 'ceiling') return push({ ...base, type: 'CDRR', value: p.v, max: p.v });
-  }
-  if (p.kind === 'value') return push({ ...base, type: col.type, value: p.v });
-  throw new Error(`p${page} ${label} ${col.compound} ${col.type}: unexpected cell "${cell}"`);
-}
-
-function table(page: number, title: string, cols: Col[]) {
-  for (const row of grid(page, cols.length)) cols.forEach((c, i) => emit(page, title, c, row.age, row.label, row.cells[i]));
-}
-
-/**
- * Hand-transcribed pregnancy / lactation cells (females only). `cells` align to the page's
- * female columns; "+x" is an increment over women of the same age (18-29, 30-49), otherwise absolute.
- */
-function preg(page: number, title: string, femaleCols: Col[], stage: LifeStage, label: string, cells: (string | null)[]) {
-  if (cells.length !== femaleCols.length) throw new Error(`p${page} ${label}: ${cells.length} cells for ${femaleCols.length} female columns`);
-  const baseRows = grid(page, 0 + (PAGES_COLS.get(page) ?? 0));
-  femaleCols.forEach((col, i) => {
-    const cell = cells[i];
-    if (cell == null || col.skip) return;
-    if (!cell.startsWith('+')) return emit(page, title, col, [216, 599], `${label} (printed absolute; applied to 18-49 y)`, cell, stage);
-    const inc = Number(cell.slice(1));
-    const bases = [[216, 359], [360, 599]].map(([min, max]) => {
-      const r = baseRows.find((b) => b.age[0] === min)!;
-      const idx = PAGES_FEMALE_OFFSET.get(page)! + (BASE_COL_OVERRIDE.get(`${page}:${i}`) ?? i);
-      const base = parse(r.cells[idx] ?? '―');
-      if (base.kind !== 'value') throw new Error(`p${page} ${label} ${col.compound}: no base at ${min} months`);
-      return { min, max, total: Number((base.v + inc).toFixed(4)) };
-    });
-    const bands = bases[0].total === bases[1].total ? [{ ...bases[0], max: 599 }] : bases;
-    for (const b of bands) {
-      push({
-        compound: col.compound, type: col.type, sex: 'FEMALE', stage, age: [b.min, b.max], value: b.total, unit: col.unit,
-        pct: col.pct, activity: col.activity ?? null,
-        note: `${col.note ? col.note + ' ' : ''}Printed as +${inc} over same-age non-pregnant women; stored as total.`,
-        from: `p${page} ${title}, Females ${col.type}, ${label} +${inc}`,
-      });
-    }
-  });
-}
-const PAGES_COLS = new Map<number, number>();
-const PAGES_FEMALE_OFFSET = new Map<number, number>();
-/** page:femaleColIndex -> base column (female-relative) when the increment builds on a different column. */
-const BASE_COL_OVERRIDE = new Map<string, number>();
-
-function both(page: number, title: string, perSex: Array<Omit<Col, 'sex'>>, pregRows: Array<[LifeStage, string, (string | null)[]]> = []) {
-  const cols: Col[] = [...perSex.map((c) => ({ ...c, sex: 'MALE' as Sex })), ...perSex.map((c) => ({ ...c, sex: 'FEMALE' as Sex }))];
-  PAGES_COLS.set(page, cols.length);
-  PAGES_FEMALE_OFFSET.set(page, perSex.length);
-  table(page, title, cols);
-  for (const [stage, label, cells] of pregRows) preg(page, title, cols.slice(perSex.length), stage, label, cells);
-}
-
-const V = (compound: string, unit: string, extra: Partial<Col> = {}) => ({
-  EAR: { type: 'EAR' as DvValueType, compound, unit, ...extra },
-  RDA: { type: 'RDA' as DvValueType, compound, unit, ...extra },
-  AI: { type: 'AI' as DvValueType, compound, unit, ...extra },
-  UL: { type: 'UL' as DvValueType, compound, unit, ...extra },
-});
-
-// p10 Estimated energy requirement (kcal/day), PAL I / II / III.
-{
-  const pal = (p: 'I' | 'II' | 'III', activity: Activity) => ({ type: 'EER' as DvValueType, compound: 'Energy', unit: 'kcal', activity, note: `PAL ${p}.` });
-  const per = [pal('I', 'SEDENTARY'), pal('II', 'MODERATE'), pal('III', 'ACTIVE')];
-  const cols: Col[] = [...per.map((c) => ({ ...c, sex: 'MALE' as Sex })), ...per.map((c) => ({ ...c, sex: 'FEMALE' as Sex }))];
-  // Ages 0-5 y print PAL II only: applies at every activity level.
-  for (const row of grid(10, 6)) {
-    const single = [0, 2, 3, 5].every((i) => row.cells[i] == null || parse(row.cells[i]!).kind === 'none');
-    cols.forEach((c, i) => emit(10, 'Estimated energy requirement', single ? { ...c, activity: null, note: 'Printed at PAL II only; applies at every activity level.' } : c, row.age, row.label, row.cells[i]));
-  }
-  PAGES_COLS.set(10, 6); PAGES_FEMALE_OFFSET.set(10, 3);
-  const female = cols.slice(3);
-  preg(10, 'Estimated energy requirement', female, 'PREGNANT_T1', 'Pregnant, early-stage', ['+50', '+50', '+50']);
-  preg(10, 'Estimated energy requirement', female, 'PREGNANT_T2', 'Pregnant, mid-stage', ['+250', '+250', '+250']);
-  preg(10, 'Estimated energy requirement', female, 'PREGNANT_T3', 'Pregnant, late-stage', ['+450', '+450', '+450']);
-  preg(10, 'Estimated energy requirement', female, 'LACTATING', 'Lactating', ['+350', '+350', '+350']);
-}
-
-// p11 Protein (g/day; DG % energy). Pregnancy DG per footnotes 3/4: 13-20 early/mid, 15-20 late/lactating.
-{
-  const p = V('Protein', 'g');
-  both(11, 'Protein', [p.EAR, p.RDA, p.AI, { type: 'AMDR', compound: 'Protein', unit: '%', pct: true, as: 'dg' }], [
-    ['PREGNANT_T1', 'Pregnant, early-stage', ['+0', '+0', '―', '13-20']],
-    ['PREGNANT_T2', 'Pregnant, mid-stage', ['+5', '+5', '―', '13-20']],
-    ['PREGNANT_T3', 'Pregnant, late-stage', ['+20', '+25', '―', '15-20']],
-    ['LACTATING', 'Lactating', ['+15', '+20', '―', '15-20']],
-  ]);
-}
-// p12 Dietary fats (% energy)
-both(12, 'Dietary fats', [{ type: 'AI', compound: 'Total Fat', unit: '%', pct: true }, { type: 'AMDR', compound: 'Total Fat', unit: '%', pct: true, as: 'dg' }], [
-  ['PREGNANT', 'Pregnant', ['―', '20-30']], ['LACTATING', 'Lactating', ['―', '20-30']],
-]);
-// p13 Saturated fatty acid DG (% energy)
-both(13, 'Saturated fatty acid', [{ type: 'CDRR', compound: 'Saturated Fat', unit: '%', pct: true, as: 'dg' }], [
-  ['PREGNANT', 'Pregnant', ['≤7']], ['LACTATING', 'Lactating', ['≤7']],
-]);
-// p14 n-6, p15 n-3 fatty acids AI (g/day): total n-6 / n-3.
-both(14, 'n-6 fatty acid', [{ type: 'AI', compound: 'Omega-6', unit: 'g', note: 'Total n-6 fatty acids.' }], [
-  ['PREGNANT', 'Pregnant', ['9']], ['LACTATING', 'Lactating', ['10']],
-]);
-both(15, 'n-3 fatty acid', [{ type: 'AI', compound: 'Omega-3', unit: 'g', note: 'Total n-3 fatty acids.' }], [
-  ['PREGNANT', 'Pregnant', ['1.6']], ['LACTATING', 'Lactating', ['1.8']],
-]);
-// p16 Carbohydrates DG (% energy, includes alcohol)
-both(16, 'Carbohydrates', [{ type: 'AMDR', compound: 'Carbohydrates', unit: '%', pct: true, as: 'dg', note: 'Includes alcohol.' }], [
-  ['PREGNANT', 'Pregnant', ['50-65']], ['LACTATING', 'Lactating', ['50-65']],
-]);
-// p17 Dietary fiber DG (g/day)
-both(17, 'Dietary fiber', [{ type: 'AMDR', compound: 'Dietary Fiber', unit: 'g', as: 'dg' }], [
-  ['PREGNANT', 'Pregnant', ['≥ 18']], ['LACTATING', 'Lactating', ['≥ 18']],
-]);
-// p18 is the energy-providing nutrient balance: a restatement of p11-p16, not stored.
-// p19 Vitamin A (µg RAE). AI and UL exclude provitamin A carotenoids.
-{
-  const a = V('Vitamin A (RAE)', 'µg RAE');
-  both(19, 'Vitamin A', [a.EAR, a.RDA, { ...a.AI, note: 'Excludes provitamin A carotenoids.' }, { type: 'UL', compound: 'Retinol', unit: 'µg', note: 'Excludes provitamin A carotenoids.' }], [
-    ['PREGNANT_T1', 'Pregnant, early-stage', ['+0', '+0', '―', '―']],
-    ['PREGNANT_T2', 'Pregnant, mid-stage', ['+0', '+0', '―', '―']],
-    ['PREGNANT_T3', 'Pregnant, late-stage', ['+60', '+80', '―', '―']],
-    ['LACTATING', 'Lactating', ['+300', '+450', '―', '―']],
-  ]);
-}
-// p20 Vitamin D
-{ const d = V('Vitamin D (Total)', 'µg'); both(20, 'Vitamin D', [d.AI, d.UL], [['PREGNANT', 'Pregnant', ['8.5', '―']], ['LACTATING', 'Lactating', ['8.5', '―']]]); }
-// p21 Vitamin E (α-tocopherol only)
-{ const e = V('Vitamin E (Total)', 'mg', { note: 'As α-tocopherol only.' }); both(21, 'Vitamin E', [e.AI, e.UL], [['PREGNANT', 'Pregnant', ['6.5', '―']], ['LACTATING', 'Lactating', ['7.0', '―']]]); }
-// p22 Vitamin K
-{ const k = V('Vitamin K (Total)', 'µg'); both(22, 'Vitamin K', [k.AI], [['PREGNANT', 'Pregnant', ['150']], ['LACTATING', 'Lactating', ['150']]]); }
-// p23 Vitamin B1 (as thiamine chloride hydrochloride)
-{ const b = V('Thiamin (B1)', 'mg', { note: 'As thiamine chloride hydrochloride.' }); both(23, 'Vitamin B1', [b.EAR, b.RDA, b.AI], [['PREGNANT', 'Pregnant', ['+0.2', '+0.2', '―']], ['LACTATING', 'Lactating', ['+0.2', '+0.2', '―']]]); }
-// p24 Vitamin B2
-{ const b = V('Riboflavin (B2)', 'mg'); both(24, 'Vitamin B2', [b.EAR, b.RDA, b.AI], [['PREGNANT', 'Pregnant', ['+0.2', '+0.3', '―']], ['LACTATING', 'Lactating', ['+0.5', '+0.6', '―']]]); }
-// p25 Niacin (mg NE); infants 0-5 months in mg/day (footnote 4). UL as nicotinamide (nicotinic acid).
-{
-  const n = V('Niacin (B3)', 'mg NE');
-  both(25, 'Niacin', [n.EAR, n.RDA, n.AI, { type: 'UL', compound: 'Nicotinamide', unit: 'mg', as: 'niacinUl' }], [
-    ['PREGNANT', 'Pregnant', ['+0', '+0', '―', '―']], ['LACTATING', 'Lactating', ['+3', '+3', '―', '―']],
-  ]);
-}
-// p26 Vitamin B6 (UL as pyridoxine)
-{ const b = V('Vitamin B6', 'mg'); both(26, 'Vitamin B6', [b.EAR, b.RDA, b.AI, { ...b.UL, note: 'As pyridoxine.' }], [['PREGNANT', 'Pregnant', ['+0.2', '+0.2', '―', '―']], ['LACTATING', 'Lactating', ['+0.3', '+0.3', '―', '―']]]); }
-// p27 Vitamin B12
-{ const b = V('Vitamin B12 (Total)', 'µg'); both(27, 'Vitamin B12', [b.EAR, b.RDA, b.AI], [['PREGNANT', 'Pregnant', ['+0.3', '+0.4', '―']], ['LACTATING', 'Lactating', ['+0.7', '+0.8', '―']]]); }
-// p28 Folic acid (µg, as pteroylmonoglutamic acid); UL only for supplements / enriched food.
-{
-  const f = V('Folate (Total)', 'µg');
-  both(28, 'Folic acid', [f.EAR, f.RDA, f.AI, { type: 'UL', compound: 'Folic Acid (Synthetic)', unit: 'µg', supplementalOnly: true, note: 'Pteroylmonoglutamic acid in supplements and vitamin-enriched food.' } as Omit<Col, 'sex'>], [
-    ['PREGNANT', 'Pregnant (mid- or late-stage)', ['+200', '+240', '―', '―']], ['LACTATING', 'Lactating', ['+80', '+100', '―', '―']],
-  ]);
-}
-// p29 Pantothenic acid, p30 Biotin
-{ const p = V('Pantothenic Acid (B5)', 'mg'); both(29, 'Pantothenic acid', [p.AI], [['PREGNANT', 'Pregnant', ['5']], ['LACTATING', 'Lactating', ['6']]]); }
-{ const b = V('Biotin (B7)', 'µg'); both(30, 'Biotin', [b.AI], [['PREGNANT', 'Pregnant', ['50']], ['LACTATING', 'Lactating', ['50']]]); }
-// p31 Vitamin C
-{ const c = V('Vitamin C (Total)', 'mg'); both(31, 'Vitamin C', [c.EAR, c.RDA, c.AI], [['PREGNANT', 'Pregnant', ['+10', '+10', '―']], ['LACTATING', 'Lactating', ['+40', '+45', '―']]]); }
-// p32 Sodium (mg; salt g in parentheses). Footnote: 6.0 g/day salt to prevent progression of hypertension or CKD.
-{
-  const na = V('Sodium', 'mg');
-  both(32, 'Sodium', [{ ...na.EAR, as: 'salt' }, { ...na.AI, as: 'salt' }, { type: 'CDRR', compound: 'Sodium', unit: 'mg', as: 'salt' }], [
-    ['PREGNANT', 'Pregnant', ['600 (1.5)', '―', '(<6.5)']], ['LACTATING', 'Lactating', ['600 (1.5)', '―', '(<6.5)']],
-  ]);
-}
-// p33 Potassium
-{ const k = V('Potassium', 'mg'); both(33, 'Potassium', [k.AI, { type: 'AMDR', compound: 'Potassium', unit: 'mg', as: 'dg' }], [['PREGNANT', 'Pregnant', ['2,000', '≥2,600']], ['LACTATING', 'Lactating', ['2,200', '≥2,600']]]); }
-// p34 Calcium
-{ const c = V('Calcium', 'mg'); both(34, 'Calcium', [c.EAR, c.RDA, c.AI, c.UL], [['PREGNANT', 'Pregnant', ['+0', '+0', '―', '―']], ['LACTATING', 'Lactating', ['+0', '+0', '―', '―']]]); }
-// p35 Magnesium. UL column is empty in the grid; footnote 1 gives 350 mg/d (adults) for non-food sources.
-{
-  const m = V('Magnesium', 'mg');
-  both(35, 'Magnesium', [m.EAR, m.RDA, m.AI, { ...m.UL, skip: true }], [['PREGNANT', 'Pregnant', ['+30', '+40', '―', '―']], ['LACTATING', 'Lactating', ['+0', '+0', '―', '―']]]);
+function column(c: Col) {
+  const rows = c.rows === 15 ? R15 : R14;
+  const cells: Record<Sex, string[] | null> = {
+    MALE: c.m == null ? null : c.m.trim().split(/\s+/),
+    FEMALE: c.f == null ? null : c.f.trim().split(/\s+/),
+  };
   for (const sex of ['MALE', 'FEMALE'] as Sex[]) {
-    push({ compound: 'Magnesium', type: 'UL', sex, age: [216, null], value: 350, unit: 'mg', supplementalOnly: true, note: 'Sources other than normal food only; no UL for normal food (footnote 1).', from: 'p35 Magnesium, footnote 1' });
+    const t = cells[sex];
+    if (!t) continue;
+    if (t.length !== rows.length) throw new Error(`${c.label} ${sex}: ${t.length} cells, expected ${rows.length}`);
+    t.forEach((tok, i) => { if (tok !== '-') emit({ col: c, sex, stage: 'NONE', age: rows[i][1], tok, label: `${sex === 'MALE' ? '男性' : '女性'} ${rows[i][0]}` }); });
   }
-}
-// p36 Phosphorus
-{ const p = V('Phosphorus', 'mg'); both(36, 'Phosphorus', [p.AI, p.UL], [['PREGNANT', 'Pregnant', ['800', '―']], ['LACTATING', 'Lactating', ['800', '―']]]); }
-// p37 Iron: males EAR RDA AI UL | females not-menstruating EAR RDA, menstruating EAR RDA, AI, UL.
-{
-  const title = 'Iron';
-  const rows = grid(37, 10);
-  const m = V('Iron (Total)', 'mg');
-  for (const r of rows) {
-    const c = r.cells;
-    emit(37, title, { ...m.EAR, sex: 'MALE' }, r.age, r.label, c[0]);
-    emit(37, title, { ...m.RDA, sex: 'MALE' }, r.age, r.label, c[1]);
-    emit(37, title, { ...m.AI, sex: 'MALE' }, r.age, r.label, c[2]);
-    emit(37, title, { ...m.UL, sex: 'MALE' }, r.age, r.label, c[3]);
-    const menstruating = c[6] != null && parse(c[6]).kind === 'value';
-    for (const [type, notIdx, menIdx] of [['EAR', 4, 6], ['RDA', 5, 7]] as const) {
-      if (menstruating) {
-        const other = parse(c[notIdx]!);
-        emit(37, title, { type, compound: 'Iron (Total)', unit: 'mg', sex: 'FEMALE', note: `Menstruating. Not menstruating: ${other.kind === 'value' ? other.v : '—'} mg.` }, r.age, `${r.label} (menstruating)`, c[menIdx]);
-      } else {
-        emit(37, title, { type, compound: 'Iron (Total)', unit: 'mg', sex: 'FEMALE' }, r.age, r.label, c[notIdx]);
+  if (!c.preg) return;
+  const f = cells.FEMALE;
+  const idx18 = rows.findIndex(([, a]) => a[0] === 216);
+  const [pregPart, lactPart] = c.preg.split('|');
+  const stageToks = pregPart.split(',');
+  const stages: Array<[LifeStage, string]> = stageToks.length === 3
+    ? [['PREGNANT_T1', '妊婦 初期'], ['PREGNANT_T2', '妊婦 中期'], ['PREGNANT_T3', '妊婦 後期']]
+    : stageToks.length === 2 ? [['PREGNANT_T1', '妊婦 初期'], ['PREGNANT_T2', '妊婦 中期・後期']] : [['PREGNANT', '妊婦']];
+  const handle = (tok: string, stage: LifeStage, label: string) => {
+    if (tok === '-') return;
+    const stagesFor: LifeStage[] = label === '妊婦 中期・後期' ? ['PREGNANT_T2', 'PREGNANT_T3'] : [stage];
+    for (const st of stagesFor) {
+      if (!tok.startsWith('+')) { emit({ col: c, sex: 'FEMALE', stage: st, age: W18_49, tok, label }); continue; }
+      if (!f) throw new Error(`${c.label}: increment with no female base`);
+      for (const [age, band, i] of [[W18, '18-29', idx18], [W30, '30-49', idx18 + 1]] as Array<[Age, string, number]>) {
+        const base = c.label.startsWith('鉄') ? IRON_NOT_MENSTRUATING[i] : f[i];
+        if (base == null || base === '-') throw new Error(`${c.label}: no base for ${band}`);
+        const total = r4(Number(base) + Number(tok.slice(1)));
+        emit({ col: c, sex: 'FEMALE', stage: st, age, tok: String(total), label: `${label} ${tok} over 女性 ${band} y`,
+          note: `${c.label.startsWith('鉄') ? 'Over the not-menstruating value. ' : ''}Printed as ${tok} over same-age non-pregnant women (${base}); stored as total.` });
       }
     }
-    emit(37, title, { ...m.AI, sex: 'FEMALE' }, r.age, r.label, c[8]);
-    emit(37, title, { ...m.UL, sex: 'FEMALE' }, r.age, r.label, c[9]);
-  }
-  // Pregnancy increments build on the NOT-menstruating EAR/RDA (female-relative columns 0 and 1).
-  PAGES_COLS.set(37, 10); PAGES_FEMALE_OFFSET.set(37, 4);
-  const female: Col[] = [{ ...m.EAR, sex: 'FEMALE', note: 'Over the not-menstruating value.' }, { ...m.RDA, sex: 'FEMALE', note: 'Over the not-menstruating value.' }];
-  preg(37, title, female, 'PREGNANT_T1', 'Pregnant, early stage', ['+2.0', '+2.5']);
-  preg(37, title, female, 'PREGNANT_T2', 'Pregnant, mid to late stage', ['+8.0', '+9.5']);
-  preg(37, title, female, 'PREGNANT_T3', 'Pregnant, mid to late stage', ['+8.0', '+9.5']);
-  preg(37, title, female, 'LACTATING', 'Lactating', ['+2.0', '+2.5']);
+  };
+  stageToks.forEach((tok, k) => handle(tok, stages[k][0], stages[k][1]));
+  if (lactPart !== undefined) handle(lactPart, 'LACTATING', '授乳婦');
 }
-// p38 Zinc, p39 Copper
-{ const z = V('Zinc', 'mg'); both(38, 'Zinc', [z.EAR, z.RDA, z.AI, z.UL], [['PREGNANT', 'Pregnant', ['+1', '+2', '―', '―']], ['LACTATING', 'Lactating', ['+3', '+4', '―', '―']]]); }
-{ const c = V('Copper', 'mg'); both(39, 'Copper', [c.EAR, c.RDA, c.AI, c.UL], [['PREGNANT', 'Pregnant', ['+0.1', '+0.1', '―', '―']], ['LACTATING', 'Lactating', ['+0.5', '+0.6', '―', '―']]]); }
-// p40 Manganese
-{ const m = V('Manganese', 'mg'); both(40, 'Manganese', [m.AI, m.UL], [['PREGNANT', 'Pregnant', ['3.5', '―']], ['LACTATING', 'Lactating', ['3.5', '―']]]); }
-// p41 Iodine. Footnote 1: UL for pregnant or lactating women is 2,000 µg/day.
+
+// Iron, women: not-menstruating column (the base for pregnancy / lactation increments).
+const IRON_NOT_MENSTRUATING_EAR = '- 3.0 3.0 3.5 4.5 6.0 6.5 6.5 5.5 5.0 5.0 5.0 5.0 4.5'.split(' ');
+const IRON_NOT_MENSTRUATING_RDA = '- 4.5 4.0 5.0 6.0 8.0 9.0 8.0 6.5 6.0 6.0 6.0 6.0 5.5'.split(' ');
+let IRON_NOT_MENSTRUATING: string[] = IRON_NOT_MENSTRUATING_RDA;
+
+const P = (n: number) => `2025 DRI table (report p. ${n})`;
+const COLS: Col[] = [];
+const add = (c: Col) => COLS.push(c);
+
+// ── Energy (参考表2, report p. 90 / printed 78) ──
 {
-  const i = V('Iodine', 'µg');
-  both(41, 'Iodine', [i.EAR, i.RDA, i.AI, i.UL], [
-    ['PREGNANT', 'Pregnant', ['+75', '+110', '―', '2,000']], ['LACTATING', 'Lactating', ['+100', '+140', '―', '2,000']],
-  ]);
+  const levels: Array<[Activity | null, string, string | null, string | null]> = [
+    ['SEDENTARY', '低い', '- - - - - 1350 1600 1950 2300 2500 2250 2350 2250 2100 1850', '- - - - - 1250 1500 1850 2150 2050 1700 1750 1700 1650 1450'],
+    ['MODERATE', 'ふつう', '- - - - - 1550 1850 2250 2600 2850 2600 2750 2650 2350 2250', '- - - - - 1450 1700 2100 2400 2300 1950 2050 1950 1850 1750'],
+    ['ACTIVE', '高い', '- - - - - 1750 2100 2500 2900 3150 3000 3150 3000 2650 -', '- - - - - 1650 1900 2350 2700 2550 2250 2350 2250 2050 -'],
+  ];
+  for (const [act, label, m, f] of levels) {
+    add({ page: P(90), label: `推定エネルギー必要量 ${label}`, compound: 'Energy', type: 'EER', unit: 'kcal', rows: 15, activity: act, m, f, preg: '+50,+250,+450|+350',
+      note: `${label} (PAL ${act === 'SEDENTARY' ? '1.50' : act === 'MODERATE' ? '1.75' : '2.00'} for adults).` });
+  }
+  add({ page: P(90), label: '推定エネルギー必要量 ふつう (0-5 y)', compound: 'Energy', type: 'EER', unit: 'kcal', rows: 15, activity: null,
+    m: '550 650 700 950 1300 - - - - - - - - - -', f: '500 600 650 900 1250 - - - - - - - - - -',
+    note: 'Printed for ふつう only; applies at every activity level.' });
 }
-// p42 Selenium, p43 Chromium, p44 Molybdenum
-{ const s = V('Selenium', 'µg'); both(42, 'Selenium', [s.EAR, s.RDA, s.AI, s.UL], [['PREGNANT', 'Pregnant', ['+5', '+5', '―', '―']], ['LACTATING', 'Lactating', ['+15', '+20', '―', '―']]]); }
-{ const c = V('Chromium', 'µg'); both(43, 'Chromium', [c.AI, c.UL], [['PREGNANT', 'Pregnant', ['10', '―']], ['LACTATING', 'Lactating', ['10', '―']]]); }
-{ const m = V('Molybdenum', 'µg'); both(44, 'Molybdenum', [m.EAR, m.RDA, m.AI, m.UL], [['PREGNANT', 'Pregnant', ['+0', '+0', '―', '―']], ['LACTATING', 'Lactating', ['+3', '+3', '―', '―']]]); }
+// ── Protein (p. 115) ──
+add({ page: P(115), label: 'たんぱく質 推定平均必要量', compound: 'Protein', type: 'EAR', unit: 'g', rows: 15,
+  m: '- - - 15 20 25 30 40 50 50 50 50 50 50 50', f: '- - - 15 20 25 30 40 45 45 40 40 40 40 40', preg: '+0,+5,+20|+15' });
+add({ page: P(115), label: 'たんぱく質 推奨量', compound: 'Protein', type: 'RDA', unit: 'g', rows: 15,
+  m: '- - - 20 25 30 40 45 60 65 65 65 65 60 60', f: '- - - 20 25 30 40 50 55 55 50 50 50 50 50', preg: '+0,+5,+25|+20' });
+add({ page: P(115), label: 'たんぱく質 目安量', compound: 'Protein', type: 'AI', unit: 'g', rows: 15,
+  m: '10 15 25 - - - - - - - - - - - -', f: '10 15 25 - - - - - - - - - - - -' });
+add({ page: P(115), label: 'たんぱく質 目標量', compound: 'Protein', type: 'AMDR', unit: '%', pct: true, dg: true, rows: 15,
+  m: '- - - 13~20 13~20 13~20 13~20 13~20 13~20 13~20 13~20 13~20 14~20 15~20 15~20',
+  f: '- - - 13~20 13~20 13~20 13~20 13~20 13~20 13~20 13~20 13~20 14~20 15~20 15~20', preg: '13~20,13~20,15~20|15~20' });
+// ── Fats (p. 138-140) ──
+add({ page: P(138), label: '脂質 目安量', compound: 'Total Fat', type: 'AI', unit: '%', pct: true,
+  m: '50 40 - - - - - - - - - - - -', f: '50 40 - - - - - - - - - - - -' });
+const fatDg = '- - 20~30 20~30 20~30 20~30 20~30 20~30 20~30 20~30 20~30 20~30 20~30 20~30';
+add({ page: P(138), label: '脂質 目標量', compound: 'Total Fat', type: 'AMDR', unit: '%', pct: true, dg: true, m: fatDg, f: fatDg, preg: '20~30|20~30' });
+const sfa = '- - - 10< 10< 10< 10< 10< 9< 7< 7< 7< 7< 7<';
+add({ page: P(139), label: '飽和脂肪酸 目標量', compound: 'Saturated Fat', type: 'CDRR', unit: '%', pct: true, dg: true, m: sfa, f: sfa, preg: '7<|7<',
+  note: 'Printed "以下" (or less).' });
+add({ page: P(140), label: 'n-6系脂肪酸 目安量', compound: 'Omega-6', type: 'AI', unit: 'g',
+  m: '4 4 4 6 8 8 9 11 13 12 11 11 10 9', f: '4 4 4 6 7 8 9 11 11 9 9 9 9 8', preg: '9|9', note: 'Total n-6 fatty acids.' });
+add({ page: P(140), label: 'n-3系脂肪酸 目安量', compound: 'Omega-3', type: 'AI', unit: 'g',
+  m: '0.9 0.8 0.7 1.2 1.4 1.5 1.7 2.2 2.2 2.2 2.2 2.3 2.3 2.3', f: '0.9 0.8 0.7 1.0 1.2 1.4 1.7 1.7 1.7 1.7 1.7 1.9 2.0 2.0', preg: '1.7|1.7', note: 'Total n-3 fatty acids.' });
+// ── Carbohydrates (p. 155-156) ──
+const carb = '- - 50~65 50~65 50~65 50~65 50~65 50~65 50~65 50~65 50~65 50~65 50~65 50~65';
+add({ page: P(155), label: '炭水化物 目標量', compound: 'Carbohydrates', type: 'AMDR', unit: '%', pct: true, dg: true, m: carb, f: carb, preg: '50~65|50~65', note: 'Includes alcohol.' });
+add({ page: P(156), label: '食物繊維 目標量', compound: 'Dietary Fiber', type: 'AMDR', unit: 'g', dg: true,
+  m: '- - - 8+ 10+ 11+ 13+ 17+ 19+ 20+ 22+ 22+ 21+ 20+', f: '- - - 8+ 9+ 11+ 13+ 16+ 18+ 18+ 18+ 18+ 18+ 17+', preg: '18+|18+', note: 'Printed "以上" (or more).' });
+// ── Fat-soluble vitamins (p. 193-196) ──
+add({ page: P(193), label: 'ビタミンA 推定平均必要量', compound: 'Vitamin A (RAE)', type: 'EAR', unit: 'µg RAE',
+  m: '- - 300 350 350 350 450 550 650 600 650 650 600 550', f: '- - 250 350 350 350 400 500 500 450 500 500 500 450', preg: '+0,+0,+60|+300', note: 'Includes provitamin A carotenoids.' });
+add({ page: P(193), label: 'ビタミンA 推奨量', compound: 'Vitamin A (RAE)', type: 'RDA', unit: 'µg RAE',
+  m: '- - 400 500 500 500 600 800 900 850 900 900 850 800', f: '- - 350 500 500 500 600 700 650 650 700 700 700 650', preg: '+0,+0,+80|+450', note: 'Includes provitamin A carotenoids.' });
+add({ page: P(193), label: 'ビタミンA 目安量', compound: 'Vitamin A (RAE)', type: 'AI', unit: 'µg RAE',
+  m: '300 400 - - - - - - - - - - - -', f: '300 400 - - - - - - - - - - - -', note: 'Excludes provitamin A carotenoids.' });
+const vaUl = '600 600 600 700 950 1200 1500 2100 2600 2700 2700 2700 2700 2700';
+add({ page: P(193), label: 'ビタミンA 耐容上限量', compound: 'Retinol', type: 'UL', unit: 'µg', m: vaUl, f: vaUl, note: 'Printed as vitamin A (µg RAE); excludes provitamin A carotenoids.' });
+const vdAi = '5.0 5.0 3.5 4.5 5.5 6.5 8.0 9.0 9.0 9.0 9.0 9.0 9.0 9.0';
+add({ page: P(194), label: 'ビタミンD 目安量', compound: 'Vitamin D (Total)', type: 'AI', unit: 'µg', m: vdAi, f: vdAi, preg: '9.0|9.0' });
+const vdUl = '25 25 25 30 40 40 60 80 90 100 100 100 100 100';
+add({ page: P(194), label: 'ビタミンD 耐容上限量', compound: 'Vitamin D (Total)', type: 'UL', unit: 'µg', m: vdUl, f: vdUl });
+add({ page: P(195), label: 'ビタミンE 目安量', compound: 'Vitamin E (Total)', type: 'AI', unit: 'mg α-TE',
+  m: '3.0 4.0 3.0 4.0 4.5 5.0 5.0 6.5 7.0 6.5 6.5 6.5 7.5 7.0', f: '3.0 4.0 3.0 4.0 4.0 5.0 5.5 6.0 6.0 5.0 6.0 6.0 7.0 6.0', preg: '5.5|5.5', note: 'As α-tocopherol only.' });
+add({ page: P(195), label: 'ビタミンE 耐容上限量', compound: 'Vitamin E (Total)', type: 'UL', unit: 'mg α-TE',
+  m: '- - 150 200 300 350 450 650 750 800 800 800 800 800', f: '- - 150 200 300 350 450 600 650 650 700 700 700 650', note: 'As α-tocopherol only.' });
+add({ page: P(196), label: 'ビタミンK 目安量', compound: 'Vitamin K (Total)', type: 'AI', unit: 'µg',
+  m: '4 7 50 60 80 90 110 140 150 150 150 150 150 150', f: '4 7 60 70 90 110 130 150 150 150 150 150 150 150', preg: '150|150' });
+// ── Water-soluble vitamins (p. 246-254) ──
+const both2 = (a: string) => `${a} - - - - - - - - - - - -`;
+add({ page: P(246), label: 'ビタミンB1 推定平均必要量', compound: 'Thiamin (B1)', type: 'EAR', unit: 'mg',
+  m: '- - 0.3 0.4 0.5 0.6 0.7 0.8 0.9 0.8 0.8 0.8 0.7 0.7', f: '- - 0.3 0.4 0.4 0.5 0.6 0.7 0.7 0.6 0.6 0.6 0.6 0.5', preg: '+0.1|+0.2', note: 'As thiamine chloride hydrochloride.' });
+add({ page: P(246), label: 'ビタミンB1 推奨量', compound: 'Thiamin (B1)', type: 'RDA', unit: 'mg',
+  m: '- - 0.4 0.5 0.7 0.8 0.9 1.1 1.2 1.1 1.2 1.1 1.0 1.0', f: '- - 0.4 0.5 0.6 0.7 0.9 1.0 1.0 0.8 0.9 0.8 0.8 0.7', preg: '+0.2|+0.2', note: 'As thiamine chloride hydrochloride.' });
+add({ page: P(246), label: 'ビタミンB1 目安量', compound: 'Thiamin (B1)', type: 'AI', unit: 'mg', m: both2('0.1 0.2'), f: both2('0.1 0.2') });
+add({ page: P(247), label: 'ビタミンB2 推定平均必要量', compound: 'Riboflavin (B2)', type: 'EAR', unit: 'mg',
+  m: '- - 0.5 0.7 0.8 0.9 1.1 1.3 1.4 1.3 1.4 1.3 1.2 1.1', f: '- - 0.5 0.6 0.7 0.9 1.1 1.2 1.2 1.0 1.0 1.0 0.9 0.9', preg: '+0.2|+0.5' });
+add({ page: P(247), label: 'ビタミンB2 推奨量', compound: 'Riboflavin (B2)', type: 'RDA', unit: 'mg',
+  m: '- - 0.6 0.8 0.9 1.1 1.4 1.6 1.7 1.6 1.7 1.6 1.4 1.4', f: '- - 0.5 0.8 0.9 1.0 1.3 1.4 1.4 1.2 1.2 1.2 1.1 1.1', preg: '+0.3|+0.6' });
+add({ page: P(247), label: 'ビタミンB2 目安量', compound: 'Riboflavin (B2)', type: 'AI', unit: 'mg', m: both2('0.3 0.4'), f: both2('0.3 0.4') });
+add({ page: P(248), label: 'ナイアシン 推定平均必要量', compound: 'Niacin (B3)', type: 'EAR', unit: 'mg NE',
+  m: '- - 5 6 7 9 11 12 14 13 13 13 11 11', f: '- - 4 6 7 8 10 12 11 9 10 9 9 8', preg: '+0|+3' });
+add({ page: P(248), label: 'ナイアシン 推奨量', compound: 'Niacin (B3)', type: 'RDA', unit: 'mg NE',
+  m: '- - 6 8 9 11 13 15 16 15 16 15 14 13', f: '- - 5 7 8 10 12 14 13 11 12 11 11 10', preg: '+0|+3' });
+add({ page: P(248), label: 'ナイアシン 目安量', compound: 'Niacin (B3)', type: 'AI', unit: 'mg NE', m: '- 3 - - - - - - - - - - - -', f: '- 3 - - - - - - - - - - - -' });
+COLS.push({ page: P(248), label: 'ナイアシン 目安量 (0-5 months)', compound: 'Niacin (B3)', type: 'AI', unit: 'mg', m: '2 - - - - - - - - - - - - -', f: '2 - - - - - - - - - - - - -', note: 'Printed in mg niacin for 0-5 months (footnote 4).' });
+add({ page: P(248), label: 'ナイアシン 耐容上限量 (ニコチンアミド)', compound: 'Nicotinamide', type: 'UL', unit: 'mg',
+  m: '- - 60 80 100 150 200 250 300 300 350 350 300 300', f: '- - 60 80 100 150 200 250 250 250 250 250 250 250', note: 'Printed as niacin UL, nicotinamide weight (footnote 3).' });
+add({ page: P(248), label: 'ナイアシン 耐容上限量 (ニコチン酸)', compound: 'Nicotinic Acid', type: 'UL', unit: 'mg',
+  m: '- - 15 20 30 35 45 60 70 80 85 85 80 75', f: '- - 15 20 30 35 45 60 65 65 65 65 65 60', note: 'Printed in parentheses as nicotinic acid weight (footnote 3).' });
+add({ page: P(249), label: 'ビタミンB6 推定平均必要量', compound: 'Vitamin B6', type: 'EAR', unit: 'mg',
+  m: '- - 0.4 0.5 0.6 0.8 0.9 1.2 1.2 1.2 1.2 1.2 1.2 1.2', f: '- - 0.4 0.5 0.6 0.8 1.0 1.1 1.1 1.0 1.0 1.0 1.0 1.0', preg: '+0.2|+0.3' });
+add({ page: P(249), label: 'ビタミンB6 推奨量', compound: 'Vitamin B6', type: 'RDA', unit: 'mg',
+  m: '- - 0.5 0.6 0.7 0.9 1.0 1.4 1.5 1.5 1.5 1.5 1.4 1.4', f: '- - 0.5 0.6 0.7 0.9 1.2 1.3 1.3 1.2 1.2 1.2 1.2 1.2', preg: '+0.2|+0.3' });
+add({ page: P(249), label: 'ビタミンB6 目安量', compound: 'Vitamin B6', type: 'AI', unit: 'mg', m: both2('0.2 0.3'), f: both2('0.2 0.3') });
+add({ page: P(249), label: 'ビタミンB6 耐容上限量', compound: 'Vitamin B6', type: 'UL', unit: 'mg',
+  m: '- - 10 15 20 25 30 40 50 55 60 60 55 50', f: '- - 10 15 20 25 30 40 45 45 45 45 45 40', note: 'As pyridoxine.' });
+const b12 = '0.4 0.9 1.5 1.5 2.0 2.5 3.0 4.0 4.0 4.0 4.0 4.0 4.0 4.0';
+add({ page: P(250), label: 'ビタミンB12 目安量', compound: 'Vitamin B12 (Total)', type: 'AI', unit: 'µg', m: b12, f: b12, preg: '4.0|4.0', note: 'As cyanocobalamin.' });
+const folEar = '- - 70 80 110 130 150 190 200 200 200 200 200 200';
+const folRda = '- - 90 100 130 150 180 230 240 240 240 240 240 240';
+add({ page: P(251), label: '葉酸 推定平均必要量', compound: 'Folate (Total)', type: 'EAR', unit: 'µg', m: folEar, f: folEar, preg: '+0,+200|+80', note: 'As pteroylmonoglutamic acid.' });
+add({ page: P(251), label: '葉酸 推奨量', compound: 'Folate (Total)', type: 'RDA', unit: 'µg', m: folRda, f: folRda, preg: '+0,+240|+100', note: 'As pteroylmonoglutamic acid.' });
+add({ page: P(251), label: '葉酸 目安量', compound: 'Folate (Total)', type: 'AI', unit: 'µg', m: both2('40 70'), f: both2('40 70') });
+const folUl = '- - 200 300 400 500 700 900 900 900 1000 1000 900 900';
+add({ page: P(251), label: '葉酸 耐容上限量', compound: 'Folic Acid (Synthetic)', type: 'UL', unit: 'µg', m: folUl, f: folUl, supp: true,
+  note: 'Applies to folic acid in foods other than ordinary foods (footnote 2).' });
+add({ page: P(252), label: 'パントテン酸 目安量', compound: 'Pantothenic Acid (B5)', type: 'AI', unit: 'mg',
+  m: '4 3 3 4 5 6 6 7 7 6 6 6 6 6', f: '4 3 3 4 5 6 6 6 6 5 5 5 5 5', preg: '5|6' });
+const bio = '4 10 20 20 30 30 40 50 50 50 50 50 50 50';
+add({ page: P(253), label: 'ビオチン 目安量', compound: 'Biotin (B7)', type: 'AI', unit: 'µg', m: bio, f: bio, preg: '50|50' });
+const vcEar = '- - 30 35 40 50 60 75 80 80 80 80 80 80';
+const vcRda = '- - 35 40 50 60 70 90 100 100 100 100 100 100';
+add({ page: P(254), label: 'ビタミンC 推定平均必要量', compound: 'Vitamin C (Total)', type: 'EAR', unit: 'mg', m: vcEar, f: vcEar, preg: '+10|+40', note: 'As L-ascorbic acid.' });
+add({ page: P(254), label: 'ビタミンC 推奨量', compound: 'Vitamin C (Total)', type: 'RDA', unit: 'mg', m: vcRda, f: vcRda, preg: '+10|+45', note: 'As L-ascorbic acid.' });
+add({ page: P(254), label: 'ビタミンC 目安量', compound: 'Vitamin C (Total)', type: 'AI', unit: 'mg', m: both2('40 40'), f: both2('40 40') });
+// ── Macrominerals (p. 293-297) ──
+add({ page: P(293), label: 'ナトリウム 推定平均必要量', compound: 'Sodium', type: 'EAR', unit: 'mg',
+  m: '- - - - - - - - - 600 600 600 600 600', f: '- - - - - - - - - 600 600 600 600 600', preg: '600|600', note: 'Salt equivalent 1.5 g.' });
+add({ page: P(293), label: 'ナトリウム 目安量', compound: 'Sodium', type: 'AI', unit: 'mg', m: both2('100 600'), f: both2('100 600'), note: 'Salt equivalent printed in parentheses (0.3 g / 1.5 g).' });
+add({ page: P(294), label: 'カリウム 目安量', compound: 'Potassium', type: 'AI', unit: 'mg',
+  m: '400 700 900 1100 1300 1600 1900 2400 2800 2500 2500 2500 2500 2500', f: '400 700 800 1000 1200 1400 1800 2200 2000 2000 2000 2000 2000 2000', preg: '2000|2000' });
+add({ page: P(294), label: 'カリウム 目標量', compound: 'Potassium', type: 'AMDR', unit: 'mg', dg: true,
+  m: '- - - 1600+ 1800+ 2000+ 2200+ 2600+ 3000+ 3000+ 3000+ 3000+ 3000+ 3000+', f: '- - - 1400+ 1600+ 1800+ 2000+ 2400+ 2600+ 2600+ 2600+ 2600+ 2600+ 2600+', preg: '2600+|2600+', note: 'Printed "以上" (or more).' });
+add({ page: P(295), label: 'カルシウム 推定平均必要量', compound: 'Calcium', type: 'EAR', unit: 'mg',
+  m: '- - 350 500 500 550 600 850 650 650 650 600 600 600', f: '- - 350 450 450 600 600 700 550 550 550 550 550 500', preg: '+0|+0' });
+add({ page: P(295), label: 'カルシウム 推奨量', compound: 'Calcium', type: 'RDA', unit: 'mg',
+  m: '- - 450 600 600 650 700 1000 800 800 750 750 750 750', f: '- - 400 550 550 750 750 800 650 650 650 650 650 600', preg: '+0|+0' });
+add({ page: P(295), label: 'カルシウム 目安量', compound: 'Calcium', type: 'AI', unit: 'mg', m: both2('200 250'), f: both2('200 250') });
+const caUl = '- - - - - - - - - 2500 2500 2500 2500 2500';
+add({ page: P(295), label: 'カルシウム 耐容上限量', compound: 'Calcium', type: 'UL', unit: 'mg', m: caUl, f: caUl });
+add({ page: P(296), label: 'マグネシウム 推定平均必要量', compound: 'Magnesium', type: 'EAR', unit: 'mg',
+  m: '- - 60 80 110 140 180 250 300 280 320 310 290 270', f: '- - 60 80 110 140 180 240 260 230 240 240 240 220', preg: '+30|+0' });
+add({ page: P(296), label: 'マグネシウム 推奨量', compound: 'Magnesium', type: 'RDA', unit: 'mg',
+  m: '- - 70 100 130 170 210 290 360 340 380 370 350 330', f: '- - 70 100 130 160 220 290 310 280 290 290 280 270', preg: '+40|+0' });
+add({ page: P(296), label: 'マグネシウム 目安量', compound: 'Magnesium', type: 'AI', unit: 'mg', m: both2('20 60'), f: both2('20 60') });
+add({ page: P(297), label: 'リン 目安量', compound: 'Phosphorus', type: 'AI', unit: 'mg',
+  m: '120 260 600 700 900 1000 1100 1200 1200 1000 1000 1000 1000 1000', f: '120 260 500 700 800 900 1000 1100 1000 800 800 800 800 800', preg: '800|800' });
+add({ page: P(297), label: 'リン 耐容上限量', compound: 'Phosphorus', type: 'UL', unit: 'mg', m: caUl.replace(/2500/g, '3000'), f: caUl.replace(/2500/g, '3000') });
+// ── Microminerals (p. 357-364) ──
+add({ page: P(357), label: '鉄 推定平均必要量', compound: 'Iron (Total)', type: 'EAR', unit: 'mg',
+  m: '- 3.5 3.0 3.5 4.5 5.5 6.5 7.5 7.5 5.5 6.0 6.0 5.5 5.5', f: '- 3.0 3.0 3.5 4.5 6.0 8.5 9.0 7.5 7.0 7.5 7.5 5.0 4.5', preg: '+2.0,+7.0|+1.5' });
+add({ page: P(357), label: '鉄 推奨量', compound: 'Iron (Total)', type: 'RDA', unit: 'mg',
+  m: '- 4.5 4.0 5.0 6.0 7.5 9.5 9.0 9.0 7.0 7.5 7.0 7.0 6.5', f: '- 4.5 4.0 5.0 6.0 8.0 12.5 12.5 11.0 10.0 10.5 10.5 6.0 5.5', preg: '+2.5,+8.5|+2.0' });
+add({ page: P(357), label: '鉄 目安量', compound: 'Iron (Total)', type: 'AI', unit: 'mg', m: '0.5 - - - - - - - - - - - - -', f: '0.5 - - - - - - - - - - - - -' });
+add({ page: P(359), label: '銅 推定平均必要量', compound: 'Copper', type: 'EAR', unit: 'mg',
+  m: '- - 0.3 0.3 0.4 0.4 0.5 0.7 0.8 0.7 0.8 0.7 0.7 0.7', f: '- - 0.2 0.3 0.4 0.4 0.5 0.6 0.6 0.6 0.6 0.6 0.6 0.6', preg: '+0.1|+0.5' });
+add({ page: P(359), label: '銅 推奨量', compound: 'Copper', type: 'RDA', unit: 'mg',
+  m: '- - 0.3 0.4 0.4 0.5 0.6 0.8 0.9 0.8 0.9 0.9 0.8 0.8', f: '- - 0.3 0.3 0.4 0.5 0.6 0.8 0.7 0.7 0.7 0.7 0.7 0.7', preg: '+0.1|+0.6' });
+add({ page: P(359), label: '銅 目安量', compound: 'Copper', type: 'AI', unit: 'mg', m: both2('0.3 0.4'), f: both2('0.3 0.4') });
+const cuUl = '- - - - - - - - - 7 7 7 7 7';
+add({ page: P(359), label: '銅 耐容上限量', compound: 'Copper', type: 'UL', unit: 'mg', m: cuUl, f: cuUl });
+add({ page: P(358), label: '亜鉛 推定平均必要量', compound: 'Zinc', type: 'EAR', unit: 'mg',
+  m: '- - 2.5 3.0 3.5 4.0 5.5 7.0 8.5 7.5 8.0 8.0 7.5 7.5', f: '- - 2.0 2.5 3.0 4.0 5.5 6.5 6.0 6.0 6.5 6.5 6.5 6.0', preg: '+0.0,+2.0|+2.5' });
+add({ page: P(358), label: '亜鉛 推奨量', compound: 'Zinc', type: 'RDA', unit: 'mg',
+  m: '- - 3.5 4.0 5.0 5.5 8.0 8.5 10.0 9.0 9.5 9.5 9.0 9.0', f: '- - 3.0 3.5 4.5 5.5 7.5 8.5 8.0 7.5 8.0 8.0 7.5 7.0', preg: '+0.0,+2.0|+3.0' });
+add({ page: P(358), label: '亜鉛 目安量', compound: 'Zinc', type: 'AI', unit: 'mg', m: both2('1.5 2.0'), f: both2('1.5 2.0') });
+add({ page: P(358), label: '亜鉛 耐容上限量', compound: 'Zinc', type: 'UL', unit: 'mg', m: '- - - - - - - - - 40 45 45 45 40', f: '- - - - - - - - - 35 35 35 35 35' });
+add({ page: P(360), label: 'マンガン 目安量', compound: 'Manganese', type: 'AI', unit: 'mg',
+  m: '0.01 0.5 1.5 2.0 2.0 2.5 3.0 3.5 3.5 3.5 3.5 3.5 3.5 3.5', f: '0.01 0.5 1.5 2.0 2.0 2.5 3.0 3.0 3.0 3.0 3.0 3.0 3.0 3.0', preg: '3.0|3.0' });
+const mnUl = '- - - - - - - - - 11 11 11 11 11';
+add({ page: P(360), label: 'マンガン 耐容上限量', compound: 'Manganese', type: 'UL', unit: 'mg', m: mnUl, f: mnUl });
+const iEar = '- - 35 40 55 65 75 100 100 100 100 100 100 100';
+const iRda = '- - 50 60 75 90 110 140 140 140 140 140 140 140';
+add({ page: P(361), label: 'ヨウ素 推定平均必要量', compound: 'Iodine', type: 'EAR', unit: 'µg', m: iEar, f: iEar, preg: '+75|+100' });
+add({ page: P(361), label: 'ヨウ素 推奨量', compound: 'Iodine', type: 'RDA', unit: 'µg', m: iRda, f: iRda, preg: '+110|+140' });
+add({ page: P(361), label: 'ヨウ素 目安量', compound: 'Iodine', type: 'AI', unit: 'µg', m: both2('100 130'), f: both2('100 130') });
+const iUl = '250 350 600 900 1200 1500 2000 2500 3000 3000 3000 3000 3000 3000';
+add({ page: P(361), label: 'ヨウ素 耐容上限量', compound: 'Iodine', type: 'UL', unit: 'µg', m: iUl, f: iUl, preg: '2000|2000' });
+add({ page: P(362), label: 'セレン 推定平均必要量', compound: 'Selenium', type: 'EAR', unit: 'µg',
+  m: '- - 10 10 15 15 20 25 30 25 25 25 25 25', f: '- - 10 10 15 15 20 25 20 20 20 20 20 20', preg: '+5|+15' });
+add({ page: P(362), label: 'セレン 推奨量', compound: 'Selenium', type: 'RDA', unit: 'µg',
+  m: '- - 10 15 15 20 25 30 35 30 35 30 30 30', f: '- - 10 10 15 20 25 30 25 25 25 25 25 25', preg: '+5|+20' });
+add({ page: P(362), label: 'セレン 目安量', compound: 'Selenium', type: 'AI', unit: 'µg', m: both2('15 15'), f: both2('15 15') });
+add({ page: P(362), label: 'セレン 耐容上限量', compound: 'Selenium', type: 'UL', unit: 'µg',
+  m: '- - 100 100 150 200 250 350 400 400 450 450 450 400', f: '- - 100 100 150 200 250 300 350 350 350 350 350 350' });
+const crAi = '0.8 1.0 - - - - - - - 10 10 10 10 10';
+add({ page: P(363), label: 'クロム 目安量', compound: 'Chromium', type: 'AI', unit: 'µg', m: crAi, f: crAi, preg: '10|10' });
+const crUl = '- - - - - - - - - 500 500 500 500 500';
+add({ page: P(363), label: 'クロム 耐容上限量', compound: 'Chromium', type: 'UL', unit: 'µg', m: crUl, f: crUl });
+add({ page: P(364), label: 'モリブデン 推定平均必要量', compound: 'Molybdenum', type: 'EAR', unit: 'µg',
+  m: '- - 10 10 10 15 15 20 25 20 25 25 20 20', f: '- - 10 10 10 15 15 20 20 20 20 20 20 20', preg: '+0|+2.5' });
+add({ page: P(364), label: 'モリブデン 推奨量', compound: 'Molybdenum', type: 'RDA', unit: 'µg',
+  m: '- - 10 10 15 20 20 25 30 30 30 30 30 25', f: '- - 10 10 15 15 20 25 25 25 25 25 25 25', preg: '+0|+3.5' });
+add({ page: P(364), label: 'モリブデン 目安量', compound: 'Molybdenum', type: 'AI', unit: 'µg', m: both2('2.5 3.0'), f: both2('2.5 3.0') });
+add({ page: P(364), label: 'モリブデン 耐容上限量', compound: 'Molybdenum', type: 'UL', unit: 'µg', m: '- - - - - - - - - 600 600 600 600 600', f: '- - - - - - - - - 500 500 500 500 500' });
+
+for (const c of COLS) {
+  if (c.compound === 'Iron (Total)') IRON_NOT_MENSTRUATING = c.type === 'EAR' ? IRON_NOT_MENSTRUATING_EAR : IRON_NOT_MENSTRUATING_RDA;
+  column(c);
+}
+
+// Sodium DG: salt equivalent (g) -> sodium mg (report p. 293).
+{
+  const salt: Record<Sex, string> = { MALE: '- - 3.0 3.5 4.5 5.0 6.0 7.0 7.5 7.5 7.5 7.5 7.5 7.5', FEMALE: '- - 2.5 3.5 4.5 5.0 6.0 6.5 6.5 6.5 6.5 6.5 6.5 6.5' };
+  const push = (sex: Sex, stage: LifeStage, age: Age, g: number, label: string) => {
+    const na = r4((g * 1000) / 2.54);
+    out.push({ compound: 'Sodium', valueType: 'CDRR', sex, lifeStage: stage, ageMinMonths: age[0], ageMaxMonths: age[1], activityLevel: null, dietaryContext: null,
+      value: na, valueMin: null, valueMax: na, unit: 'mg', isPercentOfEnergy: false, isProvisional: false, supplementalOnly: false,
+      note: `目標量 printed as salt equivalent < ${g.toFixed(1)} g/day; sodium = salt × 1000 / 2.54 (the table's 600 mg = 1.5 g).`, from: `${P(293)}, ナトリウム 目標量 (食塩相当量), ${label}` });
+  };
+  for (const sex of ['MALE', 'FEMALE'] as Sex[]) {
+    salt[sex].split(' ').forEach((t, i) => { if (t !== '-') push(sex, 'NONE', R14[i][1], Number(t), `${sex === 'MALE' ? '男性' : '女性'} ${R14[i][0]}`); });
+  }
+  push('FEMALE', 'PREGNANT', W18_49, 6.5, '妊婦');
+  push('FEMALE', 'LACTATING', W18_49, 6.5, '授乳婦');
+}
+// Iron, menstruating women: note the not-menstruating alternative.
+for (const v of out) {
+  if (v.compound !== 'Iron (Total)' || v.sex !== 'FEMALE' || v.lifeStage !== 'NONE' || v.ageMinMonths < 120 || v.ageMinMonths > 600) continue;
+  const i = R14.findIndex(([, a]) => a[0] === v.ageMinMonths);
+  const alt = (v.valueType === 'EAR' ? IRON_NOT_MENSTRUATING_EAR : IRON_NOT_MENSTRUATING_RDA)[i];
+  v.note = `月経あり (menstruating). 月経なし (not menstruating): ${alt} mg.`;
+}
+// Magnesium UL (footnote, non-food sources only), adults.
+for (const sex of ['MALE', 'FEMALE'] as Sex[]) {
+  out.push({ compound: 'Magnesium', valueType: 'UL', sex, lifeStage: 'NONE', ageMinMonths: 216, ageMaxMonths: null, activityLevel: null, dietaryContext: null,
+    value: 350, valueMin: null, valueMax: null, unit: 'mg', isPercentOfEnergy: false, isProvisional: false, supplementalOnly: true,
+    note: 'UL for intake from sources other than ordinary foods (footnote 1); no UL for ordinary foods. Children: 5 mg/kg body weight/day (not stored).',
+    from: `${P(296)}, マグネシウム 耐容上限量 footnote 1, adults` });
+}
 
 out.sort((a, b) => a.compound.localeCompare(b.compound) || a.valueType.localeCompare(b.valueType) || a.lifeStage.localeCompare(b.lifeStage) || a.sex.localeCompare(b.sex) || a.ageMinMonths - b.ageMinMonths || (a.activityLevel ?? '').localeCompare(b.activityLevel ?? ''));
-writeFileSync(path.join(DIR, 'values.json'), JSON.stringify(out, null, 1) + '\n');
-console.log(`Wrote ${out.length} values to dv-sources/mhlw-2025/values.json`);
+writeFileSync(path.join(process.cwd(), 'dv-sources', 'mhlw-2025', 'values.json'), JSON.stringify(out, null, 1) + '\n');
+const byType: Record<string, number> = {};
+for (const v of out) byType[v.valueType] = (byType[v.valueType] ?? 0) + 1;
+console.log(`Wrote ${out.length} values to dv-sources/mhlw-2025/values.json`, byType);

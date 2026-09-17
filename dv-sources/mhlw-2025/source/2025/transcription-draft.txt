@@ -1,0 +1,141 @@
+# Japan DRI 2025 — transcription from Kenpakusha summary (pages as rendered), to be checked against MHLW report.
+# Row order (15): 0-5m 6-8m 9-11m 1-2 3-5 6-7 8-9 10-11 12-14 15-17 18-29 30-49 50-64 65-74 75+
+# "-" blank. M then F. preg T1 T2 T3, lact.
+
+p4 Energy EER kcal (reference table)
+ M low : - - - - - 1350 1600 1950 2300 2500 2250 2350 2250 2100 1850
+ M mid : 550 650 700 950 1300 1550 1850 2250 2600 2850 2600 2750 2650 2350 2250
+ M high: - - - - - 1750 2100 2500 2900 3150 3000 3150 3000 2650 -
+ F low : - - - - - 1250 1500 1850 2150 2050 1700 1750 1700 1650 1450
+ F mid : 500 600 650 900 1250 1450 1700 2100 2400 2300 1950 2050 1950 1850 1750
+ F high: - - - - - 1650 1900 2350 2700 2550 2250 2350 2250 2050 -
+ preg +50 +250 +450 lact +350
+ PAL (low/mid/high): 1-2 -/1.35/-; 3-5 -/1.45/-; 6-7 1.35/1.55/1.75; 8-9 1.40/1.60/1.80; 10-11 1.45/1.65/1.85; 12-14 1.50/1.70/1.90; 15-17 1.55/1.75/1.95; 18-29,30-49,50-64 1.50/1.75/2.00; 65-74 1.50/1.70/1.90; 75+ 1.40/1.70/-
+ fn2 (75+): mid = independent; low = mostly homebound
+
+p4 Protein g (EAR, RDA, AI) and DG %E
+ M EAR: - - - 15 20 25 30 40 50 50 50 50 50 50 50
+ M RDA: - - - 20 25 30 40 45 60 65 65 65 65 60 60
+ AI  (both): 10 15 25
+ F EAR: - - - 15 20 25 30 40 45 45 40 40 40 40 40
+ F RDA: - - - 20 25 30 40 50 55 55 50 50 50 50 50
+ DG both: 1-2..30-49 13-20; 50-64 14-20; 65-74,75+ 15-20
+ preg EAR +0 +5 +20 lact +15 ; RDA +0 +5 +25 lact +20
+ preg DG: T1,T2 13-20 ; T3 & lact 15-20
+
+# Fat tables use 14 rows: 0-5m 6-11m 1-2 3-5 6-7 8-9 10-11 12-14 15-17 18-29 30-49 50-64 65-74 75+
+p5 Total fat %E: AI 0-5m 50, 6-11m 40 (both); DG 20-30 from 1-2 y (both); preg 20-30, lact 20-30
+p5 SFA DG %E (<=): M&F: - - - 10 10 10 10 10 9 7 7 7 7 7 ; preg 7 lact 7
+   fn1: cholesterol, no DG; <200 mg/d desirable for preventing aggravation of dyslipidaemia. fn2: TFA <1%E, as low as possible.
+p5 n-6 AI g: M 4 4 4 6 8 8 9 11 13 12 11 11 10 9 ; F 4 4 4 6 7 8 9 11 11 9 9 9 9 8 ; preg 9 lact 9
+p5 n-3 AI g: M 0.9 0.8 0.7 1.2 1.4 1.5 1.7 2.2 2.2 2.2 2.2 2.3 2.3 2.3 ; F 0.9 0.8 0.7 1.0 1.2 1.4 1.7 1.7 1.7 1.7 1.7 1.9 2.0 2.0 ; preg 1.7 lact 1.7
+p5 Carbohydrate DG %E: 50-65 from 1-2 y both; preg/lact 50-65 (fn2 includes alcohol)
+p5 Fibre DG g (>=): M - - - 8 10 11 13 17 19 20 22 22 21 20 ; F - - - 8 9 11 13 16 18 18 18 18 18 17 ; preg 18 lact 18
+
+# Vitamin tables use 14 rows: 0-5m 6-11m 1-2 3-5 6-7 8-9 10-11 12-14 15-17 18-29 30-49 50-64 65-74 75+
+p7 Vitamin A µgRAE: EAR/RDA incl. provitamin A; AI/UL exclude carotenoids (preformed)
+ M EAR: - - 300 350 350 350 450 550 650 600 650 650 600 550
+ M RDA: - - 400 500 500 500 600 800 900 850 900 900 850 800
+ AI both: 300 400
+ UL both: 600 600 600 700 950 1200 1500 2100 2600 2700 2700 2700 2700 2700
+ F EAR: - - 250 350 350 350 400 500 500 450 500 500 500 450
+ F RDA: - - 350 500 500 500 600 700 650 650 700 700 700 650
+ preg EAR +0 +0 +60, RDA +0 +0 +80 ; lact EAR +300 RDA +450
+p7 Vitamin D µg AI: M&F 5.0 5.0 3.5 4.5 5.5 6.5 8.0 9.0 9.0 9.0 9.0 9.0 9.0 9.0 ; UL M&F 25 25 25 30 40 40 60 80 90 100 100 100 100 100 ; preg AI 9.0 lact 9.0
+p7 Vitamin E mg α-tocopherol AI: M 3.0 4.0 3.0 4.0 4.5 5.0 5.0 6.5 7.0 6.5 6.5 6.5 7.5 7.0 ; F 3.0 4.0 3.0 4.0 4.0 5.0 5.5 6.0 6.0 5.0 6.0 6.0 7.0 6.0 ; preg 5.5 lact 5.5
+ UL M: - - 150 200 300 350 450 650 750 800 800 800 800 800 ; F: - - 150 200 300 350 450 600 650 650 700 700 700 650
+p7 Vitamin K µg AI: M 4 7 50 60 80 90 110 140 150 150 150 150 150 150 ; F 4 7 60 70 90 110 130 150 150 150 150 150 150 150 ; preg 150 lact 150
+p8 Thiamin B1 mg (as thiamine chloride hydrochloride; at "ふつう" EER)
+ AI both: 0.1 0.2
+ M EAR: - - 0.3 0.4 0.5 0.6 0.7 0.8 0.9 0.8 0.8 0.8 0.7 0.7 ; M RDA: - - 0.4 0.5 0.7 0.8 0.9 1.1 1.2 1.1 1.2 1.1 1.0 1.0
+ F EAR: - - 0.3 0.4 0.4 0.5 0.6 0.7 0.7 0.6 0.6 0.6 0.6 0.5 ; F RDA: - - 0.4 0.5 0.6 0.7 0.9 1.0 1.0 0.8 0.9 0.8 0.8 0.7
+ preg EAR +0.1 RDA +0.2 ; lact EAR +0.2 RDA +0.2
+p8 Riboflavin B2 mg
+ AI both: 0.3 0.4
+ M EAR: - - 0.5 0.7 0.8 0.9 1.1 1.3 1.4 1.3 1.4 1.3 1.2 1.1 ; M RDA: - - 0.6 0.8 0.9 1.1 1.4 1.6 1.7 1.6 1.7 1.6 1.4 1.4
+ F EAR: - - 0.5 0.6 0.7 0.9 1.1 1.2 1.2 1.0 1.0 1.0 0.9 0.9 ; F RDA: - - 0.5 0.8 0.9 1.0 1.3 1.4 1.4 1.2 1.2 1.2 1.1 1.1
+ preg EAR +0.2 RDA +0.3 ; lact EAR +0.5 RDA +0.6
+p8 Niacin mgNE (0-5m AI in mg niacin, fn4); UL = nicotinamide mg (nicotinic acid mg in parentheses)
+ AI both: 2 3
+ M EAR: - - 5 6 7 9 11 12 14 13 13 13 11 11 ; M RDA: - - 6 8 9 11 13 15 16 15 16 15 14 13
+ M UL NAm(NA): - - 60(15) 80(20) 100(30) 150(35) 200(45) 250(60) 300(70) 300(80) 350(85) 350(85) 300(80) 300(75)
+ F EAR: - - 4 6 7 8 10 12 11 9 10 9 9 8 ; F RDA: - - 5 7 8 10 12 14 13 11 12 11 11 10
+ F UL NAm(NA): - - 60(15) 80(20) 100(30) 150(35) 200(45) 250(60) 250(65) 250(65) 250(65) 250(65) 250(65) 250(60)
+ preg EAR +0 RDA +0 ; lact EAR +3 RDA +3
+p8 Vitamin B6 mg (pyridoxine)
+ AI both: 0.2 0.3
+ M EAR: - - 0.4 0.5 0.6 0.8 0.9 1.2 1.2 1.2 1.2 1.2 1.2 1.2 ; M RDA: - - 0.5 0.6 0.7 0.9 1.0 1.4 1.5 1.5 1.5 1.5 1.4 1.4
+ M UL: - - 10 15 20 25 30 40 50 55 60 60 55 50
+ F EAR: - - 0.4 0.5 0.6 0.8 1.0 1.1 1.1 1.0 1.0 1.0 1.0 1.0 ; F RDA: - - 0.5 0.6 0.7 0.9 1.2 1.3 1.3 1.2 1.2 1.2 1.2 1.2
+ F UL: - - 10 15 20 25 30 40 45 45 45 45 45 40
+ preg EAR +0.2 RDA +0.2 ; lact EAR +0.3 RDA +0.3
+p9 Vitamin B12 µg AI (cyanocobalamin) both: 0.4 0.9 1.5 1.5 2.0 2.5 3.0 4.0 4.0 4.0 4.0 4.0 4.0 4.0 ; preg 4.0 lact 4.0
+p9 Folate µg (pteroylmonoglutamic acid); UL applies to folic acid in foods other than ordinary foods
+ AI both: 40 70
+ EAR both: - - 70 80 110 130 150 190 200 200 200 200 200 200 ; RDA both: - - 90 100 130 150 180 230 240 240 240 240 240 240
+ UL both: - - 200 300 400 500 700 900 900 900 1000 1000 900 900
+ preg T1 EAR +0 RDA +0 ; T2,T3 EAR +200 RDA +240 ; lact EAR +80 RDA +100
+ fn3: women planning pregnancy / may become pregnant / early pregnancy: 400 µg/d folic acid from non-ordinary foods
+p9 Pantothenic acid mg AI: M 4 3 3 4 5 6 6 7 7 6 6 6 6 6 ; F 4 3 3 4 5 6 6 6 6 5 5 5 5 5 ; preg 5 lact 6
+p9 Biotin µg AI both: 4 10 20 20 30 30 40 50 50 50 50 50 50 50 ; preg 50 lact 50
+p9 Vitamin C mg (L-ascorbic acid)
+ AI both: 40 40 ; EAR both: - - 30 35 40 50 60 75 80 80 80 80 80 80 ; RDA both: - - 35 40 50 60 70 90 100 100 100 100 100 100
+ preg EAR +10 RDA +10 ; lact EAR +40 RDA +45
+p10 Sodium mg (salt equivalent g in parentheses)
+ AI both: 0-5m 100 (0.3) ; 6-11m 600 (1.5)
+ EAR both 18+ (all 5 adult rows): 600 (1.5) ; preg EAR 600 (1.5), lact 600 (1.5)
+ DG salt g < : M - - 3.0 3.5 4.5 5.0 6.0 7.0 7.5 7.5 7.5 7.5 7.5 7.5 ; F - - 2.5 3.5 4.5 5.0 6.0 6.5 6.5 6.5 6.5 6.5 6.5 6.5 ; preg 6.5 lact 6.5
+ fn1: salt <6.0 g/d for preventing aggravation of hypertension and CKD (both sexes)
+p10 Potassium mg
+ M AI: 400 700 900 1100 1300 1600 1900 2400 2800 2500 2500 2500 2500 2500 ; M DG (>=): - - - 1600 1800 2000 2200 2600 3000 3000 3000 3000 3000 3000
+ F AI: 400 700 800 1000 1200 1400 1800 2200 2000 2000 2000 2000 2000 2000 ; F DG (>=): - - - 1400 1600 1800 2000 2400 2600 2600 2600 2600 2600 2600
+ preg AI 2000 DG 2600 ; lact AI 2000 DG 2600
+p10 Calcium mg
+ AI both: 200 250 ; UL both 18+: 2500 (blank below 18)
+ M EAR: - - 350 500 500 550 600 850 650 650 650 600 600 600 ; M RDA: - - 450 600 600 650 700 1000 800 800 750 750 750 750
+ F EAR: - - 350 450 450 600 600 700 550 550 550 550 550 500 ; F RDA: - - 400 550 550 750 750 800 650 650 650 650 650 600
+ preg +0 +0 ; lact +0 +0
+p10 Magnesium mg
+ AI both: 20 60
+ M EAR: - - 60 80 110 140 180 250 300 280 320 310 290 270 ; M RDA: - - 70 100 130 170 210 290 360 340 380 370 350 330
+ F EAR: - - 60 80 110 140 180 240 260 230 240 240 240 220 ; F RDA: - - 70 100 130 160 220 290 310 280 290 290 280 270
+ preg EAR +30 RDA +40 ; lact +0 +0
+ UL cells all "—"; fn1: UL for intake from non-ordinary foods: adults 350 mg/d, children 5 mg/kg/d; no UL for ordinary foods
+p10 Phosphorus mg
+ M AI: 120 260 600 700 900 1000 1100 1200 1200 1000 1000 1000 1000 1000 ; M UL 18+: 3000
+ F AI: 120 260 500 700 800 900 1000 1100 1000 800 800 800 800 800 ; F UL 18+: 3000
+ preg AI 800 lact AI 800
+p11 Iron mg (UL column all "—" for both sexes)
+ AI both 0-5m: 0.5
+ M EAR: - 3.5 3.0 3.5 4.5 5.5 6.5 7.5 7.5 5.5 6.0 6.0 5.5 5.5 ; M RDA: - 4.5 4.0 5.0 6.0 7.5 9.5 9.0 9.0 7.0 7.5 7.0 7.0 6.5
+ F no menses EAR: - 3.0 3.0 3.5 4.5 6.0 6.5 6.5 5.5 5.0 5.0 5.0 5.0 4.5 ; RDA: - 4.5 4.0 5.0 6.0 8.0 9.0 8.0 6.5 6.0 6.0 6.0 6.0 5.5
+ F with menses EAR: - - - - - - 8.5 9.0 7.5 7.0 7.5 7.5 - - ; RDA: - - - - - - 12.5 12.5 11.0 10.0 10.5 10.5 - -
+ preg T1 EAR +2.0 RDA +2.5 ; T2,T3 EAR +7.0 RDA +8.5 ; lact EAR +1.5 RDA +2.0 (increments over non-menstruating)
+p11 Copper mg
+ AI both: 0.3 0.4 ; UL both 18+: 7
+ M EAR: - - 0.3 0.3 0.4 0.4 0.5 0.7 0.8 0.7 0.8 0.7 0.7 0.7 ; M RDA: - - 0.3 0.4 0.4 0.5 0.6 0.8 0.9 0.8 0.9 0.9 0.8 0.8
+ F EAR: - - 0.2 0.3 0.4 0.4 0.5 0.6 0.6 0.6 0.6 0.6 0.6 0.6 ; F RDA: - - 0.3 0.3 0.4 0.5 0.6 0.8 0.7 0.7 0.7 0.7 0.7 0.7
+ preg EAR +0.1 RDA +0.1 ; lact EAR +0.5 RDA +0.6
+p11 Zinc mg
+ AI both: 1.5 2.0
+ M EAR: - - 2.5 3.0 3.5 4.0 5.5 7.0 8.5 7.5 8.0 8.0 7.5 7.5 ; M RDA: - - 3.5 4.0 5.0 5.5 8.0 8.5 10.0 9.0 9.5 9.5 9.0 9.0
+ M UL 18+: 40 45 45 45 40
+ F EAR: - - 2.0 2.5 3.0 4.0 5.5 6.5 6.0 6.0 6.5 6.5 6.5 6.0 ; F RDA: - - 3.0 3.5 4.5 5.5 7.5 8.5 8.0 7.5 8.0 8.0 7.5 7.0
+ F UL 18+: 35 35 35 35 35
+ preg T1 +0.0/+0.0 ; T2,T3 EAR +2.0 RDA +2.0 ; lact EAR +2.5 RDA +3.0
+p11 Manganese mg AI: M 0.01 0.5 1.5 2.0 2.0 2.5 3.0 3.5 3.5 3.5 3.5 3.5 3.5 3.5 ; F 0.01 0.5 1.5 2.0 2.0 2.5 3.0 3.0 3.0 3.0 3.0 3.0 3.0 3.0 ; UL both 18+: 11 ; preg AI 3.0 lact 3.0
+p12 Iodine µg (M and F identical)
+ AI: 100 130 ; EAR: - - 35 40 55 65 75 100 100 100 100 100 100 100 ; RDA: - - 50 60 75 90 110 140 140 140 140 140 140 140
+ UL: 250 350 600 900 1200 1500 2000 2500 3000 3000 3000 3000 3000 3000
+ preg EAR +75 RDA +110 ; lact EAR +100 RDA +140 ; fn1: UL for pregnant and lactating women 2,000 µg/d
+p12 Selenium µg
+ AI both: 15 15
+ M EAR: - - 10 10 15 15 20 25 30 25 25 25 25 25 ; M RDA: - - 10 15 15 20 25 30 35 30 35 30 30 30 ; M UL: - - 100 100 150 200 250 350 400 400 450 450 450 400
+ F EAR: - - 10 10 15 15 20 25 20 20 20 20 20 20 ; F RDA: - - 10 10 15 20 25 30 25 25 25 25 25 25 ; F UL: - - 100 100 150 200 250 300 350 350 350 350 350 350
+ preg EAR +5 RDA +5 ; lact EAR +15 RDA +20
+p12 Chromium µg AI both: 0.8 1.0 (then blank to 15-17) ; 18+ AI 10 UL 500 ; preg AI 10 lact AI 10
+p12 Molybdenum µg
+ AI both: 2.5 3.0
+ M EAR: - - 10 10 10 15 15 20 25 20 25 25 20 20 ; M RDA: - - 10 10 15 20 20 25 30 30 30 30 30 25 ; M UL 18+: 600
+ F EAR: - - 10 10 10 15 15 20 20 20 20 20 20 20 ; F RDA: - - 10 10 15 15 20 25 25 25 25 25 25 25 ; F UL 18+: 500
+ preg EAR +0 RDA +0 ; lact EAR +2.5 RDA +3.5
