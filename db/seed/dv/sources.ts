@@ -167,4 +167,13 @@ export const SOURCES: Record<string, SourceMeta> = {
     note: 'Lampiran I Tabel 1-3 of the Ministry of Health regulation (certified copy from stunting.go.id), transcribed from the PDF text layer and checked against page renders in dv-sources/akg-indonesia-2019/source/. AKG stored as RDA, energy as EER. Pregnancy (by trimester) and lactation (by 6-month period) increments stored as totals over women 19-29 and 30-49 y. No upper levels.',
     retrievedDate: '2026-09-17',
   },
+  PHILIPPINES: {
+    region: 'PHILIPPINES',
+    slug: 'pdri-2015',
+    authorityName: 'FNRI-DOST — Philippine Dietary Reference Intakes 2015 (Philippines)',
+    versionYear: 2015,
+    url: 'https://www.fnri.dost.gov.ph/images/images/news/PDRI-2018.pdf',
+    note: 'PDRI 2015 Summary Tables (revised September 2018), all 7 pages. RNI vs AI read from the PDF font (bold RNI, italic AI; span dump in dv-sources/pdri-2015/source/), checked against page renders. REI stored as EER, RNI as RDA, AI, EAR, UL, AMDR; WHO additional recommendations (free sugars, sodium, potassium) as CDRR. Pregnancy/lactation increments stored as totals over women 19-29 and 30-49 y.',
+    retrievedDate: '2026-09-17',
+  },
 };

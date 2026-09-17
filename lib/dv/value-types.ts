@@ -107,6 +107,9 @@ export const SOURCE_VALUE_TYPES: Record<string, SourceVocabulary> = {
     terms: { 'Angka Kecukupan Gizi (AKG)': 'RDA', 'AKG energi': 'EER' },
     knownIssues: ['AKG is one category for every nutrient, so values derived as adequate intakes (e.g. infants, vitamin K, biotin) are stored as RDA and cannot be told apart'],
   },
+  PHILIPPINES: {
+    terms: { 'REI (Recommended Energy Intake)': 'EER', 'RNI (bold)': 'RDA', 'AI (italic)': 'AI', EAR: 'EAR', UL: 'UL', AMDR: 'AMDR', 'Additional Recommendations (WHO)': 'CDRR' },
+  },
   ITALY: {
     // PRI vs AI is read from the SINU tables' formatting (bold PRI, italic AI).
     terms: { PRI: 'RDA', AI: 'AI', AR: 'EAR', UL: 'UL', SDT: 'SDT', RI: 'AMDR', 'AR (energy)': 'EER' },
