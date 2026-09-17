@@ -27,9 +27,9 @@
  *
  * Run: npx tsx dv-sources/who-fao/extract.ts
  */
-import { writeFileSync } from 'fs';
+import { readFileSync, writeFileSync } from 'fs';
 import path from 'path';
-import type { SourceValue, Sex, LifeStage } from '../../lib/dv/source-values';
+import type { SourceValue, Sex, LifeStage, Activity } from '../../lib/dv/source-values';
 import type { DvValueType } from '../../lib/dv/value-types';
 
 type Age = [number, number | null];
@@ -169,6 +169,69 @@ function add(p: { compound: string; type: DvValueType; sexes: Sex[]; stage?: Lif
   floor('Dietary Fiber', [24, 71], 15, 'g', `${fibre} Children 2–5 years, at least 15 g per day (conditional recommendation).`, 'WHO 2023 Guideline: Carbohydrate intake for adults and children, Recommendation 5, 2–5 years');
   floor('Dietary Fiber', [72, 119], 21, 'g', `${fibre} Children 6–9 years, at least 21 g per day (conditional recommendation).`, 'WHO 2023 Guideline: Carbohydrate intake for adults and children, Recommendation 5, 6–9 years');
   floor('Dietary Fiber', [120, null], 25, 'g', `${fibre} At least 25 g per day for 10 years or older (conditional) and for adults (strong recommendation); the guideline does not define the adult age.`, 'WHO 2023 Guideline: Carbohydrate intake for adults and children, Recommendations 4-5, 10 years or older and adults');
+}
+
+// ───────────── FAO/WHO/UNU Human energy requirements (2001) ─────────────
+// Chapters 3 and 4 of https://www.fao.org/4/y5686e/, snapshots in source/fao-2001-energy-ch*.htm. Stored in kcal/d:
+//   - Table 3.2 (first table of that name): daily energy requirement of all infants (breast- and formula-fed
+//     combined, per the chapter) by month of life, boys and girls.
+//   - Tables 4.5 / 4.6: boys' / girls' requirements at light, moderate and heavy habitual activity. From 1 to
+//     6 y only moderate is printed (stored with no activity level). Light / moderate / heavy -> SEDENTARY /
+//     MODERATE / ACTIVE, with the printed PAL in the note.
+// Adults (chapter 5) are given per kg of body weight and PAL, and are not stored.
+{
+  const rows = (file: string, caption: RegExp): string[][] => {
+    const t = readFileSync(path.join(process.cwd(), 'dv-sources', 'who-fao', 'source', file), 'latin1');
+    const m = caption.exec(t);
+    if (!m) throw new Error(`${file}: ${caption} not found`);
+    const start = t.toLowerCase().indexOf('<table', m.index);
+    const end = t.toLowerCase().indexOf('</table>', start);
+    return [...t.slice(start, end).matchAll(/<tr.*?<\/tr>/gis)].map(([tr]) =>
+      [...tr.matchAll(/<t[dh][^>]*>(.*?)<\/t[dh]>/gis)].map(([, c]) => c.replace(/<[^>]+>/g, ' ').replace(/&nbsp;/g, ' ').replace(/\s+/g, ' ').trim()));
+  };
+  const kcal = (c: string) => { const v = Number(c.replace(/\s/g, '')); if (!Number.isFinite(v) || v <= 0) throw new Error(`energy cell "${c}"`); return v; };
+  const push = (sex: Sex, age: Age, v: number, activity: Activity | null, note: string, from: string) => out.push({
+    compound: 'Energy', valueType: 'EER', sex, lifeStage: 'NONE', ageMinMonths: age[0], ageMaxMonths: age[1], activityLevel: activity, dietaryContext: null,
+    value: v, valueMin: null, valueMax: null, unit: 'kcal', isPercentOfEnergy: false, isProvisional: false, supplementalOnly: false, note, from });
+
+  // Infants
+  {
+    let sex: Sex | null = null; let n = 0;
+    for (const r of rows('fao-2001-energy-ch3-infants.htm', /TABLE\s*3\.2[\s\S]{0,300}?Energy requirements of infants/i)) {
+      if (r[0] === 'Boys') { sex = 'MALE'; continue; }
+      if (r[0] === 'Girls') { sex = 'FEMALE'; continue; }
+      const m = /^(\d+)-(\d+)$/.exec(r[0]);
+      if (!sex || !m || r.length !== 11) continue;
+      const month = Number(m[1]);
+      push(sex, [month, month], kcal(r[8]), null, `Month ${m[1]}-${m[2]} of life, weight ${r[1]} kg; breast- and formula-fed infants combined.`,
+        `FAO/WHO/UNU 2001 Table 3.2, ${sex === 'MALE' ? 'Boys' : 'Girls'} ${r[0]} months, daily energy requirement kcal/d`);
+      n++;
+    }
+    if (n !== 24) throw new Error(`Table 3.2: ${n} infant rows`);
+  }
+  // Children and adolescents
+  for (const [tab, sex, who] of [['4.5', 'MALE', 'Boys'], ['4.6', 'FEMALE', 'Girls']] as Array<[string, Sex, string]>) {
+    let n = 0;
+    for (const r of rows('fao-2001-energy-ch4-children.htm', new RegExp(`TABLE\\s*${tab.replace('.', '\\.')}[\\s\\S]{0,300}?${who}`, 'i'))) {
+      const m = /^(\d+)-(\d+)$/.exec(r[0]);
+      if (!m || r.length !== 17) continue;
+      const y = Number(m[1]);
+      const age: Age = [y * 12, y * 12 + 11];
+      const levels: Array<[Activity, string, number]> = [['SEDENTARY', 'Light', 2], ['MODERATE', 'Moderate', 7], ['ACTIVE', 'Heavy', 12]];
+      const light = r[3];
+      if (!light) {
+        push(sex, age, kcal(r[8]), null, `Printed at moderate activity only (PAL ${r[11]}); applies at every activity level. Weight ${r[1]} kg.`,
+          `FAO/WHO/UNU 2001 Table ${tab}, ${who} ${r[0]} years, moderate physical activity, kcal/d`);
+      } else {
+        for (const [act, label, i] of levels) {
+          push(sex, age, kcal(r[i + 1]), act, `${label} habitual physical activity (PAL ${r[i + 4]}). Weight ${r[1]} kg.`,
+            `FAO/WHO/UNU 2001 Table ${tab}, ${who} ${r[0]} years, ${label.toLowerCase()} physical activity, kcal/d`);
+        }
+      }
+      n++;
+    }
+    if (n !== 17) throw new Error(`Table ${tab}: ${n} rows`);
+  }
 }
 
 out.sort((a, b) => a.compound.localeCompare(b.compound) || a.valueType.localeCompare(b.valueType) || a.lifeStage.localeCompare(b.lifeStage) || a.sex.localeCompare(b.sex) || a.ageMinMonths - b.ageMinMonths);
