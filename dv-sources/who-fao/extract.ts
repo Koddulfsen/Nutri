@@ -139,6 +139,38 @@ function add(p: { compound: string; type: DvValueType; sexes: Sex[]; stage?: Lif
   }
 }
 
+// ───────────── WHO guidelines on sodium, potassium, sugars, fats and fibre ─────────────
+// From the "Recommendations" sections on NCBI Bookshelf, snapshots in source/who-20*.html. Each is a
+// guideline for reducing noncommunicable disease risk -> CDRR: "less than / limit / reduce to" is a ceiling,
+// "at least" a floor. Children's sodium and potassium are "adjusted downward based on energy requirements"
+// with no numbers given (not stored). Vegetable and fruit intakes are not nutrients (not stored).
+{
+  const ceiling = (compound: string, age: Age, v: number, unit: string, pct: boolean, note: string, from: string) => {
+    for (const sex of BOTH) out.push({ compound, valueType: 'CDRR', sex, lifeStage: 'NONE', ageMinMonths: age[0], ageMaxMonths: age[1], activityLevel: null, dietaryContext: null,
+      value: v, valueMin: null, valueMax: v, unit, isPercentOfEnergy: pct, isProvisional: false, supplementalOnly: false, note, from });
+  };
+  const floor = (compound: string, age: Age, v: number, unit: string, note: string, from: string) => {
+    for (const sex of BOTH) out.push({ compound, valueType: 'CDRR', sex, lifeStage: 'NONE', ageMinMonths: age[0], ageMaxMonths: age[1], activityLevel: null, dietaryContext: null,
+      value: v, valueMin: v, valueMax: null, unit, isPercentOfEnergy: false, isProvisional: false, supplementalOnly: false, note, from });
+  };
+  ceiling('Sodium', [192, null], 2, 'g', false, 'WHO recommends a reduction to <2 g/day sodium (5 g/day salt) in adults (strong recommendation). "Adults" includes individuals ≥16 years of age.',
+    'WHO 2012 Guideline: Sodium intake for adults and children, Recommendations');
+  floor('Potassium', [192, null], 3510, 'mg', 'WHO suggests a potassium intake of at least 90 mmol/day (3510 mg/day) for adults (conditional recommendation). "Adults" includes all individuals ≥16 years of age.',
+    'WHO 2012 Guideline: Potassium intake for adults and children, Recommendations');
+  ceiling('Free Sugars', [0, null], 10, '%', true, 'In both adults and children, WHO recommends reducing the intake of free sugars to less than 10% of total energy intake (strong recommendation); a further reduction to below 5% is suggested (conditional). Recommended "throughout the lifecourse"; no age range is given.',
+    'WHO 2015 Guideline: Sugars intake for adults and children, Recommendations');
+  ceiling('Saturated Fat', [24, null], 10, '%', true, 'WHO recommends that adults and children reduce saturated fatty acid intake to 10% of total energy intake (strong recommendation), and suggests further reducing it below 10% (conditional). Relevant for all individuals aged 2 years and older.',
+    'WHO 2023 Guideline: Saturated fatty acid and trans-fatty acid intake, SFA recommendations 1-2');
+  ceiling('Trans Fat', [24, null], 1, '%', true, 'WHO recommends that adults and children reduce trans-fatty acid intake to 1% of total energy intake (strong recommendation), and suggests further reducing it below 1% (conditional). Relevant for all individuals aged 2 years and older.',
+    'WHO 2023 Guideline: Saturated fatty acid and trans-fatty acid intake, TFA recommendations 1-2');
+  ceiling('Total Fat', [240, null], 30, '%', true, 'To reduce the risk of unhealthy weight gain, WHO suggests that adults limit total fat intake to 30% of total energy intake or less (conditional recommendation). Relevant for individuals aged 20 years or older.',
+    'WHO 2023 Guideline: Total fat intake for the prevention of unhealthy weight gain, Recommendation 1');
+  const fibre = 'Naturally occurring dietary fibre as consumed in foods.';
+  floor('Dietary Fiber', [24, 71], 15, 'g', `${fibre} Children 2–5 years, at least 15 g per day (conditional recommendation).`, 'WHO 2023 Guideline: Carbohydrate intake for adults and children, Recommendation 5, 2–5 years');
+  floor('Dietary Fiber', [72, 119], 21, 'g', `${fibre} Children 6–9 years, at least 21 g per day (conditional recommendation).`, 'WHO 2023 Guideline: Carbohydrate intake for adults and children, Recommendation 5, 6–9 years');
+  floor('Dietary Fiber', [120, null], 25, 'g', `${fibre} At least 25 g per day for 10 years or older (conditional) and for adults (strong recommendation); the guideline does not define the adult age.`, 'WHO 2023 Guideline: Carbohydrate intake for adults and children, Recommendations 4-5, 10 years or older and adults');
+}
+
 out.sort((a, b) => a.compound.localeCompare(b.compound) || a.valueType.localeCompare(b.valueType) || a.lifeStage.localeCompare(b.lifeStage) || a.sex.localeCompare(b.sex) || a.ageMinMonths - b.ageMinMonths);
 writeFileSync(path.join(process.cwd(), 'dv-sources', 'who-fao', 'values.json'), JSON.stringify(out, null, 1) + '\n');
 console.log(`Wrote ${out.length} values to dv-sources/who-fao/values.json`);

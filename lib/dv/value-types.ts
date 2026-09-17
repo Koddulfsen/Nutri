@@ -110,7 +110,7 @@ export const SOURCE_VALUE_TYPES: Record<string, SourceVocabulary> = {
     },
   },
   WHO_FAO: {
-    terms: { RNI: 'RDA', 'recommended safe intake (vitamin A)': 'RDA', 'acceptable intake (vitamin E)': 'AI' },
+    terms: { RNI: 'RDA', 'recommended safe intake (vitamin A)': 'RDA', 'acceptable intake (vitamin E)': 'AI', 'WHO guideline intake limit / minimum (NCD risk)': 'CDRR' },
     knownIssues: ['Iron and zinc RNIs are printed per bioavailability level; stored at 12% (iron) and moderate (zinc), with the alternatives in notes'],
   },
   SINGAPORE: {
