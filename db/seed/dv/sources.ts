@@ -131,4 +131,13 @@ export const SOURCES: Record<string, SourceMeta> = {
     note: 'Official text of MR 2.3.1.0253-21 (approved 22 July 2021) as published by Garant, parsed from an HTML snapshot in dv-sources/russia-mr-2021/source/ (tables 7-23; subscript pictures read and mapped). Norms stored as RDA, adequate levels as AI, optimal energy shares as AMDR. Adult energy and macronutrients per activity level (КФА 1.4/1.6/1.9/2.2); 65+ at a single КФА 1.7. Pregnancy additions stored as totals.',
     retrievedDate: '2026-09-16',
   },
+  DACH: {
+    region: 'DACH',
+    slug: 'dge-dach',
+    authorityName: 'DGE / ÖGE / SGE — D-A-CH Referenzwerte für die Nährstoffzufuhr (Germany, Austria, Switzerland)',
+    versionYear: 2025,
+    url: 'https://www.dge.de/wissenschaft/referenzwerte-tool/',
+    note: 'Current official values from the DGE Referenzwerte-Tool (all 16 population groups, all nutrients, both sexes), parsed from an HTML snapshot with footnotes in dv-sources/dge-dach/source/. Empfohlene Zufuhr stored as RDA, Schätzwert as AI, Richtwert as EER (energy), AI (water, fluoride) or AMDR (fat, carbohydrate, fibre). Zinc by phytate intake. Footnoted vitamin D supplementation UL, cholesterol, trans fat and free sugars limits stored. Protein (g/kg) not stored.',
+    retrievedDate: '2026-09-17',
+  },
 };

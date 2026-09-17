@@ -90,6 +90,13 @@ export const SOURCE_VALUE_TYPES: Record<string, SourceVocabulary> = {
   NORDIC: {
     terms: { RI: 'RDA', AI: 'AI', AR: 'EAR', 'provisional AR': 'EAR', UL: 'UL', CDRR: 'CDRR', 'recommended intake range': 'AMDR', 'energy reference value': 'EER' },
   },
+  DACH: {
+    terms: {
+      'Empfohlene Zufuhr': 'RDA', Schätzwert: 'AI', 'Richtwert (energy)': 'EER', 'Richtwert (water, fluoride)': 'AI',
+      'Richtwert (fat, carbohydrate, fibre)': 'AMDR', 'no category (MUFA, PUFA)': 'AMDR', 'no category (EPA+DHA)': 'AI',
+      'max. (saturated fat; footnoted cholesterol, trans fat, free sugars)': 'CDRR', 'UL (footnote, vitamin D supplementation)': 'UL',
+    },
+  },
   ITALY: {
     // PRI vs AI is read from the SINU tables' formatting (bold PRI, italic AI).
     terms: { PRI: 'RDA', AI: 'AI', AR: 'EAR', UL: 'UL', SDT: 'SDT', RI: 'AMDR', 'AR (energy)': 'EER' },
