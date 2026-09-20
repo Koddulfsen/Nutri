@@ -73,7 +73,7 @@ Sources marked ✅ have both their text evidence read and their entry written in
 | | Source | Notes |
 |---|---|---|
 | 🟡 | USA/Canada (IOM/NASEM) | Primary for energy, sodium/potassium, calcium and vitamin D — evidenced. **Still to read:** the 1997-2001 vitamin/mineral reports and the 2005 macronutrient report (protein, carbohydrate, fat, fibre, water, AMDRs). |
-| ⬜ | EU (EFSA) | Second most-copied. |
+| 🟡 | EU (EFSA) | Primary: 34 nutrient-by-nutrient opinions by its own panel. **Still to read:** protein, fat and fibre opinions (the macronutrient group beyond carbohydrate). |
 | ⬜ | WHO/FAO | Global reference; check how much it shares with IOM. |
 | ⬜ | Japan (MHLW 2025) | Derives own; check which nutrients cite IOM. |
 | ⬜ | China (CNS 2023) | Large own-evidence base. |
@@ -176,6 +176,36 @@ and the scope limit is written into the evidence strings themselves.
 Note for the aggregation: our US data comes from the NCBI summary tables, which carry no provenance text at all. The
 provenance lives only in the underlying reports — which is exactly why this has to be recorded once, here, rather
 than re-derived by whoever next reads the tables.
+
+### EU — EFSA (mostly done 2026-09-20)
+
+**Primary, and the second most-copied body in our set** (the Netherlands, France and Spain all lean on it).
+
+The Summary of Dietary Reference Values v4 (Sept 2017), overview p. 1, states the values are *"derived by the EFSA
+Panel on Dietetic Products, Nutrition and Allergies (NDA)"* across 34 nutrient-by-nutrient scientific opinions
+(2009-2019), each with its own reasoning: *"the detailed reasoning for establishing individual values can be found
+in the related opinions of the NDA Panel."*
+
+One sentence there matters for how we classify everyone else:
+
+> "The work done by EFSA in this area was based on a request from the European Commission, which asked EFSA to update
+> previous European advice (SCF, 1993), taking into account new scientific evidence **and recent recommendations
+> issued at national and international level**."
+
+So EFSA *reads* IOM and WHO but deliberates its own value. That is the line between `primary` and `adopted`:
+considering another body's number is not taking it. A source only becomes `adopted` when it prints the other body's
+value as its own, as the Netherlands does explicitly.
+
+Where EFSA cannot determine an Average Requirement it sets an Adequate Intake from *"the average observed or
+experimentally determined ... nutrient intake by a population group ... of apparently healthy people"* — European
+intake data, i.e. still its own basis.
+
+Sodium and chloride (2019) are the same panel's own work: our stored snapshot of the sodium opinion shows it
+weighing balance studies and the intake-blood-pressure relationship before concluding *"that 2.0 g sodium/day is a
+safe and adequate intake for the general EU population of adults"*, with children extrapolated from that value.
+
+Not yet claimed: the protein, fat and fibre opinions have not been read, so only carbohydrate is entered for
+macronutrients.
 
 ## Open question for aggregation (decide after the audit)
 

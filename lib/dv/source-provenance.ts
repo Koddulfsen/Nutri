@@ -94,6 +94,56 @@ export const SOURCE_PROVENANCE: Record<string, SourceProvenance> = {
       },
     },
   },
+  EU: {
+    groups: {
+      vitamins: {
+        class: 'primary',
+        derivedFrom: [],
+        evidence:
+          'Summary of Dietary Reference Values v4 (Sept 2017), overview p. 1: DRVs are "derived by the EFSA Panel on Dietetic ' +
+          'Products, Nutrition and Allergies (NDA)" in 34 nutrient-by-nutrient scientific opinions (2009-2019). The work "was ' +
+          'based on a request from the European Commission, which asked EFSA to update previous European advice (SCF, 1993), ' +
+          'taking into account new scientific evidence and recent recommendations issued at national and international level" — ' +
+          'other bodies\' recommendations are an input to its own deliberation, not the value itself; "the detailed reasoning ' +
+          'for establishing individual values can be found in the related opinions of the NDA Panel."',
+      },
+      minerals: {
+        class: 'primary',
+        derivedFrom: [],
+        evidence:
+          'Summary of Dietary Reference Values v4 (Sept 2017), overview p. 1: same NDA Panel process, one scientific opinion per ' +
+          'nutrient. Where an Average Requirement cannot be determined the Panel sets an AI from "the average observed or ' +
+          'experimentally determined approximations or estimates of nutrient intake by a population group ... of apparently ' +
+          'healthy people" — EU intake data, its own basis rather than another body\'s number.',
+      },
+      electrolytes: {
+        class: 'primary',
+        derivedFrom: [],
+        evidence:
+          'Dietary reference values for sodium (EFSA NDA Panel, EFSA Journal 2019;17(9):5778; snapshot in ' +
+          'dv-sources/efsa-drv/source/efsa-2019-sodium.xml): the Panel weighed its own review of balance studies and ' +
+          'intake-blood-pressure evidence — "there is strong evidence for a positive relationship between UNa and SBP and DBP" — ' +
+          'and concluded "that 2.0 g sodium/day is a safe and adequate intake for the general EU population of adults", with ' +
+          "children's values extrapolated from the adult value. Chloride likewise (2019;17(9):5779).",
+      },
+      energy: {
+        class: 'primary',
+        derivedFrom: [],
+        evidence:
+          'Summary of Dietary Reference Values v4 (Sept 2017), Table 1: Average Requirements for energy by age and four physical ' +
+          'activity levels, derived by the NDA Panel in its own 2013 opinion on energy.',
+      },
+      carbohydrate: {
+        class: 'primary',
+        derivedFrom: [],
+        evidence:
+          'Summary of Dietary Reference Values v4 (Sept 2017), overview p. 1 and macronutrient tables: Reference Intake ranges ' +
+          '(RI) for macronutrients are EFSA\'s own category, "the intake range for macronutrients, expressed as % of the energy ' +
+          'intake ... adequate for maintaining health and associated with a low risk of selected chronic diseases", set in the ' +
+          'Panel\'s 2010 macronutrient opinions.',
+      },
+    },
+  },
   NETHERLANDS: {
     perValueOrigin: "Each adult value's note records the report's own \"Herkomst\" column (EFSA / NCM 2014 / GR).",
     groups: {
@@ -164,6 +214,6 @@ export const SOURCE_PROVENANCE: Record<string, SourceProvenance> = {
 
 /** Sources whose values are loaded but whose provenance has not been audited yet (see dv-sources/PROVENANCE.md). */
 export const PROVENANCE_PENDING = [
-  'EU', 'WHO_FAO', 'JAPAN', 'CHINA', 'KOREA', 'NORDIC', 'UK', 'DACH', 'AU_NZ', 'RUSSIA',
+  'WHO_FAO', 'JAPAN', 'CHINA', 'KOREA', 'NORDIC', 'UK', 'DACH', 'AU_NZ', 'RUSSIA',
   'MALAYSIA', 'PHILIPPINES', 'VIETNAM', 'FRANCE', 'SPAIN', 'ITALY', 'TAIWAN', 'INDONESIA', 'SINGAPORE', 'INDIA',
 ];
