@@ -13,6 +13,7 @@ import SymptomDropdown from './components/SymptomDropdown';
 import CompoundTooltip from './components/CompoundTooltip';
 import { useDateNavigation } from '@/lib/hooks/useDateNavigation';
 import { WeekStrip } from '@/components/calendar';
+import MacroViz, { MacroVizPicker, loadMacroVizStyle, type MacroVizStyle, type MacroSlice } from './MacroViz';
 
 type SourcePreference = 'AVERAGE' | 'USA_CANADA' | 'EU' | 'UK' | 'JAPAN' | 'CHINA' | 'AU_NZ';
 
@@ -164,6 +165,22 @@ const ANALYSIS_CARDS: CardDef[] = [
   },
   { title: 'Heavy metals', slugs: ['heavy-metals'] },
 ];
+
+// portionSize is always grams (the nutrition maths reads it); portionType is
+// either a bare unit ("g") or a portion description. Never print grams next
+// to a description — "118 medium banana" — show what the user actually chose.
+const BARE_UNITS = new Set(['g', 'oz', 'cup', 'tbsp', 'ml']);
+function formatPortion(item: { portionSize: number | string; portionType: string }): string {
+  const size = Math.round(Number(item.portionSize) * 10) / 10;
+  const type = String(item.portionType ?? '').trim();
+  if (BARE_UNITS.has(type.toLowerCase())) return `${size} ${type}`;
+  // Portion names often carry their own count ("1 slice"), and older rows have
+  // the user's quantity glued in front ("1 1 slice", "2 1 slice").
+  const doubled = type.match(/^(\d+(?:\.\d+)?)\s+(\d.*)$/);
+  if (doubled) return doubled[1] === '1' ? doubled[2] : `${doubled[1]} × ${doubled[2]}`;
+  if (/^\d/.test(type)) return type;
+  return `${type} · ${size} g`;
+}
 
 function findGroup(groups: GroupHierarchy[], slug: string): GroupHierarchy | null {
   for (const g of groups) {
@@ -371,6 +388,8 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
 
   // Day strip scroll offset (independent of selected date)
   const [dayStripOffset, setDayStripOffset] = useState(0);
+  const [macroVizStyle, setMacroVizStyle] = useState<MacroVizStyle>('O');
+  useEffect(() => { setMacroVizStyle(loadMacroVizStyle()); }, []);
 
   // Inline calendar
   const [calendarExpanded, setCalendarExpanded] = useState(false);
@@ -443,6 +462,11 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
 
   // Meal selector state (for nutrient analysis filtering)
   const [selectedMealIds, setSelectedMealIds] = useState<string[]>([]);
+  // Food-list items the user has clicked. Empty = no filter (everything counts);
+  // otherwise the macros and compound analysis cover only these foods.
+  const [selectedItemIds, setSelectedItemIds] = useState<string[]>([]);
+  const selectedItemIdsRef = useRef<string[]>([]);
+  selectedItemIdsRef.current = selectedItemIds;
 
   // DV source preference state
   const [dvSourcePreference, setDvSourcePreference] = useState<SourcePreference>('AVERAGE');
@@ -641,7 +665,7 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
     setSearchResults(matches.slice(0, 20));
   }, [searchQuery, foodCatalog]);
 
-  async function fetchDailyTotals(date: string, mealIdsToFilter?: string[]) {
+  async function fetchDailyTotals(date: string, mealIdsToFilter?: string[], itemIdsOverride?: string[]) {
     try {
       setTotalsLoading(true);
       const params = new URLSearchParams({
@@ -655,6 +679,8 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
       if (filterIds.length > 0 && filterIds.length < meals.length) {
         params.append('mealIds', filterIds.join(','));
       }
+      const itemIds = itemIdsOverride ?? selectedItemIdsRef.current;
+      if (itemIds.length > 0) params.append('itemIds', itemIds.join(','));
 
       const res = await fetch(apiUrl(`/api/daily-totals?${params}`));
 
@@ -717,6 +743,15 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
             setActiveTab(loadedMeals[0].mealType || loadedMeals[0].id);
           }
           setDailyTotals(data.dailyTotals);
+          // The sync returns unfiltered totals; keep an active food selection
+          // (minus anything just removed) applied on top.
+          const present = new Set(loadedMeals.flatMap((m: any) => (m.items || []).map((i: any) => i.id)));
+          const kept = selectedItemIdsRef.current.filter((id) => present.has(id));
+          if (kept.length !== selectedItemIdsRef.current.length) {
+            selectedItemIdsRef.current = kept;
+            setSelectedItemIds(kept);
+          }
+          if (kept.length > 0) fetchDailyTotals(date, undefined, kept);
         }
       } finally {
         pendingSyncsRef.current -= 1;
@@ -739,6 +774,8 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
       if (!silent) setMealsLoading(true);
       if (!preserveActiveTab) {
         setActiveTab(''); // Reset active tab only when changing dates
+        selectedItemIdsRef.current = [];
+        setSelectedItemIds([]);
       }
       await syncDay(date);
     } catch (error) {
@@ -815,7 +852,11 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
     const qty = parseFloat(selectedQuantity);
     const chosenPortion = foodPortions.find((p) => p.id === selectedUnit);
     const portionGrams = chosenPortion ? qty * chosenPortion.gramWeight : qty;
-    const portionLabel = chosenPortion ? chosenPortion.description : selectedUnit;
+    const portionLabel = chosenPortion
+      ? (/^\d/.test(chosenPortion.description)
+          ? (qty === 1 ? chosenPortion.description : `${qty} × ${chosenPortion.description}`)
+          : `${qty} ${chosenPortion.description}`)
+      : selectedUnit;
     const foodBeingAdded = selectedFood;
 
     // Optimistic: on screen the instant you click, before the server has
@@ -890,6 +931,22 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
 
       return newSelection;
     });
+  };
+
+  // Click a food in the list to include/exclude it from the analysis
+  const toggleItemSelection = (itemId: string) => {
+    if (itemId.startsWith('optimistic-')) return; // no server id to filter on yet
+    const next = selectedItemIdsRef.current.includes(itemId)
+      ? selectedItemIdsRef.current.filter((id) => id !== itemId)
+      : [...selectedItemIdsRef.current, itemId];
+    selectedItemIdsRef.current = next;
+    setSelectedItemIds(next);
+    fetchDailyTotals(selectedDate, undefined, next);
+  };
+  const clearItemSelection = () => {
+    selectedItemIdsRef.current = [];
+    setSelectedItemIds([]);
+    fetchDailyTotals(selectedDate, undefined, []);
   };
 
   // Select all meals
@@ -1178,31 +1235,53 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
                   </div>
 
                   {(() => {
-                    const foodListAside = mealsLoading ? (
-                      <p className="chat-aside-empty">Loading…</p>
-                    ) : (() => {
-                      const allItems = meals.flatMap(m => m.items || []);
-                      return allItems.length === 0 ? (
-                        <p className="chat-aside-empty">No foods logged</p>
-                      ) : (
-                        <ul className="chat-aside-list">
-                          {allItems.map((item: any) => (
-                            <li key={item.id} className="chat-aside-item">
-                              <span className="chat-aside-name">{item.food?.name || 'Unknown'}</span>
-                              <span className="chat-aside-meta">{item.portionSize}{item.portionType}</span>
-                              <button
-                                type="button"
-                                className="chat-aside-remove"
-                                onClick={() => handleRemoveMealItem(item.id)}
-                                aria-label={`Remove ${item.food?.name || 'item'}`}
-                              >
-                                ✕
-                              </button>
-                            </li>
-                          ))}
-                        </ul>
-                      );
-                    })();
+                    // Desktop: this renders as the chat's side list (.chat-aside),
+                    // same as before. On mobile it's hidden here — the standalone
+                    // .an-panel--foods section below takes over instead of the
+                    // squeezed bottom-of-chatbox version we used to have.
+                    const foodListAside = (
+                      <>
+                        <p className="chat-aside-title">Today</p>
+                        {selectedItemIds.length > 0 && (
+                          <button type="button" className="food-select-clear" onClick={clearItemSelection}>
+                            Unselect all
+                          </button>
+                        )}
+                        {mealsLoading ? (
+                          <p className="chat-aside-empty">Loading…</p>
+                        ) : (() => {
+                          const allItems = meals.flatMap(m => m.items || []);
+                          return allItems.length === 0 ? (
+                            <p className="chat-aside-empty">No foods logged</p>
+                          ) : (
+                            <ul className="chat-aside-list">
+                              {allItems.map((item: any) => (
+                                <li
+                                  key={item.id}
+                                  className={`chat-aside-item food-selectable${selectedItemIds.includes(item.id) ? ' is-selected' : ''}`}
+                                  role="button"
+                                  tabIndex={0}
+                                  aria-pressed={selectedItemIds.includes(item.id)}
+                                  onClick={() => toggleItemSelection(item.id)}
+                                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleItemSelection(item.id); } }}
+                                >
+                                  <span className="chat-aside-name">{item.food?.name || 'Unknown'}</span>
+                                  <span className="chat-aside-meta">{formatPortion(item)}</span>
+                                  <button
+                                    type="button"
+                                    className="chat-aside-remove"
+                                    onClick={(e) => { e.stopPropagation(); handleRemoveMealItem(item.id); }}
+                                    aria-label={`Remove ${item.food?.name || 'item'}`}
+                                  >
+                                    ✕
+                                  </button>
+                                </li>
+                              ))}
+                            </ul>
+                          );
+                        })()}
+                      </>
+                    );
 
                     return centerTab === 'chat' ? (
                       <FoodLogChat
@@ -1291,18 +1370,56 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
                   })()}
           </section>{/* end log panel */}
 
+          {/* ── PANEL — today's food list, its own section ── */}
+          <section className="an-panel an-panel--foods">
+            <div className="an-foods-head">
+              <p className="section-label">Today</p>
+              {selectedItemIds.length > 0 && (
+                <button type="button" className="food-select-clear" onClick={clearItemSelection}>
+                  Unselect all
+                </button>
+              )}
+            </div>
+            {(() => {
+              if (mealsLoading) return <p className="lc-empty">Loading…</p>;
+              const allItems = meals.flatMap(m => m.items || []);
+              if (allItems.length === 0) return <p className="lc-empty">No foods logged</p>;
+              return (
+                <ul className="food-list">
+                  {allItems.map((item: any) => (
+                    <li
+                      key={item.id}
+                      className={`food-item food-selectable${selectedItemIds.includes(item.id) ? ' is-selected' : ''}`}
+                      role="button"
+                      tabIndex={0}
+                      aria-pressed={selectedItemIds.includes(item.id)}
+                      onClick={() => toggleItemSelection(item.id)}
+                      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleItemSelection(item.id); } }}
+                    >
+                      <span className="food-item-name">{item.food?.name || 'Unknown'}</span>
+                      <span className="food-item-meta">{formatPortion(item)}</span>
+                      <button
+                        type="button"
+                        className="food-item-remove"
+                        onClick={(e) => { e.stopPropagation(); handleRemoveMealItem(item.id); }}
+                        aria-label={`Remove ${item.food?.name || 'item'}`}
+                      >
+                        ✕
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              );
+            })()}
+          </section>{/* end foods panel */}
+
           {/* ── PANEL — today's food list ── */}
 
           {/* ── PANEL — macros ── */}
           <section className="an-panel an-panel--macros">
             <div className="an-macros">
             <section className="rc-macros macros-section">
-                <p className="section-label">Macros</p>
                 {(() => {
-                  // Ring geometry: r + strokeWidth/2 must equal the viewBox
-                  // half-size (40) so the stroke's outer edge is flush with the
-                  // .macro-ring disc behind it. C is that radius' circumference.
-                  const C = 232.48; // 2π × 37
                   const energyCompound  = allCompounds.find(c => c.name === 'Energy');
                   const waterCompound   = allCompounds.find(c => c.name === 'Water');
                   const proteinCompound = allCompounds.find(c => c.name === 'Protein');
@@ -1318,19 +1435,22 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
                   const kcal    = energyData?.amount  ? Math.round(energyData.amount)  : null;
                   const waterG  = waterData?.amount   ?? null;
                   const waterMl = waterG !== null ? Math.round(waterG) : null;
-                  const protein = proteinData?.amount ?? null;
-                  const carbs   = carbData?.amount    ?? null;
-                  const fat     = fatData?.amount     ?? null;
 
-                  const rings = [
-                    { label: 'Protein', val: protein, fill: protein ? Math.min(protein / 50,  1) * C : 0, unit: 'g', color: 'var(--ring-1)' },
-                    { label: 'Carbs',   val: carbs,   fill: carbs   ? Math.min(carbs   / 275, 1) * C : 0, unit: 'g', color: 'var(--ring-2)' },
-                    { label: 'Fat',     val: fat,     fill: fat     ? Math.min(fat     / 78,  1) * C : 0, unit: 'g', color: 'var(--ring-3)' },
+                  const macros: MacroSlice[] = [
+                    { label: 'Protein', value: proteinData?.amount ?? null, goal: 50,  unit: 'g' },
+                    { label: 'Carbs',   value: carbData?.amount    ?? null, goal: 275, unit: 'g' },
+                    { label: 'Fat',     value: fatData?.amount     ?? null, goal: 78,  unit: 'g' },
                   ];
 
                   return (
-                    <>
-                      <div className="hero-row">
+                    <div className="mv-layout">
+                      <div className="mv-card">
+                        <div className="mv-section-head">
+                          <MacroVizPicker style={macroVizStyle} onChange={setMacroVizStyle} />
+                        </div>
+                        <MacroViz style={macroVizStyle} macros={macros} kcal={kcal} />
+                      </div>
+                      <div className="mv-hero-col">
                         <div className="hero-stat">
                           <svg className="hero-stat-icon" width="20" height="20" viewBox="0 0 20 20" fill="none">
                             <path d="M11.5 2L6 11h4.5l-2 7L14 9H9.5l2-7z" fill="var(--accent)" opacity="0.7"/>
@@ -1352,25 +1472,7 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
                           <p className="hero-stat-label">water</p>
                         </div>
                       </div>
-                      <div className="macros-grid">
-                        {rings.map(({ label, val, fill, unit, color }) => (
-                          <div key={label} className="macro-item">
-                            <div className="macro-ring">
-                              <svg width="80" height="80" viewBox="0 0 80 80">
-                                <circle cx="40" cy="40" r="37" fill="none" stroke="var(--border)" strokeWidth="6"/>
-                                <circle cx="40" cy="40" r="37" fill="none" stroke={color} strokeWidth="6"
-                                  strokeDasharray={`${fill} ${C}`} strokeLinecap="round" opacity="0.45"/>
-                              </svg>
-                              <span>
-                                <span className="macro-ring-val">{val !== null ? Math.round(val) : '--'}</span>
-                                <span className="macro-ring-unit">{unit}</span>
-                              </span>
-                            </div>
-                            <p className="macro-label">{label}</p>
-                          </div>
-                        ))}
-                      </div>
-                    </>
+                    </div>
                   );
                 })()}
               </section>
@@ -1382,7 +1484,6 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
           <section className="an-panel an-panel--compounds">
               <section className="rc-compounds compounds-section">
                 <div className="an-analysis-head">
-                <p className="section-label">Analysis</p>
                   <div className="picker picker--bare">
                   <div className="picker-group">
                       <span className={`picker-opt picker-opt--male${sex === 'male' ? ' sel' : ''}`} onClick={() => setSex('male')}>
@@ -1430,30 +1531,50 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
                   </div>
                 </div>
                 <div className="compounds-header">
-                  {/* Highlighted compounds — design only, not wired to data yet */}
+                  {/* Highlighted compounds — % of daily target, gradient rings (option A) */}
                   <div className="hl-card">
                     <h3 className="ac-title">Highlighted</h3>
                     <div className="hl-rings">
-                      {['Vitamin D', 'Iron', 'Magnesium', 'Omega-3', 'Vitamin B12', 'Fiber'].map((label, i) => (
-                        <div key={label} className="macro-item">
-                          <div className="macro-ring">
-                            <svg width="80" height="80" viewBox="0 0 80 80">
-                              <circle cx="40" cy="40" r="37" fill="none" stroke="var(--border)" strokeWidth="6"/>
-                              <circle cx="40" cy="40" r="37" fill="none" stroke={`var(--ring-${(i % 3) + 1})`} strokeWidth="6"
-                                strokeDasharray="0 232.48" strokeLinecap="round" opacity="0.45"/>
-                            </svg>
-                            <span>
-                              <span className="macro-ring-val">--</span>
-                              <span className="macro-ring-unit">%</span>
-                            </span>
-                          </div>
-                          <p className="macro-label">{label}</p>
-                        </div>
-                      ))}
+                      {(() => {
+                        const HL: Array<[string, string[]]> = [
+                          ['Vitamin D', ['vitamin d']],
+                          ['Iron', ['iron']],
+                          ['Magnesium', ['magnesium']],
+                          ['Omega-3', ['omega-3', 'omega 3', 'total omega-3']],
+                          ['Vitamin B12', ['vitamin b12', 'vitamin b-12', 'cobalamin']],
+                          ['Fiber', ['fiber', 'dietary fiber', 'fiber, total dietary']],
+                        ];
+                        const R = 40, STROKE = 11, C = 2 * Math.PI * R;
+                        return HL.map(([label, aliases]) => {
+                          const compound = allCompounds.find((c: any) => aliases.includes(String(c.name).toLowerCase()));
+                          const pct = compound ? getNutrientValue(compound.id)?.rdaPercent ?? null : null;
+                          const gid = `hl-grad-${label.replace(/\W+/g, '')}`;
+                          return (
+                            <div key={label} className="hl-item">
+                              <div className="hl-ring">
+                                <svg viewBox="0 0 100 100">
+                                  <defs>
+                                    <linearGradient id={gid} x1="0%" y1="0%" x2="100%" y2="100%">
+                                      <stop offset="0%" stopColor="color-mix(in srgb, #d42a55 25%, #ffffff)" />
+                                      <stop offset="100%" stopColor="#d42a55" />
+                                    </linearGradient>
+                                  </defs>
+                                  <circle cx="50" cy="50" r={R} fill="none" stroke="rgba(212, 42, 85, 0.10)" strokeWidth={STROKE} />
+                                  <circle cx="50" cy="50" r={R} fill="none" stroke={`url(#${gid})`} strokeWidth={STROKE}
+                                    strokeLinecap="round" strokeDasharray={`${(Math.min(pct ?? 0, 100) / 100) * C} ${C}`} />
+                                </svg>
+                                <span className="hl-ring-val">
+                                  {pct !== null ? Math.round(pct) : '--'}<small>%</small>
+                                </span>
+                              </div>
+                              <p className="hl-label">{label}</p>
+                            </div>
+                          );
+                        });
+                      })()}
                     </div>
                   </div>
                 </div>
-                <div className="an-divider" />
                 <div className="ac-grid">
                   {(() => {
                     const byName = new Map(allCompounds.map((c: any) => [c.name, c]));
@@ -1724,10 +1845,6 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
         }
 
         /* Compact macros for narrow right column */
-        .rc-macros :global(.hero-row) {
-          gap: 52px;
-          margin-bottom: 32px;
-        }
         .rc-macros :global(.hero-stat-num) {
           font-size: 48px;
         }
@@ -1736,27 +1853,6 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
         }
         .rc-macros :global(.hero-stat-icon) {
           margin-bottom: 4px;
-        }
-        .rc-macros :global(.macros-grid) {
-          row-gap: 28px;
-          column-gap: 44px;
-        }
-        .rc-macros :global(.macro-ring) {
-          width: 76px;
-          height: 76px;
-        }
-        .rc-macros :global(.macro-ring svg) {
-          width: 76px;
-          height: 76px;
-        }
-        .rc-macros :global(.macro-ring-val) {
-          font-size: 20px;
-        }
-        .rc-macros :global(.macro-ring-unit) {
-          font-size: 15px;
-        }
-        .rc-macros :global(.macro-label) {
-          font-size: 16px;
         }
 
         /* Make the analysis age/sex picker wrap nicely in narrow column */
@@ -2816,10 +2912,11 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
 
         /* ── Dark-mode leftovers found in review (2026-08-23) ── */
 
-        /* Macro rings: a fill just lighter than the panel, no edge.
-           globals.css filled this with a hard #000000 circle. */
+        /* Macro rings: solid white disc, same card shadow as the chat
+           input and analysis category cards. */
         .an-page :global(.macro-ring) {
-          background: rgba(255, 255, 255, 0.75) !important;
+          background: #ffffff !important;
+          box-shadow: 0 6px 22px rgba(46, 26, 14, 0.12) !important;
         }
 
         /* Banded compound rows used --bg-accent (#0f0f0f) */
@@ -3260,10 +3357,6 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
           justify-content: center;
           line-height: 1;
         }
-        .an-page :global(.hero-row) {
-          justify-content: center !important;
-        }
-
         /* Ring sizing — the SVG scales with the box (inset:0 / 100%), so only
            these two numbers need to change. */
         .an-page :global(.macro-ring) {
@@ -3280,13 +3373,67 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
            search as a secondary tab. Below it: today's food and macros side
            by side, then the compound analysis. The + button / modal is gone. */
 
-        .an-panel--foods,
         .an-panel--macros {
           display: block;
+        }
+        /* Desktop: the chat's side list (.chat-aside) is the food list —
+           this standalone section is mobile-only, see the media query
+           below where the breakpoint matches .chat-box--split's. */
+        .an-panel--foods {
+          display: none;
         }
         .an-panel--foods :global(.food-list) {
           max-height: none !important;
           overflow: visible !important;
+          padding: 4px 0 !important;
+        }
+        /* Touch-first: no hover on mobile, so the remove button can't be
+           hover-gated the way the old sidebar version had it. */
+        .an-panel--foods :global(.food-item-remove) {
+          opacity: 1 !important;
+          width: 32px;
+          height: 32px;
+          margin-left: 10px;
+          padding: 0 !important;
+          border-radius: 50%;
+          background: rgba(212, 42, 85, 0.10) !important;
+          color: #d42a55 !important;
+          font-size: 14px;
+        }
+        .an-page :global(.food-selectable) {
+          cursor: pointer;
+          padding: 9px 14px !important;
+          margin-bottom: 3px;
+          gap: 14px !important;
+          border-radius: 10px;
+          transition: background 0.15s ease;
+        }
+        .an-page :global(.food-selectable:hover) { background: rgba(46, 26, 14, 0.04); }
+        .an-page :global(.food-selectable.is-selected) { background: rgba(212, 42, 85, 0.09); }
+        .an-page :global(.food-selectable:focus-visible) { outline: 2px solid #d42a55; outline-offset: -2px; }
+        /* Floats in the corner so showing/hiding it never moves the list */
+        .an-page :global(.food-select-clear) {
+          position: absolute;
+          top: 22px;
+          right: 24px;
+          border: none;
+          background: none;
+          padding: 0;
+          font-family: var(--font-mono);
+          font-size: 12px;
+          letter-spacing: 0.06em;
+          text-transform: uppercase;
+          color: #d42a55;
+          cursor: pointer;
+        }
+        .an-foods-head { position: relative; }
+        .an-foods-head :global(.food-select-clear) { top: 50%; right: 0; transform: translateY(-50%); }
+        .an-panel--foods :global(.food-item-remove:hover) {
+          background: #d42a55 !important;
+          color: #ffffff !important;
+        }
+        @media (max-width: 820px) {
+          .an-panel--foods { display: block; }
         }
 
         /* Two boxes side by side on desktop, stacked on a phone */
@@ -3307,7 +3454,7 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
           justify-content: space-between;
           gap: 12px;
         }
-        .an-foods-head :global(.section-label) { margin: 0 !important; }
+        .an-foods-head :global(.section-label) { margin: 0 0 -6px !important; }
         /* ── Log panel — chat first, full width, always open ── */
         /* Bare: the chat box is its own container, styled like the front
            page input (see FoodLogChat). Size must match CHAT_* in
@@ -3372,11 +3519,11 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
           height: 4px;
           background: #fff7f4;
         }
-        /* Manual search now renders inside a .chat-box, next to the same
-           .chat-aside food list the AI chat uses (see JSX above) — so it
-           gets that box's sizing, background, shadow and divider for free.
-           This is just the content inside .chat-main: a big centered
-           search field, then a slim add-row beneath it. */
+        /* Manual search renders inside a plain .chat-box (no aside — the
+           food list moved out to its own .an-panel--foods section below,
+           2026-09-18) so it gets that box's sizing, background and shadow
+           for free. This is just the content inside .chat-main: a big
+           centered search field, then a slim add-row beneath it. */
         .an-panel--log .cc-search-pane {
           flex: 1;
           min-height: 0;
@@ -3485,53 +3632,85 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
           grid-template-columns: minmax(0, 1fr);
         }
 
-        /* Macros: label, then kcal + water, then the rings beneath */
+        /* Macros: the gear header + shapes live in their own white card;
+           kcal/water sit outside it, plain, on the page background. */
         .an-panel--macros .rc-macros {
-          display: flex !important;
-          flex-direction: column;
-          align-items: center;
-          gap: 48px;
           border-bottom: none;
         }
         .an-panel--macros {
-          padding: 32px 32px 64px !important;
+          padding: 32px !important;
         }
-        .an-panel--macros .rc-macros > :global(.section-label) {
-          align-self: stretch;
-          margin: 0 !important;
+        .an-page :global(.mv-card) {
+          position: relative;
+          width: 100%;
+          background: #ffffff;
+          border-radius: 20px;
+          box-shadow: 0 6px 22px rgba(46, 26, 14, 0.12);
+          padding: 32px 32px 28px;
+          display: flex;
+          flex-direction: column;
+          gap: 28px;
         }
-        .an-page .rc-macros :global(.hero-row) {
-          margin: 0 !important;
-          gap: 96px !important;
+        /* Gear floats in the card's corner so it adds no header row */
+        .an-page :global(.mv-section-head) {
+          position: absolute;
+          top: 14px;
+          right: 14px;
+          z-index: 2;
         }
-        .an-page .rc-macros :global(.hero-stat-icon) {
-          width: 44px !important;
-          height: 44px !important;
-          margin: 0 auto 8px !important;
+
+        /* Mobile default: kcal/water above, card below, no divider */
+        .an-page :global(.mv-layout) {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 28px;
+          width: 100%;
+        }
+        .an-page :global(.mv-hero-col) {
+          display: flex;
+          flex-direction: row;
+          justify-content: space-evenly;
+          width: 100%;
+          gap: 24px;
+          order: -1;
+        }
+        .an-page :global(.mv-hero-col) :global(.hero-stat-icon) {
+          width: 60px !important;
+          height: 60px !important;
+          margin: 0 auto 10px !important;
           display: block;
         }
-        .an-page .rc-macros :global(.macros-grid) {
-          width: 100%;
-          max-width: 640px;
-          column-gap: 32px !important;
+
+        /* Desktop: macros card and kcal/water side by side, equal width,
+           no separator — stacks back to the mobile order below 860px. */
+        @media (min-width: 860px) {
+          .an-page :global(.mv-layout) {
+            flex-direction: row;
+            justify-content: center;
+            align-items: stretch;
+            gap: 44px;
+          }
+          .an-page :global(.mv-card) {
+            width: auto;
+            flex: 1 1 0;
+          }
+          .an-page :global(.mv-hero-col) {
+            flex: 1 1 0;
+            flex-direction: row;
+            justify-content: space-evenly;
+            align-items: center;
+            gap: 0;
+            order: 0;
+          }
         }
-        .an-page .rc-macros :global(.macro-ring) {
-          width: 120px !important;
-          height: 120px !important;
-        }
-        .an-page .rc-macros :global(.macro-ring-val) { font-size: 34px !important; }
+
         @media (max-width: 600px) {
-          .an-page .rc-macros :global(.hero-row) { gap: 48px !important; }
-          .an-page .rc-macros :global(.hero-stat-icon) {
-            width: 34px !important;
-            height: 34px !important;
+          .an-page :global(.mv-card) { padding: 26px 22px 22px; }
+          .an-page :global(.mv-hero-col) :global(.hero-stat-icon) {
+            width: 46px !important;
+            height: 46px !important;
           }
-          .an-page .rc-macros :global(.macros-grid) { column-gap: 8px !important; }
-          .an-page .rc-macros :global(.macro-ring) {
-            width: 84px !important;
-            height: 84px !important;
-          }
-          .an-page .rc-macros :global(.macro-ring-val) { font-size: 24px !important; }
         }
 
         /* Today: roomy full-width rows, name left, portion + remove right */
@@ -3548,33 +3727,36 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
           white-space: nowrap;
         }
 
-        /* ── Personal info: top right of the analysis box, no box ──
-           Sex on top, age + activity on one slim line beneath. */
+        /* ── Personal info: one slim strip in a white box, same recipe as the
+           chat input (white, 12px radius, house shadow). ── */
         .an-analysis-head {
           display: flex;
-          justify-content: space-between;
-          align-items: flex-start;
-          gap: 24px;
-          margin-bottom: 36px;
+          justify-content: flex-end;
+          margin-bottom: 72px;
         }
         .picker--bare {
-          align-items: flex-end !important;
-          gap: 10px !important;
+          display: grid !important;
+          grid-template-columns: 1fr 1fr 1.3fr;
+          align-items: center !important;
+          width: min(600px, 100%);
+          padding: 14px 28px;
+          background: #ffffff;
+          border-radius: 12px;
+          box-shadow: 0 6px 22px rgba(46, 26, 14, 0.12);
         }
-        .picker--bare :global(.picker-group) { gap: 20px; align-self: center; }
-        .picker--bare :global(.picker-divider) { height: 36px; }
-        .picker--bare :global(.picker-opt svg) { width: 52px; height: 52px; }
-        .picker--bare :global(.picker-fields) {
-          display: flex;
-          flex-direction: row;
-          align-items: baseline;
-          gap: 20px;
-        }
+        /* Three equal-feeling cells, content centred in each, hairlines between */
+        .picker--bare :global(.picker-group) { display: flex; align-items: center; justify-content: center; gap: 14px; }
+        .picker--bare :global(.picker-divider) { height: 22px; }
+        .picker--bare :global(.picker-opt svg) { width: 32px; height: 32px; }
+        .picker--bare :global(.picker-fields) { display: contents; }
         .picker--bare :global(.picker-age-row),
         .picker--bare :global(.picker-activity-row) {
           display: flex;
           align-items: baseline;
-          gap: 8px;
+          justify-content: center;
+          gap: 10px;
+          padding: 6px 0;
+          border-left: 2px solid rgba(46, 26, 14, 0.12);
         }
         .an-page .picker--bare :global(.picker-label) {
           font-family: var(--font-mono);
@@ -3615,8 +3797,9 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
           box-shadow: inset 0 -2px 0 #2e1a0e !important;
         }
         @media (max-width: 600px) {
-          .an-analysis-head { flex-direction: column; align-items: stretch; }
-          .picker--bare { align-items: center !important; }
+          .picker--bare { grid-template-columns: 1fr 1fr; row-gap: 10px; padding: 14px 20px; }
+          .picker--bare :global(.picker-group) { grid-column: 1 / -1; }
+          .picker--bare :global(.picker-age-row) { border-left: none; }
         }
 
         /* ── Phone ── */

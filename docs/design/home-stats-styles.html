@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Homepage stat card iterations</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap');
+
+  :root {
+    --panel: #ffe1d9;
+    --ink: #2e1a0e;
+    --ink-soft: rgba(46,26,14,0.6);
+    --coral: #d42a55;
+    --coral-dark: #9f1f40;
+    --card-shadow: 0 6px 22px rgba(46,26,14,0.12);
+    --border: rgba(46,26,14,0.16);
+    --font-display: 'Instrument Serif', serif;
+    --font-body: 'DM Sans', sans-serif;
+    --font-mono: 'DM Mono', monospace;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #f0e8e2; font-family: var(--font-body); color: var(--ink); padding: 40px 24px 100px; }
+  h1 { font-family: var(--font-display); font-weight: 400; font-size: 32px; text-align: center; margin: 0 0 8px; }
+  p.sub { text-align: center; color: var(--ink-soft); margin: 0 0 48px; font-size: 14px; }
+  .variants { display: grid; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); gap: 28px; max-width: 1400px; margin: 0 auto; }
+  .variant-card { background: var(--panel); border: 1px solid var(--border); border-radius: 16px; padding: 28px 24px 24px; box-shadow: var(--card-shadow); }
+  .variant-title { font-weight: 700; font-size: 14px; margin: 0 0 2px; }
+  .variant-desc { font-size: 12.5px; color: var(--ink-soft); margin: 0 0 20px; line-height: 1.4; }
+  .stats-row { display: flex; flex-wrap: wrap; justify-content: center; gap: 18px; }
+  .stat-label { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-soft); }
+  .stat-value { font-family: var(--font-display); font-size: 2.5rem; line-height: 1; color: var(--coral); }
+
+  /* 1 — current (baseline) */
+  .s1 { flex: 1 1 140px; display: flex; flex-direction: column; gap: 8px; padding: 28px 22px 22px; border-radius: 14px; background: #fff; box-shadow: var(--card-shadow); }
+  .s1::after { content: ''; display: block; margin-top: 4px; width: 28px; height: 3px; border-radius: 3px; background: var(--coral); }
+
+  /* 2 — bold reversed coral card */
+  .s2 { flex: 1 1 140px; display: flex; flex-direction: column; gap: 8px; padding: 28px 22px 22px; border-radius: 14px; background: var(--coral); box-shadow: 0 10px 28px rgba(212,42,85,0.35); }
+  .s2 .stat-value { color: #fff; }
+  .s2 .stat-label { color: rgba(255,255,255,0.75); }
+
+  /* 3 — outlined ticket / brutalist */
+  .s3 { flex: 1 1 140px; display: flex; flex-direction: column; gap: 8px; padding: 26px 20px 20px; border-radius: 4px; background: #fff; border: 2.5px solid var(--ink); box-shadow: 5px 5px 0 var(--ink); }
+
+  /* 4 — huge number, no card at all, just a rule */
+  .s4 { flex: 1 1 140px; display: flex; flex-direction: column-reverse; gap: 10px; padding: 0 8px 14px; border-bottom: 3px solid var(--coral); text-align: left; }
+  .s4 .stat-value { font-size: 3.2rem; }
+
+  /* 5 — polaroid tilt with corner fold */
+  .s5-wrap { flex: 1 1 140px; display: flex; justify-content: center; }
+  .s5 { width: 100%; position: relative; display: flex; flex-direction: column; gap: 8px; padding: 24px 20px 20px; border-radius: 4px; background: #fff; box-shadow: var(--card-shadow); transform: rotate(-2deg); }
+  .s5:nth-child(2) { transform: rotate(1.5deg); }
+  .s5::before { content: ''; position: absolute; top: 0; right: 0; width: 0; height: 0; border-style: solid; border-width: 0 18px 18px 0; border-color: transparent rgba(46,26,14,0.08) transparent transparent; }
+
+  /* 6 — pill / capsule badge, icon-led */
+  .s6 { flex: 1 1 160px; display: flex; align-items: center; gap: 14px; padding: 14px 20px 14px 14px; border-radius: 999px; background: #fff; box-shadow: var(--card-shadow); text-align: left; }
+  .s6-icon { width: 44px; height: 44px; border-radius: 50%; background: rgba(212,42,85,0.12); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .s6-icon svg { width: 22px; height: 22px; stroke: var(--coral); }
+  .s6 .stat-value { font-size: 1.8rem; }
+  .s6-text { display: flex; flex-direction: column; gap: 2px; }
+
+  /* 7 — gradient border ring card */
+  .s7 { flex: 1 1 140px; padding: 3px; border-radius: 16px; background: linear-gradient(135deg, var(--coral), #f9a8d4, var(--coral)); }
+  .s7-inner { background: #fff; border-radius: 13px; padding: 24px 18px 18px; display: flex; flex-direction: column; gap: 8px; }
+
+  /* 8 — dot-grid / stamped counter */
+  .s8 { flex: 1 1 140px; display: flex; flex-direction: column; gap: 10px; padding: 22px 20px 18px; border-radius: 14px; background: #fff; box-shadow: var(--card-shadow); background-image: radial-gradient(rgba(46,26,14,0.08) 1px, transparent 1px); background-size: 10px 10px; background-position: -4px -4px; }
+  .s8 .stat-value { background: #fff; align-self: flex-start; padding: 0 4px; }
+  .s8 .stat-label { background: #fff; align-self: flex-start; padding: 0 4px; }
+
+  /* 9 — split two-tone card, number on coral half, label on white half */
+  .s9 { flex: 1 1 150px; border-radius: 14px; overflow: hidden; box-shadow: var(--card-shadow); display: flex; flex-direction: column; }
+  .s9-top { background: var(--coral); padding: 18px 20px 14px; }
+  .s9-top .stat-value { color: #fff; }
+  .s9-bottom { background: #fff; padding: 10px 20px 14px; }
+
+  /* 10 — soft glow / neumorphic on panel background (no white card) */
+  .s10 { flex: 1 1 140px; display: flex; flex-direction: column; gap: 8px; padding: 24px 20px; border-radius: 16px; background: var(--panel); box-shadow: 8px 8px 16px rgba(46,26,14,0.12), -8px -8px 16px rgba(255,255,255,0.6); }
+
+  /* ── Background swatches ── */
+  .bg-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; max-width: 1400px; margin: 0 auto 8px; }
+  .bg-swatch { border-radius: 16px; padding: 40px 22px 26px; box-shadow: var(--card-shadow); text-align: center; }
+  .bg-swatch-name { font-weight: 700; font-size: 13.5px; margin: 0 0 4px; }
+  .bg-swatch-hex { font-family: var(--font-mono); font-size: 12px; opacity: 0.6; margin: 0 0 16px; }
+  .bg-mini-card { display: inline-flex; flex-direction: column; gap: 4px; padding: 14px 18px 12px; border-radius: 10px; background: #fff; box-shadow: 0 4px 14px rgba(46,26,14,0.1); }
+  .bg-mini-card .stat-value { font-size: 1.5rem; }
+  .bg-mini-card .stat-label { font-size: 9px; }
+</style>
+</head>
+<body>
+
+<h1>Second-section background — alternatives to #ffe1d9</h1>
+<p class="sub">You said the salmon-pink panel background isn't landing. Here are seven other options, each shown with a mini stat card on top so you can judge contrast, not just the flat color.</p>
+
+<div class="bg-grid">
+  <div class="bg-swatch" style="background:#faf6f2; color:var(--ink);">
+    <p class="bg-swatch-name">Warm paper</p>
+    <p class="bg-swatch-hex">#faf6f2</p>
+    <div class="bg-mini-card"><span class="stat-value">280</span><span class="stat-label">Compounds</span></div>
+  </div>
+  <div class="bg-swatch" style="background:#f3ede6; color:var(--ink);">
+    <p class="bg-swatch-name">Sand</p>
+    <p class="bg-swatch-hex">#f3ede6</p>
+    <div class="bg-mini-card"><span class="stat-value">280</span><span class="stat-label">Compounds</span></div>
+  </div>
+  <div class="bg-swatch" style="background:#fff9f7; color:var(--ink);">
+    <p class="bg-swatch-name">Petal white <span style="opacity:.55; font-weight:400;">(matches /analysis)</span></p>
+    <p class="bg-swatch-hex">#fff9f7</p>
+    <div class="bg-mini-card"><span class="stat-value">280</span><span class="stat-label">Compounds</span></div>
+  </div>
+  <div class="bg-swatch" style="background:#eeeae6; color:var(--ink);">
+    <p class="bg-swatch-name">Stone grey</p>
+    <p class="bg-swatch-hex">#eeeae6</p>
+    <div class="bg-mini-card"><span class="stat-value">280</span><span class="stat-label">Compounds</span></div>
+  </div>
+  <div class="bg-swatch" style="background:#2e1a0e; color:#fff9f7;">
+    <p class="bg-swatch-name">Espresso (inverted)</p>
+    <p class="bg-swatch-hex">#2e1a0e</p>
+    <div class="bg-mini-card" style="background:rgba(255,255,255,0.06); box-shadow:none; border:1px solid rgba(255,255,255,0.14);"><span class="stat-value" style="color:#fff;">280</span><span class="stat-label" style="color:rgba(255,255,255,0.55);">Compounds</span></div>
+  </div>
+  <div class="bg-swatch" style="background:linear-gradient(180deg, #ffe1d9 0%, #faf6f2 100%); color:var(--ink);">
+    <p class="bg-swatch-name">Fade to paper</p>
+    <p class="bg-swatch-hex">#ffe1d9 → #faf6f2</p>
+    <div class="bg-mini-card"><span class="stat-value">280</span><span class="stat-label">Compounds</span></div>
+  </div>
+  <div class="bg-swatch" style="background:#f6e9d8; color:var(--ink);">
+    <p class="bg-swatch-name">Banana cream</p>
+    <p class="bg-swatch-hex">#f6e9d8</p>
+    <div class="bg-mini-card"><span class="stat-value">280</span><span class="stat-label">Compounds</span></div>
+  </div>
+</div>
+
+<div class="section-break" style="max-width:1400px; margin:56px auto 32px; text-align:center;">
+  <h2 style="font-family:var(--font-display); font-weight:400; font-size:26px; margin:0 0 6px;">Stat card shapes</h2>
+  <p style="color:var(--ink-soft); font-size:13.5px; margin:0;">10 directions for "280 compounds / 16,832 reference values / 15 authorities" — from the current shipped card (1) to full brutalist / polaroid / neumorphic detours. (Shown here on the current panel color — swap per whichever background you pick above.)</p>
+</div>
+
+<div class="variants">
+
+  <div class="variant-card">
+    <p class="variant-title">1 — Current (shipped)</p>
+    <p class="variant-desc">White card, soft shadow, coral number, coral tick underneath. The baseline everything else is measured against.</p>
+    <div class="stats-row">
+      <div class="s1"><span class="stat-value">280</span><span class="stat-label">Compounds</span></div>
+      <div class="s1"><span class="stat-value">16,832</span><span class="stat-label">Reference values</span></div>
+      <div class="s1"><span class="stat-value">15</span><span class="stat-label">Authorities</span></div>
+    </div>
+  </div>
+
+  <div class="variant-card">
+    <p class="variant-title">2 — Reversed coral</p>
+    <p class="variant-desc">Card itself is solid coral instead of white — number goes white, label goes translucent white. Much louder, best used sparingly (maybe just the hero stat, not all three).</p>
+    <div class="stats-row">
+      <div class="s2"><span class="stat-value">280</span><span class="stat-label">Compounds</span></div>
+      <div class="s2"><span class="stat-value">16,832</span><span class="stat-label">Reference values</span></div>
+      <div class="s2"><span class="stat-value">15</span><span class="stat-label">Authorities</span></div>
+    </div>
+  </div>
+
+  <div class="variant-card">
+    <p class="variant-title">3 — Brutalist ticket</p>
+    <p class="variant-desc">Thick ink border, hard offset shadow instead of a blur — no rounding softness, reads like a stamped ticket stub. Strongest personality of the set.</p>
+    <div class="stats-row">
+      <div class="s3"><span class="stat-value">280</span><span class="stat-label">Compounds</span></div>
+      <div class="s3"><span class="stat-value">16,832</span><span class="stat-label">Reference values</span></div>
+      <div class="s3"><span class="stat-value">15</span><span class="stat-label">Authorities</span></div>
+    </div>
+  </div>
+
+  <div class="variant-card">
+    <p class="variant-title">4 — No card, just a rule</p>
+    <p class="variant-desc">Drops the card entirely — huge number, a coral underline, label below. Editorial / magazine-stat feel rather than a UI widget.</p>
+    <div class="stats-row">
+      <div class="s4"><span class="stat-value">280</span><span class="stat-label">Compounds</span></div>
+      <div class="s4"><span class="stat-value">16,832</span><span class="stat-label">Reference values</span></div>
+      <div class="s4"><span class="stat-value">15</span><span class="stat-label">Authorities</span></div>
+    </div>
+  </div>
+
+  <div class="variant-card">
+    <p class="variant-title">5 — Polaroid tilt</p>
+    <p class="variant-desc">Each card rotated a couple degrees, alternating direction, with a folded-corner shadow triangle — like three photos tossed on a desk. Playful, needs care so it doesn't read as sloppy.</p>
+    <div class="stats-row">
+      <div class="s5-wrap"><div class="s5"><span class="stat-value">280</span><span class="stat-label">Compounds</span></div></div>
+      <div class="s5-wrap"><div class="s5"><span class="stat-value">16,832</span><span class="stat-label">Reference values</span></div></div>
+      <div class="s5-wrap"><div class="s5"><span class="stat-value">280</span><span class="stat-label">Compounds</span></div></div>
+    </div>
+  </div>
+
+  <div class="variant-card">
+    <p class="variant-title">6 — Icon-led pill</p>
+    <p class="variant-desc">Capsule shape, small icon chip on the left, number+label stacked on the right — horizontal instead of vertical, reads more like a feature list than a stat block.</p>
+    <div class="stats-row" style="flex-direction:column; gap:12px;">
+      <div class="s6"><span class="s6-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v10M7 12h10"/></svg></span><span class="s6-text"><span class="stat-value">280</span><span class="stat-label">Compounds tracked</span></span></div>
+      <div class="s6"><span class="s6-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19h16M4 15h10M4 11h13M4 7h7"/></svg></span><span class="s6-text"><span class="stat-value">16,832</span><span class="stat-label">Reference daily values</span></span></div>
+      <div class="s6"><span class="s6-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3 7h7l-5.5 4.5L18.5 21 12 16.5 5.5 21l2-7.5L2 9h7z"/></svg></span><span class="s6-text"><span class="stat-value">15</span><span class="stat-label">Health authorities</span></span></div>
+    </div>
+  </div>
+
+  <div class="variant-card">
+    <p class="variant-title">7 — Gradient border ring</p>
+    <p class="variant-desc">A thin coral→pink→coral gradient frame around a white inner card, like the ring gradients from the macro work leaking into the card edge itself. Ties directly back to the MacroViz gradient language.</p>
+    <div class="stats-row">
+      <div class="s7"><div class="s7-inner"><span class="stat-value">280</span><span class="stat-label">Compounds</span></div></div>
+      <div class="s7"><div class="s7-inner"><span class="stat-value">16,832</span><span class="stat-label">Reference values</span></div></div>
+      <div class="s7"><div class="s7-inner"><span class="stat-value">15</span><span class="stat-label">Authorities</span></div></div>
+    </div>
+  </div>
+
+  <div class="variant-card">
+    <p class="variant-title">8 — Stamped / dot-grid</p>
+    <p class="variant-desc">A faint dot-grid texture fills the card (like graph paper), with the number and label knocked out on white patches over it — feels like a lab notebook entry, fits the "verified data" story.</p>
+    <div class="stats-row">
+      <div class="s8"><span class="stat-value">280</span><span class="stat-label">Compounds</span></div>
+      <div class="s8"><span class="stat-value">16,832</span><span class="stat-label">Reference values</span></div>
+      <div class="s8"><span class="stat-value">15</span><span class="stat-label">Authorities</span></div>
+    </div>
+  </div>
+
+  <div class="variant-card">
+    <p class="variant-title">9 — Two-tone split</p>
+    <p class="variant-desc">Card splits into a coral top half (holding the number) and white bottom half (holding the label) — one flat seam, no gradient, no shadow trickery, just committed colour blocking.</p>
+    <div class="stats-row">
+      <div class="s9"><div class="s9-top"><span class="stat-value">280</span></div><div class="s9-bottom"><span class="stat-label">Compounds</span></div></div>
+      <div class="s9"><div class="s9-top"><span class="stat-value">16,832</span></div><div class="s9-bottom"><span class="stat-label">Reference values</span></div></div>
+      <div class="s9"><div class="s9-top"><span class="stat-value">15</span></div><div class="s9-bottom"><span class="stat-label">Authorities</span></div></div>
+    </div>
+  </div>
+
+  <div class="variant-card">
+    <p class="variant-title">10 — Neumorphic (soft-pressed)</p>
+    <p class="variant-desc">No white card at all — the card is the same cream panel colour as the background, given shape only by a dual light/dark soft shadow (neumorphism). Extremely quiet, almost disappears until you look for it.</p>
+    <div class="stats-row">
+      <div class="s10"><span class="stat-value">280</span><span class="stat-label">Compounds</span></div>
+      <div class="s10"><span class="stat-value">16,832</span><span class="stat-label">Reference values</span></div>
+      <div class="s10"><span class="stat-value">15</span><span class="stat-label">Authorities</span></div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

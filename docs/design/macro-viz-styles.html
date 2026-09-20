@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Macro ring iterations</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap');
+
+  :root {
+    --cream-bg: #fff7f4;
+    --ink: #2e1a0e;
+    --ink-soft: rgba(46,26,14,0.6);
+    --card-shadow: 0 6px 22px rgba(46,26,14,0.12);
+    --border: rgba(46,26,14,0.12);
+    --track: rgba(46,26,14,0.10);
+    --magenta: #f472b6;
+    --magenta-dark: #ec4899;
+    --cyan: #22d3ee;
+    --amber: #f6b26b;
+    --font-display: 'Instrument Serif', serif;
+    --font-body: 'DM Sans', sans-serif;
+    --font-mono: 'DM Mono', monospace;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: #f0e8e2;
+    font-family: var(--font-body);
+    color: var(--ink);
+    padding: 40px 24px 100px;
+  }
+  h1 {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: 32px;
+    text-align: center;
+    margin: 0 0 8px;
+  }
+  p.sub {
+    text-align: center;
+    color: var(--ink-soft);
+    margin: 0 0 48px;
+    font-size: 14px;
+  }
+  .variants {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+    gap: 28px;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+  .variant-card {
+    background: var(--cream-bg);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px 24px 20px;
+    box-shadow: var(--card-shadow);
+  }
+  .variant-title {
+    font-family: var(--font-body);
+    font-weight: 600;
+    font-size: 14px;
+    letter-spacing: 0.04em;
+    margin: 0 0 2px;
+  }
+  .variant-desc {
+    font-size: 12.5px;
+    color: var(--ink-soft);
+    margin: 0 0 18px;
+    line-height: 1.4;
+  }
+  .macros-row {
+    display: flex;
+    justify-content: space-around;
+    gap: 12px;
+  }
+  .macro-item { text-align: center; }
+  .macro-label {
+    font-family: var(--font-body);
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--ink-soft);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-top: 8px;
+  }
+  .ring-wrap {
+    position: relative;
+    width: 76px;
+    height: 76px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .ring-wrap svg { position: absolute; inset: 0; transform: rotate(-90deg); }
+  .ring-val { font-family: var(--font-display); font-size: 19px; line-height: 1; display: block; }
+  .ring-unit { font-family: var(--font-mono); font-size: 12px; color: var(--ink-soft); }
+
+  /* ── Variant-specific discs ── */
+  .disc-white { background: #ffffff; border-radius: 50%; box-shadow: var(--card-shadow); }
+  .disc-none { background: none; box-shadow: none; }
+  .disc-flatline { background: none; box-shadow: none; border: 1px solid var(--border); border-radius: 50%; }
+  .disc-glow { background: #ffffff; border-radius: 50%; box-shadow: 0 0 0 1px var(--border), 0 8px 24px rgba(236,72,153,0.28); }
+  .disc-halo { background: #ffffff; border-radius: 50%; box-shadow: 0 0 0 1px var(--border), 0 0 0 10px rgba(244,114,182,0.10), 0 6px 20px rgba(46,26,14,0.10); }
+
+  /* H — conic donut */
+  .donut {
+    width: 76px; height: 76px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    position: relative;
+  }
+  .donut::before {
+    content: ''; position: absolute; inset: 0; border-radius: 50%;
+    background: conic-gradient(var(--donut-fill, var(--magenta)) calc(var(--donut-pct, 76) * 1%), var(--track) 0);
+  }
+  .donut::after {
+    content: ''; position: absolute; inset: 9px; border-radius: 50%;
+    background: #ffffff; box-shadow: inset 0 1px 3px rgba(46,26,14,0.08);
+  }
+  .donut > span { position: relative; z-index: 1; }
+
+  /* ── Section divider ── */
+  .section-break {
+    max-width: 1400px;
+    margin: 56px auto 32px;
+    text-align: center;
+  }
+  .section-break h2 {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: 26px;
+    margin: 0 0 6px;
+  }
+  .section-break p {
+    color: var(--ink-soft);
+    font-size: 13.5px;
+    margin: 0;
+  }
+
+  /* M — horizontal pill bars */
+  .pill-row { display: flex; flex-direction: column; gap: 16px; }
+  .pill-item { display: flex; align-items: center; gap: 12px; }
+  .pill-label { width: 58px; font-size: 13px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink-soft); flex-shrink: 0; }
+  .pill-track { flex: 1; height: 12px; background: var(--track); border-radius: 999px; overflow: hidden; }
+  .pill-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg, #fde8ef, var(--magenta-dark)); }
+  .pill-val { width: 52px; text-align: right; font-family: var(--font-mono); font-size: 13px; color: var(--ink); flex-shrink: 0; }
+
+  /* N — semi-circle gauge */
+  .gauge-wrap { position: relative; width: 90px; height: 52px; margin: 0 auto; }
+  .gauge-wrap svg { position: absolute; inset: 0; }
+  .gauge-num { position: absolute; bottom: 0; left: 0; right: 0; text-align: center; font-family: var(--font-display); font-size: 20px; line-height: 1; }
+
+  /* O — single split ring (macro proportion, not vs. goal) */
+  .split-ring-wrap { position: relative; width: 132px; height: 132px; margin: 0 auto; }
+  .split-ring-wrap svg { position: absolute; inset: 0; transform: rotate(-90deg); }
+  .split-center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+  .split-center .kcal-num { font-family: var(--font-display); font-size: 30px; line-height: 1; }
+  .split-center .kcal-label { font-family: var(--font-mono); font-size: 11px; color: var(--ink-soft); text-transform: uppercase; letter-spacing: 0.1em; margin-top: 2px; }
+  .split-legend { display: flex; justify-content: center; gap: 18px; margin-top: 14px; }
+  .split-legend-item { display: flex; align-items: center; gap: 6px; font-size: 12.5px; color: var(--ink-soft); }
+  .split-dot { width: 8px; height: 8px; border-radius: 50%; }
+
+  /* P — vertical bars */
+  .vbar-row { display: flex; justify-content: space-around; align-items: flex-end; height: 130px; gap: 20px; }
+  .vbar-item { display: flex; flex-direction: column; align-items: center; height: 100%; justify-content: flex-end; }
+  .vbar-track { width: 30px; height: 100px; background: var(--track); border-radius: 15px; display: flex; align-items: flex-end; overflow: hidden; }
+  .vbar-fill { width: 100%; border-radius: 15px; background: linear-gradient(180deg, var(--magenta-dark), #fde8ef); }
+  .vbar-val { font-family: var(--font-mono); font-size: 12px; margin-top: 8px; color: var(--ink); }
+
+  /* Q — dot stepper */
+  .dot-row { display: flex; flex-direction: column; gap: 14px; }
+  .dot-item { display: flex; align-items: center; gap: 10px; }
+  .dot-label { width: 58px; font-size: 13px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink-soft); flex-shrink: 0; }
+  .dots { display: flex; gap: 4px; }
+  .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--track); }
+  .dot.lit { background: var(--magenta-dark); }
+  .dot-val { margin-left: auto; font-family: var(--font-mono); font-size: 13px; color: var(--ink); }
+
+  /* R — flat KPI tile, underline accent only */
+  .tile-row { display: flex; gap: 14px; }
+  .tile { flex: 1; background: #ffffff; border-radius: 10px; box-shadow: var(--card-shadow); padding: 16px 14px 12px; text-align: center; }
+  .tile-num { font-family: var(--font-display); font-size: 26px; line-height: 1; }
+  .tile-unit { font-family: var(--font-mono); font-size: 12px; color: var(--ink-soft); }
+  .tile-label { font-size: 11.5px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink-soft); margin: 6px 0 8px; }
+  .tile-bar { height: 3px; border-radius: 3px; background: var(--track); overflow: hidden; }
+  .tile-bar-fill { height: 100%; background: var(--magenta-dark); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<h1>Macro ring — style options</h1>
+<p class="sub">Same three values (Protein 78g · Carbs 210g · Fat 54g) rendered six ways. Pick one, or mix bits from a few.</p>
+
+<div class="variants">
+
+  <!-- A: current — thick, full shadow disc, bold gradient -->
+  <div class="variant-card">
+    <p class="variant-title">A — Current</p>
+    <p class="variant-desc">10px stroke, white disc + shadow, full-opacity white→magenta gradient. What's live now — the baseline to beat.</p>
+    <div class="macros-row">
+      <div class="macro-item">
+        <div class="ring-wrap disc-white">
+          <svg viewBox="0 0 80 80"><defs><linearGradient id="gA1" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#fff"/><stop offset="100%" stop-color="var(--magenta)"/></linearGradient></defs>
+            <circle cx="40" cy="40" r="33" fill="none" stroke="var(--track)" stroke-width="10"/>
+            <circle cx="40" cy="40" r="33" fill="none" stroke="url(#gA1)" stroke-width="10" stroke-dasharray="163 207" stroke-linecap="round"/></svg>
+          <span><span class="ring-val">78</span><span class="ring-unit">g</span></span>
+        </div>
+        <p class="macro-label">Protein</p>
+      </div>
+      <div class="macro-item">
+        <div class="ring-wrap disc-white">
+          <svg viewBox="0 0 80 80"><defs><linearGradient id="gA2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#fff"/><stop offset="100%" stop-color="var(--magenta)"/></linearGradient></defs>
+            <circle cx="40" cy="40" r="33" fill="none" stroke="var(--track)" stroke-width="10"/>
+            <circle cx="40" cy="40" r="33" fill="none" stroke="url(#gA2)" stroke-width="10" stroke-dasharray="158 207" stroke-linecap="round"/></svg>
+          <span><span class="ring-val">210</span><span class="ring-unit">g</span></span>
+        </div>
+        <p class="macro-label">Carbs</p>
+      </div>
+      <div class="macro-item">
+        <div class="ring-wrap disc-white">
+          <svg viewBox="0 0 80 80"><defs><linearGradient id="gA3" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#fff"/><stop offset="100%" stop-color="var(--magenta)"/></linearGradient></defs>
+            <circle cx="40" cy="40" r="33" fill="none" stroke="var(--track)" stroke-width="10"/>
+            <circle cx="40" cy="40" r="33" fill="none" stroke="url(#gA3)" stroke-width="10" stroke-dasharray="144 207" stroke-linecap="round"/></svg>
+          <span><span class="ring-val">54</span><span class="ring-unit">g</span></span>
+        </div>
+        <p class="macro-label">Fat</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- B: thin + no disc, floats on card -->
+  <div class="variant-card">
+    <p class="variant-title">B — Floating, no disc</p>
+    <p class="variant-desc">No white backing circle at all — the ring sits straight on the card. 5px stroke, quiet track, same gradient. Reads much lighter.</p>
+    <div class="macros-row">
+      <div class="macro-item">
+        <div class="ring-wrap disc-none">
+          <svg viewBox="0 0 80 80"><defs><linearGradient id="gB1" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#fff"/><stop offset="100%" stop-color="var(--magenta)"/></linearGradient></defs>
+            <circle cx="40" cy="40" r="35" fill="none" stroke="var(--track)" stroke-width="5"/>
+            <circle cx="40" cy="40" r="35" fill="none" stroke="url(#gB1)" stroke-width="5" stroke-dasharray="173 220" stroke-linecap="round"/></svg>
+          <span><span class="ring-val">78</span><span class="ring-unit">g</span></span>
+        </div>
+        <p class="macro-label">Protein</p>
+      </div>
+      <div class="macro-item">
+        <div class="ring-wrap disc-none">
+          <svg viewBox="0 0 80 80"><defs><linearGradient id="gB2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#fff"/><stop offset="100%" stop-color="var(--magenta)"/></linearGradient></defs>
+            <circle cx="40" cy="40" r="35" fill="none" stroke="var(--track)" stroke-width="5"/>
+            <circle cx="40" cy="40" r="35" fill="none" stroke="url(#gB2)" stroke-width="5" stroke-dasharray="168 220" stroke-linecap="round"/></svg>
+          <span><span class="ring-val">210</span><span class="ring-unit">g</span></span>
+        </div>
+        <p class="macro-label">Carbs</p>
+      </div>
+      <div class="macro-item">
+        <div class="ring-wrap disc-none">
+          <svg viewBox="0 0 80 80"><defs><linearGradient id="gB3" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#fff"/><stop offset="100%" stop-color="var(--magenta)"/></linearGradient></defs>
+            <circle cx="40" cy="40" r="35" fill="none" stroke="var(--track)" stroke-width="5"/>
+            <circle cx="40" cy="40" r="35" fill="none" stroke="url(#gB3)" stroke-width="5" stroke-dasharray="153 220" stroke-linecap="round"/></svg>
+          <span><span class="ring-val">54</span><span class="ring-unit">g</span></span>
+        </div>
+        <p class="macro-label">Fat</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- C: thin disc, subtle shadow, softer gradient (peach->magenta) -->
+  <div class="variant-card">
+    <p class="variant-title">C — Soft disc, quiet gradient</p>
+    <p class="variant-desc">Keeps the white disc for a bit of lift, but thinner (6px) and a softer two-stop gradient (cream→magenta) instead of pure white→magenta — less contrast, less shouty.</p>
+    <div class="macros-row">
+      <div class="macro-item">
+        <div class="ring-wrap disc-white">
+          <svg viewBox="0 0 80 80"><defs><linearGradient id="gC1" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#fde8ef"/><stop offset="100%" stop-color="var(--magenta-dark)"/></linearGradient></defs>
+            <circle cx="40" cy="40" r="34" fill="none" stroke="var(--track)" stroke-width="6"/>
+            <circle cx="40" cy="40" r="34" fill="none" stroke="url(#gC1)" stroke-width="6" stroke-dasharray="168 214" stroke-linecap="round"/></svg>
+          <span><span class="ring-val">78</span><span class="ring-unit">g</span></span>
+        </div>
+        <p class="macro-label">Protein</p>
+      </div>
+      <div class="macro-item">
+        <div class="ring-wrap disc-white">
+          <svg viewBox="0 0 80 80"><defs><linearGradient id="gC2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#fde8ef"/><stop offset="100%" stop-color="var(--magenta-dark)"/></linearGradient></defs>
+            <circle cx="40" cy="40" r="34" fill="none" stroke="var(--track)" stroke-width="6"/>
+            <circle cx="40" cy="40" r="34" fill="none" stroke="url(#gC2)" stroke-width="6" stroke-dasharray="163 214" stroke-linecap="round"/></svg>
+          <span><span class="ring-val">210</span><span class="ring-unit">g</span></span>
+        </div>
+        <p class="macro-label">Carbs</p>
+      </div>
+      <div class="macro-item">
+        <div class="ring-wrap disc-white">
+          <svg viewBox="0 0 80 80"><defs><linearGradient id="gC3" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#fde8ef"/><stop offset="100%" stop-color="var(--magenta-dark)"/></linearGradient></defs>
+            <circle cx="40" cy="40" r="34" fill="none" stroke="var(--track)" stroke-width="6"/>
+            <circle cx="40" cy="40" r="34" fill="none" stroke="url(#gC3)" stroke-width="6" stroke-dasharray="149 214" stroke-linecap="round"/></svg>
+          <span><span class="ring-val">54</span><span class="ring-unit">g</span></span>
+        </div>
+        <p class="macro-label">Fat</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- D: flat solid color per macro, no gradient, thin -->
+  <div class="variant-card">
+    <p class="variant-title">D — Flat colour, no gradient</p>
+    <p class="variant-desc">Drops the gradient entirely — one flat colour per macro (all still magenta family, just different tints), 6px, no disc. Calmest of the six.</p>
+    <div class="macros-row">
+      <div class="macro-item">
+        <div class="ring-wrap disc-none">
+          <svg viewBox="0 0 80 80">
+            <circle cx="40" cy="40" r="34" fill="none" stroke="var(--track)" stroke-width="6"/>
+            <circle cx="40" cy="40" r="34" fill="none" stroke="var(--magenta-dark)" stroke-width="6" stroke-dasharray="168 214" stroke-linecap="round"/></svg>
+          <span><span class="ring-val">78</span><span class="ring-unit">g</span></span>
+        </div>
+        <p class="macro-label">Protein</p>
+      </div>
+      <div class="macro-item">
+        <div class="ring-wrap disc-none">
+          <svg viewBox="0 0 80 80">
+            <circle cx="40" cy="40" r="34" fill="none" stroke="var(--track)" stroke-width="6"/>
+            <circle cx="40" cy="40" r="34" fill="none" stroke="var(--magenta)" stroke-width="6" stroke-dasharray="163 214" stroke-linecap="round"/></svg>
+          <span><span class="ring-val">210</span><span class="ring-unit">g</span></span>
+        </div>
+        <p class="macro-label">Carbs</p>
+      </div>
+      <div class="macro-item">
+        <div class="ring-wrap disc-none">
+          <svg viewBox="0 0 80 80">
+            <circle cx="40" cy="40" r="34" fill="none" stroke="var(--track)" stroke-width="6"/>
+            <circle cx="40" cy="40" r="34" fill="none" stroke="#f9a8d4" stroke-width="6" stroke-dasharray="149 214" stroke-linecap="round"/></svg>
+          <span><span class="ring-val">54</span><span class="ring-unit">g</span></span>
+        </div>
+        <p class="macro-label">Fat</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- E: hairline, small disc outline only -->
+  <div class="variant-card">
+    <p class="variant-title">E — Hairline</p>
+    <p class="variant-desc">4px stroke, outlined disc (border only, no fill/shadow) so it reads as a chip, not a button. Gradient kept subtle. Smallest footprint.</p>
+    <div class="macros-row">
+      <div class="macro-item">
+        <div class="ring-wrap disc-flatline">
+          <svg viewBox="0 0 80 80"><defs><linearGradient id="gE1" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#fbd0e2"/><stop offset="100%" stop-color="var(--magenta-dark)"/></linearGradient></defs>
+            <circle cx="40" cy="40" r="36" fill="none" stroke="var(--track)" stroke-width="4"/>
+            <circle cx="40" cy="40" r="36" fill="none" stroke="url(#gE1)" stroke-width="4" stroke-dasharray="178 226" stroke-linecap="round"/></svg>
+          <span><span class="ring-val">78</span><span class="ring-unit">g</span></span>
+        </div>
+        <p class="macro-label">Protein</p>
+      </div>
+      <div class="macro-item">
+        <div class="ring-wrap disc-flatline">
+          <svg viewBox="0 0 80 80"><defs><linearGradient id="gE2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#fbd0e2"/><stop offset="100%" stop-color="var(--magenta-dark)"/></linearGradient></defs>
+            <circle cx="40" cy="40" r="36" fill="none" stroke="var(--track)" stroke-width="4"/>
+            <circle cx="40" cy="40" r="36" fill="none" stroke="url(#gE2)" stroke-width="4" stroke-dasharray="172 226" stroke-linecap="round"/></svg>
+          <span><span class="ring-val">210</span><span class="ring-unit">g</span></span>
+        </div>
+        <p class="macro-label">Carbs</p>
+      </div>
+      <div class="macro-item">
+        <div class="ring-wrap disc-flatline">
+          <svg viewBox="0 0 80 80"><defs><linearGradient id="gE3" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#fbd0e2"/><stop offset="100%" stop-color="var(--magenta-dark)"/></linearGradient></defs>
+            <circle cx="40" cy="40" r="36" fill="none" stroke="var(--track)" stroke-width="4"/>
+            <circle cx="40" cy="40" r="36" fill="none" stroke="url(#gE3)" stroke-width="4" stroke-dasharray="157 226" stroke-linecap="round"/></svg>
+          <span><span class="ring-val">54</span><span class="ring-unit">g</span></span>
+        </div>
+        <p class="macro-label">Fat</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- F: disc but small + tight ring hugging the number, medium stroke -->
+  <div class="variant-card">
+    <p class="variant-title">F — Tight & compact</p>
+    <p class="variant-desc">Smaller overall footprint (64px), disc kept but shadow softened, 7px stroke sitting close to the number. Feels like a badge rather than a gauge.</p>
+    <div class="macros-row">
+      <div class="macro-item">
+        <div class="ring-wrap disc-white" style="width:64px;height:64px;">
+          <svg viewBox="0 0 64 64"><defs><linearGradient id="gF1" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#fff"/><stop offset="100%" stop-color="var(--magenta)"/></linearGradient></defs>
+            <circle cx="32" cy="32" r="26" fill="none" stroke="var(--track)" stroke-width="7"/>
+            <circle cx="32" cy="32" r="26" fill="none" stroke="url(#gF1)" stroke-width="7" stroke-dasharray="129 163" stroke-linecap="round"/></svg>
+          <span style="display:flex;flex-direction:column;"><span class="ring-val" style="font-size:16px;">78</span><span class="ring-unit" style="font-size:10px;">g</span></span>
+        </div>
+        <p class="macro-label">Protein</p>
+      </div>
+      <div class="macro-item">
+        <div class="ring-wrap disc-white" style="width:64px;height:64px;">
+          <svg viewBox="0 0 64 64"><defs><linearGradient id="gF2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#fff"/><stop offset="100%" stop-color="var(--magenta)"/></linearGradient></defs>
+            <circle cx="32" cy="32" r="26" fill="none" stroke="var(--track)" stroke-width="7"/>
+            <circle cx="32" cy="32" r="26" fill="none" stroke="url(#gF2)" stroke-width="7" stroke-dasharray="124 163" stroke-linecap="round"/></svg>
+          <span style="display:flex;flex-direction:column;"><span class="ring-val" style="font-size:16px;">210</span><span class="ring-unit" style="font-size:10px;">g</span></span>
+        </div>
+        <p class="macro-label">Carbs</p>
+      </div>
+      <div class="macro-item">
+        <div class="ring-wrap disc-white" style="width:64px;height:64px;">
+          <svg viewBox="0 0 64 64"><defs><linearGradient id="gF3" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#fff"/><stop offset="100%" stop-color="var(--magenta)"/></linearGradient></defs>
+            <circle cx="32" cy="32" r="26" fill="none" stroke="var(--track)" stroke-width="7"/>
+            <circle cx="32" cy="32" r="26" fill="none" stroke="url(#gF3)" stroke-width="7" stroke-dasharray="113 163" stroke-linecap="round"/></svg>
+          <span style="display:flex;flex-direction:column;"><span class="ring-val" style="font-size:16px;">54</span><span class="ring-unit" style="font-size:10px;">g</span></span>
+        </div>
+        <p class="macro-label">Fat</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- G: neon-glow, thin ring, colored shadow instead of neutral shadow -->
+  <div class="variant-card">
+    <p class="variant-title">G — Glow</p>
+    <p class="variant-desc">Same thin 5px ring as B, but the disc's shadow picks up a tint of the fill colour instead of neutral brown — a soft coloured glow rather than a flat drop shadow. Reads premium without adding weight.</p>
+    <div class="macros-row">
+      <div class="macro-item">
+        <div class="ring-wrap disc-glow">
+          <svg viewBox="0 0 80 80"><defs><linearGradient id="gG1" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#fff"/><stop offset="100%" stop-color="var(--magenta-dark)"/></linearGradient></defs>
+            <circle cx="40" cy="40" r="35" fill="none" stroke="var(--track)" stroke-width="5"/>
+            <circle cx="40" cy="40" r="35" fill="none" stroke="url(#gG1)" stroke-width="5" stroke-dasharray="173 220" stroke-linecap="round"/></svg>
+          <span><span class="ring-val">78</span><span class="ring-unit">g</span></span>
+        </div>
+        <p class="macro-label">Protein</p>
+      </div>
+      <div class="macro-item">
+        <div class="ring-wrap disc-glow">
+          <svg viewBox="0 0 80 80"><defs><linearGradient id="gG2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#fff"/><stop offset="100%" stop-color="var(--magenta-dark)"/></linearGradient></defs>
+            <circle cx="40" cy="40" r="35" fill="none" stroke="var(--track)" stroke-width="5"/>
+            <circle cx="40" cy="40" r="35" fill="none" stroke="url(#gG2)" stroke-width="5" stroke-dasharray="168 220" stroke-linecap="round"/></svg>
+          <span><span class="ring-val">210</span><span class="ring-unit">g</span></span>
+        </div>
+        <p class="macro-label">Carbs</p>
+      </div>
+      <div class="macro-item">
+        <div class="ring-wrap disc-glow">
+          <svg viewBox="0 0 80 80"><defs><linearGradient id="gG3" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#fff"/><stop offset="100%" stop-color="var(--magenta-dark)"/></linearGradient></defs>
+            <circle cx="40" cy="40" r="35" fill="none" stroke="var(--track)" stroke-width="5"/>
+            <circle cx="40" cy="40" r="35" fill="none" stroke="url(#gG3)" stroke-width="5" stroke-dasharray="153 220" stroke-linecap="round"/></svg>
+          <span><span class="ring-val">54</span><span class="ring-unit">g</span></span>
+        </div>
+        <p class="macro-label">Fat</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- H: true conic donut, no stroke-dasharray trick, gradient sweeps naturally around the ring -->
+  <div class="variant-card">
+    <p class="variant-title">H — Conic donut</p>
+    <p class="variant-desc">Built with a real conic-gradient instead of an SVG stroke — the colour sweeps evenly around the arc rather than diagonally across a bounding box, which is what a straight linear-gradient on a stroke actually does under the hood. Cleanest colour transition of the set.</p>
+    <div class="macros-row">
+      <div class="macro-item">
+        <div class="ring-wrap">
+          <div class="donut" style="--donut-pct:76; --donut-fill:var(--magenta-dark);"><span><span class="ring-val">78</span><span class="ring-unit">g</span></span></div>
+        </div>
+        <p class="macro-label">Protein</p>
+      </div>
+      <div class="macro-item">
+        <div class="ring-wrap">
+          <div class="donut" style="--donut-pct:74; --donut-fill:var(--magenta);"><span><span class="ring-val">210</span><span class="ring-unit">g</span></span></div>
+        </div>
+        <p class="macro-label">Carbs</p>
+      </div>
+      <div class="macro-item">
+        <div class="ring-wrap">
+          <div class="donut" style="--donut-pct:69; --donut-fill:#f9a8d4;"><span><span class="ring-val">54</span><span class="ring-unit">g</span></span></div>
+        </div>
+        <p class="macro-label">Fat</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- I: double ring — thin outer track, tighter inner fill, small gap -->
+  <div class="variant-card">
+    <p class="variant-title">I — Inset double ring</p>
+    <p class="variant-desc">The unfilled track sits as a hairline right at the outer edge; the coloured fill is a separate, slightly smaller, thicker ring inset from it. Two concentric rings instead of one shared stroke — gives it a dial-like precision.</p>
+    <div class="macros-row">
+      <div class="macro-item">
+        <div class="ring-wrap disc-white">
+          <svg viewBox="0 0 80 80"><defs><linearGradient id="gI1" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#fff"/><stop offset="100%" stop-color="var(--magenta)"/></linearGradient></defs>
+            <circle cx="40" cy="40" r="37" fill="none" stroke="var(--track)" stroke-width="1.5"/>
+            <circle cx="40" cy="40" r="30" fill="none" stroke="url(#gI1)" stroke-width="8" stroke-dasharray="148 189" stroke-linecap="round"/></svg>
+          <span><span class="ring-val">78</span><span class="ring-unit">g</span></span>
+        </div>
+        <p class="macro-label">Protein</p>
+      </div>
+      <div class="macro-item">
+        <div class="ring-wrap disc-white">
+          <svg viewBox="0 0 80 80"><defs><linearGradient id="gI2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#fff"/><stop offset="100%" stop-color="var(--magenta)"/></linearGradient></defs>
+            <circle cx="40" cy="40" r="37" fill="none" stroke="var(--track)" stroke-width="1.5"/>
+            <circle cx="40" cy="40" r="30" fill="none" stroke="url(#gI2)" stroke-width="8" stroke-dasharray="143 189" stroke-linecap="round"/></svg>
+          <span><span class="ring-val">210</span><span class="ring-unit">g</span></span>
+        </div>
+        <p class="macro-label">Carbs</p>
+      </div>
+      <div class="macro-item">
+        <div class="ring-wrap disc-white">
+          <svg viewBox="0 0 80 80"><defs><linearGradient id="gI3" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#fff"/><stop offset="100%" stop-color="var(--magenta)"/></linearGradient></defs>
+            <circle cx="40" cy="40" r="37" fill="none" stroke="var(--track)" stroke-width="1.5"/>
+            <circle cx="40" cy="40" r="30" fill="none" stroke="url(#gI3)" stroke-width="8" stroke-dasharray="130 189" stroke-linecap="round"/></svg>
+          <span><span class="ring-val">54</span><span class="ring-unit">g</span></span>
+        </div>
+        <p class="macro-label">Fat</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- J: flat thin ring with a solid knob/dot marking the end of the fill -->
+  <div class="variant-card">
+    <p class="variant-title">J — Knob marker</p>
+    <p class="variant-desc">Flat 4px track + flat 4px fill, both quiet — the read comes from a small solid dot sitting at the tip of the fill, like a slider handle. Understated arc, one clear focal point.</p>
+    <div class="macros-row">
+      <div class="macro-item">
+        <div class="ring-wrap disc-none">
+          <svg viewBox="0 0 80 80">
+            <circle cx="40" cy="40" r="35" fill="none" stroke="var(--track)" stroke-width="4"/>
+            <circle cx="40" cy="40" r="35" fill="none" stroke="var(--magenta-dark)" stroke-width="4" stroke-dasharray="173 220" stroke-linecap="round"/>
+            <circle cx="40" cy="6.5" r="4.5" fill="var(--magenta-dark)" transform="rotate(266 40 40)"/>
+          </svg>
+          <span><span class="ring-val">78</span><span class="ring-unit">g</span></span>
+        </div>
+        <p class="macro-label">Protein</p>
+      </div>
+      <div class="macro-item">
+        <div class="ring-wrap disc-none">
+          <svg viewBox="0 0 80 80">
+            <circle cx="40" cy="40" r="35" fill="none" stroke="var(--track)" stroke-width="4"/>
+            <circle cx="40" cy="40" r="35" fill="none" stroke="var(--magenta-dark)" stroke-width="4" stroke-dasharray="168 220" stroke-linecap="round"/>
+            <circle cx="40" cy="6.5" r="4.5" fill="var(--magenta-dark)" transform="rotate(259 40 40)"/>
+          </svg>
+          <span><span class="ring-val">210</span><span class="ring-unit">g</span></span>
+        </div>
+        <p class="macro-label">Carbs</p>
+      </div>
+      <div class="macro-item">
+        <div class="ring-wrap disc-none">
+          <svg viewBox="0 0 80 80">
+            <circle cx="40" cy="40" r="35" fill="none" stroke="var(--track)" stroke-width="4"/>
+            <circle cx="40" cy="40" r="35" fill="none" stroke="var(--magenta-dark)" stroke-width="4" stroke-dasharray="153 220" stroke-linecap="round"/>
+            <circle cx="40" cy="6.5" r="4.5" fill="var(--magenta-dark)" transform="rotate(240 40 40)"/>
+          </svg>
+          <span><span class="ring-val">54</span><span class="ring-unit">g</span></span>
+        </div>
+        <p class="macro-label">Fat</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- K: segmented dial — discrete ticks instead of a continuous arc -->
+  <div class="variant-card">
+    <p class="variant-title">K — Segmented dial</p>
+    <p class="variant-desc">16 discrete ticks instead of a smooth arc — lit ticks in magenta, unlit in the track colour. Feels quantified and mechanical rather than fluid; good if the page wants a more "instrument panel" character.</p>
+    <div class="macros-row">
+      <div class="macro-item">
+        <div class="ring-wrap disc-white">
+          <svg viewBox="0 0 80 80">
+            <g stroke-linecap="round">
+              <line x1="40" y1="5" x2="40" y2="13" stroke="var(--magenta-dark)" stroke-width="3.5" transform="rotate(0 40 40)"/>
+              <line x1="40" y1="5" x2="40" y2="13" stroke="var(--magenta-dark)" stroke-width="3.5" transform="rotate(22.5 40 40)"/>
+              <line x1="40" y1="5" x2="40" y2="13" stroke="var(--magenta-dark)" stroke-width="3.5" transform="rotate(45 40 40)"/>
+              <line x1="40" y1="5" x2="40" y2="13" stroke="var(--magenta-dark)" stroke-width="3.5" transform="rotate(67.5 40 40)"/>
+              <line x1="40" y1="5" x2="40" y2="13" stroke="var(--magenta-dark)" stroke-width="3.5" transform="rotate(90 40 40)"/>
+              <line x1="40" y1="5" x2="40" y2="13" stroke="var(--magenta-dark)" stroke-width="3.5" transform="rotate(112.5 40 40)"/>
+              <line x1="40" y1="5" x2="40" y2="13" stroke="var(--magenta-dark)" stroke-width="3.5" transform="rotate(135 40 40)"/>
+              <line x1="40" y1="5" x2="40" y2="13" stroke="var(--magenta-dark)" stroke-width="3.5" transform="rotate(157.5 40 40)"/>
+              <line x1="40" y1="5" x2="40" y2="13" stroke="var(--magenta-dark)" stroke-width="3.5" transform="rotate(180 40 40)"/>
+              <line x1="40" y1="5" x2="40" y2="13" stroke="var(--magenta-dark)" stroke-width="3.5" transform="rotate(202.5 40 40)"/>
+              <line x1="40" y1="5" x2="40" y2="13" stroke="var(--magenta-dark)" stroke-width="3.5" transform="rotate(225 40 40)"/>
+              <line x1="40" y1="5" x2="40" y2="13" stroke="var(--magenta-dark)" stroke-width="3.5" transform="rotate(247.5 40 40)"/>
+              <line x1="40" y1="5" x2="40" y2="13" stroke="var(--track)" stroke-width="3.5" transform="rotate(270 40 40)"/>
+              <line x1="40" y1="5" x2="40" y2="13" stroke="var(--track)" stroke-width="3.5" transform="rotate(292.5 40 40)"/>
+              <line x1="40" y1="5" x2="40" y2="13" stroke="var(--track)" stroke-width="3.5" transform="rotate(315 40 40)"/>
+              <line x1="40" y1="5" x2="40" y2="13" stroke="var(--track)" stroke-width="3.5" transform="rotate(337.5 40 40)"/>
+            </g>
+          </svg>
+          <span><span class="ring-val">78</span><span class="ring-unit">g</span></span>
+        </div>
+        <p class="macro-label">Protein</p>
+      </div>
+      <div class="macro-item">
+        <div class="ring-wrap disc-white">
+          <svg viewBox="0 0 80 80">
+            <g stroke-linecap="round">
+              <line x1="40" y1="5" x2="40" y2="13" stroke="var(--magenta)" stroke-width="3.5" transform="rotate(0 40 40)"/>
+              <line x1="40" y1="5" x2="40" y2="13" stroke="var(--magenta)" stroke-width="3.5" transform="rotate(22.5 40 40)"/>
+              <line x1="40" y1="5" x2="40" y2="13" stroke="var(--magenta)" stroke-width="3.5" transform="rotate(45 40 40)"/>
+              <line x1="40" y1="5" x2="40" y2="13" stroke="var(--magenta)" stroke-width="3.5" transform="rotate(67.5 40 40)"/>
+              <line x1="40" y1="5" x2="40" y2="13" stroke="var(--magenta)" stroke-width="3.5" transform="rotate(90 40 40)"/>
+              <line x1="40" y1="5" x2="40" y2="13" stroke="var(--magenta)" stroke-width="3.5" transform="rotate(112.5 40 40)"/>
+              <line x1="40" y1="5" x2="40" y2="13" stroke="var(--magenta)" stroke-width="3.5" transform="rotate(135 40 40)"/>
+              <line x1="40" y1="5" x2="40" y2="13" stroke="var(--magenta)" stroke-width="3.5" transform="rotate(157.5 40 40)"/>
+              <line x1="40" y1="5" x2="40" y2="13" stroke="var(--magenta)" stroke-width="3.5" transform="rotate(180 40 40)"/>
+              <line x1="40" y1="5" x2="40" y2="13" stroke="var(--magenta)" stroke-width="3.5" transform="rotate(202.5 40 40)"/>
+              <line x1="40" y1="5" x2="40" y2="13" stroke="var(--magenta)" stroke-width="3.5" transform="rotate(225 40 40)"/>
+              <line x1="40" y1="5" x2="40" y2="13" stroke="var(--track)" stroke-width="3.5" transform="rotate(247.5 40 40)"/>
+              <line x1="40" y1="5" x2="40" y2="13" stroke="var(--track)" stroke-width="3.5" transform="rotate(270 40 40)"/>
+              <line x1="40" y1="5" x2="40" y2="13" stroke="var(--track)" stroke-width="3.5" transform="rotate(292.5 40 40)"/>
+              <line x1="40" y1="5" x2="40" y2="13" stroke="var(--track)" stroke-width="3.5" transform="rotate(315 40 40)"/>
+              <line x1="40" y1="5" x2="40" y2="13" stroke="var(--track)" stroke-width="3.5" transform="rotate(337.5 40 40)"/>
+            </g>
+          </svg>
+          <span><span class="ring-val">210</span><span class="ring-unit">g</span></span>
+        </div>
+        <p class="macro-label">Carbs</p>
+      </div>
+      <div class="macro-item">
+        <div class="ring-wrap disc-white">
+          <svg viewBox="0 0 80 80">
+            <g stroke-linecap="round">
+              <line x1="40" y1="5" x2="40" y2="13" stroke="#f9a8d4" stroke-width="3.5" transform="rotate(0 40 40)"/>
+              <line x1="40" y1="5" x2="40" y2="13" stroke="#f9a8d4" stroke-width="3.5" transform="rotate(22.5 40 40)"/>
+              <line x1="40" y1="5" x2="40" y2="13" stroke="#f9a8d4" stroke-width="3.5" transform="rotate(45 40 40)"/>
+              <line x1="40" y1="5" x2="40" y2="13" stroke="#f9a8d4" stroke-width="3.5" transform="rotate(67.5 40 40)"/>
+              <line x1="40" y1="5" x2="40" y2="13" stroke="#f9a8d4" stroke-width="3.5" transform="rotate(90 40 40)"/>
+              <line x1="40" y1="5" x2="40" y2="13" stroke="#f9a8d4" stroke-width="3.5" transform="rotate(112.5 40 40)"/>
+              <line x1="40" y1="5" x2="40" y2="13" stroke="#f9a8d4" stroke-width="3.5" transform="rotate(135 40 40)"/>
+              <line x1="40" y1="5" x2="40" y2="13" stroke="#f9a8d4" stroke-width="3.5" transform="rotate(157.5 40 40)"/>
+              <line x1="40" y1="5" x2="40" y2="13" stroke="#f9a8d4" stroke-width="3.5" transform="rotate(180 40 40)"/>
+              <line x1="40" y1="5" x2="40" y2="13" stroke="#f9a8d4" stroke-width="3.5" transform="rotate(202.5 40 40)"/>
+              <line x1="40" y1="5" x2="40" y2="13" stroke="var(--track)" stroke-width="3.5" transform="rotate(225 40 40)"/>
+              <line x1="40" y1="5" x2="40" y2="13" stroke="var(--track)" stroke-width="3.5" transform="rotate(247.5 40 40)"/>
+              <line x1="40" y1="5" x2="40" y2="13" stroke="var(--track)" stroke-width="3.5" transform="rotate(270 40 40)"/>
+              <line x1="40" y1="5" x2="40" y2="13" stroke="var(--track)" stroke-width="3.5" transform="rotate(292.5 40 40)"/>
+              <line x1="40" y1="5" x2="40" y2="13" stroke="var(--track)" stroke-width="3.5" transform="rotate(315 40 40)"/>
+              <line x1="40" y1="5" x2="40" y2="13" stroke="var(--track)" stroke-width="3.5" transform="rotate(337.5 40 40)"/>
+            </g>
+          </svg>
+          <span><span class="ring-val">54</span><span class="ring-unit">g</span></span>
+        </div>
+        <p class="macro-label">Fat</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- L: halo — soft coloured glow ring sitting behind a plain white disc, thin flat fill on top -->
+  <div class="variant-card">
+    <p class="variant-title">L — Halo</p>
+    <p class="variant-desc">A faint magenta halo diffuses outward from the disc itself (via layered box-shadow), and the ring on top is kept flat and thin (4px), same colour, no gradient. The glow carries the colour instead of a thick stroke — the arc stays quiet.</p>
+    <div class="macros-row">
+      <div class="macro-item">
+        <div class="ring-wrap disc-halo">
+          <svg viewBox="0 0 80 80">
+            <circle cx="40" cy="40" r="35" fill="none" stroke="var(--track)" stroke-width="4"/>
+            <circle cx="40" cy="40" r="35" fill="none" stroke="var(--magenta-dark)" stroke-width="4" stroke-dasharray="173 220" stroke-linecap="round"/></svg>
+          <span><span class="ring-val">78</span><span class="ring-unit">g</span></span>
+        </div>
+        <p class="macro-label">Protein</p>
+      </div>
+      <div class="macro-item">
+        <div class="ring-wrap disc-halo">
+          <svg viewBox="0 0 80 80">
+            <circle cx="40" cy="40" r="35" fill="none" stroke="var(--track)" stroke-width="4"/>
+            <circle cx="40" cy="40" r="35" fill="none" stroke="var(--magenta-dark)" stroke-width="4" stroke-dasharray="168 220" stroke-linecap="round"/></svg>
+          <span><span class="ring-val">210</span><span class="ring-unit">g</span></span>
+        </div>
+        <p class="macro-label">Carbs</p>
+      </div>
+      <div class="macro-item">
+        <div class="ring-wrap disc-halo">
+          <svg viewBox="0 0 80 80">
+            <circle cx="40" cy="40" r="35" fill="none" stroke="var(--track)" stroke-width="4"/>
+            <circle cx="40" cy="40" r="35" fill="none" stroke="var(--magenta-dark)" stroke-width="4" stroke-dasharray="153 220" stroke-linecap="round"/></svg>
+          <span><span class="ring-val">54</span><span class="ring-unit">g</span></span>
+        </div>
+        <p class="macro-label">Fat</p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="section-break">
+  <h2>Different shapes entirely</h2>
+  <p>Same three numbers, no ring at all — a bar, a gauge, a split donut, a dot stepper. Worth seeing before committing to "ring" as the form.</p>
+</div>
+
+<div class="variants">
+
+  <!-- M: horizontal pill bars -->
+  <div class="variant-card">
+    <p class="variant-title">M — Horizontal bars</p>
+    <p class="variant-desc">Linear instead of radial. Three rows, label left, gradient pill fill, value right. Easier to compare three values at a glance than three separate rings — the eye reads length in one direction.</p>
+    <div class="pill-row">
+      <div class="pill-item">
+        <span class="pill-label">Protein</span>
+        <div class="pill-track"><div class="pill-fill" style="width:76%;"></div></div>
+        <span class="pill-val">78g</span>
+      </div>
+      <div class="pill-item">
+        <span class="pill-label">Carbs</span>
+        <div class="pill-track"><div class="pill-fill" style="width:74%;"></div></div>
+        <span class="pill-val">210g</span>
+      </div>
+      <div class="pill-item">
+        <span class="pill-label">Fat</span>
+        <div class="pill-track"><div class="pill-fill" style="width:69%;"></div></div>
+        <span class="pill-val">54g</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- N: semi-circle gauges -->
+  <div class="variant-card">
+    <p class="variant-title">N — Speedometer arcs</p>
+    <p class="variant-desc">A 180° gauge instead of a full circle — reads like a dashboard dial. Slightly more "instrument" than "badge"; leaves room below the number for the unit without crowding the arc.</p>
+    <div class="macros-row">
+      <div class="macro-item">
+        <div class="gauge-wrap">
+          <svg viewBox="0 0 90 52"><defs><linearGradient id="gN1" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#fde8ef"/><stop offset="100%" stop-color="var(--magenta-dark)"/></linearGradient></defs>
+            <path d="M7 47 A38 38 0 0 1 83 47" fill="none" stroke="var(--track)" stroke-width="7" stroke-linecap="round"/>
+            <path d="M7 47 A38 38 0 0 1 83 47" fill="none" stroke="url(#gN1)" stroke-width="7" stroke-linecap="round" stroke-dasharray="90 119" /></svg>
+          <span class="gauge-num">78</span>
+        </div>
+        <p class="macro-label">Protein</p>
+      </div>
+      <div class="macro-item">
+        <div class="gauge-wrap">
+          <svg viewBox="0 0 90 52"><defs><linearGradient id="gN2" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#fde8ef"/><stop offset="100%" stop-color="var(--magenta-dark)"/></linearGradient></defs>
+            <path d="M7 47 A38 38 0 0 1 83 47" fill="none" stroke="var(--track)" stroke-width="7" stroke-linecap="round"/>
+            <path d="M7 47 A38 38 0 0 1 83 47" fill="none" stroke="url(#gN2)" stroke-width="7" stroke-linecap="round" stroke-dasharray="88 119" /></svg>
+          <span class="gauge-num">210</span>
+        </div>
+        <p class="macro-label">Carbs</p>
+      </div>
+      <div class="macro-item">
+        <div class="gauge-wrap">
+          <svg viewBox="0 0 90 52"><defs><linearGradient id="gN3" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#fde8ef"/><stop offset="100%" stop-color="var(--magenta-dark)"/></linearGradient></defs>
+            <path d="M7 47 A38 38 0 0 1 83 47" fill="none" stroke="var(--track)" stroke-width="7" stroke-linecap="round"/>
+            <path d="M7 47 A38 38 0 0 1 83 47" fill="none" stroke="url(#gN3)" stroke-width="7" stroke-linecap="round" stroke-dasharray="82 119" /></svg>
+          <span class="gauge-num">54</span>
+        </div>
+        <p class="macro-label">Fat</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- O: single split ring showing macro proportion of total calories, not vs individual goals -->
+  <div class="variant-card">
+    <p class="variant-title">O — One ring, macro split</p>
+    <p class="variant-desc">A completely different question: not "how close to each goal" but "what's this meal made of" — one ring, three coloured arcs sized by share of total calories, kcal in the centre. Three small rings become one. Best if the "vs. goal" framing matters less than composition.</p>
+    <div class="split-ring-wrap">
+      <svg viewBox="0 0 132 132">
+        <circle cx="66" cy="66" r="54" fill="none" stroke="var(--track)" stroke-width="14"/>
+        <circle cx="66" cy="66" r="54" fill="none" stroke="var(--magenta-dark)" stroke-width="14" stroke-dasharray="122 339" stroke-dashoffset="0" stroke-linecap="round"/>
+        <circle cx="66" cy="66" r="54" fill="none" stroke="var(--magenta)" stroke-width="14" stroke-dasharray="139 339" stroke-dashoffset="-127" stroke-linecap="round"/>
+        <circle cx="66" cy="66" r="54" fill="none" stroke="#f9a8d4" stroke-width="14" stroke-dasharray="73 339" stroke-dashoffset="-271" stroke-linecap="round"/>
+      </svg>
+      <div class="split-center">
+        <span class="kcal-num">1,740</span>
+        <span class="kcal-label">kcal</span>
+      </div>
+    </div>
+    <div class="split-legend">
+      <div class="split-legend-item"><span class="split-dot" style="background:var(--magenta-dark);"></span>Protein 78g</div>
+      <div class="split-legend-item"><span class="split-dot" style="background:var(--magenta);"></span>Carbs 210g</div>
+      <div class="split-legend-item"><span class="split-dot" style="background:#f9a8d4;"></span>Fat 54g</div>
+    </div>
+  </div>
+
+  <!-- P: vertical bars -->
+  <div class="variant-card">
+    <p class="variant-title">P — Vertical bars</p>
+    <p class="variant-desc">Column-chart feel — good if this sits next to other bar-shaped stats on the page. Fill grows from the bottom like a thermometer; height is legible even glanced at from a distance.</p>
+    <div class="vbar-row">
+      <div class="vbar-item">
+        <div class="vbar-track"><div class="vbar-fill" style="height:76%;"></div></div>
+        <span class="vbar-val">78g</span>
+        <p class="macro-label" style="margin-top:2px;">Protein</p>
+      </div>
+      <div class="vbar-item">
+        <div class="vbar-track"><div class="vbar-fill" style="height:74%;"></div></div>
+        <span class="vbar-val">210g</span>
+        <p class="macro-label" style="margin-top:2px;">Carbs</p>
+      </div>
+      <div class="vbar-item">
+        <div class="vbar-track"><div class="vbar-fill" style="height:69%;"></div></div>
+        <span class="vbar-val">54g</span>
+        <p class="macro-label" style="margin-top:2px;">Fat</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Q: dot stepper -->
+  <div class="variant-card">
+    <p class="variant-title">Q — Dot stepper</p>
+    <p class="variant-desc">Each macro as a row of discrete dots (10 dots = 10% each), lit up to the current value. No numbers needed to get the gist at a glance; the exact value sits at the end of the row for when it's wanted.</p>
+    <div class="dot-row">
+      <div class="dot-item">
+        <span class="dot-label">Protein</span>
+        <div class="dots">
+          <span class="dot lit"></span><span class="dot lit"></span><span class="dot lit"></span><span class="dot lit"></span><span class="dot lit"></span>
+          <span class="dot lit"></span><span class="dot lit"></span><span class="dot lit"></span><span class="dot"></span><span class="dot"></span>
+        </div>
+        <span class="dot-val">78g</span>
+      </div>
+      <div class="dot-item">
+        <span class="dot-label">Carbs</span>
+        <div class="dots">
+          <span class="dot lit"></span><span class="dot lit"></span><span class="dot lit"></span><span class="dot lit"></span><span class="dot lit"></span>
+          <span class="dot lit"></span><span class="dot lit"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span>
+        </div>
+        <span class="dot-val">210g</span>
+      </div>
+      <div class="dot-item">
+        <span class="dot-label">Fat</span>
+        <div class="dots">
+          <span class="dot lit"></span><span class="dot lit"></span><span class="dot lit"></span><span class="dot lit"></span><span class="dot lit"></span>
+          <span class="dot lit"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span>
+        </div>
+        <span class="dot-val">54g</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- R: flat KPI tiles, thin underline accent, no arc/bar shape at all -->
+  <div class="variant-card">
+    <p class="variant-title">R — Flat tiles</p>
+    <p class="variant-desc">No arc, no bar — just the number, the unit, and a 3px accent line underneath that fills proportionally. The quietest option of everything shown: visualization becomes almost an afterthought to the number itself.</p>
+    <div class="tile-row">
+      <div class="tile">
+        <div class="tile-num">78<span class="tile-unit">g</span></div>
+        <p class="tile-label">Protein</p>
+        <div class="tile-bar"><div class="tile-bar-fill" style="width:76%;"></div></div>
+      </div>
+      <div class="tile">
+        <div class="tile-num">210<span class="tile-unit">g</span></div>
+        <p class="tile-label">Carbs</p>
+        <div class="tile-bar"><div class="tile-bar-fill" style="width:74%;"></div></div>
+      </div>
+      <div class="tile">
+        <div class="tile-num">54<span class="tile-unit">g</span></div>
+        <p class="tile-label">Fat</p>
+        <div class="tile-bar"><div class="tile-bar-fill" style="width:69%;"></div></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

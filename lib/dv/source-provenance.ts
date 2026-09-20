@@ -20,6 +20,12 @@ export type ProvenanceClass =
   | 'adapted'
   /** Another body's value, taken as published. Not an independent vote. */
   | 'adopted'
+  /**
+   * The value IS a statistical summary of several other bodies' values (mode/median/mean across references).
+   * Must never enter our own median: it would re-count every source it summarises, and it drags the result toward
+   * whatever the majority of *those* bodies said. Spain's INR are derived this way by an explicit algorithm.
+   */
+  | 'aggregate'
   /** The report does not say. Never collapsed by the aggregator. */
   | 'unknown';
 
@@ -201,6 +207,66 @@ export const SOURCE_PROVENANCE: Record<string, SourceProvenance> = {
           '"based on evidence from four systematic reviews that assessed the effects of lower compared with higher SFA intake", ' +
           'graded via GRADE by the WHO guideline development group. Also FAO 2010 Fats and fatty acids in human nutrition, report ' +
           'of an expert consultation (snapshot fao-2010-fats-report.txt).',
+      },
+    },
+  },
+  FRANCE: {
+    groups: {
+      vitamins: {
+        class: 'adapted',
+        derivedFrom: ['EFSA'],
+        evidence:
+          'ANSES avis 2018-SA-0238 §1 (Contexte et objet de la saisine): the method is to "répertorier les références ' +
+          'définies par d\'autres instances et notamment par l\'Efsa ... puis à identifier pour chaque nutriment, la référence ' +
+          'nutritionnelle la plus appropriée pour la population cible" — survey other bodies, then select per nutrient. ' +
+          'Critically, "Pour les références nutritionnelles basées sur des consommations alimentaires, l\'expertise prendra en ' +
+          'compte les apports observés pour la population vivant en France": where EFSA set an AI from European mean intakes, ' +
+          'the CES substituted the French mean from the INCA3 survey (5,855 people, 2014-2015). Selection plus national intake ' +
+          'data, so adapted rather than adopted.',
+      },
+      minerals: {
+        class: 'adapted',
+        derivedFrom: ['EFSA'],
+        evidence:
+          'ANSES avis 2018-SA-0238 §2.2 (Méthode): same selection method across bodies (EFSA, NCM, D-A-CH, NHMRC, IOM are ' +
+          'compared nutrient by nutrient in the report), with French INCA3 intakes substituted for intake-based references.',
+      },
+      upper_levels: {
+        class: 'adopted',
+        derivedFrom: ['EFSA'],
+        evidence:
+          'ANSES avis 2018-SA-0238 §1: "En ce qui concerne le risque lié aux apports nutritionnels élevés, la limite supérieure ' +
+          'de sécurité déterminée par l\'Efsa, sera donnée à titre indicatif." The LSS values we store are EFSA\'s upper levels, ' +
+          'reprinted for information — not a French derivation.',
+      },
+    },
+  },
+  SPAIN: {
+    groups: {
+      vitamins: {
+        class: 'aggregate',
+        derivedFrom: ['EFSA', 'IOM', 'WHO_FAO', 'NORDIC', 'DACH'],
+        evidence:
+          'AESAN-2019-003, Revista del Comité Científico nº 29, Método (p. 51-52): "para cada nutriente, vitamina o mineral, se ' +
+          'han determinado los valores de ingestas nutricionales de referencia para población sana aplicando un algoritmo de toma ' +
+          'de decisiones basado en el de la FESNAD", which "definier[a] la moda y la mediana del nutriente correspondiente entre ' +
+          'las fuentes de referencia seleccionadas" and, failing agreement, "calcular la media" — the published Spanish value is ' +
+          'the mode, median or mean of other bodies\' values. It is an aggregation of the same sources we aggregate.',
+      },
+      minerals: {
+        class: 'aggregate',
+        derivedFrom: ['EFSA', 'IOM', 'WHO_FAO', 'NORDIC', 'DACH'],
+        evidence:
+          'AESAN-2019-003, Método (p. 51-52): the same decision algorithm (Figura 2) is applied to all 15 minerals and 13 ' +
+          'vitamins. "Los datos de referencia utilizados provienen de países de ascendencia mayoritariamente europea."',
+      },
+      energy: {
+        class: 'adopted',
+        derivedFrom: ['EFSA'],
+        evidence:
+          'AESAN-2019-003, Método (p. 51): "En el caso de los macronutrientes y la energía se han adoptado directamente las ' +
+          'ingestas nutricionales de referencia determinadas por EFSA (Tablas 1 a 5 del Anexo I)." (We do not store these — they ' +
+          'were left out at transcription time precisely to avoid duplicating EFSA.)',
       },
     },
   },
@@ -431,5 +497,5 @@ export const SOURCE_PROVENANCE: Record<string, SourceProvenance> = {
 /** Sources whose values are loaded but whose provenance has not been audited yet (see dv-sources/PROVENANCE.md). */
 export const PROVENANCE_PENDING = [
   'JAPAN', 'CHINA', 'KOREA', 'NORDIC', 'UK', 'DACH', 'AU_NZ', 'RUSSIA',
-  'FRANCE', 'SPAIN', 'ITALY', 'TAIWAN', 'SINGAPORE', 'INDIA',
+  'ITALY', 'TAIWAN', 'SINGAPORE', 'INDIA',
 ];

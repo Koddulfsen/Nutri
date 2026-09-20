@@ -31,6 +31,7 @@ Each (source × nutrient group) gets one of:
 | `primary` | The body derived the value itself from evidence (its own balance studies, biomarkers, factorial modelling, or its own population intake data). |
 | `adapted` | Took another body's value but re-derived it for its own population — e.g. rescaled to national reference weights, re-cut age bands, changed iron bioavailability assumptions. Partly independent. |
 | `adopted` | Took another body's value as published. Not an independent vote. |
+| `aggregate` | The value **is** a statistical summary of other bodies' values (mode / median / mean across references). Must never enter our median — it would re-count every source it summarises. Found in Spain. |
 | `unknown` | The report does not say. Treated as `adopted` when it matches a primary source's value exactly, otherwise left as unknown and excluded from dependency collapsing. |
 
 Recorded **per nutrient group**, not per source: Malaysia is WHO for vitamins and IOM for minerals, and a source
@@ -92,8 +93,8 @@ Sources marked ✅ have both their text evidence read and their entry written in
 | ✅ | Malaysia (RNI 2017) | **Adapted**, not adopted: starts from WHO/FAO 2004 (vit D IOM 2011, B12 EFSA 2015) but modifies — e.g. vitamin C = WHO 45 + 25 mg by its own judgement. ULs are adopted from IOM verbatim. |
 | 🟡 | Philippines (PDRI 2015) | ULs adopted (WHO/FAO 2006 + IOM), page 7 is WHO verbatim. RNIs: **unknown** — summary tables state no origin and the values match neither IOM nor WHO. Needs the full PDRI report. |
 | ✅ | Vietnam (RDA 2016) | Attributable table by table via its "Nguồn:" lines: IOM 2006, Japanese DRIs 2015, FAO/WHO 2004. B1/B2/C/D and energy print no source. |
-| ⬜ | France (ANSES 2021) | ULs are EFSA's; some values own. |
-| ⬜ | Spain (AESAN 2019) | Harmonisation algorithm over other bodies — mostly `adopted` by construction. |
+| ✅ | France (ANSES 2021) | `adapted`: selects the most appropriate reference per nutrient, but substitutes French INCA3 intake data where the reference was intake-based. ULs are EFSA's, `adopted`. |
+| ✅ | Spain (AESAN 2019) | **`aggregate`** — its values are the mode/median/mean of other bodies' values. Must be excluded from our median entirely. |
 | ⬜ | Italy (LARN 2014) | Check per nutrient. |
 | ⬜ | Taiwan (DRIs 8th) | Check per nutrient. |
 | 🟡 | Indonesia (AKG 2019) | `unknown`: the regulation states no derivation. Numeric signal points hard at IOM (17/31 adult values identical) but the WNPG XI proceedings are needed to confirm. |
@@ -325,6 +326,43 @@ proceedings can close it in minutes.
 
 Note the contrast with Malaysia: there, the text claimed adoption and the numbers refuted it. Here the text is
 silent and the numbers suggest it. Neither direction is safe to shortcut.
+
+### France — ANSES 2021 (done 2026-09-20)
+
+**`adapted`.** The avis states its method plainly (§1): the work is to *"répertorier les références définies par
+d'autres instances et notamment par l'Efsa ... puis à identifier pour chaque nutriment, la référence nutritionnelle
+la plus appropriée pour la population cible"* — survey what other bodies have set, then pick per nutrient.
+
+Selection alone would make it an adopter. What lifts it to `adapted` is the next sentence: *"Pour les références
+nutritionnelles basées sur des consommations alimentaires, l'expertise prendra en compte les apports observés pour
+la population vivant en France."* Where EFSA set an adequate intake from **European** mean intakes, the French
+committee substituted the **French** mean, from the INCA3 survey of 5,855 people. Same method, French data, often a
+different number.
+
+The upper levels are a different matter and stay `adopted`: *"la limite supérieure de sécurité déterminée par
+l'Efsa, sera donnée à titre indicatif"* — EFSA's ULs, reprinted for information.
+
+### Spain — AESAN 2019 (done 2026-09-20). The most important finding of the audit so far.
+
+**Spain's values are not a judgement about nutrition. They are a statistical summary of other bodies' judgements.**
+
+From the method section (Revista del Comité Científico nº 29, pp. 51-52): for every vitamin and mineral the values
+were set *"aplicando un algoritmo de toma de decisiones basado en el de la FESNAD"*, which begins by *"definir la
+moda y la mediana del nutriente correspondiente entre las fuentes de referencia seleccionadas"* and, where those
+disagree, *"calcular la media"*. Mode, median, then mean — **of EFSA, IOM, WHO/FAO, the Nordic and D-A-CH values.**
+
+That is precisely the computation we are building. Feeding Spain into our median would:
+
+1. re-count every body Spain summarised, on top of counting them directly; and
+2. pull our result toward the majority opinion of *Spain's* chosen reference set, which we did not choose.
+
+So `aggregate` is now its own class, defined as "must never enter the aggregation". It is not a criticism of AESAN —
+harmonising existing references is a perfectly sound way to produce national guidance. It is simply the one kind of
+source that a median-of-sources must exclude, and we would never have known from the values alone: they look like
+ordinary national reference intakes.
+
+Spain's energy and macronutrient values are `adopted` straight from EFSA, and were already left out at transcription
+time to avoid duplicating EFSA — the right call, made before we had a name for the problem.
 
 ## Open question for aggregation (decide after the audit)
 

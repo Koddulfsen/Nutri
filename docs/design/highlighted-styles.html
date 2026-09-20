@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Highlighted compounds — style options</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap');
+  :root {
+    --panel:#fff7f4; --ink:#2e1a0e; --soft:rgba(46,26,14,.55); --coral:#d42a55;
+    --c2:color-mix(in srgb,#d42a55 62%,#fff); --c3:color-mix(in srgb,#d42a55 34%,#fff);
+    --track:rgba(212,42,85,.10); --shadow:0 6px 22px rgba(46,26,14,.12);
+    --display:'Instrument Serif',serif; --body:'DM Sans',sans-serif; --mono:'DM Mono',monospace;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:#f0e8e2;font-family:var(--body);color:var(--ink);padding:40px 24px 100px}
+  h1{font-family:var(--display);font-weight:400;font-size:32px;text-align:center;margin:0 0 8px}
+  .sub{text-align:center;color:var(--soft);margin:0 0 44px;font-size:14px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(400px,1fr));gap:26px;max-width:1400px;margin:0 auto}
+  .opt{background:var(--panel);border:1px solid rgba(46,26,14,.12);border-radius:18px;padding:26px;box-shadow:var(--shadow)}
+  .opt h3{margin:0 0 2px;font-size:14px;font-weight:700}
+  .opt p.d{margin:0 0 20px;font-size:12.5px;color:var(--soft);line-height:1.45}
+  .card{background:#fff;border-radius:16px;box-shadow:var(--shadow);padding:22px 22px 18px}
+  .lab{font-family:var(--mono);font-size:11.5px;font-weight:500;text-transform:uppercase;letter-spacing:.09em;color:rgba(46,26,14,.45)}
+  .num{font-family:var(--display);color:var(--ink);line-height:1}
+  .rings{display:grid;grid-template-columns:repeat(3,1fr);gap:22px 8px;text-align:center}
+  .ringwrap{position:relative;margin:0 auto}
+  .ringwrap svg{position:absolute;inset:0;transform:rotate(-90deg)}
+  .ringwrap .in{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}
+  .rows{display:flex;flex-direction:column;gap:16px}
+  .row{display:flex;align-items:center;gap:14px}
+  .row .lab{width:96px;flex-shrink:0}
+  .bar{flex:1;height:12px;border-radius:99px;background:var(--track);overflow:hidden}
+  .bar i{display:block;height:100%;border-radius:99px}
+  .val{font-weight:500;font-size:14.5px;width:44px;text-align:right}
+  .tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+  .tile{background:#fff;border:1px solid rgba(46,26,14,.07);border-radius:12px;box-shadow:0 4px 16px rgba(46,26,14,.08);padding:16px 12px 12px;text-align:center}
+  .tile .num{font-size:28px}.tile .lab{display:block;margin:7px 0 10px}
+  .tbar{height:3px;border-radius:3px;background:var(--track);overflow:hidden}.tbar i{display:block;height:100%;background:var(--coral)}
+  .chips{display:flex;flex-wrap:wrap;gap:10px}
+  .chip{position:relative;overflow:hidden;border-radius:99px;padding:10px 16px;background:#fff;box-shadow:0 4px 14px rgba(46,26,14,.09);font-size:13.5px;display:flex;gap:10px;align-items:baseline}
+  .chip i{position:absolute;left:0;top:0;bottom:0;background:var(--track)}
+  .chip span{position:relative}.chip b{font-weight:600;font-family:var(--mono);font-size:12.5px;color:var(--coral)}
+  .caps{display:flex;justify-content:space-around;align-items:flex-end;gap:10px}
+  .cap{display:flex;flex-direction:column;align-items:center;gap:8px}
+  .captrack{width:30px;height:110px;border-radius:99px;background:var(--track);display:flex;align-items:flex-end;overflow:hidden}
+  .captrack i{width:100%;border-radius:99px;background:linear-gradient(180deg,var(--coral),var(--c3))}
+  .status{display:flex;flex-direction:column}
+  .srow{display:flex;align-items:center;gap:12px;padding:12px 4px;border-bottom:1px solid rgba(46,26,14,.08)}
+  .srow:last-child{border-bottom:none}
+  .dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+  .srow .n{flex:1;font-size:15px}
+  .tag{font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;padding:3px 8px;border-radius:99px}
+  .spark{display:flex;align-items:flex-end;gap:3px;height:26px}
+  .spark i{width:5px;border-radius:2px;background:var(--c3)}.spark i:last-child{background:var(--coral)}
+  .big{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+  .bigc{background:#fff;border-radius:14px;box-shadow:var(--shadow);padding:16px 18px}
+  .bigc .num{font-size:38px;margin:6px 0 10px}
+  .bigc .num small{font-family:var(--mono);font-size:14px;color:var(--soft);margin-left:2px}
+  .split{display:grid;grid-template-columns:1fr 1fr;gap:0 26px}
+  .minirow{display:flex;align-items:center;justify-content:space-between;padding:11px 0;border-bottom:1px solid rgba(46,26,14,.08)}
+</style>
+</head>
+<body>
+<h1>Highlighted compounds — style options</h1>
+<p class="sub">Same six compounds (% of daily target) in nine directions. Currently it's six rings in a white card; pick one, or mix pieces.</p>
+<div class="grid" id="grid"></div>
+
+<script>
+const D=[['Vitamin D',62],['Iron',88],['Magnesium',45],['Omega-3',30],['Vitamin B12',100],['Fiber',71]];
+const col=i=>['var(--coral)','var(--c2)','var(--c3)'][i%3];
+const st=p=>p>=100?['On target','rgba(46,140,80,.14)','#2e8c50']:p>=60?['Good','rgba(212,42,85,.10)','#d42a55']:['Low','rgba(214,140,30,.16)','#b8741a'];
+function ring(p,size,stroke,i,label,grad){
+  const r=(size-stroke)/2,c=2*Math.PI*r,id='g'+Math.random().toString(36).slice(2);
+  return `<div class="ringwrap" style="width:${size}px;height:${size}px"><svg viewBox="0 0 ${size} ${size}">
+   ${grad?`<defs><linearGradient id="${id}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="color-mix(in srgb,#d42a55 25%,#fff)"/><stop offset="1" stop-color="#d42a55"/></linearGradient></defs>`:''}
+   <circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="var(--track)" stroke-width="${stroke}"/>
+   <circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="${grad?`url(#${id})`:col(i)}" stroke-width="${stroke}" stroke-linecap="round" stroke-dasharray="${Math.min(p,100)/100*c} ${c}"/></svg>
+   <div class="in"><span class="num" style="font-size:${size*.3}px">${p}<small style="font-family:var(--mono);font-size:${size*.15}px;color:var(--soft)">%</small></span></div></div>`;}
+const opts=[
+['A — Rings, thicker & gradient','Current idea, refined: 10px gradient rings, % inside, label under. Familiar, the closest to the macro ring language.',
+ `<div class="card"><div class="rings">${D.map(([n,p],i)=>`<div>${ring(p,92,11,i,n,true)}<div class="lab" style="margin-top:10px">${n}</div></div>`).join('')}</div></div>`],
+['B — Hairline rings, no card','Thin 4px rings straight on the panel — lightest possible. Colours vary per compound.',
+ `<div class="rings">${D.map(([n,p],i)=>`<div>${ring(p,88,4,i,n)}<div class="lab" style="margin-top:10px">${n}</div></div>`).join('')}</div>`],
+['C — Horizontal bars','Six rows, label · gradient pill · value. Easiest to compare many compounds at a glance.',
+ `<div class="card"><div class="rows">${D.map(([n,p],i)=>`<div class="row"><span class="lab">${n}</span><div class="bar"><i style="width:${Math.min(p,100)}%;background:linear-gradient(90deg,var(--c3),var(--coral))"></i></div><span class="val">${p}%</span></div>`).join('')}</div></div>`],
+['D — Flat tiles','Number-first tiles with a thin accent line. Quietest; matches the macro “flat tiles” option.',
+ `<div class="tiles">${D.map(([n,p])=>`<div class="tile"><span class="num">${p}<small style="font-family:var(--mono);font-size:12px;color:var(--soft)">%</small></span><span class="lab">${n}</span><div class="tbar"><i style="width:${Math.min(p,100)}%"></i></div></div>`).join('')}</div>`],
+['E — Fill chips','Pill-shaped chips whose background fills to the percentage. Compact, wraps nicely, great on mobile.',
+ `<div class="chips">${D.map(([n,p])=>`<div class="chip"><i style="width:${Math.min(p,100)}%"></i><span>${n}</span><b>${p}%</b></div>`).join('')}</div>`],
+['F — Capsule columns','Tall thermometer capsules side by side; height reads instantly from a distance.',
+ `<div class="card"><div class="caps">${D.map(([n,p])=>`<div class="cap"><div class="captrack"><i style="height:${Math.min(p,100)}%"></i></div><span class="val" style="width:auto">${p}%</span><span class="lab" style="font-size:9.5px">${n.split(' ').pop()}</span></div>`).join('')}</div></div>`],
+['G — Status list','Says what the number MEANS: Low / Good / On target, with a coloured dot. The most intuitive for someone like your mum.',
+ `<div class="card"><div class="status">${D.map(([n,p])=>{const [t,bg,fg]=st(p);return `<div class="srow"><span class="dot" style="background:${fg}"></span><span class="n">${n}</span><span class="tag" style="background:${bg};color:${fg}">${t}</span><span class="val">${p}%</span></div>`}).join('')}</div></div>`],
+['H — Big-number cards','Two-column cards with a large serif number, unit and a 7-day sparkline. Most information; feels like a dashboard.',
+ `<div class="big">${D.map(([n,p],i)=>`<div class="bigc"><span class="lab">${n}</span><div class="num">${p}<small>%</small></div><div class="spark">${[40,55,30,70,50,80,p].map(h=>`<i style="height:${Math.min(h,100)}%"></i>`).join('')}</div></div>`).join('')}</div>`],
+['I — Two-column ring list','Small rings beside the name, in two columns inside one card. Dense but calm; scales to 8–10 compounds.',
+ `<div class="card"><div class="split">${D.map(([n,p],i)=>`<div class="minirow"><span style="font-size:15px">${n}</span>${ring(p,44,6,i,n)}</div>`).join('')}</div></div>`],
+];
+document.getElementById('grid').innerHTML=opts.map(([t,d,h])=>`<div class="opt"><h3>${t}</h3><p class="d">${d}</p>${h}</div>`).join('');
+</script>
+</body>
+</html>

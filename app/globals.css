@@ -2372,12 +2372,13 @@ section {
 }
 
 /* --- Section below the hero ---
-   Background sampled from public/design/banana.png (#ffe1d9) so the seam
-   with the artwork above is invisible. */
+   Near-white, not the banana-sampled salmon or the gradient fade tried
+   2026-09-18 (that fade read as an unwanted shadow at the seam, not a
+   blend — removed). Flat colour, no gradient, no shadow. */
 .home-section {
   position: relative;
   z-index: 1;
-  background: #ffe1d9;
+  background: #fdfaf8;
   color: #2e1a0e;
   padding: 96px 24px 104px;
 }
@@ -2420,17 +2421,24 @@ section {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  padding: 24px 16px;
-  border: 1px solid rgba(46, 26, 14, 0.16);
-  border-radius: 3px;
-  background: rgba(255, 255, 255, 0.35);
+  padding: 28px 22px 22px;
+  border: none;
+  border-radius: 14px;
+  background: #ffffff;
+  box-shadow: 0 6px 22px rgba(46, 26, 14, 0.12);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.home-stat:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 28px rgba(46, 26, 14, 0.16);
 }
 
 .home-stat-value {
   font-family: var(--font-display);
   font-size: clamp(2rem, 5vw, 2.75rem);
   line-height: 1;
-  color: #2e1a0e;
+  color: #d42a55;
 }
 
 .home-stat-label {
@@ -2438,19 +2446,32 @@ section {
   font-size: 0.7rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: rgba(46, 26, 14, 0.6);
+  color: rgba(46, 26, 14, 0.55);
+}
+
+/* Same signature tick used on MacroViz's flat-tile style — ties the
+   homepage stat cards to the rest of the data-visualization language. */
+.home-stat::after {
+  content: '';
+  display: block;
+  margin-top: 4px;
+  width: 28px;
+  height: 3px;
+  border-radius: 3px;
+  background: #d42a55;
 }
 
 /* Low-poly panel below the stat cards */
 .home-feature {
   margin-top: 32px;
   padding: 120px 32px;
-  border-radius: 14px;
+  border-radius: 16px;
   overflow: hidden;
   background-image: url('/design/bakgrunn.png');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
+  box-shadow: 0 10px 34px rgba(46, 26, 14, 0.18);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -4979,8 +5000,9 @@ nav a:hover {
   align-items: center;
   justify-content: center;
   margin: 0 auto var(--space-sm);
-  background: #000000;
+  background: #ffffff;
   border-radius: 50%;
+  box-shadow: 0 6px 22px rgba(46, 26, 14, 0.12);
 }
 
 .macro-ring svg {
@@ -5261,7 +5283,7 @@ nav a:hover {
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 18px;
   font-family: var(--font-body);
   color: #2e1a0e;
 }
@@ -5277,7 +5299,8 @@ nav a:hover {
   background: rgba(46, 26, 14, 0.16);
 }
 .chat-aside-title {
-  margin: 0;
+  margin: 8px 0 -8px;
+  text-align: center;
   font-family: var(--font-mono);
   font-size: 15px;
   letter-spacing: 0.1em;
@@ -5293,7 +5316,7 @@ nav a:hover {
 .chat-aside-list {
   list-style: none;
   margin: 0;
-  padding: 0;
+  padding: 2px 0 6px;
 }
 .chat-aside-item {
   display: flex;
@@ -5312,30 +5335,29 @@ nav a:hover {
   color: rgba(46, 26, 14, 0.55);
 }
 .chat-aside-remove {
-  padding: 0 2px;
+  flex-shrink: 0;
+  align-self: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
   border: none;
-  background: none;
-  font-size: 14px;
-  color: rgba(46, 26, 14, 0.35);
+  border-radius: 50%;
+  background: rgba(212, 42, 85, 0.10);
+  font-size: 13px;
+  line-height: 1;
+  color: #d42a55;
   cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
 }
-.chat-aside-remove:hover { color: #2e1a0e; }
+.chat-aside-remove:hover { background: #d42a55; color: #ffffff; }
 
 @media (max-width: 820px) {
   .chat-box--split { flex-direction: column; }
-  .chat-aside {
-    width: auto;
-    max-height: 35%;
-    padding: 14px var(--chat-pad);
-  }
-  .chat-aside::before {
-    top: 0;
-    bottom: auto;
-    left: var(--chat-pad);
-    right: var(--chat-pad);
-    width: auto;
-    height: 2px;
-  }
+  /* On mobile the food list isn't squeezed under the chat box any more —
+     it's its own full section instead (.an-panel--foods, see
+     AnalysisClient.tsx). This copy of the list still exists for desktop's
+     side-by-side layout, so just hide it here rather than deleting it. */
+  .chat-aside { display: none; }
 }
 
 .chat-thread {
@@ -5619,33 +5641,46 @@ textarea.chat-input { white-space: pre-wrap; }
 .hl-card {
   flex: 1;
   min-width: 0;
-  padding: 22px 24px 18px;
-  background: #ffffff;
-  border-radius: 12px;
-  box-shadow: 0 6px 22px rgba(46, 26, 14, 0.12);
+  padding: 40px 0 120px;
   color: #2e1a0e;
 }
+.an-page .hl-card .ac-title { margin-left: 0 !important; padding-left: 72px; }
 .hl-rings {
   display: flex;
   flex-wrap: wrap;
-  justify-content: space-around;
-  gap: 20px 16px;
-  margin-top: 8px;
+  justify-content: center;
+  gap: 28px 24px;
+  margin-top: 18px;
 }
-.an-page .hl-rings .macro-ring {
-  width: 96px !important;
-  height: 96px !important;
+.hl-item { text-align: center; width: 132px; }
+.hl-ring { position: relative; width: 124px; height: 124px; margin: 0 auto; }
+.hl-ring svg { position: absolute; inset: 0; width: 100%; height: 100%; transform: rotate(-90deg); }
+.hl-ring-val {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-display);
+  font-size: 36px;
+  line-height: 1;
+  color: #2e1a0e;
 }
-.an-page .hl-rings .macro-ring-val { font-size: 24px !important; }
-.an-page .hl-rings .macro-ring-unit { font-size: 14px !important; }
+.hl-ring-val small { font-family: var(--font-mono); font-size: 15px; color: rgba(46, 26, 14, 0.45); margin-left: 1px; }
+.hl-label {
+  margin: 10px 0 0;
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  color: rgba(46, 26, 14, 0.45);
+}
 
 /* Thin rule between the top row and the compound cards */
 .an-divider {
   height: 2px;
   /* inset from the sides so it reads as a separator, not a frame edge */
-  margin: 48px 64px 0;
+  margin: 88px 64px 0;
   background: rgba(46, 26, 14, 0.12);
 }
 @media (max-width: 820px) {
-  .an-divider { margin: 36px 24px 0; }
+  .an-divider { margin: 52px 24px 0; }
 }
