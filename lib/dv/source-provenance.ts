@@ -207,22 +207,27 @@ export const SOURCE_PROVENANCE: Record<string, SourceProvenance> = {
   MALAYSIA: {
     groups: {
       vitamins: {
-        class: 'adopted',
+        class: 'adapted',
         derivedFrom: ['WHO_FAO', 'IOM', 'EFSA'],
         evidence:
           'RNI for Malaysia 2017, Summary of Vitamins Recommendations (book p. 122): "for all the 8 vitamins in the RNI (2005), ' +
-          'except for vitamin D, the TSC decided to retain the original values, ie adapting the values from WHO/FAO (2004). For ' +
-          'vitamin D, the Committee decided to adapt the values from IOM (2011)"; "the WHO/FAO (2004) values recommended for ' +
-          'vitamin K, pyridoxine and pantothenic acid are appropriate to be adapted"; "For vitamin B12, the TSC adapted the EFSA ' +
-          '(2015) values derived mainly based on appropriate biomarkers."',
+          'except for vitamin D, the TSC decided to retain the original values, ie ADAPTING the values from WHO/FAO (2004). For ' +
+          'vitamin D, the Committee decided to adapt the values from IOM (2011)"; vitamin K, B6 and pantothenic acid "are ' +
+          'appropriate to be adapted"; B12 follows "the EFSA (2015) values". The committee\'s word is "adapting", and it means it: ' +
+          'in the ascorbic acid chapter (book p. 227) it weighs WHO/FAO 45 mg against EFSA 110/95 mg and D-A-CH 100 mg, judges the ' +
+          'chronic-disease evidence "not conclusive and consistent", and then "proposed that 25 mg per day ascorbic acid be added ' +
+          'on to the WHO/FAO (2004) recommended intake of 45 mg per day for all groups above 10 years of age" — hence Malaysia\'s ' +
+          '70 mg. That is a Malaysian judgement on top of WHO\'s value, not a copy of it.',
       },
       minerals: {
-        class: 'adopted',
+        class: 'adapted',
         derivedFrom: ['WHO_FAO', 'IOM'],
         evidence:
           'RNI for Malaysia 2017, Summary of Minerals and Trace Elements Recommendations (book p. 300): "The TSC agreed to adopt ' +
           'the recommendations of WHO/FAO (2004) as a priority. However, for minerals and trace elements that the WHO/FAO did not ' +
-          'have available guidelines, the recommendations of IOM (various years) were used instead."',
+          'have available guidelines, the recommendations of IOM (various years) were used instead." Classed adapted rather than ' +
+          'adopted because the published values are re-derived on Malaysian reference body weights — e.g. adult male iodine 121-123 ' +
+          'µg against WHO/FAO\'s flat 150 µg (Summary Table 3a, book p. 522) — so they are not the originals\' numbers.',
       },
       upper_levels: {
         class: 'adopted',

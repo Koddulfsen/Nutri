@@ -89,7 +89,7 @@ Sources marked ✅ have both their text evidence read and their entry written in
 | | Source | What we already saw while transcribing |
 |---|---|---|
 | ✅ | Netherlands (GR) | Adult table names the origin of every value (EFSA / NCM 2014 / GR). Mostly EFSA; see findings. |
-| ✅ | Malaysia (RNI 2017) | Adopted throughout: vitamins WHO/FAO 2004 (vit D IOM 2011, B12 EFSA 2015), minerals WHO/FAO then IOM, every UL IOM. |
+| ✅ | Malaysia (RNI 2017) | **Adapted**, not adopted: starts from WHO/FAO 2004 (vit D IOM 2011, B12 EFSA 2015) but modifies — e.g. vitamin C = WHO 45 + 25 mg by its own judgement. ULs are adopted from IOM verbatim. |
 | 🟡 | Philippines (PDRI 2015) | ULs adopted (WHO/FAO 2006 + IOM), page 7 is WHO verbatim. RNIs: **unknown** — summary tables state no origin and the values match neither IOM nor WHO. Needs the full PDRI report. |
 | ✅ | Vietnam (RDA 2016) | Attributable table by table via its "Nguồn:" lines: IOM 2006, Japanese DRIs 2015, FAO/WHO 2004. B1/B2/C/D and energy print no source. |
 | ⬜ | France (ANSES 2021) | ULs are EFSA's; some values own. |
@@ -236,15 +236,33 @@ real second opinion about a different population, not noise to be averaged away.
 
 ### Malaysia, the Philippines and Vietnam (done 2026-09-20)
 
-**Malaysia — adopted throughout, and unusually candid about it.**
+**Malaysia — adapted, not adopted. My first classification here was wrong.**
 Vitamins (book p. 122): *"for all the 8 vitamins in the RNI (2005), except for vitamin D, the TSC decided to retain
 the original values, ie adapting the values from WHO/FAO (2004). For vitamin D, the Committee decided to adapt the
 values from IOM (2011)"*; vitamin K, B6 and pantothenic acid are WHO/FAO 2004; B12 is *"the EFSA (2015) values"*.
 Minerals (p. 300): *"The TSC agreed to adopt the recommendations of WHO/FAO (2004) as a priority. However, for
 minerals and trace elements that the WHO/FAO did not have available guidelines, the recommendations of IOM (various
-years) were used instead."* Every chapter UL table carries *"Source: IOM"*. So Malaysia contributes no independent
-judgement to our median — but it does contribute its own **reference body weights**, which is why some of its
-numbers still differ from the originals.
+years) were used instead."* Every chapter UL table carries *"Source: IOM"*.
+
+On that basis I first classed Malaysia's vitamins and minerals as `adopted`. Then a numeric check contradicted it:
+Malaysia's adult vitamin C is **70 mg**, while WHO/FAO 2004 — its stated source — says **45 mg**. Reading the
+ascorbic acid chapter (book p. 227) explains why:
+
+> "Both D-A-CH (2013) and EFSA (2013) recommended a higher intake of ascorbic acid ... However, the TSC Vitamins
+> felt that the evidence for this is not conclusive and consistent. ... the TSC on Vitamins has proposed that
+> **25 mg per day ascorbic acid be added on to the WHO/FAO (2004) recommended intake of 45 mg per day** for all
+> groups above 10 years of age."
+
+That is a Malaysian committee weighing WHO against EFSA and D-A-CH and landing on its own number. The same pattern
+shows in the minerals: adult male iodine is 121-123 µg, re-derived on Malaysian reference body weights, against
+WHO/FAO's flat 150 µg. The committee's own word in the summary is *"adapting"*, and it means it.
+
+**So Malaysia is `adapted`: it keeps full weight in the median.** Had I stopped at the summary chapter's citations —
+which read exactly like wholesale adoption — we would have deleted a genuine second opinion from every affected
+nutrient. The upper levels are a different matter: those really are IOM's numbers reprinted, and stay `adopted`.
+
+This is the strongest argument yet for the evidence rule. A citation tells you what a body *read*, not what it
+*published*. Only the value tells you that.
 
 **Vietnam — attributable table by table**, because most chapter tables print a "Nguồn:" (source) line: vitamin A, E
 and K from the Japanese DRIs 2015; niacin, B5, B6, folate, B12, biotin and choline from IOM 2006 plus Japan; iron
@@ -269,12 +287,17 @@ themselves, and the numbers rule out simple adoption:
 Matching neither, so it is recorded as `unknown`, not guessed. The full PDRI report (we hold only the summary
 tables) would say.
 
-**A lead worth chasing.** The Philippine values do match *Malaysia's* on several nutrients (vitamin C 70, zinc 6.5),
-and Vietnam, Malaysia and the Philippines all cite the **ILSI South-East Asia RDA harmonisation**. That suggests a
-regional cluster that is partly independent of IOM/EFSA/WHO but internally dependent — four or five countries
-agreeing because they harmonised with each other, not because they each looked at the evidence. If that is real, the
-aggregator must collapse *that* cluster too. Recorded as a lead; it needs the harmonisation document itself before
-it becomes a finding.
+**The South-East Asian cluster: chased, and not supported.** The Philippine values match Malaysia's on several
+nutrients (vitamin C 70, zinc 6.5), and Malaysia, the Philippines and Vietnam all cite the **ILSI South-East Asia
+RDA harmonisation**, so I went looking for a regional cluster that agrees internally rather than with the evidence.
+The harmonisation paper (Barba & Cabrera, *Asia Pac J Clin Nutr* 2008;17(S2):405-408) says what was harmonised was
+*"common approaches, concepts and terminologies; application and uses, format and a research agenda"* across
+Indonesia, Malaysia, the Philippines, Singapore, Thailand and Vietnam — shared **method**, not shared values; it
+explicitly records differences in physiologic groupings and reference body weights.
+
+So the hypothesis is dropped. The matching numbers are better explained by a shared starting point (WHO/FAO 2004)
+plus similar regional body weights. Recorded here because a discarded hypothesis is worth as much as a kept one:
+without this check, "SEA countries copy each other" would have become a fact in this file by repetition.
 
 ## Open question for aggregation (decide after the audit)
 
