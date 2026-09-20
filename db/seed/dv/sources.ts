@@ -176,4 +176,13 @@ export const SOURCES: Record<string, SourceMeta> = {
     note: 'PDRI 2015 Summary Tables (revised September 2018), all 7 pages. RNI vs AI read from the PDF font (bold RNI, italic AI; span dump in dv-sources/pdri-2015/source/), checked against page renders. REI stored as EER, RNI as RDA, AI, EAR, UL, AMDR; WHO additional recommendations (free sugars, sodium, potassium) as CDRR. Pregnancy/lactation increments stored as totals over women 19-29 and 30-49 y.',
     retrievedDate: '2026-09-17',
   },
+  MALAYSIA: {
+    region: 'MALAYSIA',
+    slug: 'rni-malaysia-2017',
+    authorityName: 'NCCFN, Ministry of Health Malaysia — Recommended Nutrient Intakes for Malaysia 2017',
+    versionYear: 2017,
+    url: 'https://hq.moh.gov.my/nutrition/wp-content/uploads/2023/12/FA-Buku-RNI.pdf',
+    note: 'Full 523-page report. RNI 2017 Summary Tables 1-3b (energy by PAL, protein, vitamins, minerals), the macronutrient ranges in Appendix 3.5, Appendix 4.1 and the Energy & Macronutrients summary, and the upper levels printed in the chapters (all reproduced from IOM, noted per value). Transcribed from the PDF text layer and checked against renders in dv-sources/rni-malaysia-2017/source/. RNI stored as RDA, energy as EER, %TEI ranges as AMDR or CDRR, chapter ULs as UL.',
+    retrievedDate: '2026-09-17',
+  },
 };
