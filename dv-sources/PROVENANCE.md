@@ -78,11 +78,11 @@ Sources marked ✅ have both their text evidence read and their entry written in
 | ✅ | WHO/FAO | Primary throughout: 2004 expert consultation, 2001 energy consultation, 2012/2015/2023 GRADE guidelines. Shares IOM's *definition* of the RNI, not its values. |
 | ⬜ | Japan (MHLW 2025) | Derives own; check which nutrients cite IOM. |
 | ⬜ | China (CNS 2023) | Large own-evidence base. |
-| ⬜ | Korea (KDRI 2020) | States its framework is IOM's — but values may be own. |
+| ✅ | Korea (KDRI 2020) | **`primary`**: IOM's vocabulary, Korea's own systematic review (203,237 studies screened). Only 11 of 34 adult values match IOM. |
 | ⬜ | Nordic (NNR 2023) | Own systematic reviews (de-novo for some nutrients only). |
 | ⬜ | UK (COMA/SACN) | 1991 baseline, own derivation; later updates per nutrient. |
 | ⬜ | DACH | Own derivation; some values from EFSA. |
-| ⬜ | Australia/NZ (NHMRC) | Explicitly built on IOM — expect mostly `adapted`. |
+| ✅ | Australia/NZ (NHMRC) | `adapted`: adopted IOM's *approach*, kept its own reference point for chronic disease; 15 of 30 adult values differ from IOM. |
 | ⬜ | Russia (MR 2.3.1.0253-21) | Own tradition; little cross-citation. |
 
 ### Known or suspected adopters
@@ -363,6 +363,33 @@ ordinary national reference intakes.
 
 Spain's energy and macronutrient values are `adopted` straight from EFSA, and were already left out at transcription
 time to avoid duplicating EFSA — the right call, made before we had a name for the problem.
+
+### Australia/NZ and Korea (done 2026-09-20) — "framework" is not "values"
+
+Both sources describe themselves in terms of the IOM DRI system, which is exactly the phrasing that makes a source
+look like a copy. In both cases the values say otherwise.
+
+**Australia/NZ — `adapted`.** The Working Party *"decided to adopt the APPROACH of the US:Canadian Dietary Reference
+Intakes (DRIs) but vary some of the terminology"*, while also weighing *"recommendations from the United Kingdom,
+Germany and the European Union, recent dietary survey data collected in Australia and New Zealand, scientific data
+and unique Australasian conditions"*. It also breaks with IOM on principle:
+
+> "In contrast to the US:Canadian approach, the Working Party agreed to retain the traditional concept of adequate
+> physiological or metabolic function ... as the prime reference point for establishing the EAR and RDIs and to deal
+> separately with the issue of chronic disease prevention."
+
+Numbers agree with the text: **15 of 30** adult-male values differ from IOM, several sharply — vitamin C 45 vs
+90 mg, vitamin D 5 vs 15 µg, vitamin K 70 vs 120 µg, zinc 14 vs 11 mg, selenium 70 vs 55 µg.
+
+**Korea — `primary`.** The KDRI systematic review framework *"followed the Agency for Healthcare Research and
+Quality and the Tufts Evidence-based Practice Center"*; *"A total of 203,237 studies were retrieved ... with 2,324
+of these studies included in the analysis"* (Nutr Res Pract 2018;12(6):459-468). Only **11 of 34** adult-male values
+match IOM. A body that screens 203,000 studies and lands on different numbers is deriving, not copying — the shared
+EAR/RDA/AI/UL vocabulary is just vocabulary.
+
+**Rule of thumb this establishes:** "we use the DRI framework" is a statement about *terminology and value types*,
+not about numbers. Several sources in this set say it. It is not evidence of dependence on its own, and the numeric
+check is what separates the cases.
 
 ## Open question for aggregation (decide after the audit)
 

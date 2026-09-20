@@ -270,6 +270,56 @@ export const SOURCE_PROVENANCE: Record<string, SourceProvenance> = {
       },
     },
   },
+  AU_NZ: {
+    groups: {
+      vitamins: {
+        class: 'adapted',
+        derivedFrom: ['IOM'],
+        evidence:
+          'NRVs for Australia and New Zealand (NHMRC 2006), Background chapter (nutrient-refererence-dietary-intakes.pdf): ' +
+          '"the Working Party decided to adopt the APPROACH of the US:Canadian Dietary Reference Intakes (DRIs) but vary some of ' +
+          'the terminology", while "taking into consideration recommendations from the United Kingdom, Germany and the European ' +
+          'Union, recent dietary survey data collected in Australia and New Zealand, scientific data and unique Australasian ' +
+          'conditions". It also departs from IOM on principle: "In contrast to the US:Canadian approach, the Working Party agreed ' +
+          'to retain the traditional concept of adequate physiological or metabolic function ... as the prime reference point for ' +
+          'establishing the EAR and RDIs and to deal separately with the issue of chronic disease prevention." Numeric check: 15 ' +
+          'of 30 adult-male values differ from IOM, several sharply (vitamin C 45 vs 90 mg, vitamin D 5 vs 15 µg, vitamin K 70 vs ' +
+          '120 µg) — the framework is IOM\'s, many of the values are not.',
+      },
+      minerals: {
+        class: 'adapted',
+        derivedFrom: ['IOM'],
+        evidence:
+          'NHMRC 2006, Background chapter: same adopted framework, own values where the Working Party judged differently — adult ' +
+          'male zinc 14 vs IOM 11 mg, selenium 70 vs 55 µg, phosphorus 1000 vs 700 mg, manganese 5.5 vs 2.3 mg, sodium AI 690 vs ' +
+          '1500 mg (2017 update). 15 of 30 adult-male values match IOM exactly, so the source is a genuine mixture.',
+      },
+    },
+  },
+  KOREA: {
+    groups: {
+      vitamins: {
+        class: 'primary',
+        derivedFrom: [],
+        evidence:
+          'Shin, Kim & Joung, "Evidence-based approaches for establishing the 2015 Dietary Reference Intakes for Koreans", Nutr ' +
+          'Res Pract 2018;12(6):459-468: the KDRI systematic review framework "followed the Agency for Healthcare Research and ' +
+          'Quality and the Tufts Evidence-based Practice Center", with analytic framework, literature search, data extraction and ' +
+          'quality appraisal — "A total of 203,237 studies were retrieved ... with 2,324 of these studies included in the ' +
+          'analysis." The EAR/RDA/AI/UL vocabulary is IOM\'s, the evidence review is Korea\'s own. Numeric check: only 11 of 34 ' +
+          'adult-male values match IOM (vitamin A 800 vs 900 µg, vitamin C 100 vs 90 mg, vitamin D 10 vs 15 µg, vitamin K 75 vs ' +
+          '120 µg).',
+      },
+      minerals: {
+        class: 'primary',
+        derivedFrom: [],
+        evidence:
+          'Same systematic-review basis (Nutr Res Pract 2018;12(6):459-468), carried into the 2020 edition. Numeric check: ' +
+          'calcium 800 vs IOM 1000 mg, iron 10 vs 8 mg, magnesium 360 vs 400 mg, molybdenum 30 vs 45 µg, zinc 10 vs 11 mg — ' +
+          'Korean values, not reprinted ones.',
+      },
+    },
+  },
   INDONESIA: {
     groups: {
       vitamins: {
@@ -496,6 +546,6 @@ export const SOURCE_PROVENANCE: Record<string, SourceProvenance> = {
 
 /** Sources whose values are loaded but whose provenance has not been audited yet (see dv-sources/PROVENANCE.md). */
 export const PROVENANCE_PENDING = [
-  'JAPAN', 'CHINA', 'KOREA', 'NORDIC', 'UK', 'DACH', 'AU_NZ', 'RUSSIA',
+  'JAPAN', 'CHINA', 'NORDIC', 'UK', 'DACH', 'RUSSIA',
   'ITALY', 'TAIWAN', 'SINGAPORE', 'INDIA',
 ];
