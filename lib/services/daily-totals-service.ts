@@ -49,9 +49,16 @@ export interface DailyTotalsResponse {
  * @param userId - User ID
  * @param date - Date (YYYY-MM-DD)
  * @param mealIds - Optional array of meal IDs to filter by (for meal selection feature)
+ * @param itemIds - Optional meal-item IDs; when given, only those items count. Items are
+ *   only ever read from this user's own meals, so a foreign id simply matches nothing.
  * @returns Aggregated compound totals
  */
-export async function calculateDailyTotals(userId: string, date: string, mealIds?: string[]): Promise<CompoundValue[]> {
+export async function calculateDailyTotals(
+  userId: string,
+  date: string,
+  mealIds?: string[],
+  itemIds?: string[]
+): Promise<CompoundValue[]> {
   logger.info(
     {
       service: 'daily-totals-service',
@@ -67,6 +74,9 @@ export async function calculateDailyTotals(userId: string, date: string, mealIds
   try {
     // Step 1: Fetch active meals for the date (optionally filtered by mealIds)
     let targetMealIds: string[];
+    // Filled in by the unfiltered path below, which gets meals AND items in
+    // one query; the filtered path fetches items separately (step 2).
+    let preloadedItems: Array<{ id: string; foodId: string; portionSize: string; portionType: string }> | null = null;
 
     if (mealIds && mealIds.length > 0) {
       // Use provided mealIds directly (for meal selection filtering)
@@ -83,12 +93,22 @@ export async function calculateDailyTotals(userId: string, date: string, mealIds
         );
       targetMealIds = validMeals.map((m) => m.id);
     } else {
-      // Fetch all active meals for the date
-      const meals = await db
-        .select({ id: mealLogs.id })
+      // All active meals for the date, joined to their items — one round
+      // trip instead of two. (A meal with no items drops out of the join,
+      // which changes nothing: no items means no totals either way.)
+      const rows = await db
+        .select({
+          mealId: mealLogs.id,
+          id: mealItems.id,
+          foodId: mealItems.foodId,
+          portionSize: mealItems.portionSize,
+          portionType: mealItems.portionType,
+        })
         .from(mealLogs)
+        .innerJoin(mealItems, eq(mealItems.mealLogId, mealLogs.id))
         .where(and(eq(mealLogs.userId, userId), eq(mealLogs.date, date), eq(mealLogs.isActive, true)));
-      targetMealIds = meals.map((m) => m.id);
+      targetMealIds = [...new Set(rows.map((r) => r.mealId))];
+      preloadedItems = rows;
     }
 
     if (targetMealIds.length === 0) {
@@ -104,15 +124,22 @@ export async function calculateDailyTotals(userId: string, date: string, mealIds
       return [];
     }
 
-    // Step 2: Fetch all meal items for these meals
-    const items = await db
-      .select({
-        foodId: mealItems.foodId,
-        portionSize: mealItems.portionSize,
-        portionType: mealItems.portionType,
-      })
-      .from(mealItems)
-      .where(inArray(mealItems.mealLogId, targetMealIds));
+    // Step 2: Fetch all meal items for these meals (unless step 1 already did)
+    const allItems =
+      preloadedItems ??
+      (await db
+        .select({
+          id: mealItems.id,
+          foodId: mealItems.foodId,
+          portionSize: mealItems.portionSize,
+          portionType: mealItems.portionType,
+        })
+        .from(mealItems)
+        .where(inArray(mealItems.mealLogId, targetMealIds)));
+
+    const items = itemIds && itemIds.length > 0
+      ? allItems.filter((it) => itemIds.includes(it.id))
+      : allItems;
 
     if (items.length === 0) {
       logger.debug(
@@ -145,33 +172,35 @@ export async function calculateDailyTotals(userId: string, date: string, mealIds
     // merged_nutrients AND food_nutrient_values
     const foodIds = [...new Set(expandedAtoms.map((a) => a.foodId))];
 
-    // Query merged_nutrients (USDA/CNF data)
-    const mergedNutrientValues = await db
-      .select({
-        foodId: mergedNutrients.foodId,
-        compoundId: mergedNutrients.compoundId,
-        compoundName: compounds.name,
-        value: mergedNutrients.averageValue,
-        unit: mergedNutrients.unit,
-        sourceCount: mergedNutrients.sourceCount,
-      })
-      .from(mergedNutrients)
-      .leftJoin(compounds, eq(mergedNutrients.compoundId, compounds.id))
-      .where(inArray(mergedNutrients.foodId, foodIds));
-
-    // Query food_nutrient_values (enriched FooDB/Phenol-Explorer data)
-    const enrichedNutrientValues = await db
-      .select({
-        foodId: foodNutrientValues.foodId,
-        compoundId: foodNutrientValues.compoundId,
-        compoundName: compounds.name,
-        value: foodNutrientValues.value,
-        unit: foodNutrientValues.unit,
-        confidence: foodNutrientValues.confidenceFinal,
-      })
-      .from(foodNutrientValues)
-      .leftJoin(compounds, eq(foodNutrientValues.compoundId, compounds.id))
-      .where(inArray(foodNutrientValues.foodId, foodIds));
+    // Two independent queries — run them side by side, not one after the other.
+    // merged_nutrients (USDA/CNF data) and food_nutrient_values (enriched
+    // FooDB/Phenol-Explorer data).
+    const [mergedNutrientValues, enrichedNutrientValues] = await Promise.all([
+      db
+        .select({
+          foodId: mergedNutrients.foodId,
+          compoundId: mergedNutrients.compoundId,
+          compoundName: compounds.name,
+          value: mergedNutrients.averageValue,
+          unit: mergedNutrients.unit,
+          sourceCount: mergedNutrients.sourceCount,
+        })
+        .from(mergedNutrients)
+        .leftJoin(compounds, eq(mergedNutrients.compoundId, compounds.id))
+        .where(inArray(mergedNutrients.foodId, foodIds)),
+      db
+        .select({
+          foodId: foodNutrientValues.foodId,
+          compoundId: foodNutrientValues.compoundId,
+          compoundName: compounds.name,
+          value: foodNutrientValues.value,
+          unit: foodNutrientValues.unit,
+          confidence: foodNutrientValues.confidenceFinal,
+        })
+        .from(foodNutrientValues)
+        .leftJoin(compounds, eq(foodNutrientValues.compoundId, compounds.id))
+        .where(inArray(foodNutrientValues.foodId, foodIds)),
+    ]);
 
     // Build a set of (foodId, compoundId) pairs that exist in merged_nutrients
     // These take priority over food_nutrient_values
@@ -302,6 +331,50 @@ export async function calculateDailyTotals(userId: string, date: string, mealIds
 }
 
 /**
+ * Write an unfiltered day's totals to the PostgreSQL (and, if configured,
+ * Redis) cache. Split out of getDailyTotals so POST /api/meals/sync can run
+ * it after the response has gone out.
+ *
+ * Only ever call this with totals calculated from ALL of the day's active
+ * meals — the cache row is not keyed by meal selection.
+ */
+export async function saveDailyTotalsCache(
+  userId: string,
+  date: string,
+  response: DailyTotalsResponse
+): Promise<void> {
+  const cacheKey = `daily-totals:${userId}:${date}`;
+
+  // Save to PostgreSQL cache
+  await db
+    .insert(dailyTotals)
+    .values({
+      userId,
+      date,
+      compounds: response.compounds as any,
+      lastUpdated: response.lastUpdated,
+      cacheKey,
+    })
+    .onConflictDoUpdate({
+      target: [dailyTotals.userId, dailyTotals.date],
+      set: {
+        compounds: response.compounds as any,
+        lastUpdated: response.lastUpdated,
+        cacheKey,
+      },
+    });
+
+  // Save to Redis cache (fault tolerant)
+  if (redis) {
+    try {
+      await redis.set(cacheKey, JSON.stringify(response), { ex: 300 }); // 5 min TTL
+    } catch {
+      // Silently ignore Redis write failures
+    }
+  }
+}
+
+/**
  * Get daily totals (cached or calculate)
  * Checks Redis cache (5 min TTL) → PostgreSQL cache → Calculate fresh
  * Note: When mealIds filter is provided, cache is bypassed (filtered results are not cached)
@@ -311,15 +384,20 @@ export async function calculateDailyTotals(userId: string, date: string, mealIds
  * @param mealIds - Optional array of meal IDs to filter by (skips cache when provided)
  * @returns Daily totals with last updated timestamp
  */
-export async function getDailyTotals(userId: string, date: string, mealIds?: string[]): Promise<DailyTotalsResponse> {
-  const isFiltered = mealIds && mealIds.length > 0;
+export async function getDailyTotals(
+  userId: string,
+  date: string,
+  mealIds?: string[],
+  itemIds?: string[]
+): Promise<DailyTotalsResponse> {
+  const isFiltered = (mealIds && mealIds.length > 0) || (itemIds && itemIds.length > 0);
 
   logger.debug(
     {
       service: 'daily-totals-service',
       userId,
       date,
-      mealIdsFilter: isFiltered ? mealIds.length : 'all',
+      mealIdsFilter: isFiltered ? (mealIds?.length ?? 0) + (itemIds?.length ?? 0) : 'all',
     },
     'Getting daily totals (with cache lookup)'
   );
@@ -409,7 +487,7 @@ export async function getDailyTotals(userId: string, date: string, mealIds?: str
       isFiltered ? 'Calculating filtered daily totals' : 'Daily totals cache miss - calculating fresh'
     );
 
-    const compounds = await calculateDailyTotals(userId, date, mealIds);
+    const compounds = await calculateDailyTotals(userId, date, mealIds, itemIds);
 
     const response: DailyTotalsResponse = {
       date,
@@ -419,33 +497,7 @@ export async function getDailyTotals(userId: string, date: string, mealIds?: str
 
     // Only cache unfiltered results (all meals for date)
     if (!isFiltered) {
-      // Save to PostgreSQL cache
-      await db
-        .insert(dailyTotals)
-        .values({
-          userId,
-          date,
-          compounds: compounds as any,
-          lastUpdated: response.lastUpdated,
-          cacheKey,
-        })
-        .onConflictDoUpdate({
-          target: [dailyTotals.userId, dailyTotals.date],
-          set: {
-            compounds: compounds as any,
-            lastUpdated: response.lastUpdated,
-            cacheKey,
-          },
-        });
-
-      // Save to Redis cache (fault tolerant)
-      if (redis) {
-        try {
-          await redis.set(cacheKey, JSON.stringify(response), { ex: 300 }); // 5 min TTL
-        } catch {
-          // Silently ignore Redis write failures
-        }
-      }
+      await saveDailyTotalsCache(userId, date, response);
     }
 
     logger.info(

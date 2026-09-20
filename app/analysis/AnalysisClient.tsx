@@ -322,6 +322,11 @@ function AnalysisCard({
   );
 }
 
+// One change POST /api/meals/sync can apply before returning the day's state.
+type SyncChange =
+  | { type: 'add'; mealId: string | null; food: { foodId: string; portionSize: number; portionType: string } }
+  | { type: 'remove'; mealItemId: string };
+
 export default function AnalysisClient({ user, initialDate, initialCompounds, initialCompoundGroups }: AnalysisClientProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -422,6 +427,9 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
   // this instead of `meals[0]` in handleAddFoodToMeal is what makes adding
   // two foods back-to-back safe even before the first one's request lands.
   const mealIdRef = useRef<string | null>(null);
+  // syncDay() calls run one at a time, in the order they were made.
+  const syncQueueRef = useRef<Promise<void>>(Promise.resolve());
+  const pendingSyncsRef = useRef(0);
   const [mealsLoading, setMealsLoading] = useState(false);
   const [addingFood, setAddingFood] = useState(false);
 
@@ -543,7 +551,12 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
 
   // Refetch daily totals when the DV picker (age/sex) changes — needed so rdaPercent
   // is recomputed server-side against the new demographic-driven targets.
+  const pickerMountedRef = useRef(false);
   useEffect(() => {
+    if (!pickerMountedRef.current) {
+      pickerMountedRef.current = true;
+      return;
+    }
     fetchDailyTotals(selectedDate);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [profileAge, sex]);
@@ -663,6 +676,60 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
     }
   }
 
+  // Applies one change (or none) and loads the day's meals AND totals in a
+  // single request — this used to be three calls in a row (change, meals,
+  // totals), each re-checking auth. Calls are queued so they reach the server
+  // in the order they were made, and only the last response is shown: an
+  // earlier one can't include changes still waiting behind it, so showing it
+  // would briefly undo them. `getChange` is read when the call actually runs,
+  // so it sees the meal id an earlier queued call may have just created.
+  const syncDay = (date: string, getChange?: () => SyncChange | undefined): Promise<void> => {
+    pendingSyncsRef.current += 1;
+    const attempt = async () => {
+      try {
+        setTotalsLoading(true);
+        const res = await fetch(apiUrl('/api/meals/sync'), {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            date,
+            age: profileAge,
+            sex: sex === 'male' ? 'MALE' : 'FEMALE',
+            change: getChange?.(),
+          }),
+        });
+
+        if (!res.ok) {
+          const errorData = await res.json().catch(() => ({}));
+          throw new Error(errorData.message || errorData.error || 'Failed to update meals');
+        }
+
+        const data = await res.json();
+        const loadedMeals = data.meals || [];
+        mealIdRef.current = loadedMeals[0]?.id ?? null;
+
+        if (pendingSyncsRef.current === 1) {
+          setMeals(loadedMeals);
+          // Selected meals default to ALL meals
+          setSelectedMealIds(loadedMeals.map((m: any) => m.id));
+          // Set active tab to first meal if not already set
+          if (loadedMeals.length > 0 && !activeTab) {
+            setActiveTab(loadedMeals[0].mealType || loadedMeals[0].id);
+          }
+          setDailyTotals(data.dailyTotals);
+        }
+      } finally {
+        pendingSyncsRef.current -= 1;
+        if (pendingSyncsRef.current === 0) setTotalsLoading(false);
+      }
+    };
+
+    const result = syncQueueRef.current.then(attempt);
+    // A failed call must not block the ones queued behind it.
+    syncQueueRef.current = result.catch(() => {});
+    return result;
+  };
+
   async function fetchMealsForDate(date: string, preserveActiveTab = false, options?: { silent?: boolean }) {
     const silent = options?.silent ?? false;
     try {
@@ -673,30 +740,7 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
       if (!preserveActiveTab) {
         setActiveTab(''); // Reset active tab only when changing dates
       }
-      const params = new URLSearchParams({ date });
-      const res = await fetch(apiUrl(`/api/meals?${params}`));
-
-      if (!res.ok) {
-        throw new Error('Failed to fetch meals');
-      }
-
-      const data = await res.json();
-      const loadedMeals = data.meals || [];
-      setMeals(loadedMeals);
-      mealIdRef.current = loadedMeals[0]?.id ?? null;
-
-      // Initialize selected meals to ALL meals (default behavior)
-      const allMealIds = loadedMeals.map((m: any) => m.id);
-      setSelectedMealIds(allMealIds);
-
-      // Set active tab to first meal if not already set
-      if (loadedMeals.length > 0 && !activeTab) {
-        setActiveTab(loadedMeals[0].mealType || loadedMeals[0].id);
-      }
-
-
-      // Fetch daily totals after meals are loaded (with all meals selected)
-      fetchDailyTotals(date, allMealIds);
+      await syncDay(date);
     } catch (error) {
       console.error('Failed to fetch meals:', error);
       if (!silent) {
@@ -739,9 +783,8 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
   const handleRemoveMealItem = async (mealItemId: string) => {
     setActionError(null);
 
-    // Optimistic: gone from the screen immediately; put it back if the
-    // server disagrees.
-    const previousMeals = meals;
+    // Optimistic: gone from the screen immediately; if the server disagrees,
+    // the list is re-read from it below.
     setMeals((prev) => prev.map((m) => ({ ...m, items: (m.items || []).filter((it: any) => it.id !== mealItemId) })));
 
     // An item still being added has no server-side id to delete yet, so
@@ -753,21 +796,13 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
     if (mealItemId.startsWith('optimistic-')) return;
 
     try {
-      const res = await fetch(apiUrl(`/api/meals/items/${mealItemId}`), {
-        method: 'DELETE',
-      });
-
-      if (!res.ok) {
-        throw new Error('Failed to remove meal item');
-      }
-
-      // Reconcile silently — no loading flash, the list is already right.
-      await fetchMealsForDate(selectedDate, true, { silent: true });
-
+      // One request: removes the item and returns the updated meals + totals.
+      await syncDay(selectedDate, () => ({ type: 'remove', mealItemId }));
     } catch (error) {
       console.error('Failed to remove meal item:', error);
       setActionError(error instanceof Error ? error.message : 'Failed to remove item');
-      setMeals(previousMeals);
+      // Put back whatever the server actually has.
+      fetchMealsForDate(selectedDate, true, { silent: true });
     }
   };
 
@@ -784,8 +819,7 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
     const foodBeingAdded = selectedFood;
 
     // Optimistic: on screen the instant you click, before the server has
-    // even heard about it. previousMeals is the rollback if it fails.
-    const previousMeals = meals;
+    // even heard about it. If it fails, the list is re-read from the server.
     const optimisticItem = {
       id: `optimistic-${Date.now()}`,
       food: { name: foodBeingAdded.name },
@@ -825,52 +859,20 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
         foodId = importData.food.id;
       }
 
-      // The real meal id, if there is one — never the optimistic one above
-      // (it has no server-side id to POST to).
-      const existingMealId = mealIdRef.current;
-
-      let res;
-      if (existingMealId) {
-        res = await fetch(apiUrl(`/api/meals/${existingMealId}/items`), {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            foods: [{
-              foodId: foodId,
-              portionSize: portionGrams,
-              portionType: portionLabel,
-            }]
-          })
-        });
-      } else {
-        res = await fetch(apiUrl('/api/meals'), {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            date: selectedDate,
-            mealType: 'Today',
-            foods: [{
-              foodId: foodId,
-              portionSize: portionGrams,
-              portionType: portionLabel,
-            }]
-          })
-        });
-      }
-
-      if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.message || 'Failed to add food to meal');
-      }
-
-      // Reconcile silently with the real data (real id, real meal) — no
-      // loading flash, the list already shows the right thing.
-      await fetchMealsForDate(selectedDate, true, { silent: true });
+      // One request: adds the food and returns the updated meals + totals.
+      // The meal id is read when the call runs (see syncDay), so it is never
+      // the optimistic one above, which has no server-side id.
+      await syncDay(selectedDate, () => ({
+        type: 'add',
+        mealId: mealIdRef.current,
+        food: { foodId, portionSize: portionGrams, portionType: portionLabel },
+      }));
 
     } catch (error) {
       console.error('Failed to add food to meal:', error);
       setActionError(error instanceof Error ? error.message : 'Failed to add food');
-      setMeals(previousMeals);
+      // Take the optimistic item back out: show what the server actually has.
+      fetchMealsForDate(selectedDate, true, { silent: true });
     } finally {
       setAddingFood(false);
     }
