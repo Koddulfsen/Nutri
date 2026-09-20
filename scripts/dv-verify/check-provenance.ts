@@ -35,7 +35,10 @@ for (const region of PROVENANCE_PENDING) {
 
 const checkEntry = (region: string, group: string, e: ProvenanceEntry) => {
   if (!e.evidence || e.evidence.length < 40) fail(`${region}.${group}: evidence must quote the source document`);
-  if (!/\bp{1,2}\.\s?\d|§|Table|Tabel|Bảng|Appendix|附录|Tabella/.test(e.evidence)) fail(`${region}.${group}: evidence cites no page, table or section`);
+  // A locator so the claim can be re-checked: a page, a numbered table/section, or — for reports published online
+  // without pagination, like the NCBI Bookshelf DRI volumes — a book/chapter identifier.
+  const LOCATOR = /\bp{1,2}\.\s?\d|§|Table|Tabel|Tabella|Bảng|Appendix|附录|NBK\d+|nap\d+|Summary|chapter/;
+  if (!LOCATOR.test(e.evidence)) fail(`${region}.${group}: evidence cites no page, table, section or book/chapter id`);
   if (e.class === 'primary' && e.derivedFrom.length) fail(`${region}.${group}: primary values cannot have derivedFrom`);
   if ((e.class === 'adopted' || e.class === 'adapted') && !e.derivedFrom.length) fail(`${region}.${group}: ${e.class} needs at least one deriver`);
 };

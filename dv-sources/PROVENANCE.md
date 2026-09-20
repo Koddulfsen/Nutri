@@ -72,7 +72,7 @@ Sources marked ✅ have both their text evidence read and their entry written in
 
 | | Source | Notes |
 |---|---|---|
-| ⬜ | USA/Canada (IOM/NASEM) | The most-copied body. Which of its values are themselves from WHO/FAO? |
+| 🟡 | USA/Canada (IOM/NASEM) | Primary for energy, sodium/potassium, calcium and vitamin D — evidenced. **Still to read:** the 1997-2001 vitamin/mineral reports and the 2005 macronutrient report (protein, carbohydrate, fat, fibre, water, AMDRs). |
 | ⬜ | EU (EFSA) | Second most-copied. |
 | ⬜ | WHO/FAO | Global reference; check how much it shares with IOM. |
 | ⬜ | Japan (MHLW 2025) | Derives own; check which nutrients cite IOM. |
@@ -150,6 +150,32 @@ p. 5), which is why our data has none.
 Children (2025/06): values are extrapolated by the committee itself, mostly as adequate intakes, and it notes this
 sometimes departs from EFSA ("waarmee ze in sommige gevallen afwijkt van EFSA", p. 4). Classed with the adult
 groups as adopted-from-EFSA at group level; the departures are in the per-value notes.
+
+### USA/Canada — IOM / NASEM (partly done 2026-09-20)
+
+The body everything else copies, so its own provenance matters most. What is evidenced so far, all **primary**:
+
+- **Energy (EER 2023).** The committee pooled doubly labeled water measurements from IAEA, IOM, SOLNAS and the
+  Children's Nutrition Research Center and *"engaged a consultant group to analyze the DLW data and generate
+  prediction equations for TEE by age/sex and life-stage groups"* (Summary, NCBI NBK591034). New equations from
+  measurement data, and it explicitly discarded the 2005 activity coefficients as not constant across ages.
+- **Sodium and potassium (2019).** An AHRQ systematic review *"served as a primary source of evidence"*, supplemented
+  by the committee's own literature searches; where evidence could not support an EAR it set AIs from *"median
+  intakes observed in an apparently healthy group of people"* (NCBI NBK545428). This is also the report that
+  introduced the CDRR category we store.
+- **Calcium and vitamin D (2011).** Commissioned by the US and Canadian governments, a 14-member committee worked
+  from *"systematic evidence-based reviews from the Agency for Healthcare Research and Quality (AHRQ)"* and set
+  EAR/RDA/UL itself (Summary, NCBI nap13050/summary).
+
+**Deliberately not yet claimed.** The evidence above covers energy, the electrolytes, calcium and vitamin D. The
+1997-2001 reports behind the other vitamins and minerals, and the 2005 macronutrient report behind protein,
+carbohydrate, fat, fibre, water and the AMDRs, have not been read — the 2005 report's text is not freely readable as
+HTML (NAP serves a PDF behind a download form). Those groups are absent from the entry rather than assumed primary,
+and the scope limit is written into the evidence strings themselves.
+
+Note for the aggregation: our US data comes from the NCBI summary tables, which carry no provenance text at all. The
+provenance lives only in the underlying reports — which is exactly why this has to be recorded once, here, rather
+than re-derived by whoever next reads the tables.
 
 ## Open question for aggregation (decide after the audit)
 

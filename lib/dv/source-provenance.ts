@@ -44,6 +44,56 @@ export type SourceProvenance = {
 };
 
 export const SOURCE_PROVENANCE: Record<string, SourceProvenance> = {
+  USA_CANADA: {
+    groups: {
+      energy: {
+        class: 'primary',
+        derivedFrom: [],
+        evidence:
+          'Dietary Reference Intakes for Energy (NASEM 2023), Summary (NCBI NBK591034): the committee assembled doubly ' +
+          'labeled water data "obtained from the International Atomic Energy Agency (IAEA), the Institute of Medicine (IOM), ' +
+          '[SOLNAS], and the Children\'s Nutrition Research Center" and "engaged a consultant group to analyze the DLW data ' +
+          'and generate prediction equations for TEE by age/sex and life-stage groups" — new equations from pooled measurement ' +
+          'data, not adopted from any other body. It also rejected the 2005 PAL coefficients as not constant across ages.',
+      },
+      electrolytes: {
+        class: 'primary',
+        derivedFrom: [],
+        evidence:
+          'Dietary Reference Intakes for Sodium and Potassium (NASEM 2019), potassium chapter (NCBI NBK545428): an AHRQ ' +
+          'systematic review "served as a primary source of evidence", supplemented by the committee\'s "own supplemental ' +
+          'literature searches"; where evidence was insufficient for an EAR/RDA it set AIs from "median intakes observed in an ' +
+          'apparently healthy group of people". This report also introduced the CDRR category we store for sodium.',
+      },
+      vitamins: {
+        class: 'primary',
+        derivedFrom: [],
+        evidence:
+          'Dietary Reference Intakes for Calcium and Vitamin D (IOM 2011), Summary (NCBI nap13050/summary): the "U.S. and ' +
+          'Canadian governments requested that the IOM conduct a study to assess current data and to update as appropriate the ' +
+          'DRIs", a 14-member committee reviewed "systematic evidence-based reviews from the Agency for Healthcare Research and ' +
+          'Quality (AHRQ)" and set EAR/RDA/UL itself. SCOPE: this quote covers vitamin D (and calcium); the 1997-2001 reports ' +
+          'behind the other vitamins have not been read yet — see dv-sources/PROVENANCE.md.',
+      },
+      minerals: {
+        class: 'primary',
+        derivedFrom: [],
+        evidence:
+          'Dietary Reference Intakes for Calcium and Vitamin D (IOM 2011), Summary (NCBI nap13050/summary): committee-set ' +
+          'EAR/RDA/UL from AHRQ systematic reviews, commissioned jointly by the U.S. and Canadian governments. SCOPE: quote ' +
+          'covers calcium; the 1997-2001 reports behind the other minerals have not been read yet.',
+      },
+      upper_levels: {
+        class: 'primary',
+        derivedFrom: [],
+        evidence:
+          'Dietary Reference Intakes for Calcium and Vitamin D (IOM 2011), Summary (NCBI nap13050/summary): the committee ' +
+          'specified "Estimated Average Requirement (EAR), Recommended Dietary Allowance (RDA), and Tolerable Upper Intake Levels ' +
+          '(UL), based on the strength and quality of available evidence" — ULs are the body\'s own, and are what most other ' +
+          'sources in this project copy.',
+      },
+    },
+  },
   NETHERLANDS: {
     perValueOrigin: "Each adult value's note records the report's own \"Herkomst\" column (EFSA / NCM 2014 / GR).",
     groups: {
@@ -114,6 +164,6 @@ export const SOURCE_PROVENANCE: Record<string, SourceProvenance> = {
 
 /** Sources whose values are loaded but whose provenance has not been audited yet (see dv-sources/PROVENANCE.md). */
 export const PROVENANCE_PENDING = [
-  'USA_CANADA', 'EU', 'WHO_FAO', 'JAPAN', 'CHINA', 'KOREA', 'NORDIC', 'UK', 'DACH', 'AU_NZ', 'RUSSIA',
+  'EU', 'WHO_FAO', 'JAPAN', 'CHINA', 'KOREA', 'NORDIC', 'UK', 'DACH', 'AU_NZ', 'RUSSIA',
   'MALAYSIA', 'PHILIPPINES', 'VIETNAM', 'FRANCE', 'SPAIN', 'ITALY', 'TAIWAN', 'INDONESIA', 'SINGAPORE', 'INDIA',
 ];
