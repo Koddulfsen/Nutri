@@ -89,9 +89,9 @@ Sources marked ✅ have both their text evidence read and their entry written in
 | | Source | What we already saw while transcribing |
 |---|---|---|
 | ✅ | Netherlands (GR) | Adult table names the origin of every value (EFSA / NCM 2014 / GR). Mostly EFSA; see findings. |
-| ⬜ | Malaysia (RNI 2017) | Vitamins WHO/FAO 2004 (vit D IOM 2011, B12 EFSA 2015); minerals WHO/FAO or IOM; all ULs IOM. |
-| ⬜ | Philippines (PDRI 2015) | ULs WHO/FAO 2006 + IOM; page 7 is WHO guidelines. |
-| ⬜ | Vietnam (RDA 2016) | Per-table sources: FAO/WHO 2004, IOM, Japan 2015. |
+| ✅ | Malaysia (RNI 2017) | Adopted throughout: vitamins WHO/FAO 2004 (vit D IOM 2011, B12 EFSA 2015), minerals WHO/FAO then IOM, every UL IOM. |
+| 🟡 | Philippines (PDRI 2015) | ULs adopted (WHO/FAO 2006 + IOM), page 7 is WHO verbatim. RNIs: **unknown** — summary tables state no origin and the values match neither IOM nor WHO. Needs the full PDRI report. |
+| ✅ | Vietnam (RDA 2016) | Attributable table by table via its "Nguồn:" lines: IOM 2006, Japanese DRIs 2015, FAO/WHO 2004. B1/B2/C/D and energy print no source. |
 | ⬜ | France (ANSES 2021) | ULs are EFSA's; some values own. |
 | ⬜ | Spain (AESAN 2019) | Harmonisation algorithm over other bodies — mostly `adopted` by construction. |
 | ⬜ | Italy (LARN 2014) | Check per nutrient. |
@@ -233,6 +233,48 @@ would be a far worse error than the one we are fixing.
 10, 12 and 15% absorption, zinc at low/moderate/high — because it is writing for diets worldwide, not for one
 country's food supply. No other source in our set does this. When a WHO iron value differs from IOM's, that is a
 real second opinion about a different population, not noise to be averaged away.
+
+### Malaysia, the Philippines and Vietnam (done 2026-09-20)
+
+**Malaysia — adopted throughout, and unusually candid about it.**
+Vitamins (book p. 122): *"for all the 8 vitamins in the RNI (2005), except for vitamin D, the TSC decided to retain
+the original values, ie adapting the values from WHO/FAO (2004). For vitamin D, the Committee decided to adapt the
+values from IOM (2011)"*; vitamin K, B6 and pantothenic acid are WHO/FAO 2004; B12 is *"the EFSA (2015) values"*.
+Minerals (p. 300): *"The TSC agreed to adopt the recommendations of WHO/FAO (2004) as a priority. However, for
+minerals and trace elements that the WHO/FAO did not have available guidelines, the recommendations of IOM (various
+years) were used instead."* Every chapter UL table carries *"Source: IOM"*. So Malaysia contributes no independent
+judgement to our median — but it does contribute its own **reference body weights**, which is why some of its
+numbers still differ from the originals.
+
+**Vietnam — attributable table by table**, because most chapter tables print a "Nguồn:" (source) line: vitamin A, E
+and K from the Japanese DRIs 2015; niacin, B5, B6, folate, B12, biotin and choline from IOM 2006 plus Japan; iron
+and zinc from FAO/WHO 2004; copper, chromium, manganese and fluoride from IOM 2006; protein from WHO TRS 935 (2007);
+fibre from the US Food and Nutrition Board 1996; sodium and potassium from the WHO 2012 guidelines. Four vitamin
+tables (B1, B2, C, D) and the energy table print **no** source line, so those are left `unknown` rather than swept in
+with their neighbours.
+
+**The Philippines — the interesting one, because the answer is "we don't know".**
+Its upper levels are explicitly *"Adapted from WHO/FAO Guidelines on Food Fortification with Micronutrients
+(WHO/FAO, 2006) ... The remaining values are those recommended by IOM-FNB"*, and its page 7 limits are WHO's
+guidelines verbatim. But the summary tables we load state **no origin at all** for the recommended intakes
+themselves, and the numbers rule out simple adoption:
+
+| Adult male | Philippines | IOM | WHO/FAO |
+|---|---|---|---|
+| Vitamin C | 70 mg | 90 | 45 |
+| Calcium | 750 mg | 1000 | 1000 |
+| Iron | 12 mg | 8 | 11 |
+| Zinc | 6.5 mg | 11 | 7 |
+
+Matching neither, so it is recorded as `unknown`, not guessed. The full PDRI report (we hold only the summary
+tables) would say.
+
+**A lead worth chasing.** The Philippine values do match *Malaysia's* on several nutrients (vitamin C 70, zinc 6.5),
+and Vietnam, Malaysia and the Philippines all cite the **ILSI South-East Asia RDA harmonisation**. That suggests a
+regional cluster that is partly independent of IOM/EFSA/WHO but internally dependent — four or five countries
+agreeing because they harmonised with each other, not because they each looked at the evidence. If that is real, the
+aggregator must collapse *that* cluster too. Recorded as a lead; it needs the harmonisation document itself before
+it becomes a finding.
 
 ## Open question for aggregation (decide after the audit)
 

@@ -204,6 +204,131 @@ export const SOURCE_PROVENANCE: Record<string, SourceProvenance> = {
       },
     },
   },
+  MALAYSIA: {
+    groups: {
+      vitamins: {
+        class: 'adopted',
+        derivedFrom: ['WHO_FAO', 'IOM', 'EFSA'],
+        evidence:
+          'RNI for Malaysia 2017, Summary of Vitamins Recommendations (book p. 122): "for all the 8 vitamins in the RNI (2005), ' +
+          'except for vitamin D, the TSC decided to retain the original values, ie adapting the values from WHO/FAO (2004). For ' +
+          'vitamin D, the Committee decided to adapt the values from IOM (2011)"; "the WHO/FAO (2004) values recommended for ' +
+          'vitamin K, pyridoxine and pantothenic acid are appropriate to be adapted"; "For vitamin B12, the TSC adapted the EFSA ' +
+          '(2015) values derived mainly based on appropriate biomarkers."',
+      },
+      minerals: {
+        class: 'adopted',
+        derivedFrom: ['WHO_FAO', 'IOM'],
+        evidence:
+          'RNI for Malaysia 2017, Summary of Minerals and Trace Elements Recommendations (book p. 300): "The TSC agreed to adopt ' +
+          'the recommendations of WHO/FAO (2004) as a priority. However, for minerals and trace elements that the WHO/FAO did not ' +
+          'have available guidelines, the recommendations of IOM (various years) were used instead."',
+      },
+      upper_levels: {
+        class: 'adopted',
+        derivedFrom: ['IOM'],
+        evidence:
+          'RNI for Malaysia 2017, chapter UL tables (e.g. Table 7.2 p. 155 niacin, Table 17.2 p. 311 calcium, Table 30.4 p. 496 ' +
+          'fluoride): every one carries "Source: IOM" with a year. No Malaysian upper level is independently derived.',
+      },
+    },
+  },
+  PHILIPPINES: {
+    groups: {
+      upper_levels: {
+        class: 'adopted',
+        derivedFrom: ['WHO_FAO', 'IOM'],
+        evidence:
+          'PDRI 2015 Summary Tables p. 6 note: "Adapted from WHO/FAO Guidelines on Food Fortification with Micronutrients ' +
+          '(WHO/FAO, 2006); however, WHO/FAO have only recommended ULs for vitamins A, niacin, B6, C, D and E, calcium, selenium ' +
+          'and zinc for adults. The remaining values are those recommended by IOM-FNB."',
+      },
+      electrolytes: {
+        class: 'adopted',
+        derivedFrom: ['WHO_FAO'],
+        evidence:
+          'PDRI 2015 Summary Tables p. 7 "Additional Recommendations", sources a-c: the free sugars, sodium and potassium limits ' +
+          'are WHO\'s own guidelines (WHO 2015 sugars; WHO 2012 sodium; WHO 2012 potassium), with children extrapolated from the ' +
+          'adult value by energy requirement. These duplicate rows we already hold under WHO_FAO.',
+      },
+      vitamins: {
+        class: 'unknown',
+        derivedFrom: [],
+        evidence:
+          'PDRI 2015 Summary Tables (all 7 pages) carry no origin statement for the RNIs themselves — only the UL and page-7 notes ' +
+          'cite other bodies. Numeric corroboration argues against adoption: adult male vitamin C is 70 mg against IOM 90 and ' +
+          'WHO/FAO 45; calcium 750 mg against 1000 in both. The full PDRI report (not the summary tables we load) would state the ' +
+          'derivation. Left unknown rather than guessed — see dv-sources/PROVENANCE.md.',
+      },
+      minerals: {
+        class: 'unknown',
+        derivedFrom: [],
+        evidence:
+          'PDRI 2015 Summary Tables: as for vitamins, no stated origin. Adult male iron 12 mg vs IOM 8 and WHO/FAO 11 (at 15% ' +
+          'bioavailability); zinc 6.5 mg vs IOM 11. Values match neither, so adoption cannot be inferred; the matches that do ' +
+          'exist are with Malaysia (vitamin C 70, zinc 6.5), which points at the ILSI South-East Asia harmonisation rather than ' +
+          'at IOM or WHO. Recorded as a lead, not a finding.',
+      },
+    },
+  },
+  VIETNAM: {
+    perValueOrigin: 'Most chapter tables carry their own "Nguồn:" (source) line, so provenance is attributable table by table.',
+    groups: {
+      vitamins: {
+        class: 'adopted',
+        derivedFrom: ['IOM', 'JAPAN', 'WHO_FAO'],
+        evidence:
+          'Per-table "Nguồn:" lines: vitamin A (Bảng 27) and vitamins E and K (Bảng 29-30) cite "Dietary Reference Intakes for ' +
+          'Japanese 2015"; niacin, pantothenic acid, B6, folate, B12, biotin and choline (Bảng 35-42) cite "IOM, Dietary Reference ' +
+          'Intakes: The Essential Guide to Nutrient Requirements. 2006" together with the Japanese DRIs.',
+        exceptions: [
+          {
+            compounds: ['Thiamin (B1)', 'Riboflavin (B2)', 'Vitamin C (Total)', 'Vitamin D (Total)'],
+            class: 'unknown',
+            derivedFrom: [],
+            evidence: 'Bảng 31, 33, 41 and 28 print no "Nguồn:" line, unlike the neighbouring tables. Left unknown rather than assumed to follow them.',
+          },
+        ],
+      },
+      minerals: {
+        class: 'adopted',
+        derivedFrom: ['IOM', 'JAPAN', 'WHO_FAO'],
+        evidence:
+          'Per-table "Nguồn:" lines: phosphorus and magnesium (Bảng 17-18) cite the Japanese DRIs 2015; iodine (Bảng 21) IOM 2006 ' +
+          'plus Japan; selenium (Bảng 22) FAO/WHO 2004 plus IOM; copper, chromium, manganese and fluoride (Bảng 23-26) IOM 2006; ' +
+          'iron and zinc (Bảng 19-20) "FAO/WHO ... A report of a joint FAO/WHO expert consultation. Bangkok: FAO/WHO; 2004" with ' +
+          'the ILSI South-East Asia harmonisation.',
+      },
+      protein: {
+        class: 'adopted',
+        derivedFrom: ['WHO_FAO'],
+        evidence:
+          'Bảng 8 "Nguồn:": "WHO/FAO/UNU Expert consultation, Protein and Amino acid Requirements in Human Nutrition. WHO ' +
+          'technical report series 935. 2007", with the ILSI recommended-intake harmonisation.',
+      },
+      fibre: {
+        class: 'adopted',
+        derivedFrom: ['IOM'],
+        evidence:
+          'Bảng 15 "Nguồn:": "The Food and Nutrition Board, Commission on Life Sciences, National Research Council, 1996" — the US ' +
+          'Food and Nutrition Board, the body that became the IOM DRI committees.',
+      },
+      electrolytes: {
+        class: 'adopted',
+        derivedFrom: ['WHO_FAO', 'JAPAN', 'IOM'],
+        evidence:
+          'Bảng 46-48 "Nguồn:": sodium and potassium cite "WHO. Guideline: Sodium intake for adults and children. 2012" and the ' +
+          'potassium guideline, plus the Japanese DRIs 2015; chloride cites the WHO sodium guideline with IOM.',
+      },
+      energy: {
+        class: 'unknown',
+        derivedFrom: [],
+        evidence:
+          'Bảng 6 (energy) prints no "Nguồn:" line. The chapter text cites Vietnamese basal-metabolic-rate studies (Nhung et al.), ' +
+          'which suggests own derivation, but that is not a statement about the table. Left unknown.',
+      },
+    },
+  },
   NETHERLANDS: {
     perValueOrigin: "Each adult value's note records the report's own \"Herkomst\" column (EFSA / NCM 2014 / GR).",
     groups: {
@@ -275,5 +400,5 @@ export const SOURCE_PROVENANCE: Record<string, SourceProvenance> = {
 /** Sources whose values are loaded but whose provenance has not been audited yet (see dv-sources/PROVENANCE.md). */
 export const PROVENANCE_PENDING = [
   'JAPAN', 'CHINA', 'KOREA', 'NORDIC', 'UK', 'DACH', 'AU_NZ', 'RUSSIA',
-  'MALAYSIA', 'PHILIPPINES', 'VIETNAM', 'FRANCE', 'SPAIN', 'ITALY', 'TAIWAN', 'INDONESIA', 'SINGAPORE', 'INDIA',
+  'FRANCE', 'SPAIN', 'ITALY', 'TAIWAN', 'INDONESIA', 'SINGAPORE', 'INDIA',
 ];
