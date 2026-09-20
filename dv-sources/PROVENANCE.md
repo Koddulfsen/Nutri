@@ -55,9 +55,11 @@ The same door as everywhere else in this repo: **a claim about provenance needs 
 
 ## Deliverables
 
-- [ ] `dv-sources/PROVENANCE.md` (this file) — findings per source, with quotes and pages.
-- [ ] `lib/dv/source-provenance.ts` — machine-readable: `region → nutrient group → { class, derivedFrom[], evidence }`.
-- [ ] A check script that fails when a loaded source has no provenance entry, so new sources cannot skip this.
+- [x] `dv-sources/PROVENANCE.md` (this file) — findings per source, with quotes and pages.
+- [x] `lib/dv/source-provenance.ts` — machine-readable: `region → nutrient group → { class, derivedFrom[], evidence }`.
+- [x] A check script that fails when a loaded source has no provenance entry, so new sources cannot skip this:
+      `npx tsx scripts/dv-verify/check-provenance.ts`. It also rejects an entry whose evidence quotes no page, table
+      or section, and it counts China, which is loaded by its own seeder and would otherwise slip between the two loaders.
 - [ ] Aggregation change: collapse values that descend from the same primary judgement, count the cluster once.
 - [ ] Update `INDEX.md` (its Tier 1/2 split is a guess at independence — replace it with what the audit found) and
       the audit doc.
@@ -86,7 +88,7 @@ Sources marked ✅ have both their text evidence read and their entry written in
 
 | | Source | What we already saw while transcribing |
 |---|---|---|
-| ⬜ | Netherlands (GR) | Adult table names the origin of every value (EFSA / NCM 2014 / GR). Easiest one; notes already carry it. |
+| ✅ | Netherlands (GR) | Adult table names the origin of every value (EFSA / NCM 2014 / GR). Mostly EFSA; see findings. |
 | ⬜ | Malaysia (RNI 2017) | Vitamins WHO/FAO 2004 (vit D IOM 2011, B12 EFSA 2015); minerals WHO/FAO or IOM; all ULs IOM. |
 | ⬜ | Philippines (PDRI 2015) | ULs WHO/FAO 2006 + IOM; page 7 is WHO guidelines. |
 | ⬜ | Vietnam (RDA 2016) | Per-table sources: FAO/WHO 2004, IOM, Japan 2015. |
@@ -111,7 +113,43 @@ Sources marked ✅ have both their text evidence read and their entry written in
 
 One section per source as it is done: what the report says, with page references, then the classification.
 
-_(none yet)_
+### Netherlands — Gezondheidsraad (done 2026-09-20)
+
+**Mostly an adopter of EFSA, and it says so plainly.** Adult advice 2018/19 §4.1 (p. 24):
+
+> "Voor ongeveer de helft van deze stoffen zijn de EFSA-normen overgenomen (Tabel 3). De adequate innames voor de
+> resterende voedingsstoffen hebben een zwakke onderbouwing en zijn alle overgenomen van EFSA (Tabel 4)."
+
+About half of the well-founded values are EFSA's, and *all* of the weakly-founded adequate intakes are. The council
+frames its whole task as European harmonisation (2025/06 §1.1, p. 5: it evaluates the EFSA values published
+2010-2019 "om te bezien in hoeverre deze ook voor Nederland kunnen gelden").
+
+Better still, Tabel 3 carries a **Herkomst** (origin) column per value, so this source is auditable value by value —
+and our stored notes already carry it. Breakdown of what we hold:
+
+| Origin | Compounds |
+|---|---|
+| EFSA | biotin, choline, iodine, iron, magnesium, manganese, molybdenum, niacin, pantothenic acid, phosphorus, potassium, riboflavin, selenium, thiamin, vitamin E, vitamin K1, calcium (18-49 y) |
+| NCM 2014 (Nordic) | vitamin C, copper, zinc |
+| GR's own earlier reports | vitamin B6, folate, B12 (GR 2003); vitamin D (GR 2012); calcium 50+ (GR 2000) |
+| This report | vitamin A |
+
+Two findings that matter beyond the Netherlands:
+
+1. **A chain, not a single hop.** Tabel 3 footnote f (p. 25): *"De normen voor koper van NCM 2014 komen overeen met
+   de IOM-normen uit 2001."* Dutch copper comes from the Nordic value, which is itself IOM 2001. Collapsing only
+   direct citations would still double-count IOM here. The model has to follow chains.
+2. **`adapted` is a real category.** Vitamin A is EFSA's *method* re-run on Dutch body weights (footnote b, p. 25:
+   "berekend met EFSA's methode, maar voor Nederland is uitgegaan van een hoger lichaamsgewicht"). That is not an
+   echo of EFSA's number and shouldn't be collapsed into it.
+
+Upper levels: none stored, and the council no longer derives them — 2025/06 §1.2 (p. 7): *"Sinds 2023 worden deze in
+Nederland direct van EFSA overgenomen."* Sodium and chloride: no Dutch reference values exist at all (2025/06 §1.1,
+p. 5), which is why our data has none.
+
+Children (2025/06): values are extrapolated by the committee itself, mostly as adequate intakes, and it notes this
+sometimes departs from EFSA ("waarmee ze in sommige gevallen afwijkt van EFSA", p. 4). Classed with the adult
+groups as adopted-from-EFSA at group level; the departures are in the per-value notes.
 
 ## Open question for aggregation (decide after the audit)
 
