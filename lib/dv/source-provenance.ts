@@ -204,6 +204,32 @@ export const SOURCE_PROVENANCE: Record<string, SourceProvenance> = {
       },
     },
   },
+  INDONESIA: {
+    groups: {
+      vitamins: {
+        class: 'unknown',
+        derivedFrom: [],
+        evidence:
+          'Permenkes 28/2019 states no derivation. Lampiran II (p. 16) records only the institutional history — the AKG was ' +
+          'first set in 1968 and is "diperbaharui melalui Widyakarya Nasional Pangan dan Gizi (WNPG)", the national food and ' +
+          'nutrition workshop, most recently WNPG XI (2018) — and the only citation anywhere in the regulation is Lampiran I ' +
+          'footnote 3 (p. 14), which credits IOM 2001/2006 for the zinc bioavailability assumption. NUMERIC SIGNAL (not a ' +
+          'finding): 17 of 31 adult-male values are identical to IOM\'s, including distinctive ones (choline 550 mg, biotin 30 µg, ' +
+          'pantothenic acid 5 mg, vitamin C 90 mg, vitamin E 15 mg, vitamin D 15 µg), while only 7 of 19 match WHO/FAO. Potassium ' +
+          '4,700 mg matches IOM\'s *2005* adequate intake, superseded by 3,400 mg in 2019 — consistent with values taken from IOM ' +
+          'at some earlier point. The WNPG XI proceedings would settle it; the regulation alone cannot.',
+      },
+      minerals: {
+        class: 'unknown',
+        derivedFrom: [],
+        evidence:
+          'Permenkes 28/2019: as for vitamins, no stated derivation beyond the WNPG process (Lampiran II p. 16) and the IOM ' +
+          'zinc-bioavailability footnote (Lampiran I p. 14). Numeric signal: calcium, iodine, zinc, copper, phosphorus, manganese ' +
+          'and fluoride equal IOM\'s adult values, but selenium (30 vs 55 µg), iron (9 vs 8 mg) and magnesium (360 vs 400 mg) do ' +
+          'not — so not a wholesale copy either way.',
+      },
+    },
+  },
   MALAYSIA: {
     groups: {
       vitamins: {
@@ -405,5 +431,5 @@ export const SOURCE_PROVENANCE: Record<string, SourceProvenance> = {
 /** Sources whose values are loaded but whose provenance has not been audited yet (see dv-sources/PROVENANCE.md). */
 export const PROVENANCE_PENDING = [
   'JAPAN', 'CHINA', 'KOREA', 'NORDIC', 'UK', 'DACH', 'AU_NZ', 'RUSSIA',
-  'FRANCE', 'SPAIN', 'ITALY', 'TAIWAN', 'INDONESIA', 'SINGAPORE', 'INDIA',
+  'FRANCE', 'SPAIN', 'ITALY', 'TAIWAN', 'SINGAPORE', 'INDIA',
 ];

@@ -96,7 +96,7 @@ Sources marked ✅ have both their text evidence read and their entry written in
 | ⬜ | Spain (AESAN 2019) | Harmonisation algorithm over other bodies — mostly `adopted` by construction. |
 | ⬜ | Italy (LARN 2014) | Check per nutrient. |
 | ⬜ | Taiwan (DRIs 8th) | Check per nutrient. |
-| ⬜ | Indonesia (AKG 2019) | Widely assumed IOM-derived; needs the regulation's own basis. |
+| 🟡 | Indonesia (AKG 2019) | `unknown`: the regulation states no derivation. Numeric signal points hard at IOM (17/31 adult values identical) but the WNPG XI proceedings are needed to confirm. |
 | ⬜ | Singapore (HPB) | Small table; origin unstated so far. |
 | ⬜ | India (ICMR brief) | 131 rows only. |
 
@@ -298,6 +298,33 @@ explicitly records differences in physiologic groupings and reference body weigh
 So the hypothesis is dropped. The matching numbers are better explained by a shared starting point (WHO/FAO 2004)
 plus similar regional body weights. Recorded here because a discarded hypothesis is worth as much as a kept one:
 without this check, "SEA countries copy each other" would have become a fact in this file by repetition.
+
+### Indonesia — AKG 2019 (done as far as the document allows, 2026-09-20)
+
+The regulation (Permenkes 28/2019) **states no derivation at all**. Lampiran II (p. 16) gives only institutional
+history: the AKG was first set in 1968 and is *"diperbaharui melalui Widyakarya Nasional Pangan dan Gizi (WNPG)"* —
+updated through the national food and nutrition workshop, most recently WNPG XI in 2018. The single citation in the
+whole document is a footnote crediting IOM 2001/2006 for the zinc bioavailability assumption.
+
+So the class is `unknown`. But the method says to record numeric corroboration as a separate signal, and it is loud:
+
+| Compared on adult-male values | Identical |
+|---|---|
+| Indonesia vs IOM | **17 of 31** |
+| Indonesia vs WHO/FAO | 7 of 19 |
+
+The IOM matches include distinctive values that are unlikely to coincide — choline 550 mg, biotin 30 µg,
+pantothenic acid 5 mg, vitamin C 90 mg, vitamin E 15 mg, vitamin D 15 µg. One detail is sharper than the rest:
+Indonesia's potassium is **4,700 mg**, which is IOM's *2005* adequate intake — superseded by 3,400 mg in IOM's 2019
+revision. A body deriving potassium independently in 2019 would not land on the value IOM had just abandoned.
+
+That is strong circumstantial evidence of adoption, and it is still **not** a finding: the rule is that matching
+numbers never substitute for the source's own statement. What would settle it is the WNPG XI proceedings, which the
+regulation implements but does not reproduce. Recorded as `unknown` with the signal attached, so whoever finds those
+proceedings can close it in minutes.
+
+Note the contrast with Malaysia: there, the text claimed adoption and the numbers refuted it. Here the text is
+silent and the numbers suggest it. Neither direction is safe to shortcut.
 
 ## Open question for aggregation (decide after the audit)
 
