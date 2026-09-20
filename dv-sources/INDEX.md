@@ -3,6 +3,9 @@
 Tracks which authoritative DRI/DRV sources have been seeded into Nutri.
 Update this after each source is signed off.
 
+> ⚠️ The Tier 1 / Tier 2 split below is an **assumption** about which sources are independent. It is being replaced
+> by evidence read from each report: see **`PROVENANCE.md`**, which is also the run-state for that audit.
+
 **Legend — Status:** ✅ seeded & verified · 🟡 in progress · ⬜ not started · ❌ blocked
 **Legend — Access:** 🆓 fully free · 💰 fully paid · 🔓 free partial + paid full · ⚠️ free but CAPTCHA/bot-blocked
 

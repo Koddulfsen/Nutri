@@ -624,6 +624,40 @@ Inputs: inset. Rows: banded. Header: transparent.
 Rules: font weight ≤ 500; max content width 720px; no gradients, no glassmorphism, no
 decorative emoji; square corners.
 
+**`/analysis` overrides this to a cream/coral "Petal White" palette**, scoped under `.an-page`
+in `app/analysis/AnalysisClient.tsx` (search `ALPHA SKETCH (2026-08-23)`). This is intentional,
+locked 2026-08-23, and wins on that page: `--panel:#fff7f4`, `--coral:#d42a55` as the single
+data-highlight token, ink text `#2e1a0e`. `--ring-1/2/3` there resolve to `--coral` and two
+`color-mix()` tints of it, not the dark theme's cyan.
+
+### Data visualization language — cards + rings (locked 2026-09-18)
+**This is the house style for any stat/goal/progress visual on `/analysis` (and the default to
+reach for anywhere else a number needs a shape).** Jens signed off on this pass explicitly —
+don't relitigate the card treatment or invent a new one-off widget without checking here first.
+
+- **Card:** white (`#ffffff`), `border-radius: 10–16px`, `box-shadow: 0 6px 22px rgba(46, 26, 14, 0.12)`
+  (the bigger `0 10px 34px rgba(46, 26, 14, 0.13)` is for outer containers like `.chat-box`, not
+  inner tiles). Same recipe on `.chat-input`, `.ac-card`, `.hl-card` — one shadow language,
+  reused everywhere, never invented fresh per component.
+- **MacroViz** (`app/analysis/MacroViz.tsx`) is an 18-way switchable visualization component,
+  not a single hardcoded ring. 12 ring treatments (`A`–`L`: bold/floating/soft/flat/hairline/
+  compact/glow/conic-donut/double/knob/segmented-dial/halo) plus 6 alternate shapes (`M`–`R`:
+  horizontal bars/speedometer/macro-split-ring/vertical bars/dot-stepper/flat tiles). Static
+  side-by-side gallery of all 18 with descriptions: **`docs/design/macro-viz-styles.html`**
+  — open it before adding a 19th style, so it's added there too, not just in code.
+  - Default style: **`O` — one ring, macro composition** (kcal centered, one ring split into
+    coral-tint arcs by share of calories, not per-macro goal progress).
+  - User-switchable via the gear icon top-right of the Macros section header
+    (`MacroVizPicker`), persisted per-browser in `localStorage` (`nutri.macroVizStyle`) — not
+    a DB column. If this ever needs to sync across devices, that's a real schema change, not a
+    localStorage tweak.
+  - Colors always come from `RING_COLORS = ['var(--ring-1)', 'var(--ring-2)', 'var(--ring-3)']`
+    — never hardcode a hex for a macro slice; it breaks the `--coral` re-tone knob.
+- **Desktop layout:** rings/shapes on the left, kcal + water stacked on the right, split by a
+  2px hairline (`rgba(46, 26, 14, 0.16)`) — the same divider treatment as `.chat-aside`'s split
+  from the chat thread. Stacks to one column under `860px`. Selectors: `.mv-layout`,
+  `.mv-rings-col`, `.mv-divider`, `.mv-hero-col` in `AnalysisClient.tsx`.
+
 ---
 
 ## 9. NORTH STAR (not current work)
@@ -653,4 +687,5 @@ on. See §1 for what is actually current.
 | `docs/DATA_SOURCES.md` | The 18 food sources |
 | `docs/architecture/core-compounds-hierarchy.md` | ~213 Core compounds |
 | `dv-sources/GUIDE.md` / `INDEX.md` | DV sourcing + coverage |
+| `dv-sources/PROVENANCE.md` | **Which body actually derived each value** — run-state of the dependency audit |
 | `db/seed/SOURCING.md` | 5-gate pipeline |
