@@ -114,6 +114,9 @@ export const SOURCE_VALUE_TYPES: Record<string, SourceVocabulary> = {
     terms: { RNI: 'RDA', 'estimated energy requirement': 'EER', '%TEI range': 'AMDR', '< %TEI limit (saturated fat, trans fat, free sugars)': 'CDRR', 'UL (chapter tables)': 'UL' },
     knownIssues: ['The summary tables label every value RNI, so values derived as adequate intakes (e.g. infants, fluoride, sodium, potassium) are stored as RDA and cannot be told apart'],
   },
+  VIETNAM: {
+    terms: { RDA: 'RDA', AI: 'AI', EAR: 'EAR', UL: 'UL', 'nhu cầu khuyến nghị năng lượng': 'EER', '% năng lượng khẩu phần': 'AMDR', 'mục tiêu chế độ ăn (DG)': 'CDRR' },
+  },
   ITALY: {
     // PRI vs AI is read from the SINU tables' formatting (bold PRI, italic AI).
     terms: { PRI: 'RDA', AI: 'AI', AR: 'EAR', UL: 'UL', SDT: 'SDT', RI: 'AMDR', 'AR (energy)': 'EER' },

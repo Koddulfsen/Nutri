@@ -185,4 +185,13 @@ export const SOURCES: Record<string, SourceMeta> = {
     note: 'Full 523-page report. RNI 2017 Summary Tables 1-3b (energy by PAL, protein, vitamins, minerals), the macronutrient ranges in Appendix 3.5, Appendix 4.1 and the Energy & Macronutrients summary, and the upper levels printed in the chapters (all reproduced from IOM, noted per value). Transcribed from the PDF text layer and checked against renders in dv-sources/rni-malaysia-2017/source/. RNI stored as RDA, energy as EER, %TEI ranges as AMDR or CDRR, chapter ULs as UL.',
     retrievedDate: '2026-09-17',
   },
+  VIETNAM: {
+    region: 'VIETNAM',
+    slug: 'vietnam-rda-2016',
+    authorityName: 'Viện Dinh dưỡng, Bộ Y tế — Nhu cầu dinh dưỡng khuyến nghị cho người Việt Nam (2016)',
+    versionYear: 2016,
+    url: 'http://vichat.viendinhduong.vn/vi/nam-2016.nd81/diem-moi-ve-nhu-cau-khuyen-nghi-vitamin-va-khoang-chat-cho-nguoi-viet-nam.i289.html',
+    note: 'Official book issued with decision 2615/QD-BYT (16 June 2016), 188 pages. Per-nutrient chapter tables (Bang 16-42, with EAR/RDA/AI/UL by sex) plus the appendix for energy by activity level, protein, fat and fatty acids, carbohydrate and fibre, and sodium/potassium/chloride. Transcribed from the PDF text layer. Iron stored at 10% bioavailability, zinc by absorption level, diet goals stored as CDRR. Amino acids (per kg / per g protein) and water (per kg / per kcal) are not stored.',
+    retrievedDate: '2026-09-20',
+  },
 };
