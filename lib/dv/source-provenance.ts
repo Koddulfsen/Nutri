@@ -144,6 +144,66 @@ export const SOURCE_PROVENANCE: Record<string, SourceProvenance> = {
       },
     },
   },
+  WHO_FAO: {
+    groups: {
+      vitamins: {
+        class: 'primary',
+        derivedFrom: [],
+        evidence:
+          'Vitamin and mineral requirements in human nutrition, 2nd ed. (FAO/WHO 2004), ch. 1 (fao.org/4/y2809e/y2809e07.htm): ' +
+          'a joint FAO/WHO expert consultation set the RNI as "the daily intake, which meets the nutrient requirements of almost ' +
+          'all (97.5 percent) apparently healthy individuals in an age and sex-specific population group", computed as ' +
+          '"RNI = EAR + 2SD" from biological criteria for adequacy. The chapter notes the RNI concept "is equivalent to that of ' +
+          'recommended dietary allowance (RDA) as used by the Food and Nutrition Board of the US National Academy of Sciences" — ' +
+          'an equivalence of definition, not of values.',
+      },
+      minerals: {
+        class: 'primary',
+        derivedFrom: [],
+        evidence:
+          'Vitamin and mineral requirements in human nutrition, 2nd ed. (FAO/WHO 2004), ch. 1 and Appendix 1 Table 1 (snapshot ' +
+          'dv-sources/who-fao/source/y2809e0o.htm): same expert-consultation derivation, and the mineral tables are published by ' +
+          'bioavailability level (iron at 5/10/12/15%, zinc at low/moderate/high) — a judgement about diets in developing ' +
+          'countries that no other body in this set makes.',
+      },
+      energy: {
+        class: 'primary',
+        derivedFrom: [],
+        evidence:
+          'Human energy requirements (FAO/WHO/UNU 2001), ch. 4 (snapshot fao-2001-energy-ch4-children.htm): "The 2001 expert ' +
+          'consultation analysed a number of studies on TEE, growth and habitual activity patterns of children and adolescents in ' +
+          'different parts of the world", making it possible "to estimate energy requirements from measurements of TEE and energy ' +
+          'needs for growth, rather than from food intake data" as the 1985 consultation had done.',
+      },
+      electrolytes: {
+        class: 'primary',
+        derivedFrom: [],
+        evidence:
+          'WHO Guideline: Sodium intake for adults and children (2012) and Potassium intake (2012) (snapshots who-2012-sodium.html, ' +
+          'who-2012-potassium.html): developed through WHO\'s guideline process with a guideline development group grading the ' +
+          'evidence; the sodium guideline defines the scope of its own evidence review ("these subpopulations were not considered ' +
+          'in the review of the evidence and generation of the guideline") and issues a strong recommendation.',
+      },
+      carbohydrate: {
+        class: 'primary',
+        derivedFrom: [],
+        evidence:
+          'WHO Guideline: Sugars intake for adults and children (2015) (snapshot who-2015-sugars.html): "WHO developed the present ' +
+          'evidence-informed guideline using the procedures outlined in the WHO handbook for guideline development", with ' +
+          '"Grading of Recommendations Assessment, Development and Evaluation (GRADE) methodology ... to assess the quality of ' +
+          'evidence identified through recent systematic reviews", reviewed by the NUGAG Subgroup on Diet and Health.',
+      },
+      fat: {
+        class: 'primary',
+        derivedFrom: [],
+        evidence:
+          'WHO Guideline: Saturated fatty acid and trans-fatty acid intake (2023) (snapshot who-2023-sfa-tfa.html): the limits are ' +
+          '"based on evidence from four systematic reviews that assessed the effects of lower compared with higher SFA intake", ' +
+          'graded via GRADE by the WHO guideline development group. Also FAO 2010 Fats and fatty acids in human nutrition, report ' +
+          'of an expert consultation (snapshot fao-2010-fats-report.txt).',
+      },
+    },
+  },
   NETHERLANDS: {
     perValueOrigin: "Each adult value's note records the report's own \"Herkomst\" column (EFSA / NCM 2014 / GR).",
     groups: {
@@ -214,6 +274,6 @@ export const SOURCE_PROVENANCE: Record<string, SourceProvenance> = {
 
 /** Sources whose values are loaded but whose provenance has not been audited yet (see dv-sources/PROVENANCE.md). */
 export const PROVENANCE_PENDING = [
-  'WHO_FAO', 'JAPAN', 'CHINA', 'KOREA', 'NORDIC', 'UK', 'DACH', 'AU_NZ', 'RUSSIA',
+  'JAPAN', 'CHINA', 'KOREA', 'NORDIC', 'UK', 'DACH', 'AU_NZ', 'RUSSIA',
   'MALAYSIA', 'PHILIPPINES', 'VIETNAM', 'FRANCE', 'SPAIN', 'ITALY', 'TAIWAN', 'INDONESIA', 'SINGAPORE', 'INDIA',
 ];

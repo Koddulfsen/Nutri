@@ -74,7 +74,7 @@ Sources marked ✅ have both their text evidence read and their entry written in
 |---|---|---|
 | 🟡 | USA/Canada (IOM/NASEM) | Primary for energy, sodium/potassium, calcium and vitamin D — evidenced. **Still to read:** the 1997-2001 vitamin/mineral reports and the 2005 macronutrient report (protein, carbohydrate, fat, fibre, water, AMDRs). |
 | 🟡 | EU (EFSA) | Primary: 34 nutrient-by-nutrient opinions by its own panel. **Still to read:** protein, fat and fibre opinions (the macronutrient group beyond carbohydrate). |
-| ⬜ | WHO/FAO | Global reference; check how much it shares with IOM. |
+| ✅ | WHO/FAO | Primary throughout: 2004 expert consultation, 2001 energy consultation, 2012/2015/2023 GRADE guidelines. Shares IOM's *definition* of the RNI, not its values. |
 | ⬜ | Japan (MHLW 2025) | Derives own; check which nutrients cite IOM. |
 | ⬜ | China (CNS 2023) | Large own-evidence base. |
 | ⬜ | Korea (KDRI 2020) | States its framework is IOM's — but values may be own. |
@@ -206,6 +206,33 @@ safe and adequate intake for the general EU population of adults"*, with childre
 
 Not yet claimed: the protein, fat and fibre opinions have not been read, so only carbohydrate is entered for
 macronutrients.
+
+### WHO/FAO (done 2026-09-20)
+
+**Primary in all four documents we load**, and the one most copied by the Asian sources.
+
+- **Vitamins and minerals (FAO/WHO 2004, ch. 1).** A joint expert consultation set the RNI as *"the daily intake,
+  which meets the nutrient requirements of almost all (97.5 percent) apparently healthy individuals in an age and
+  sex-specific population group"*, as `RNI = EAR + 2SD`, from biological criteria for adequacy.
+- **Energy (FAO/WHO/UNU 2001, ch. 4).** The consultation *"analysed a number of studies on TEE, growth and habitual
+  activity patterns of children and adolescents in different parts of the world"*, deriving requirements from
+  measured total energy expenditure instead of the food-intake basis used in 1985.
+- **Sodium, potassium, sugars, fats (2012/2015/2023).** WHO's own guideline process: *"WHO developed the present
+  evidence-informed guideline using the procedures outlined in the WHO handbook for guideline development"*, with
+  GRADE applied to commissioned systematic reviews. The 2023 saturated-fat limits are *"based on evidence from four
+  systematic reviews"*.
+
+**The trap I had to avoid here.** The 2004 report says its RNI *"is equivalent to that of recommended dietary
+allowance (RDA) as used by the Food and Nutrition Board of the US National Academy of Sciences."* Read carelessly,
+that looks like WHO taking IOM's values. It is not — it is an equivalence of *definition* (both mean "covers 97.5%
+of the group"). The values are derived separately and often differ substantially. A provenance audit that treated
+shared vocabulary as shared judgement would collapse the two biggest independent bodies in the world into one, which
+would be a far worse error than the one we are fixing.
+
+**What makes WHO/FAO genuinely distinct:** its mineral tables are published *by bioavailability level* — iron at 5,
+10, 12 and 15% absorption, zinc at low/moderate/high — because it is writing for diets worldwide, not for one
+country's food supply. No other source in our set does this. When a WHO iron value differs from IOM's, that is a
+real second opinion about a different population, not noise to be averaged away.
 
 ## Open question for aggregation (decide after the audit)
 
