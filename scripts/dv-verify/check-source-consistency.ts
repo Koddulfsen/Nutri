@@ -5,6 +5,10 @@
  *   2. UL >= RDA and UL >= AI where age bands overlap (units converted), unless the UL is
  *      supplemental-only (e.g. magnesium): it limits a different intake than the RDA covers.
  *   3. valueMin <= value <= valueMax.
+ *   4. Direction is explicit. A CDRR is always a floor or a ceiling, so it must carry valueMin or valueMax. An AMDR with
+ *      neither is a POINT target ("about 50%") — legitimate, but only where the source's own wording was checked;
+ *      each such case is listed in VERIFIED_POINT_TARGETS. Anything else is an unread direction, and a bar would not
+ *      know whether to fill toward the value or stay under it (Russia's fat "не более 30%" was stored this way).
  *
  * SOURCE_DEFECTS below lists the cases where a source document itself breaks one of these
  * relations. Each entry was verified against a render of the printed page, so storing the
@@ -30,6 +34,21 @@ const SOURCE_DEFECTS: Record<string, Array<[string, string]>> = {
   ],
 };
 const defects = SOURCE_DEFECTS[region] ?? [];
+
+/** Region -> compound -> why a direction-less AMDR is a genuine point target (checked against the source's wording). */
+const VERIFIED_POINT_TARGETS: Record<string, Record<string, string>> = {
+  RUSSIA: {
+    Protein: 'MR 2.3.1.0253-21 §1.7: "доля белка в калорийности составляет 14% ... 13% ... 12,5% ... 12%" — a share, not a bound.',
+    Carbohydrates: '§1.7: "Доля углеводов колеблется соответственно от 56 до 58%" — the share per activity group.',
+    'Monounsaturated Fat': '§2: "Физиологическая потребность в мононенасыщенных жирных кислотах для взрослых составляет 10%".',
+  },
+  DACH: {
+    'Total Fat': 'Referenzwerte-Tool prints "30" (Richtwert) beside "max. 10" for saturated fat, so it marks ceilings with "max."; footnote c: people with higher energy needs "können höhere Prozentsätze benötigen".',
+    Carbohydrates: 'Infants: printed "≈ 45" / "≈ 47" — explicitly approximate.',
+  },
+  UK: { Carbohydrates: 'BNF DRV table: "Total Carbohydrate 50%" beside "Not more than" for fat, saturated fat and free sugars — SACN 2015 "approximately 50%".' },
+  PHILIPPINES: { Protein: 'PDRI 2015 p. 1 AMDR table: infants 0-5 months protein printed as a single "5" where every other cell is a range.' },
+};
 let fails = 0;
 let knowns = 0;
 const fail = (m: string) => {
@@ -48,6 +67,10 @@ const inUnit = (v: SourceValue, unit: string) => {
 
 const byDemo = new Map<string, SourceValue[]>();
 for (const v of values) {
+  if (v.valueType === 'CDRR' && v.valueMin == null && v.valueMax == null)
+    fail(`${v.from}: CDRR with neither min nor max — is it a floor or a ceiling?`);
+  if (v.valueType === 'AMDR' && v.valueMin == null && v.valueMax == null && !VERIFIED_POINT_TARGETS[region]?.[v.compound])
+    fail(`${v.from}: AMDR with neither min nor max, not a verified point target — read the source's wording and either set a bound or list it in VERIFIED_POINT_TARGETS`);
   if (v.valueMin != null && v.value < v.valueMin) fail(`${v.from}: value ${v.value} < min ${v.valueMin}`);
   if (v.valueMax != null && v.value > v.valueMax) fail(`${v.from}: value ${v.value} > max ${v.valueMax}`);
   const k = demo(v);

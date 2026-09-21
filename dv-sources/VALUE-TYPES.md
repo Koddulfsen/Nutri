@@ -15,8 +15,8 @@ Every source names its values differently. The loaders already map native terms 
 | **AI** | 2,991 | AI (most), Schätzwert (D-A-CH), Safe Intake (UK), адекватный уровень (Russia), "safe and adequate" (EFSA sodium) | Intake assumed adequate where the evidence cannot support an RDA — usually observed healthy intakes. Same direction as an RDA, less certain. |
 | **EAR** | 2,415 | EAR, AR (EFSA) | Intake meeting the needs of **half** a group. A population-planning number. |
 | **UL** | 2,048 | UL (all that set one) | Highest habitual intake unlikely to cause harm. **240 rows are supplement-only** (magnesium, folic acid, niacin forms…). |
-| **CDRR** | 314 | CDRR (US, Korea), PI-NCD / SPL (China), WHO guideline, DG ceiling (Japan), max. (D-A-CH), UK max salt/sugar/fat, Russia "< x %" | Intake tied to lower **chronic-disease** risk. **Both directions**: 258 ceilings (sodium, sugars, saturated/trans fat, cholesterol), 56 floors (potassium, fibre, vitamin C, lycopene, lutein, plant sterols, β-glucan, inulin). |
-| **AMDR** | 693 | AMDR (US, China, Korea), RI (EFSA), DG (Japan), Richtwert (D-A-CH), оптимальная доля (Russia), UK carb target | Share of energy for a macronutrient. **Four shapes**: range (411), floor (110), ceiling (66), point target (106). |
+| **CDRR** | 344 | CDRR (US, Korea), PI-NCD / SPL (China), WHO guideline, DG ceiling (Japan), max. (D-A-CH), UK max salt/sugar/fat, Russia "< x %" | Intake tied to lower **chronic-disease** risk. **Both directions**: 288 ceilings (258 before Russia's fat/saturated-fat fix) (sodium, sugars, saturated/trans fat, cholesterol), 56 floors (potassium, fibre, vitamin C, lycopene, lutein, plant sterols, β-glucan, inulin). |
+| **AMDR** | 663 | AMDR (US, China, Korea), RI (EFSA), DG (Japan), Richtwert (D-A-CH), оптимальная доля (Russia), UK carb target | Share of energy for a macronutrient. **Four shapes**: range (411), floor (110), ceiling (66), point target (76 in the alpha sources, all verified). |
 | **EER** | 845 | EER, AR for energy (EFSA), EAR energy (UK), Richtwert energy (D-A-CH), energy requirement (WHO), RDA energy (India) | Average energy need. Depends on sex, age, body size and **activity** (645 rows are activity-specific). |
 
 **Same meaning, different names:** PRI = RNI = RDA = Empfohlene Zufuhr. AR = EAR. Schätzwert = Safe Intake = AI.
@@ -53,17 +53,27 @@ ceiling). That is one bar with a green zone between the goal and the limit, not 
 
 ## Problems found in this inventory
 
-**1. 106 AMDR rows have no direction.** No min, no max — a bar cannot tell a target from a limit:
+**1. Direction-less values — resolved 2026-09-21.** The inventory found AMDR rows with no min and no max, so a bar
+could not tell a target from a limit. (The first count here said 106 rows from eyeballing; the database query gave 89
+among the alpha sources — Russia 89 before the fix, D-A-CH 15, UK 2 — plus 2 in the Philippines.) Each was checked
+against the source's own wording:
 
-| Source | Compounds | Native term |
-|---|---|---|
-| Russia (78 rows) | carbohydrate 56-58%, protein 12-14%, fat 30%, saturated fat 10%, MUFA 10% | "оптимальная доля в калорийности" (optimal share) |
-| D-A-CH (15) | fat 30%, carbohydrate 45 / 47% | Richtwert |
-| UK (2) | carbohydrate 50% | carb target |
+| Source | Rows | Source wording | Verdict |
+|---|---|---|---|
+| Russia — total fat | 28 | §2 "должно составлять **не более** 30% от калорийности" (not more than) | **Was wrong → now a ceiling** (CDRR, max 30) |
+| Russia — saturated fat | 2 | §2 "должно составлять **не более** 10%" | **Was wrong → now a ceiling** (CDRR, max 10) |
+| Russia — protein, carbohydrate | 57 | §1.7 "доля белка в калорийности **составляет** 14%…"; carbohydrate "от 56 до 58%" per activity group | Point target |
+| Russia — MUFA | 2 | §2 "потребность … **составляет** 10%" | Point target |
+| D-A-CH — total fat | 11 | Printed "30" beside "max. 10" for saturated fat (the tool marks ceilings with "max."); footnote c: higher needs "können höhere Prozentsätze benötigen" | Point target |
+| D-A-CH — infant carbohydrate | 4 | Printed "≈ 45" / "≈ 47" | Point target |
+| UK — carbohydrate | 2 | "50%" beside "Not more than" for fat, saturated fat and free sugars | Point target |
+| Philippines — infant protein | 2 | Single "5" in a table of ranges | Point target |
 
-Most are genuinely **point targets** ("about 50%"), which is a legitimate fifth shape. But at least one is suspect:
-Russia's saturated fat 10% reads like "not more than 10%", which would be a ceiling. **Each needs its source text
-re-read** before the bar can use it. Until then, treat them as point targets and never as limits.
+So 30 rows were mislabelled (Russia's fat and saturated fat would have shown as targets to *reach*) and are fixed in
+`dv-sources/russia-mr-2021/extract.ts`, reloaded and verified (db = file). The remaining 78 are genuine point
+targets. **This can no longer happen silently:** `check-source-consistency.ts` now fails on any CDRR without a
+bound, and on any direction-less AMDR not listed, with its source wording, in `VERIFIED_POINT_TARGETS`
+(negative-tested: removing the UK entry produces 2 failures).
 
 **2. Heavy metals and contaminants have no values at all.** Lead, cadmium, mercury, arsenic and aluminium exist as
 compounds with **0 rows**. Nutrition bodies do not set these: they come from toxicology panels (EFSA CONTAM, the

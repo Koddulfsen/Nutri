@@ -136,19 +136,31 @@ for (const [sexes, tg, tp, sexLabel] of [[['MALE'] as Sex[], '9', '10', 'муж�
 
   // % of energy (table 10 / 15)
   const pctRows: Array<[RegExp, string, string | null]> = [[/^Белок, % от ккал/, 'Protein', null], [/^Жиры?, % от ккал/, 'Total Fat', null], [/^Углеводы, % от ккал/, 'Carbohydrates', null]];
+  // Fat is a ceiling, not a target: §2 "Потребление жиров для взрослых должно составлять не более 30% от калорийности
+  // суточного рациона" (should be NOT MORE THAN 30%). The tables print the same 30 as the share used to compute grams,
+  // but the normative statement is an upper bound, so it is stored as a CDRR with a max. Protein and carbohydrate are
+  // point targets: "доля белка в калорийности составляет 14%", "Доля углеводов колеблется ... от 56 до 58%" (§1.7).
+  const ceiling = (c: ReturnType<typeof num>) => (c ? { ...c, min: null, max: c.value } : c);
+  const FAT_CEILING = 'Printed in the table as the share of energy; §2 states it as a ceiling: "не более 30% от калорийности" (not more than 30%).';
   for (const [label, compound] of pctRows) {
     const cells = cols(row(p, label));
-    ACTS.forEach(([act, actLabel], a) => ADULT_AGES.forEach((age, i) => push({ compound, type: 'AMDR', sexes, age, cell: num(cells[a * 3 + i]), unit: '%', pct: true, activity: act,
-      note: 'Printed as the optimal share of energy.', from: `Table ${tp}, ${row(p, label)[0]}, ${actLabel}, ${['18-29', '30-44', '45-64'][i]} (${sexLabel})` })));
-    ELDER.forEach(([age, l], i) => push({ compound, type: 'AMDR', sexes, age, cell: num(cells[12 + i]), unit: '%', pct: true, note: `Printed as the optimal share of energy. ${elderNote}`, from: `Table ${tp}, ${row(p, label)[0]}, КФА 1,7, ${l} (${sexLabel})` }));
+    const isFat = compound === 'Total Fat';
+    const type: DvValueType = isFat ? 'CDRR' : 'AMDR';
+    const noteFor = (extra?: string) => [isFat ? FAT_CEILING : 'Printed as the optimal share of energy (a point target).', extra].filter(Boolean).join(' ');
+    const cell = (x: string) => (isFat ? ceiling(num(x)) : num(x));
+    ACTS.forEach(([act, actLabel], a) => ADULT_AGES.forEach((age, i) => push({ compound, type, sexes, age, cell: cell(cells[a * 3 + i]), unit: '%', pct: true, activity: act,
+      note: noteFor(), from: `Table ${tp}, ${row(p, label)[0]}, ${actLabel}, ${['18-29', '30-44', '45-64'][i]} (${sexLabel})` })));
+    ELDER.forEach(([age, l], i) => push({ compound, type, sexes, age, cell: cell(cells[12 + i]), unit: '%', pct: true, note: noteFor(elderNote), from: `Table ${tp}, ${row(p, label)[0]}, КФА 1,7, ${l} (${sexLabel})` }));
   }
   const flat: Array<[RegExp, string, DvValueType, string]> = [
-    [/^НЖК/, 'Saturated Fat', 'AMDR', 'Printed as the optimal share of energy (10%).'], [/^МНЖК/, 'Monounsaturated Fat', 'AMDR', 'Printed as the optimal share of energy (10%).'],
+    [/^НЖК/, 'Saturated Fat', 'CDRR', 'Ceiling: §2 "Потребление насыщенных жирных кислот для взрослых и детей должно составлять не более 10% от калорийности" (not more than 10%).'],
+    [/^МНЖК/, 'Monounsaturated Fat', 'AMDR', 'Point target: §2 "Физиологическая потребность в мононенасыщенных жирных кислотах для взрослых составляет 10%" (the need is 10%).'],
     [/^ПНЖК/, 'Polyunsaturated Fat', 'AMDR', ''], [/^Омега-6/, 'Omega-6', 'AMDR', ''], [/^Омега-3/, 'Omega-3', 'AMDR', ''], [/^Добавленные сахара/, 'Added Sugars', 'CDRR', ''],
   ];
   for (const [label, compound, type, note] of flat) {
     const r = row(p, label);
-    push({ compound, type, sexes, age: [216, null], cell: num(r[1]), unit: '%', pct: true, note: note || null, from: `Table ${tp}, ${r[0]} (${sexLabel})` });
+    const c = compound === 'Saturated Fat' ? ceiling(num(r[1])) : num(r[1]);
+    push({ compound, type, sexes, age: [216, null], cell: c, unit: '%', pct: true, note: note || null, from: `Table ${tp}, ${r[0]} (${sexLabel})` });
   }
 }
 
