@@ -320,6 +320,61 @@ export const SOURCE_PROVENANCE: Record<string, SourceProvenance> = {
       },
     },
   },
+  JAPAN: {
+    groups: {
+      vitamins: {
+        class: 'primary',
+        derivedFrom: [],
+        evidence:
+          '日本人の食事摂取基準（2025年版）策定検討会報告書, I 総論 (excerpted verbatim by Nankodo, "日本人の食事摂取基準（2025年版）' +
+          'の概要", 2024.12, p. 2-3): the review formulated research questions "可能な限り PICO 形式を用いて" (in PICO form wherever ' +
+          'possible) and, where evidence had been synthesised quantitatively, "メタ・アナリシスなど、情報の統合が定量的に行われている ' +
+          '場合には、基本的にはそれを優先的に参考にすることとした" (meta-analyses were given priority). Adequate intakes use Japanese ' +
+          'intake distributions — "原則、栄養素摂取量の中央値を用いる" (in principle, the median of nutrient intake).',
+      },
+      minerals: {
+        class: 'primary',
+        derivedFrom: [],
+        evidence:
+          'Same 総論 method (Nankodo excerpt p. 2-3): own evidence review in PICO form with meta-analyses prioritised; the ' +
+          'Japanese study group behind it is the MHLW-funded 令和4-5年度 research project on "日本人の食事摂取基準（2025年版）の策定 ' +
+          'に資する各栄養素等の最新知見の評価" (mhlw-grants.niph.go.jp project 168600).',
+      },
+      carbohydrate: {
+        class: 'primary',
+        derivedFrom: [],
+        evidence:
+          '総論 (Nankodo excerpt p. 8): the tentative dietary goals (目標量, stored as CDRR/AMDR) are set "諸外国の食事摂取基準や疾病予防 ' +
+          'ガイドライン、現在の日本人の摂取量・食品構成・嗜好などを考慮し、実行可能性を重視して" — other countries\' DRIs are one input ' +
+          'alongside current Japanese intake, food composition and preferences, weighted for feasibility. As with EFSA, consulting ' +
+          'others is not adopting them.',
+      },
+    },
+  },
+  CHINA: {
+    groups: {
+      vitamins: {
+        class: 'primary',
+        derivedFrom: [],
+        evidence:
+          'Chinese Nutrition Society, "Dietary Reference Intakes" (en.cnsoc.org/DRIs/122510202.html), on the 2023 edition: the ' +
+          'Society "organized about 100 experts of nutrition science" to retrieve and screen "nutritional research data from both ' +
+          'domestic and international sources over the past decade" over three years, "established and revised essential baseline ' +
+          'reference values for the Chinese population regarding age groupings, representative weights, and reference values for ' +
+          'breast milk composition" (the Chinese Breast Milk Composition Database), and introduced its own PI-NCD category. The ' +
+          '655-page book we transcribe (cns-2023.pdf) has no text layer in its front matter, so its methods chapter has not been ' +
+          'quoted directly yet.',
+      },
+      minerals: {
+        class: 'primary',
+        derivedFrom: [],
+        evidence:
+          'Same CNS statement (en.cnsoc.org/DRIs/122510202.html): Chinese reference body weights and breast-milk values under all ' +
+          'requirement calculations. Numeric corroboration is consistent with independent derivation (e.g. adult calcium 800 mg, ' +
+          'unlike IOM and WHO/FAO at 1000 mg).',
+      },
+    },
+  },
   INDONESIA: {
     groups: {
       vitamins: {
@@ -546,6 +601,6 @@ export const SOURCE_PROVENANCE: Record<string, SourceProvenance> = {
 
 /** Sources whose values are loaded but whose provenance has not been audited yet (see dv-sources/PROVENANCE.md). */
 export const PROVENANCE_PENDING = [
-  'JAPAN', 'CHINA', 'NORDIC', 'UK', 'DACH', 'RUSSIA',
+  'NORDIC', 'UK', 'DACH', 'RUSSIA',
   'ITALY', 'TAIWAN', 'SINGAPORE', 'INDIA',
 ];

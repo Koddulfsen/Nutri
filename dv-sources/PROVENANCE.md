@@ -76,8 +76,8 @@ Sources marked ✅ have both their text evidence read and their entry written in
 | 🟡 | USA/Canada (IOM/NASEM) | Primary for energy, sodium/potassium, calcium and vitamin D — evidenced. **Still to read:** the 1997-2001 vitamin/mineral reports and the 2005 macronutrient report (protein, carbohydrate, fat, fibre, water, AMDRs). |
 | 🟡 | EU (EFSA) | Primary: 34 nutrient-by-nutrient opinions by its own panel. **Still to read:** protein, fat and fibre opinions (the macronutrient group beyond carbohydrate). |
 | ✅ | WHO/FAO | Primary throughout: 2004 expert consultation, 2001 energy consultation, 2012/2015/2023 GRADE guidelines. Shares IOM's *definition* of the RNI, not its values. |
-| ⬜ | Japan (MHLW 2025) | Derives own; check which nutrients cite IOM. |
-| ⬜ | China (CNS 2023) | Large own-evidence base. |
+| ✅ | Japan (MHLW 2025) | `primary`: own PICO-form review, meta-analyses prioritised, Japanese intake medians for AIs. Foreign DRIs are one input to the tentative goals only. |
+| ✅ | China (CNS 2023) | `primary`: ~100 experts, 3 years, Chinese reference weights and breast-milk database. Evidence is the CNS's own statement; the book's methods chapter is a scan with no text layer, not yet quoted. |
 | ✅ | Korea (KDRI 2020) | **`primary`**: IOM's vocabulary, Korea's own systematic review (203,237 studies screened). Only 11 of 34 adult values match IOM. |
 | ⬜ | Nordic (NNR 2023) | Own systematic reviews (de-novo for some nutrients only). |
 | ⬜ | UK (COMA/SACN) | 1991 baseline, own derivation; later updates per nutrient. |
@@ -390,6 +390,25 @@ EAR/RDA/AI/UL vocabulary is just vocabulary.
 **Rule of thumb this establishes:** "we use the DRI framework" is a statement about *terminology and value types*,
 not about numbers. Several sources in this set say it. It is not evidence of dependence on its own, and the numeric
 check is what separates the cases.
+
+### Japan and China (done 2026-09-21)
+
+**Japan — `primary`.** Quoted from the 2025 report's 総論 (via Nankodo's verbatim excerpt; the official MHLW PDF
+link returned an error): research questions formulated *"可能な限り PICO 形式を用いて"* (in PICO form wherever possible),
+with meta-analyses given priority — *"メタ・アナリシスなど、情報の統合が定量的に行われている場合には、基本的にはそれを優先
+的に参考にすることとした"* — and adequate intakes taken from Japanese intake medians. Foreign DRIs enter only the
+tentative dietary goals (目標量), as one input next to *"現在の日本人の摂取量・食品構成・嗜好"* — current Japanese
+intake, food composition and preferences. Same stance as EFSA: consulting is not adopting.
+
+Japan matters beyond itself here: **Vietnam takes vitamin A, E, K, phosphorus and magnesium from it**, so Japan is
+itself a root that Vietnam's values collapse into.
+
+**China — `primary`, on weaker evidence than the others.** The Chinese Nutrition Society's own account: about 100
+experts, three years, *"nutritional research data from both domestic and international sources over the past
+decade"*, with new Chinese reference body weights and the Chinese Breast Milk Composition Database under the
+calculations. The numbers fit (adult calcium 800 mg, checked in the database, against 1000 mg from IOM and WHO/FAO).
+But the evidence is the Society's summary page, not the book: the 655-page volume we transcribe is a scan whose
+methods chapter has no text layer. Recorded honestly as such, so the gap is visible rather than papered over.
 
 ## Open question for aggregation (decide after the audit)
 
