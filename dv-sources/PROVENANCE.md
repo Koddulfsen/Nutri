@@ -101,14 +101,14 @@ Sources marked ✅ have both their text evidence read and their entry written in
 | ✅ | Singapore (HPB) | `adopted` — every value footnoted to FAO/WHO reports of **1961-1985** or IOM 2001. Only vitamin D is locally adjusted. |
 | ✅ | India (ICMR brief) | `primary`: the 2020 committee's own estimates from Indian absorption and loss data; far from IOM (iron 19 vs 8 mg). |
 
-### Not yet loaded (do provenance at load time, not as a second pass)
+### Not loaded — checked from their documents (2026-09-21)
 
-| | Source |
-|---|---|
-| ⬜ | Thailand (DRI 2020) |
-| ⬜ | Poland (2020) |
-| ⬜ | Belgium (2016) |
-| ⬜ | Türkiye (TÜBER 2022) |
+| | Source | Finding |
+|---|---|---|
+| ✅ | Poland (Normy żywienia 2020) | `adopted`, IOM lineage. Keeps its institute's earlier norms; adult values are IOM's almost throughout. ULs and infant AIs are EFSA's. Not independent. |
+| ✅ | Belgium (CSS 9285, 2016) | `adopted`, EFSA: follows EFSA "afin de rester cohérent au sein de l'Union européenne". Not independent. |
+| ✅ | Türkiye (TÜBER) | `adopted`, EFSA + IOM mix, values "accepted" for Türkiye. Not independent. |
+| ⬜ | Thailand (DRI 2020) | Book not obtainable; unclassified. |
 
 ## Findings
 
@@ -499,11 +499,40 @@ should be able to state.
 
 - **Unfinished entries (🟡):** USA/Canada 1997-2005 reports; EFSA protein/fat/fibre opinions; D-A-CH derivation
   chapters (paid binder); Philippines full PDRI report; Indonesia WNPG XI proceedings; Italy LARN method text.
-- **Parked until after alpha (not loaded):** Thailand, Poland, Belgium, Türkiye — provenance at load time if ever loaded.
+- **Not to be loaded for alpha:** Poland, Belgium and Türkiye were checked and are adopters; Thailand's book is unobtainable.
 - **Aggregation change:** collapse `adopted` into its parent, follow chains (Netherlands → Nordic → IOM), exclude
   `aggregate`, and decide how to treat `unknown`.
 - **Stale adopters:** Singapore's values descend from WHO/FAO reports WHO/FAO has since replaced. The aggregator
   needs to know that a copy of a *superseded* judgement is not a vote for the current one.
+
+### Poland, Belgium, Türkiye, Thailand — checked, not loaded (2026-09-21)
+
+None of these is in `reference_daily_values`; they were checked to decide whether loading them would add an
+independent source. **None does**, so none should be loaded for alpha.
+
+**Poland — `adopted`, IOM lineage.** *Normy żywienia dla populacji Polski* (NIZP-PZH 2020, 465 pp.) keeps the norms
+of its own Institute of Food and Nutrition for children and adults — *"pozostawiono normy opracowane przez Instytut
+Żywności i Żywienia w poprzednich latach"* — and names IOM as the chief model for national standards. Those earlier
+norms are IOM's: the adult-male table (Tabele 18-23) gives vitamin C 75/90 mg, folate 320/400 µg, choline 550 mg,
+biotin 30 µg, magnesium 350/420 mg, zinc 9.4/11 mg, all identical to IOM. Its departures are few (iron 10 vs 8 mg,
+vitamin E 10, vitamin K 65). Infant AIs and all ULs are taken from EFSA — *"przyjęto wartości UL zaproponowane przez
+ekspertów EFSA"*. Notably it **refused** EFSA's calcium, iron and sodium values for lack of current Polish intake
+data — a real judgement, but one that keeps the older IOM-based value rather than making a new one.
+
+**Belgium — `adopted`, EFSA.** CSS avis 9285 (2016): revisions made on recent literature and *"les avis du European
+Food Safety Authority (EFSA)"*; per nutrient it follows EFSA — calcium (*"Il semble opportun de suivre les récentes
+recommandations de l'EFSA"*), selenium, manganese and vitamin A (*"Afin de rester cohérent au sein de l'Union
+européenne, le CSS a décidé de suivre pour la Belgique les estimations de l'EFSA"*). Phosphorus is kept equal to the
+Nordic value.
+
+**Türkiye — `adopted`, EFSA + IOM.** The TÜBER vitamin table (Ek 1.5.1, p. 172; checked on the page render) gives
+adult vitamin A 750, C 110/95, E 13, folate 330, B12 4, biotin 40 — EFSA's — alongside vitamin K 120 and thiamin 1.2
+— IOM's. Footnote 8 states these PRI/RDA and AI values *"Türkiye için yeterli alım miktarları olarak kabul
+edilmiştir"* (were accepted as the adequate intakes for Türkiye). Child energy is *"EFSA NDA Panel 2013 önerileri esas
+alınmıştır"*. The PDF obtained is the 2015 edition; the 2022 edition updates it from the same basis.
+
+**Thailand — unclassified.** The 2020 Thai DRI book could not be obtained from any source reachable here. Nothing
+is claimed about it.
 
 ## Decision for Nutri Alpha (Jens, 2026-09-21)
 
