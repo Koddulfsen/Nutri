@@ -8,9 +8,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { createClient } from '@/lib/supabase/server';
-import { db } from '@/db';
-import { mealLogs, mealItems } from '@/db/schema';
-import { eq, and, gte, lte } from 'drizzle-orm';
+import { getMealDates } from '@/lib/services/day-dates';
 
 const QuerySchema = z.object({
   from: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
@@ -38,20 +36,7 @@ export async function GET(request: NextRequest) {
   const { from, to } = parsed.data;
   const userId = user.id;
 
-  // Get distinct dates where the user has at least one meal item
-  const rows = await db
-    .selectDistinct({ date: mealLogs.date })
-    .from(mealLogs)
-    .innerJoin(mealItems, eq(mealItems.mealLogId, mealLogs.id))
-    .where(
-      and(
-        eq(mealLogs.userId, userId),
-        gte(mealLogs.date, from),
-        lte(mealLogs.date, to),
-        eq(mealLogs.isActive, true),
-      )
-    );
-
-  const dates = rows.map((r) => r.date);
+  // Distinct dates where the user has at least one meal item
+  const dates = await getMealDates(userId, from, to);
   return NextResponse.json({ dates });
 }

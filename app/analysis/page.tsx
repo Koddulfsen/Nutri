@@ -13,6 +13,7 @@
  * with fast load times.
  */
 
+import { unstable_cache } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
 import AnalysisClient from './AnalysisClient';
 import { CORE_COMPOUNDS } from '@/lib/data/core-compounds';
@@ -108,6 +109,14 @@ async function getCompoundGroupsHierarchy(): Promise<GroupHierarchy[]> {
   return rootGroups;
 }
 
+// The compound groups only change when the seed scripts run, so keep the
+// result for an hour rather than querying on every visit. (The page is
+// force-dynamic, which is why `revalidate` above never applied to this.)
+// After re-seeding groups, expect up to an hour before /analysis shows them.
+const getCachedCompoundGroups = unstable_cache(getCompoundGroupsHierarchy, ['analysis-compound-groups'], {
+  revalidate: 3600,
+});
+
 interface PageProps {
   searchParams: Promise<{ date?: string }>;
 }
@@ -115,8 +124,12 @@ interface PageProps {
 export default async function AnalysisPage({ searchParams }: PageProps) {
   const supabase = await createClient();
 
+  // The two slow steps don't depend on each other, so run them together.
   // Auth is optional — guests get a limited experience backed by localStorage
-  const { data: { user } } = await supabase.auth.getUser();
+  const [{ data: { user } }, compoundGroupsHierarchy] = await Promise.all([
+    supabase.auth.getUser(),
+    getCachedCompoundGroups(),
+  ]);
 
   // The alpha gate is gone: anyone who signs up reaches the real analysis view.
   // Auth stays optional here by design — a guest gets the localStorage-backed
@@ -128,9 +141,6 @@ export default async function AnalysisPage({ searchParams }: PageProps) {
   const initialDate = dateRegex.test(params.date || '')
     ? params.date!
     : new Date().toISOString().split('T')[0];
-
-  // Fetch compound groups hierarchy from DB (cached)
-  const compoundGroupsHierarchy = await getCompoundGroupsHierarchy();
 
   // Pass both compounds and groups as server-side props
   return (

@@ -12,6 +12,7 @@ import DvSourceSelector from './components/DvSourceSelector';
 import SymptomDropdown from './components/SymptomDropdown';
 import CompoundTooltip from './components/CompoundTooltip';
 import { useDateNavigation } from '@/lib/hooks/useDateNavigation';
+import { useDebouncedValue } from '@/lib/hooks/useDebouncedValue';
 import { WeekStrip } from '@/components/calendar';
 import {
   assemblePayload,
@@ -428,7 +429,12 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
   // Load the dots for a ±45-day window around the selected date — and only
   // again once the selection gets within 14 days of the window's edge, rather
   // than on every day click.
+  const firstDotsRunRef = useRef(true);
   useEffect(() => {
+    if (firstDotsRunRef.current) {
+      firstDotsRunRef.current = false; // the startup request loads the first window
+      return;
+    }
     const loaded = datesWindowRef.current;
     if (loaded) {
       const inner = (d: string, days: number) => {
@@ -526,6 +532,9 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
   // Profile picker state (for DV context)
   const [sex, setSex] = useState<'male' | 'female'>('male');
   const [profileAge, setProfileAge] = useState<number>(25);
+  // The age everything else reacts to: typing "34" shouldn't send requests for
+  // "3" and then "34".
+  const debouncedAge = useDebouncedValue(profileAge, 350);
   const [activityLevel, setActivityLevel] = useState<'SEDENTARY' | 'MODERATE' | 'ACTIVE' | 'VERY_ACTIVE'>('MODERATE');
 
   // Close search dropdown when clicking outside
@@ -574,9 +583,34 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
   }, []);
 
   // Fetch DVs for all compounds, refetch when picker age/sex changes
+  // Daily values for the picker's age and sex. Remembered per combination, so
+  // going back to one already used needs no request. Anything else the picker
+  // sends in future (activity level, ...) must go into `dvKey` too.
+  const dvCacheRef = useRef<Map<string, Record<string, any>>>(new Map());
+  const latestDvKeyRef = useRef('');
+  const dvLoadedOnceRef = useRef(false);
+  const dvRecalcNeededRef = useRef(false);
   useEffect(() => {
     async function fetchCompoundDVs() {
       if (initialCompounds.length === 0) return;
+
+      const sexParam = sex === 'male' ? 'MALE' : 'FEMALE';
+      const dvKey = `${debouncedAge}:${sexParam}`;
+      latestDvKeyRef.current = dvKey;
+
+      // A new set of daily values; after the first one, the totals need
+      // recalculating against it (done in the effect below, locally).
+      const apply = (dvs: Record<string, any>) => {
+        setCompoundDVs(dvs);
+        if (dvLoadedOnceRef.current) dvRecalcNeededRef.current = true;
+        dvLoadedOnceRef.current = true;
+      };
+
+      const cached = dvCacheRef.current.get(dvKey);
+      if (cached) {
+        apply(cached);
+        return;
+      }
 
       try {
         const compoundIds = initialCompounds.map((c: any) => c.id);
@@ -585,13 +619,16 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             compoundIds,
-            age: profileAge,
-            sex: sex === 'male' ? 'MALE' : 'FEMALE',
+            age: debouncedAge,
+            sex: sexParam,
           }),
         });
         if (res.ok) {
           const data = await res.json();
-          setCompoundDVs(data.dailyValues || {});
+          const dvs = data.dailyValues || {};
+          dvCacheRef.current.set(dvKey, dvs);
+          // The picker may have moved on while this was in flight
+          if (latestDvKeyRef.current === dvKey) apply(dvs);
         } else {
           console.error('Failed to fetch compound DVs:', res.status, res.statusText);
         }
@@ -600,11 +637,92 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
       }
     }
     fetchCompoundDVs();
-  }, [initialCompounds, profileAge, sex]);
+  }, [initialCompounds, debouncedAge, sex]);
+
+  // The picker changed the daily values: recalculate the totals here, from the
+  // nutrient numbers already held, instead of asking the server again. Falls
+  // back to the server only if some food's numbers haven't arrived.
+  useEffect(() => {
+    if (!dvRecalcNeededRef.current) return;
+    dvRecalcNeededRef.current = false;
+    if (!recalcLocally(mealsRef.current, selectedItemIdsRef.current)) fetchDailyTotals(selectedDate);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [compoundDVs]);
+
+  // Startup: one request for everything the first screen needs — the day, the
+  // food catalog, the symptom list, the calendar dots — instead of one request
+  // each. If it fails, each part loads the old way.
+  const selectedDateRef = useRef(selectedDate);
+  selectedDateRef.current = selectedDate;
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const date = selectedDate;
+      const center = new Date(date + 'T12:00:00');
+      const from = new Date(center);
+      from.setDate(from.getDate() - 45);
+      const to = new Date(center);
+      to.setDate(to.getDate() + 45);
+      const datesFrom = from.toISOString().slice(0, 10);
+      const datesTo = to.toISOString().slice(0, 10);
+      datesWindowRef.current = { from: datesFrom, to: datesTo };
+
+      setMealsLoading(true);
+      setSymptomsLoading(true);
+      try {
+        const res = await fetch(apiUrl('/api/analysis/bootstrap'), {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            date,
+            age: debouncedAge,
+            sex: sex === 'male' ? 'MALE' : 'FEMALE',
+            datesFrom,
+            datesTo,
+          }),
+        });
+        if (!res.ok) throw new Error(res.statusText);
+        const data = await res.json();
+        if (cancelled) return;
+
+        setFoodCatalog(data.catalog || []);
+        setCatalogLoading(false);
+        setSymptomDefinitions(data.symptomDefinitions || []);
+        setDatesWithData((prev) => {
+          const next = new Set(prev);
+          (data.dates || []).forEach((d: string) => next.add(d));
+          return next;
+        });
+        // Show the day unless the date was changed while this was on its way
+        ingestDay(date, data.day, selectedDateRef.current === date);
+      } catch (error) {
+        console.error('Startup request failed; loading each part separately:', error);
+        if (cancelled) return;
+        loadCatalog();
+        fetchDefinitions();
+        fetchDatesWithData(datesFrom, datesTo);
+        fetchMealsForDate(selectedDateRef.current);
+      } finally {
+        if (!cancelled) {
+          setMealsLoading(false);
+          setSymptomsLoading(false);
+        }
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // When the date changes: show the day at once if it is already loaded, then
   // refresh it from the server — quietly if it was shown from the cache.
+  const firstDayRunRef = useRef(true);
   useEffect(() => {
+    if (firstDayRunRef.current) {
+      firstDayRunRef.current = false; // the startup request loads the first day
+      return;
+    }
     const shownFromCache = showCachedDay(selectedDate);
     fetchMealsForDate(selectedDate, false, { silent: shownFromCache });
   }, [selectedDate]);
@@ -626,18 +744,6 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
     };
   }, [selectedDate]);
 
-  // Refetch daily totals when the DV picker (age/sex) changes — needed so rdaPercent
-  // is recomputed server-side against the new demographic-driven targets.
-  const pickerMountedRef = useRef(false);
-  useEffect(() => {
-    if (!pickerMountedRef.current) {
-      pickerMountedRef.current = true;
-      return;
-    }
-    fetchDailyTotals(selectedDate);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [profileAge, sex]);
-
   // Fetch symptom definitions
   const fetchDefinitions = async () => {
     try {
@@ -651,7 +757,7 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
     }
   };
 
-  useEffect(() => { fetchDefinitions(); }, []);
+  // (Loaded by the startup request below; fetchDefinitions is its fallback.)
 
   // (A day's symptoms now arrive with its meals — see syncDay — so there is no
   // separate request when the date changes.)
@@ -679,28 +785,21 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
     }
   }
 
-  // Fetch the whole food catalog once, up front — independent of which tab
-  // is open, so it has usually already arrived by the time someone switches
-  // to Manual search.
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      try {
-        const res = await fetch(apiUrl('/api/foods/catalog'));
-        if (!res.ok) throw new Error(`Failed to load food catalog: ${res.statusText}`);
-        const data = await res.json();
-        if (!cancelled) setFoodCatalog(data.foods || []);
-      } catch (error) {
-        console.error('Food catalog fetch error:', error);
-        if (!cancelled) setCatalogError(error instanceof Error ? error.message : 'Failed to load foods');
-      } finally {
-        if (!cancelled) setCatalogLoading(false);
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+  // Loader for the food catalog, used only if the combined startup request
+  // (below) fails — normally the catalog arrives with it.
+  const loadCatalog = async () => {
+    try {
+      const res = await fetch(apiUrl('/api/foods/catalog'));
+      if (!res.ok) throw new Error(`Failed to load food catalog: ${res.statusText}`);
+      const data = await res.json();
+      setFoodCatalog(data.foods || []);
+    } catch (error) {
+      console.error('Food catalog fetch error:', error);
+      setCatalogError(error instanceof Error ? error.message : 'Failed to load foods');
+    } finally {
+      setCatalogLoading(false);
+    }
+  };
 
   // Instant search: filters the already-loaded catalog in memory on every
   // keystroke. No request, so nothing to debounce.
@@ -723,7 +822,7 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
       setTotalsLoading(true);
       const params = new URLSearchParams({
         date,
-        age: String(profileAge),
+        age: String(debouncedAge),
         sex: sex === 'male' ? 'MALE' : 'FEMALE',
       });
 
@@ -860,6 +959,48 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
     }
   };
 
+  // Take a day's data from the server into the page: the food numbers, the
+  // cache, the calendar dot — and, when `show`, the screen itself. `show` is
+  // false for an answer that has been overtaken by a later request, which
+  // would otherwise briefly undo it.
+  const ingestDay = (date: string, data: any, show: boolean) => {
+    const loadedMeals = data.meals || [];
+    mealIdRef.current = loadedMeals[0]?.id ?? null;
+    if (data.vectors) {
+      for (const [id, v] of unpackVectors(data.vectors)) vectorsRef.current.set(id, v);
+    }
+    // Remember this day whatever happens to the response below
+    dayCacheRef.current.set(date, {
+      meals: loadedMeals,
+      symptoms: data.symptoms ?? dayCacheRef.current.get(date)?.symptoms ?? null,
+    });
+    if (loadedMeals.some((m: any) => (m.items || []).length > 0)) {
+      setDatesWithData((prev) => (prev.has(date) ? prev : new Set(prev).add(date)));
+    }
+
+    if (show) {
+      setMeals(loadedMeals);
+      // Selected meals default to ALL meals
+      setSelectedMealIds(loadedMeals.map((m: any) => m.id));
+      // Set active tab to first meal if not already set
+      if (loadedMeals.length > 0 && !activeTab) {
+        setActiveTab(loadedMeals[0].mealType || loadedMeals[0].id);
+      }
+      if (data.symptoms) setSymptoms(data.symptoms);
+      setDailyTotals(data.dailyTotals);
+      if (process.env.NODE_ENV !== 'production') warnOnTotalsDrift(loadedMeals, data.dailyTotals);
+      // The sync returns unfiltered totals; keep an active food selection
+      // (minus anything just removed) applied on top.
+      const present = new Set(loadedMeals.flatMap((m: any) => (m.items || []).map((i: any) => i.id)));
+      const kept = selectedItemIdsRef.current.filter((id) => present.has(id));
+      if (kept.length !== selectedItemIdsRef.current.length) {
+        selectedItemIdsRef.current = kept;
+        setSelectedItemIds(kept);
+      }
+      if (kept.length > 0 && !recalcLocally(loadedMeals, kept)) fetchDailyTotals(date, undefined, kept);
+    }
+  };
+
   // Applies one change (or none) and loads the day's meals AND totals in a
   // single request — this used to be three calls in a row (change, meals,
   // totals), each re-checking auth. Calls are queued so they reach the server
@@ -877,7 +1018,7 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             date,
-            age: profileAge,
+            age: debouncedAge,
             sex: sex === 'male' ? 'MALE' : 'FEMALE',
             change: getChange?.(),
             knownFoodIds: [...vectorsRef.current.keys()],
@@ -891,42 +1032,7 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
           throw new Error(errorData.message || errorData.error || 'Failed to update meals');
         }
 
-        const data = await res.json();
-        const loadedMeals = data.meals || [];
-        mealIdRef.current = loadedMeals[0]?.id ?? null;
-        if (data.vectors) {
-          for (const [id, v] of unpackVectors(data.vectors)) vectorsRef.current.set(id, v);
-        }
-        // Remember this day whatever happens to the response below
-        dayCacheRef.current.set(date, {
-          meals: loadedMeals,
-          symptoms: data.symptoms ?? dayCacheRef.current.get(date)?.symptoms ?? null,
-        });
-        if (loadedMeals.some((m: any) => (m.items || []).length > 0)) {
-          setDatesWithData((prev) => (prev.has(date) ? prev : new Set(prev).add(date)));
-        }
-
-        if (pendingSyncsRef.current === 1) {
-          setMeals(loadedMeals);
-          // Selected meals default to ALL meals
-          setSelectedMealIds(loadedMeals.map((m: any) => m.id));
-          // Set active tab to first meal if not already set
-          if (loadedMeals.length > 0 && !activeTab) {
-            setActiveTab(loadedMeals[0].mealType || loadedMeals[0].id);
-          }
-          if (data.symptoms) setSymptoms(data.symptoms);
-          setDailyTotals(data.dailyTotals);
-          if (process.env.NODE_ENV !== 'production') warnOnTotalsDrift(loadedMeals, data.dailyTotals);
-          // The sync returns unfiltered totals; keep an active food selection
-          // (minus anything just removed) applied on top.
-          const present = new Set(loadedMeals.flatMap((m: any) => (m.items || []).map((i: any) => i.id)));
-          const kept = selectedItemIdsRef.current.filter((id) => present.has(id));
-          if (kept.length !== selectedItemIdsRef.current.length) {
-            selectedItemIdsRef.current = kept;
-            setSelectedItemIds(kept);
-          }
-          if (kept.length > 0 && !recalcLocally(loadedMeals, kept)) fetchDailyTotals(date, undefined, kept);
-        }
+        ingestDay(date, await res.json(), pendingSyncsRef.current === 1);
       } finally {
         pendingSyncsRef.current -= 1;
         if (pendingSyncsRef.current === 0) setTotalsLoading(false);
