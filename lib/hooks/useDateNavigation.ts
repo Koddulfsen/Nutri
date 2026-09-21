@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useMemo } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import {
   format,
   parseISO,
@@ -57,7 +57,6 @@ function isValidDateString(dateStr: string): boolean {
 export function useDateNavigation(
   options: UseDateNavigationOptions = {}
 ): UseDateNavigationReturn {
-  const router = useRouter();
   const searchParams = useSearchParams();
 
   const urlDate = searchParams.get('date');
@@ -82,9 +81,13 @@ export function useDateNavigation(
 
       const params = new URLSearchParams(searchParams.toString());
       params.set('date', dateStr);
-      router.push(`/analysis?${params.toString()}`, { scroll: false });
+      // Update the URL without a server round trip: Next patches the History
+      // API so useSearchParams (and so selectedDate) follows it. router.push
+      // re-rendered the whole page on the server for every day click, and
+      // nothing changed until that finished.
+      window.history.pushState(null, '', `/analysis?${params.toString()}`);
     },
-    [router, searchParams]
+    [searchParams]
   );
 
   const goToPreviousDay = useCallback(() => {

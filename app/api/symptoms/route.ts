@@ -11,7 +11,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { createClient } from '@/lib/supabase/server';
-import { logSymptom, getSymptomsForDate } from '@/lib/services/symptom-service';
+import { logSymptom, getSymptomsForDate, toSymptomLogPayload } from '@/lib/services/symptom-service';
 import { ensureUserProfile } from '@/lib/services/user-service';
 import { logger } from '@/lib/logger';
 
@@ -214,15 +214,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       date: validationResult.data.date,
-      symptoms: symptoms.map((log) => ({
-        id: log.id,
-        symptomDefinitionId: log.symptomDefinitionId,
-        date: log.date,
-        intensity: log.intensity,
-        notes: log.notes,
-        loggedAt: log.loggedAt.toISOString(),
-        symptomDefinition: log.symptomDefinition,
-      })),
+      symptoms: symptoms.map(toSymptomLogPayload),
     });
   } catch (error) {
     logger.error(

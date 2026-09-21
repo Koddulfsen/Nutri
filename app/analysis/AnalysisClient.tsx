@@ -425,14 +425,28 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
     }
   };
 
-  // Fetch a ±45-day window around selected date on mount / date change
+  // Load the dots for a ±45-day window around the selected date — and only
+  // again once the selection gets within 14 days of the window's edge, rather
+  // than on every day click.
   useEffect(() => {
+    const loaded = datesWindowRef.current;
+    if (loaded) {
+      const inner = (d: string, days: number) => {
+        const x = new Date(d + 'T12:00:00');
+        x.setDate(x.getDate() + days);
+        return x.toISOString().slice(0, 10);
+      };
+      if (selectedDate >= inner(loaded.from, 14) && selectedDate <= inner(loaded.to, -14)) return;
+    }
     const center = new Date(selectedDate + 'T12:00:00');
     const from = new Date(center);
     from.setDate(from.getDate() - 45);
     const to = new Date(center);
     to.setDate(to.getDate() + 45);
-    fetchDatesWithData(from.toISOString().slice(0, 10), to.toISOString().slice(0, 10));
+    const fromStr = from.toISOString().slice(0, 10);
+    const toStr = to.toISOString().slice(0, 10);
+    datesWindowRef.current = { from: fromStr, to: toStr };
+    fetchDatesWithData(fromStr, toStr);
   }, [selectedDate]);
 
   // Fetch expanded calendar month when it changes
@@ -461,6 +475,12 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
   // someone looked at is part of their food diary.
   const vectorsRef = useRef<Map<string, FoodVector>>(new Map());
   const vectorsRequestedRef = useRef<Set<string>>(new Set());
+  // Days already loaded (or prefetched), so opening one shows instantly and is
+  // then refreshed quietly. Memory only, like the nutrient numbers above.
+  const dayCacheRef = useRef<Map<string, { meals: any[]; symptoms: any[] | null }>>(new Map());
+  const prefetchingRef = useRef<Set<string>>(new Set());
+  // The span of days the calendar dots were last loaded for
+  const datesWindowRef = useRef<{ from: string; to: string } | null>(null);
   const mealsRef = useRef<any[]>([]);
   mealsRef.current = meals;
   const [mealsLoading, setMealsLoading] = useState(false);
@@ -582,9 +602,28 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
     fetchCompoundDVs();
   }, [initialCompounds, profileAge, sex]);
 
-  // Fetch meals when date changes
+  // When the date changes: show the day at once if it is already loaded, then
+  // refresh it from the server — quietly if it was shown from the cache.
   useEffect(() => {
-    fetchMealsForDate(selectedDate);
+    const shownFromCache = showCachedDay(selectedDate);
+    fetchMealsForDate(selectedDate, false, { silent: shownFromCache });
+  }, [selectedDate]);
+
+  // Once the day is up, quietly load the rest of the visible week so clicking
+  // any of them is instant. One cheap request per day (meals, symptoms and food
+  // numbers — no totals; the browser works those out if the day is opened).
+  useEffect(() => {
+    let cancelled = false;
+    const timer = setTimeout(async () => {
+      for (const day of weekDays) {
+        if (cancelled) return;
+        if (day.date !== selectedDate) await prefetchDay(day.date);
+      }
+    }, 800);
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
   }, [selectedDate]);
 
   // Refetch daily totals when the DV picker (age/sex) changes — needed so rdaPercent
@@ -614,10 +653,8 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
 
   useEffect(() => { fetchDefinitions(); }, []);
 
-  // Fetch symptoms when date changes
-  useEffect(() => {
-    fetchSymptomsForDate(selectedDate);
-  }, [selectedDate]);
+  // (A day's symptoms now arrive with its meals — see syncDay — so there is no
+  // separate request when the date changes.)
 
   // Fetch symptoms for a date
   async function fetchSymptomsForDate(date: string) {
@@ -632,6 +669,8 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
 
       const data = await res.json();
       setSymptoms(data.symptoms || []);
+      const cachedDay = dayCacheRef.current.get(date);
+      if (cachedDay) cachedDay.symptoms = data.symptoms || [];
     } catch (error) {
       console.error('Failed to fetch symptoms:', error);
       setSymptoms([]);
@@ -754,6 +793,52 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
     }
   };
 
+  // Show a day straight from the cache. Returns false if it isn't there.
+  const showCachedDay = (date: string): boolean => {
+    const cached = dayCacheRef.current.get(date);
+    if (!cached) return false;
+    setMeals(cached.meals);
+    setSelectedMealIds(cached.meals.map((m: any) => m.id));
+    mealIdRef.current = cached.meals[0]?.id ?? null;
+    if (cached.symptoms) setSymptoms(cached.symptoms);
+    // Totals from the numbers we hold; if any are missing the server's answer
+    // (already on its way) fills them in — until then, not the previous day's.
+    if (!recalcLocally(cached.meals)) setDailyTotals(null);
+    return true;
+  };
+
+  // Load a neighbouring day into the cache without showing it.
+  const prefetchDay = async (date: string) => {
+    if (dayCacheRef.current.has(date) || prefetchingRef.current.has(date)) return;
+    prefetchingRef.current.add(date);
+    try {
+      const res = await fetch(apiUrl('/api/meals/sync'), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          date,
+          skipTotals: true,
+          withSymptoms: true,
+          knownFoodIds: [...vectorsRef.current.keys()],
+        }),
+      });
+      if (!res.ok) return;
+      const data = await res.json();
+      if (data.vectors) {
+        for (const [id, v] of unpackVectors(data.vectors)) vectorsRef.current.set(id, v);
+      }
+      const dayMeals = data.meals || [];
+      dayCacheRef.current.set(date, { meals: dayMeals, symptoms: data.symptoms ?? null });
+      if (dayMeals.some((m: any) => (m.items || []).length > 0)) {
+        setDatesWithData((prev) => (prev.has(date) ? prev : new Set(prev).add(date)));
+      }
+    } catch {
+      // a prefetch failing costs nothing: the day just loads normally when opened
+    } finally {
+      prefetchingRef.current.delete(date);
+    }
+  };
+
   // Fetch nutrient numbers for foods we don't have yet — e.g. the moment one is
   // picked in search, so adding it can update the totals instantly.
   const ensureVectors = async (foodIds: string[]) => {
@@ -796,6 +881,8 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
             sex: sex === 'male' ? 'MALE' : 'FEMALE',
             change: getChange?.(),
             knownFoodIds: [...vectorsRef.current.keys()],
+            // a plain load also wants the day's symptoms; a change doesn't
+            withSymptoms: getChange === undefined,
           }),
         });
 
@@ -810,6 +897,14 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
         if (data.vectors) {
           for (const [id, v] of unpackVectors(data.vectors)) vectorsRef.current.set(id, v);
         }
+        // Remember this day whatever happens to the response below
+        dayCacheRef.current.set(date, {
+          meals: loadedMeals,
+          symptoms: data.symptoms ?? dayCacheRef.current.get(date)?.symptoms ?? null,
+        });
+        if (loadedMeals.some((m: any) => (m.items || []).length > 0)) {
+          setDatesWithData((prev) => (prev.has(date) ? prev : new Set(prev).add(date)));
+        }
 
         if (pendingSyncsRef.current === 1) {
           setMeals(loadedMeals);
@@ -819,6 +914,7 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
           if (loadedMeals.length > 0 && !activeTab) {
             setActiveTab(loadedMeals[0].mealType || loadedMeals[0].id);
           }
+          if (data.symptoms) setSymptoms(data.symptoms);
           setDailyTotals(data.dailyTotals);
           if (process.env.NODE_ENV !== 'production') warnOnTotalsDrift(loadedMeals, data.dailyTotals);
           // The sync returns unfiltered totals; keep an active food selection
@@ -849,7 +945,10 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
       // Silent: this is reconciling an optimistic add/remove with the
       // server's real data. The list already shows the right thing, so
       // don't flash "Loading…" over it while we double-check.
-      if (!silent) setMealsLoading(true);
+      if (!silent) {
+        setMealsLoading(true);
+        setSymptomsLoading(true);
+      }
       if (!preserveActiveTab) {
         setActiveTab(''); // Reset active tab only when changing dates
         selectedItemIdsRef.current = [];
@@ -863,7 +962,10 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
         setSelectedMealIds([]);
       }
     } finally {
-      if (!silent) setMealsLoading(false);
+      if (!silent) {
+        setMealsLoading(false);
+        setSymptomsLoading(false);
+      }
     }
   }
 

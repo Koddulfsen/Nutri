@@ -426,6 +426,19 @@ export async function deleteSymptomLog(
  * @param date - Date (YYYY-MM-DD)
  * @returns Array of symptom logs with definitions
  */
+/** The JSON shape /analysis reads for a symptom log. */
+export function toSymptomLogPayload(log: SymptomLog) {
+  return {
+    id: log.id,
+    symptomDefinitionId: log.symptomDefinitionId,
+    date: log.date,
+    intensity: log.intensity,
+    notes: log.notes,
+    loggedAt: log.loggedAt.toISOString(),
+    symptomDefinition: log.symptomDefinition,
+  };
+}
+
 export async function getSymptomsForDate(
   userId: string,
   date: string

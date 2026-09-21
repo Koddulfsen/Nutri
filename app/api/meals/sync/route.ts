@@ -38,6 +38,10 @@ const SyncSchema = z.object({
   sex: z.enum(['MALE', 'FEMALE']).optional(),
   // Foods the browser already has nutrient numbers for; they aren't sent again
   knownFoodIds: z.array(z.string().uuid()).max(500).optional(),
+  // Also return the day's symptom logs
+  withSymptoms: z.boolean().optional(),
+  // Meals, symptoms and food numbers only — no totals (only without a change)
+  skipTotals: z.boolean().optional(),
   change: z
     .discriminatedUnion('type', [
       z.object({
@@ -57,7 +61,8 @@ const SyncSchema = z.object({
 export const POST = withAuth(
   async ({ user, input }) => {
     const userId = user.id;
-    const { date, age, sex, change, knownFoodIds } = input;
+    const { date, age, sex, change, knownFoodIds, withSymptoms } = input;
+    const skipTotals = !change && input.skipTotals === true;
 
     if (change?.type === 'add') {
       const { food, mealId } = change;
@@ -107,7 +112,7 @@ export const POST = withAuth(
     // work, so it costs no extra time); the fresh value is written after the
     // response goes out. If that write is lost, the next read just recalculates.
     const [state] = await Promise.all([
-      loadDayState({ userId, date, age, sex, knownFoodIds }),
+      loadDayState({ userId, date, age, sex, knownFoodIds, withSymptoms, skipTotals }),
       change ? invalidateDailyTotals(userId, date) : Promise.resolve(),
     ]);
 
@@ -124,7 +129,13 @@ export const POST = withAuth(
       });
     }
 
-    return NextResponse.json({ date, meals: state.meals, dailyTotals: state.dailyTotals, vectors: state.vectors });
+    return NextResponse.json({
+      date,
+      meals: state.meals,
+      dailyTotals: state.dailyTotals,
+      vectors: state.vectors,
+      symptoms: state.symptoms,
+    });
   },
   { schema: SyncSchema, source: 'body' }
 );

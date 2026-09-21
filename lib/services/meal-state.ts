@@ -14,6 +14,7 @@ import { calculateDailyTotals, saveDailyTotalsCache, type DailyTotalsResponse } 
 import { buildDailyTotalsPayload } from './daily-totals-payload';
 import { loadFoodVectors } from './food-vectors';
 import { packVectors, type VectorPack } from '@/lib/nutrition/wire';
+import { getSymptomsForDate, toSymptomLogPayload } from './symptom-service';
 
 // Daily values depend on (compound, age, sex), not on what was eaten, so the
 // ones /analysis shows can be looked up while the totals are still computing.
@@ -26,6 +27,14 @@ export async function loadDayState(args: {
   sex?: 'MALE' | 'FEMALE';
   /** Foods whose nutrient vectors the browser already holds — not sent again. */
   knownFoodIds?: string[];
+  /** Also return the day's symptom logs. */
+  withSymptoms?: boolean;
+  /**
+   * Skip calculating totals: just the meals, symptoms and food numbers. For
+   * warming the browser's cache with neighbouring days, where the browser
+   * calculates totals itself if the day is opened. `dailyTotals` is null.
+   */
+  skipTotals?: boolean;
 }) {
   const { userId, date, age, sex } = args;
   const known = new Set(args.knownFoodIds ?? []);
@@ -33,11 +42,9 @@ export async function loadDayState(args: {
 
   // All of the day's active meals — the same set GET /api/daily-totals uses
   // when no meal filter is given.
-  const totals: Promise<DailyTotalsResponse> = calculateDailyTotals(userId, date).then((compounds) => ({
-    date,
-    compounds,
-    lastUpdated,
-  }));
+  const totals: Promise<DailyTotalsResponse> | null = args.skipTotals
+    ? null
+    : calculateDailyTotals(userId, date).then((compounds) => ({ date, compounds, lastUpdated }));
 
   // The nutrient numbers behind the day's foods, so the browser can recalculate
   // totals itself (see lib/nutrition/totals.ts). Only for foods it lacks —
@@ -49,13 +56,17 @@ export async function loadDayState(args: {
     return { meals, vectors };
   });
 
-  const [{ meals, vectors }, dailyTotals] = await Promise.all([
+  const [{ meals, vectors }, dailyTotals, symptoms] = await Promise.all([
     mealsAndVectors,
-    buildDailyTotalsPayload({ userId, totals, age, sex, prefetchDvCompoundIds: CORE_COMPOUND_IDS }),
+    totals
+      ? buildDailyTotalsPayload({ userId, totals, age, sex, prefetchDvCompoundIds: CORE_COMPOUND_IDS })
+      : Promise.resolve(null),
+    args.withSymptoms ? getSymptomsForDate(userId, date) : Promise.resolve(null),
   ]);
 
   return {
     vectors,
+    symptoms: symptoms ? symptoms.map(toSymptomLogPayload) : undefined,
     meals: meals.map((meal) => ({
       id: meal.id,
       date: meal.date,
@@ -65,6 +76,8 @@ export async function loadDayState(args: {
     })),
     dailyTotals,
     /** Persist the totals to the cache. Call after the response has been sent. */
-    saveCache: async () => saveDailyTotalsCache(userId, date, await totals),
+    saveCache: async () => {
+      if (totals) await saveDailyTotalsCache(userId, date, await totals);
+    },
   };
 }
