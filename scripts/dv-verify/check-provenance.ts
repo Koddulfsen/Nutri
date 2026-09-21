@@ -9,7 +9,7 @@
  * Run: npx tsx scripts/dv-verify/check-provenance.ts
  */
 import { SOURCES } from '../../db/seed/dv/sources';
-import { SOURCE_PROVENANCE, PROVENANCE_PENDING, type ProvenanceEntry } from '../../lib/dv/source-provenance';
+import { SOURCE_PROVENANCE, PROVENANCE_PENDING, ALPHA_INDEPENDENT_REGIONS, type ProvenanceEntry } from '../../lib/dv/source-provenance';
 
 let fails = 0;
 const fail = (m: string) => { fails++; console.log('FAIL ' + m); };
@@ -53,6 +53,17 @@ for (const region of audited) {
       if (!ex.compounds.length) fail(`${region}.${group}: an exception lists no compounds`);
       checkEntry(region, `${group} exception (${ex.compounds.join(', ')})`, ex as ProvenanceEntry);
     }
+  }
+}
+
+// The alpha aggregate may only draw on bodies that derive their own values: every vitamin/mineral entry of an alpha
+// region must be primary (group exceptions allowed only if they are primary too).
+for (const region of ALPHA_INDEPENDENT_REGIONS) {
+  const prov = SOURCE_PROVENANCE[region];
+  if (!prov) { fail(`ALPHA_INDEPENDENT_REGIONS lists ${region}, which has no provenance entry`); continue; }
+  for (const [group, e] of Object.entries(prov.groups)) {
+    if (e.class !== 'primary') fail(`ALPHA_INDEPENDENT_REGIONS lists ${region}, but its ${group} values are ${e.class}`);
+    for (const ex of e.exceptions ?? []) if (ex.class !== 'primary') fail(`ALPHA_INDEPENDENT_REGIONS lists ${region}, but ${ex.compounds.join(', ')} are ${ex.class}`);
   }
 }
 

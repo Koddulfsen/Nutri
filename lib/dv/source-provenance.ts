@@ -807,3 +807,17 @@ export const SOURCE_PROVENANCE: Record<string, SourceProvenance> = {
 
 /** Sources whose values are loaded but whose provenance has not been audited yet (see dv-sources/PROVENANCE.md). */
 export const PROVENANCE_PENDING: string[] = [];
+
+/**
+ * The sources Nutri Alpha aggregates over: only bodies that derive their own values (decided 2026-09-21).
+ *
+ * Every other loaded source stays in reference_daily_values untouched, but is excluded from the calculation — a copy,
+ * an average of others (Spain) or an unevidenced source would add weight without adding a judgement. Adding a region
+ * here requires its provenance entries to be `primary`, which scripts/dv-verify/check-provenance.ts enforces.
+ *
+ * D-A-CH is the weakest member: classed primary from DGE's chapter-by-chapter revision notes, but its derivation
+ * chapters are in the paid binder and 12 of 27 adult values equal EFSA's. See dv-sources/PROVENANCE.md.
+ */
+export const ALPHA_INDEPENDENT_REGIONS = [
+  'USA_CANADA', 'EU', 'WHO_FAO', 'JAPAN', 'CHINA', 'KOREA', 'UK', 'DACH', 'RUSSIA', 'INDIA',
+] as const;

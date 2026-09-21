@@ -499,11 +499,25 @@ should be able to state.
 
 - **Unfinished entries (🟡):** USA/Canada 1997-2005 reports; EFSA protein/fat/fibre opinions; D-A-CH derivation
   chapters (paid binder); Philippines full PDRI report; Indonesia WNPG XI proceedings; Italy LARN method text.
-- **Loads still to do, with provenance at load time:** Thailand, Poland, Belgium, Türkiye.
+- **Parked until after alpha (not loaded):** Thailand, Poland, Belgium, Türkiye — provenance at load time if ever loaded.
 - **Aggregation change:** collapse `adopted` into its parent, follow chains (Netherlands → Nordic → IOM), exclude
   `aggregate`, and decide how to treat `unknown`.
 - **Stale adopters:** Singapore's values descend from WHO/FAO reports WHO/FAO has since replaced. The aggregator
   needs to know that a copy of a *superseded* judgement is not a vote for the current one.
+
+## Decision for Nutri Alpha (Jens, 2026-09-21)
+
+**Alpha aggregates over the 10 `primary` sources only:** USA/Canada, EU (EFSA), WHO/FAO, Japan, China, Korea, UK,
+D-A-CH, Russia, India. Encoded as `ALPHA_INDEPENDENT_REGIONS` in `lib/dv/source-provenance.ts`; the provenance check
+fails if a region whose values are not `primary` is ever added to it (verified by adding Spain: 3 failures).
+
+- The other 12 sources **stay loaded** in `reference_daily_values` — excluded from the calculation, not deleted.
+  They are verified data and can be re-admitted per nutrient once evidence justifies it.
+- The "unclear" sources (Philippines, Indonesia, Italy) are loaded and verified; what is missing is the document
+  explaining their derivation, not the values. Out of alpha until that is found.
+- **Thailand, Poland, Belgium, Türkiye are parked until after alpha.** None is loaded. They would only change the
+  alpha result if one proved to derive its own values; each still needs provenance checked if loaded.
+- D-A-CH is the weakest of the ten (derivation chapters paywalled; 12 of 27 adult values equal EFSA's).
 
 ## Open question for aggregation (decide after the audit)
 
