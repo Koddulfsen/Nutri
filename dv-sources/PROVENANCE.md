@@ -534,6 +534,61 @@ alınmıştır"*. The PDF obtained is the 2015 edition; the 2022 edition updates
 **Thailand — unclassified.** The 2020 Thai DRI book could not be obtained from any source reachable here. Nothing
 is claimed about it.
 
+## Numeric fingerprinting (2026-09-21) — what it can and cannot settle
+
+`scripts/dv-verify/fingerprint-sources.ts <REGION ...|ALL> [--summary]` compares a source's whole table (every age,
+sex, life stage; RDA and AI pooled, since bodies label the same number differently) against every other loaded
+source: share of identical cells, values **unique to one root** (held by that root and no other, judged without the
+target), constant-ratio rescaling, and age-band overlap.
+
+**Calibration — passes as a pointer.** On sources whose origin the text establishes, the strongest root is right
+every time: Netherlands → EFSA (11 EFSA-unique values vs ≤2 for any other root), France → EFSA, Nordic → EFSA,
+Malaysia / Australia-NZ / Vietnam → IOM, Spain → a blend (IOM 14, EFSA 8, UK 8 — the shape a median of several
+bodies should have).
+
+**A flaw found and fixed during calibration.** The first negative control (UK, Korea: "0 unique values from any other
+root") passed by construction — both are roots themselves, so any value they shared with IOM stopped counting as
+IOM-unique. Uniqueness is now judged excluding the target. With that fixed, the UK carries 8 Russia-unique and 5
+Japan-unique values: the coincidence baseline for a genuinely independent body.
+
+**Fails as a threshold.** As a share of each source's distinct values, known adopters and known independents overlap:
+
+| Source | Strongest root | Unique share | Known from text |
+|---|---|---|---|
+| France | EFSA | 23.5% | adapted from EFSA |
+| Malaysia | IOM | 15.4% | adapted (WHO/IOM) |
+| Australia/NZ | IOM | 13.5% | adapted from IOM |
+| Vietnam | IOM | 10.7% | adopted per table |
+| **Indonesia** | IOM | **9.7%** | unknown |
+| Japan | Korea | 9.5% | primary |
+| USA/Canada | Korea | 8.0% | primary |
+| China | Korea | 7.1% | primary |
+| **Philippines** | IOM | **7.1%** | unknown |
+| Netherlands | EFSA | 6.2% | adopted from EFSA |
+| **Italy** | IOM (EFSA 22 close behind) | **6.1%** | unknown |
+| Korea, India | Japan, Korea | 6.0-6.1% | primary |
+| UK | Russia | 4.8% | primary |
+| Singapore | EFSA | 2.3% | adopted — from 1960s-80s WHO reports we do not hold |
+
+The Netherlands (a declared adopter) scores like Korea and India (independent); Singapore (a pure copy) scores lowest
+of all because its real parent is not in the data. No cut-off separates the two groups.
+
+**What it says about the three unclear sources:**
+- **Indonesia** leans on IOM (34 IOM-unique values, runner-up 10) — the strongest single-parent signal of the three,
+  consistent with the potassium-4,700 detail. Still `unknown` by the rule; stays out of alpha.
+- **Philippines** leans on IOM (36) with Korea second (19) — weaker and at the level independent roots reach.
+  Inconclusive.
+- **Italy** splits between IOM (25) and EFSA (22) — a two-parent pattern like Spain's, consistent with the unverified
+  lead that LARN followed "IoM and EFSA criteria". Inconclusive.
+
+None moves into alpha; none is proven independent or dependent by numbers alone.
+
+**New open question: the East Asian roots overlap.** Japan, Korea and China share more otherwise-unique values with
+each other (Japan-Korea 52) than several copiers share with their parents. Similar reference body weights and shared
+evidence can produce this; so can one body reading another's tables. The text evidence says all three derive their
+own values, and numbers do not override text — but Korea and Japan are worth a closer look at the per-nutrient level
+before alpha treats them as two fully separate votes.
+
 ## Decision for Nutri Alpha (Jens, 2026-09-21)
 
 **Alpha aggregates over the 10 `primary` sources only:** USA/Canada, EU (EFSA), WHO/FAO, Japan, China, Korea, UK,
