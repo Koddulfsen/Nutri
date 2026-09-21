@@ -65,11 +65,6 @@ export interface DailyValueResult {
   regions?: SourceRegion[];
 }
 
-export interface DvStatus {
-  percent: number;
-  status: 'deficient' | 'low' | 'optimal' | 'high' | 'excess';
-}
-
 export interface DisplaySettings {
   showProgressBar: boolean;
   displayPriority: number;
@@ -722,31 +717,8 @@ export async function getDailyValuesBatchByDemographics(
 // DV Calculations
 // ═══════════════════════════════════════════════════════════════
 
-/**
- * Calculate percent daily value and status
- */
-export function calculatePercentDV(intake: number, dailyValue: number): DvStatus {
-  if (dailyValue <= 0) {
-    return { percent: 0, status: 'optimal' };
-  }
-
-  const percent = (intake / dailyValue) * 100;
-
-  let status: DvStatus['status'];
-  if (percent < 10) {
-    status = 'deficient';
-  } else if (percent < 50) {
-    status = 'low';
-  } else if (percent <= 150) {
-    status = 'optimal';
-  } else if (percent <= 200) {
-    status = 'high';
-  } else {
-    status = 'excess';
-  }
-
-  return { percent, status };
-}
+// Shared with the browser — see lib/nutrition/totals.ts
+export { calculatePercentDV, type DvStatus } from '@/lib/nutrition/totals';
 
 // ═══════════════════════════════════════════════════════════════
 // Display Settings

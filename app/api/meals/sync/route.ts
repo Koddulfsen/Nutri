@@ -36,6 +36,8 @@ const SyncSchema = z.object({
   // Picker demographics, used to compute % of daily value (same as GET /api/daily-totals)
   age: z.number().int().min(0).max(120).optional(),
   sex: z.enum(['MALE', 'FEMALE']).optional(),
+  // Foods the browser already has nutrient numbers for; they aren't sent again
+  knownFoodIds: z.array(z.string().uuid()).max(500).optional(),
   change: z
     .discriminatedUnion('type', [
       z.object({
@@ -55,7 +57,7 @@ const SyncSchema = z.object({
 export const POST = withAuth(
   async ({ user, input }) => {
     const userId = user.id;
-    const { date, age, sex, change } = input;
+    const { date, age, sex, change, knownFoodIds } = input;
 
     if (change?.type === 'add') {
       const { food, mealId } = change;
@@ -105,7 +107,7 @@ export const POST = withAuth(
     // work, so it costs no extra time); the fresh value is written after the
     // response goes out. If that write is lost, the next read just recalculates.
     const [state] = await Promise.all([
-      loadDayState({ userId, date, age, sex }),
+      loadDayState({ userId, date, age, sex, knownFoodIds }),
       change ? invalidateDailyTotals(userId, date) : Promise.resolve(),
     ]);
 
@@ -122,7 +124,7 @@ export const POST = withAuth(
       });
     }
 
-    return NextResponse.json({ date, meals: state.meals, dailyTotals: state.dailyTotals });
+    return NextResponse.json({ date, meals: state.meals, dailyTotals: state.dailyTotals, vectors: state.vectors });
   },
   { schema: SyncSchema, source: 'body' }
 );

@@ -12,6 +12,8 @@ import { CORE_COMPOUNDS } from '@/lib/data/core-compounds';
 import { getMealsForDate } from './meal-service';
 import { calculateDailyTotals, saveDailyTotalsCache, type DailyTotalsResponse } from './daily-totals-service';
 import { buildDailyTotalsPayload } from './daily-totals-payload';
+import { loadFoodVectors } from './food-vectors';
+import { packVectors, type VectorPack } from '@/lib/nutrition/wire';
 
 // Daily values depend on (compound, age, sex), not on what was eaten, so the
 // ones /analysis shows can be looked up while the totals are still computing.
@@ -22,8 +24,11 @@ export async function loadDayState(args: {
   date: string;
   age?: number;
   sex?: 'MALE' | 'FEMALE';
+  /** Foods whose nutrient vectors the browser already holds — not sent again. */
+  knownFoodIds?: string[];
 }) {
   const { userId, date, age, sex } = args;
+  const known = new Set(args.knownFoodIds ?? []);
   const lastUpdated = new Date();
 
   // All of the day's active meals — the same set GET /api/daily-totals uses
@@ -34,12 +39,23 @@ export async function loadDayState(args: {
     lastUpdated,
   }));
 
-  const [meals, dailyTotals] = await Promise.all([
-    getMealsForDate(userId, date),
+  // The nutrient numbers behind the day's foods, so the browser can recalculate
+  // totals itself (see lib/nutrition/totals.ts). Only for foods it lacks —
+  // after a day's first load that is none, and nothing extra is sent.
+  const mealsAndVectors = getMealsForDate(userId, date).then(async (meals) => {
+    const needed = [...new Set(meals.flatMap((m) => m.items.map((i) => i.foodId)))].filter((id) => !known.has(id));
+    const vectors: VectorPack | undefined =
+      needed.length > 0 ? packVectors(await loadFoodVectors(needed)) : undefined;
+    return { meals, vectors };
+  });
+
+  const [{ meals, vectors }, dailyTotals] = await Promise.all([
+    mealsAndVectors,
     buildDailyTotalsPayload({ userId, totals, age, sex, prefetchDvCompoundIds: CORE_COMPOUND_IDS }),
   ]);
 
   return {
+    vectors,
     meals: meals.map((meal) => ({
       id: meal.id,
       date: meal.date,

@@ -13,6 +13,13 @@ import SymptomDropdown from './components/SymptomDropdown';
 import CompoundTooltip from './components/CompoundTooltip';
 import { useDateNavigation } from '@/lib/hooks/useDateNavigation';
 import { WeekStrip } from '@/components/calendar';
+import {
+  assemblePayload,
+  computeCompoundValues,
+  portionGrams as portionGramsOf,
+  type FoodVector,
+} from '@/lib/nutrition/totals';
+import { unpackVectors } from '@/lib/nutrition/wire';
 import MacroViz, { MacroVizPicker, loadMacroVizStyle, type MacroVizStyle, type MacroSlice } from './MacroViz';
 
 type SourcePreference = 'AVERAGE' | 'USA_CANADA' | 'EU' | 'UK' | 'JAPAN' | 'CHINA' | 'AU_NZ';
@@ -449,6 +456,13 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
   // syncDay() calls run one at a time, in the order they were made.
   const syncQueueRef = useRef<Promise<void>>(Promise.resolve());
   const pendingSyncsRef = useRef(0);
+  // Each food's nutrients per 100 g, so totals can be recalculated right here
+  // (see recalcLocally). Kept in memory only, never persisted: which foods
+  // someone looked at is part of their food diary.
+  const vectorsRef = useRef<Map<string, FoodVector>>(new Map());
+  const vectorsRequestedRef = useRef<Set<string>>(new Set());
+  const mealsRef = useRef<any[]>([]);
+  mealsRef.current = meals;
   const [mealsLoading, setMealsLoading] = useState(false);
   const [addingFood, setAddingFood] = useState(false);
 
@@ -702,6 +716,65 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
     }
   }
 
+  // Recalculate the day's totals right here, from each food's nutrient
+  // numbers, instead of waiting for the server. It is the same arithmetic the
+  // server runs (lib/nutrition/totals.ts), and the server's answer replaces
+  // this one when it arrives. Returns false, changing nothing, when some
+  // food's numbers haven't arrived yet — the server's answer is still needed.
+  // An empty `onlyItemIds` means every item.
+  const recalcLocally = (mealsNow: any[], onlyItemIds: string[] = []): boolean => {
+    if (Object.keys(compoundDVs).length === 0) return false; // percentages need the daily values
+    const items = mealsNow
+      .flatMap((m) => m.items || [])
+      .filter((it: any) => onlyItemIds.length === 0 || onlyItemIds.includes(it.id));
+    if (items.some((it: any) => !it.foodId || !vectorsRef.current.has(it.foodId))) return false;
+    const compounds = computeCompoundValues(
+      items.map((it: any) => ({ foodId: it.foodId, grams: portionGramsOf(it.portionSize) })),
+      vectorsRef.current
+    );
+    setDailyTotals(assemblePayload({ date: selectedDate, compounds, lastUpdated: new Date(), dvValues: compoundDVs }));
+    return true;
+  };
+
+  // Dev only: the browser's arithmetic must equal the server's. Logs when it doesn't.
+  const warnOnTotalsDrift = (mealsNow: any[], serverTotals: any) => {
+    const items = mealsNow.flatMap((m) => m.items || []);
+    if (items.some((it: any) => !vectorsRef.current.has(it.foodId))) return;
+    const local = computeCompoundValues(
+      items.map((it: any) => ({ foodId: it.foodId, grams: portionGramsOf(it.portionSize) })),
+      vectorsRef.current
+    );
+    const server = new Map<string, any>((serverTotals?.compounds || []).map((c: any) => [c.compoundId, c]));
+    const bad = local.filter((c) => {
+      const t = server.get(c.compoundId);
+      return !t || Math.abs(t.amount - c.amount) > 1e-9 * Math.max(Math.abs(t.amount), 1e-12);
+    });
+    if (bad.length > 0 || local.length !== server.size) {
+      console.warn('[totals drift] browser and server disagree', { differing: bad.map((c) => c.name), local: local.length, server: server.size });
+    }
+  };
+
+  // Fetch nutrient numbers for foods we don't have yet — e.g. the moment one is
+  // picked in search, so adding it can update the totals instantly.
+  const ensureVectors = async (foodIds: string[]) => {
+    const missing = foodIds.filter((id) => id && !vectorsRef.current.has(id) && !vectorsRequestedRef.current.has(id));
+    if (missing.length === 0) return;
+    missing.forEach((id) => vectorsRequestedRef.current.add(id));
+    try {
+      const res = await fetch(apiUrl('/api/foods/nutrients'), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ foodIds: missing }),
+      });
+      if (!res.ok) throw new Error(res.statusText);
+      const data = await res.json();
+      for (const [id, v] of unpackVectors(data.vectors)) vectorsRef.current.set(id, v);
+    } catch (error) {
+      console.error('Failed to load food nutrients:', error);
+      missing.forEach((id) => vectorsRequestedRef.current.delete(id)); // allow a retry
+    }
+  };
+
   // Applies one change (or none) and loads the day's meals AND totals in a
   // single request — this used to be three calls in a row (change, meals,
   // totals), each re-checking auth. Calls are queued so they reach the server
@@ -722,6 +795,7 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
             age: profileAge,
             sex: sex === 'male' ? 'MALE' : 'FEMALE',
             change: getChange?.(),
+            knownFoodIds: [...vectorsRef.current.keys()],
           }),
         });
 
@@ -733,6 +807,9 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
         const data = await res.json();
         const loadedMeals = data.meals || [];
         mealIdRef.current = loadedMeals[0]?.id ?? null;
+        if (data.vectors) {
+          for (const [id, v] of unpackVectors(data.vectors)) vectorsRef.current.set(id, v);
+        }
 
         if (pendingSyncsRef.current === 1) {
           setMeals(loadedMeals);
@@ -743,6 +820,7 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
             setActiveTab(loadedMeals[0].mealType || loadedMeals[0].id);
           }
           setDailyTotals(data.dailyTotals);
+          if (process.env.NODE_ENV !== 'production') warnOnTotalsDrift(loadedMeals, data.dailyTotals);
           // The sync returns unfiltered totals; keep an active food selection
           // (minus anything just removed) applied on top.
           const present = new Set(loadedMeals.flatMap((m: any) => (m.items || []).map((i: any) => i.id)));
@@ -751,7 +829,7 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
             selectedItemIdsRef.current = kept;
             setSelectedItemIds(kept);
           }
-          if (kept.length > 0) fetchDailyTotals(date, undefined, kept);
+          if (kept.length > 0 && !recalcLocally(loadedMeals, kept)) fetchDailyTotals(date, undefined, kept);
         }
       } finally {
         pendingSyncsRef.current -= 1;
@@ -794,6 +872,9 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
     setSelectedFood(food);
     setSearchQuery(''); // Clear search
     setDropdownOpen(false);
+    // Fetch its nutrient numbers now, while the quantity is being chosen, so
+    // clicking Add can update the totals instantly.
+    if (food.id) ensureVectors([food.id]);
 
     // Portions came bundled with the catalog entry (see /api/foods/catalog),
     // so there is nothing left to fetch — selecting a food is instant.
@@ -822,7 +903,12 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
 
     // Optimistic: gone from the screen immediately; if the server disagrees,
     // the list is re-read from it below.
-    setMeals((prev) => prev.map((m) => ({ ...m, items: (m.items || []).filter((it: any) => it.id !== mealItemId) })));
+    const mealsAfterRemove = mealsRef.current.map((m) => ({
+      ...m,
+      items: (m.items || []).filter((it: any) => it.id !== mealItemId),
+    }));
+    setMeals(mealsAfterRemove);
+    recalcLocally(mealsAfterRemove, selectedItemIdsRef.current.filter((id) => id !== mealItemId));
 
     // An item still being added has no server-side id to delete yet, so
     // there is nothing to send a DELETE for. Known gap: if the add's own
@@ -863,19 +949,23 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
     // even heard about it. If it fails, the list is re-read from the server.
     const optimisticItem = {
       id: `optimistic-${Date.now()}`,
+      foodId: foodBeingAdded.id,
       food: { name: foodBeingAdded.name },
       portionSize: Math.round(portionGrams * 100) / 100,
       portionType: portionLabel,
     };
-    setMeals((prev) => {
-      if (prev.length > 0) {
-        const [first, ...rest] = prev;
-        return [{ ...first, items: [...(first.items || []), optimisticItem] }, ...rest];
-      }
-      // No meal for today yet — show one so the item has somewhere to land;
-      // the real meal (with its real id) arrives on reconciliation below.
-      return [{ id: 'optimistic-meal', mealType: 'Today', items: [optimisticItem] }];
-    });
+    const mealsNow = mealsRef.current;
+    const mealsAfterAdd =
+      mealsNow.length > 0
+        ? [{ ...mealsNow[0], items: [...(mealsNow[0].items || []), optimisticItem] }, ...mealsNow.slice(1)]
+        : // No meal for today yet — show one so the item has somewhere to land;
+          // the real meal (with its real id) arrives on reconciliation below.
+          [{ id: 'optimistic-meal', mealType: 'Today', items: [optimisticItem] }];
+    setMeals(mealsAfterAdd);
+    // Totals update right now too, if this food's numbers have arrived
+    // (they start loading when the food is picked). Otherwise the server's
+    // answer, already on its way, fills them in.
+    recalcLocally(mealsAfterAdd, selectedItemIdsRef.current);
     handleRemoveSelectedFood();
 
     // Import USDA food if needed (if it's not already in database)
@@ -941,12 +1031,12 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
       : [...selectedItemIdsRef.current, itemId];
     selectedItemIdsRef.current = next;
     setSelectedItemIds(next);
-    fetchDailyTotals(selectedDate, undefined, next);
+    if (!recalcLocally(mealsRef.current, next)) fetchDailyTotals(selectedDate, undefined, next);
   };
   const clearItemSelection = () => {
     selectedItemIdsRef.current = [];
     setSelectedItemIds([]);
-    fetchDailyTotals(selectedDate, undefined, []);
+    if (!recalcLocally(mealsRef.current, [])) fetchDailyTotals(selectedDate, undefined, []);
   };
 
   // Select all meals

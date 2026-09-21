@@ -3,44 +3,19 @@
  * /api/meals/sync both return: per-compound amounts plus each compound's
  * daily value, % of it, and zone.
  *
- * Extracted from the daily-totals route so both endpoints build the payload
- * the same way. The one addition is `prefetchDvCompoundIds`: daily values
- * depend only on (compound, age, sex), not on what was eaten, so they can be
- * looked up WHILE the totals are still being calculated instead of after —
- * one fewer step on the critical path. Any compound in the totals that the
- * prefetch didn't cover is looked up afterwards, so results are identical.
+ * The arithmetic (units, % of target, zones) is in lib/nutrition/totals.ts,
+ * shared with the browser; this file only fetches the daily values.
+ *
+ * `prefetchDvCompoundIds`: daily values depend only on (compound, age, sex),
+ * not on what was eaten, so they can be looked up WHILE the totals are still
+ * being calculated instead of after — one fewer step on the critical path.
+ * Any compound in the totals that the prefetch didn't cover is looked up
+ * afterwards, so results are identical.
  */
 
-import {
-  getDailyValuesBatch,
-  getDailyValuesBatchByDemographics,
-  calculatePercentDV,
-} from './daily-value-service';
+import { getDailyValuesBatch, getDailyValuesBatchByDemographics } from './daily-value-service';
 import type { CompoundValue } from './daily-totals-service';
-
-/**
- * Convert a nutrient amount between unit systems. Returns null when units aren't
- * comparable (e.g. mg vs IU, kcal vs mg). Handles common mass conversions only —
- * good enough for the alpha; energy/IU/kJ stay null.
- */
-function convertToUnit(amount: number, from: string, to: string): number | null {
-  if (from === to) return amount;
-  const norm = (u: string) => u.replace('μ', 'µ').toLowerCase();
-  const f = norm(from);
-  const t = norm(to);
-  if (f === t) return amount;
-  const mass: Record<string, number> = { g: 1, mg: 0.001, µg: 0.000001, ug: 0.000001, mcg: 0.000001 };
-  if (mass[f] != null && mass[t] != null) return (amount * mass[f]) / mass[t];
-  return null;
-}
-
-interface DvValue {
-  value: number;
-  unit: string;
-  source: string | null;
-  upperLimit?: number | null;
-  upperLimitUnit?: string | null;
-}
+import { assemblePayload, type DvValue } from '@/lib/nutrition/totals';
 
 export interface TotalsInput {
   date: string;
@@ -109,55 +84,10 @@ export async function buildDailyTotalsPayload(args: {
     dvValues = await lookupDvs(userId, compoundIds, age, sex);
   }
 
-  const calories = totals.compounds.find((c) => c.name === 'Energy')?.amount || 0;
-  const macros = {
-    carbs: totals.compounds.find((c) => c.name === 'Total Carbohydrate')?.amount || 0,
-    protein: totals.compounds.find((c) => c.name === 'Protein')?.amount || 0,
-    fat: totals.compounds.find((c) => c.name === 'Total Fat')?.amount || 0,
-  };
-
-  return {
+  return assemblePayload({
     date: totals.date,
-    compounds: totals.compounds.map((c) => {
-      const dv = dvValues.get(c.compoundId);
-
-      let rdaPercent: number | null = null;
-      let zone: 'deficient' | 'low' | 'optimal' | 'high' | 'excess' | 'unknown' = 'unknown';
-
-      if (dv) {
-        // Convert intake to DV unit if they differ (mg <-> µg, mg <-> g).
-        const intakeInDvUnit = convertToUnit(c.amount, c.unit, dv.unit);
-        if (intakeInDvUnit != null) {
-          const percentResult = calculatePercentDV(intakeInDvUnit, dv.value);
-          rdaPercent = percentResult.percent;
-          zone = percentResult.status;
-        }
-      }
-
-      return {
-        compoundId: c.compoundId,
-        name: c.name,
-        amount: c.amount,
-        unit: c.unit,
-        confidence: c.confidence,
-        zone,
-        rdaPercent,
-        dailyValue: dv
-          ? {
-              value: dv.value,
-              unit: dv.unit,
-              source: dv.source,
-              upperLimit: dv.upperLimit ?? null,
-              upperLimitUnit: dv.upperLimitUnit ?? null,
-            }
-          : null,
-        showProgressBar: true,
-        displayPriority: 0,
-      };
-    }),
-    calories,
-    healthScore: 0,
-    macros,
-    lastUpdated: totals.lastUpdated.toISOString(),
-  };
+    compounds: totals.compounds,
+    lastUpdated: totals.lastUpdated,
+    dvValues,
+  });
 }

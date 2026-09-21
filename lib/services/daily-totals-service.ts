@@ -14,22 +14,18 @@
  */
 
 import { db } from '@/db';
-import { mealLogs, mealItems, dailyTotals, mergedNutrients, compounds, foodNutrientValues } from '@/db/schema';
+import { mealLogs, mealItems, dailyTotals } from '@/db/schema';
 import { eq, and, inArray } from 'drizzle-orm';
 import { logger } from '@/lib/logger';
 import { redis } from './redis';
 import { expandFoodsToAtomsBatch, type ExpandedAtom } from './food-expansion';
+import { loadAtomVectors } from './food-vectors';
+import { computeCompoundValues, portionGrams, type CompoundValue } from '@/lib/nutrition/totals';
 
 /**
  * Compound value with confidence
  */
-export interface CompoundValue {
-  compoundId: string;
-  name: string;
-  amount: number;
-  unit: string;
-  confidence: number;
-}
+export type { CompoundValue };
 
 /**
  * Daily totals response
@@ -164,139 +160,17 @@ export async function calculateDailyTotals(
         foodId: item.foodId,
         // Treat portionSize as grams (the nutrient values are per 100g).
         // This matches the pre-existing assumption in the legacy aggregation path.
-        grams: parseFloat(item.portionSize) || 100,
+        grams: portionGrams(item.portionSize),
       }))
     );
 
-    // Step 3: Fetch nutrient values for all foods (now atom-resolved) from
-    // merged_nutrients AND food_nutrient_values
+    // Step 3: Each atom's nutrients per 100 g (merged_nutrients first, then
+    // food_nutrient_values for compounds it lacks), then sum them by compound.
+    // The summing is lib/nutrition/totals.ts — the same code the browser runs
+    // for its instant recalculation, so the two can't drift apart.
     const foodIds = [...new Set(expandedAtoms.map((a) => a.foodId))];
-
-    // Two independent queries — run them side by side, not one after the other.
-    // merged_nutrients (USDA/CNF data) and food_nutrient_values (enriched
-    // FooDB/Phenol-Explorer data).
-    const [mergedNutrientValues, enrichedNutrientValues] = await Promise.all([
-      db
-        .select({
-          foodId: mergedNutrients.foodId,
-          compoundId: mergedNutrients.compoundId,
-          compoundName: compounds.name,
-          value: mergedNutrients.averageValue,
-          unit: mergedNutrients.unit,
-          sourceCount: mergedNutrients.sourceCount,
-        })
-        .from(mergedNutrients)
-        .leftJoin(compounds, eq(mergedNutrients.compoundId, compounds.id))
-        .where(inArray(mergedNutrients.foodId, foodIds)),
-      db
-        .select({
-          foodId: foodNutrientValues.foodId,
-          compoundId: foodNutrientValues.compoundId,
-          compoundName: compounds.name,
-          value: foodNutrientValues.value,
-          unit: foodNutrientValues.unit,
-          confidence: foodNutrientValues.confidenceFinal,
-        })
-        .from(foodNutrientValues)
-        .leftJoin(compounds, eq(foodNutrientValues.compoundId, compounds.id))
-        .where(inArray(foodNutrientValues.foodId, foodIds)),
-    ]);
-
-    // Build a set of (foodId, compoundId) pairs that exist in merged_nutrients
-    // These take priority over food_nutrient_values
-    const mergedCompoundKeys = new Set(
-      mergedNutrientValues
-        .filter((nv) => nv.compoundId)
-        .map((nv) => `${nv.foodId}:${nv.compoundId}`)
-    );
-
-    // Combine both sources - merged_nutrients takes priority
-    // Only include enriched values for compounds NOT in merged_nutrients
-    const nutrientValues = [
-      ...mergedNutrientValues.map((nv) => ({
-        ...nv,
-        source: 'merged' as const,
-      })),
-      ...enrichedNutrientValues
-        .filter((nv) => {
-          // Skip if this compound already exists in merged_nutrients for this food
-          const key = `${nv.foodId}:${nv.compoundId}`;
-          return !mergedCompoundKeys.has(key);
-        })
-        .map((nv) => {
-          // Convert enriched values to base unit (food_nutrient_values uses mg/100g)
-          let value = parseFloat(nv.value?.toString() || '0');
-          let unit = nv.unit || 'mg/100g';
-
-          // Normalize to grams if unit is mg/100g
-          if (unit.toLowerCase().includes('mg')) {
-            value = value / 1000; // mg to g
-            unit = 'g';
-          }
-
-          return {
-            foodId: nv.foodId,
-            compoundId: nv.compoundId,
-            compoundName: nv.compoundName,
-            value: value.toString(),
-            unit,
-            sourceCount: nv.confidence || 1,
-            source: 'enriched' as const,
-          };
-        }),
-    ];
-
-    // Step 4: Aggregate by compound
-    const compoundMap = new Map<
-      string,
-      {
-        name: string;
-        totalAmount: number;
-        unit: string;
-        sourceCount: number;
-        count: number;
-      }
-    >();
-
-    for (const atom of expandedAtoms) {
-      // Convert atom grams to 100g basis (nutrients are per 100g)
-      const portionMultiplier = atom.grams / 100;
-
-      // Find nutrient values for this atom
-      const nutrients = nutrientValues.filter((nv) => nv.foodId === atom.foodId);
-
-      for (const nutrient of nutrients) {
-        // Skip if no compoundId (legacy data)
-        if (!nutrient.compoundId) continue;
-
-        const amount = parseFloat(nutrient.value?.toString() || '0') * portionMultiplier;
-        const key = nutrient.compoundId;
-
-        if (!compoundMap.has(key)) {
-          compoundMap.set(key, {
-            name: nutrient.compoundName || '',
-            totalAmount: 0,
-            unit: nutrient.unit,
-            sourceCount: nutrient.sourceCount || 1,
-            count: 0,
-          });
-        }
-
-        const compound = compoundMap.get(key)!;
-        compound.totalAmount += amount;
-        compound.count += 1;
-      }
-    }
-
-    // Step 5: Format results
-    const results: CompoundValue[] = Array.from(compoundMap.entries()).map(([compoundId, data]) => ({
-      compoundId,
-      name: data.name,
-      amount: data.totalAmount,
-      unit: data.unit,
-      // Use sourceCount as confidence proxy (more sources = higher confidence)
-      confidence: Math.min(100, data.sourceCount * 33),
-    }));
+    const vectors = await loadAtomVectors(foodIds);
+    const results = computeCompoundValues(expandedAtoms, vectors);
 
     const durationMs = Date.now() - startTime;
 
