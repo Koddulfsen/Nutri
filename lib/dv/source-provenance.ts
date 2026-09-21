@@ -375,6 +375,103 @@ export const SOURCE_PROVENANCE: Record<string, SourceProvenance> = {
       },
     },
   },
+  NORDIC: {
+    perValueOrigin: 'NNR 2023 Tables 6 and 7 (pp. 52-54) name the source document behind every vitamin and mineral AR/AI.',
+    groups: {
+      vitamins: {
+        class: 'adapted',
+        derivedFrom: ['EFSA'],
+        evidence:
+          'NNR 2023 (nord2023-003.pdf) p. 52: "In NNR2023, we are more explicit in identifying the source document used for ' +
+          'setting AR and UL (i.e., the specific IOM, NASEM or EFSA report) ... In general, we selected the most recent source ' +
+          'document that was based on a methodology similar to that described in the NNR2023 methodology papers ... Harmonized ' +
+          'criteria similar to EFSA was set for 22 nutrients, and similar to IOM/NASEM for 3 nutrients." Table 6 names EFSA for ' +
+          'vitamin A, K, thiamin, riboflavin, niacin, pantothenic acid, B6, biotin, folate, B12, C and choline. EFSA\'s CRITERIA, ' +
+          'applied with Nordic reference body weights — so often but not always EFSA\'s number (16 of 25 adult-male values equal).',
+        exceptions: [
+          {
+            compounds: ['Vitamin D (Total)', 'Vitamin E (Total)'],
+            class: 'primary',
+            derivedFrom: [],
+            evidence: 'NNR 2023 Table 6 (p. 53): source "NNR2023" — vitamin D by its own dose-response analysis (Brustad and Lamberg-Allardt, Appendix 7), vitamin E by its relationship to PUFA intake (Hantikainen and Männistö).',
+          },
+        ],
+      },
+      minerals: {
+        class: 'adapted',
+        derivedFrom: ['EFSA'],
+        evidence:
+          'NNR 2023 Table 7 (p. 54): EFSA for calcium, phosphorus, potassium, magnesium, zinc, iodine, selenium, fluoride, manganese ' +
+          'and molybdenum. p. 88 on calcium: "In NNR2023, the DRVs are updated and adopted from EFSA"; manganese is EFSA\'s AI ' +
+          '"Using reference weights for NNR2023" (p. 183) — the adaptation is the body-weight rescaling.',
+        exceptions: [
+          { compounds: ['Iron (Total)'], class: 'primary', derivedFrom: [], evidence: 'NNR 2023 Table 7 (p. 54): source "NNR2023 (Domellöf ...)" — own factorial derivation.' },
+          { compounds: ['Copper'], class: 'adopted', derivedFrom: ['IOM'], evidence: 'NNR 2023 copper chapter (p. 175): "AR is set to 700 µg/day ... RI is set to 900 µg/day ... The values are adopted from the IOM (IOM, 2001)." Table 7 (p. 54): IOM (2001).' },
+        ],
+      },
+      electrolytes: {
+        class: 'adopted',
+        derivedFrom: ['IOM', 'EFSA'],
+        evidence: 'NNR 2023 Table 7 (p. 54): sodium "Chronic Disease Risk" from "NASEM (2019) — Sodium reduction trials"; potassium from EFSA (2016).',
+      },
+    },
+  },
+  UK: {
+    groups: {
+      vitamins: {
+        class: 'primary',
+        derivedFrom: [],
+        evidence:
+          'British Nutrition Foundation, Nutrition Requirements (2021) (bnf-nutrition-requirements-2021.pdf), p. 1: the UK ' +
+          'Dietary Reference Values "were set by the Committee on Medical Aspects of Food and Nutrition Policy (COMA) in 1991"; ' +
+          'table sources: "Department of Health, Dietary Reference Values for Food Energy and Nutrients for the United Kingdom, ' +
+          'HMSO, 1991. SACN Vitamin D and Health report, 2016." COMA 1991 predates the IOM (1997-2005) and EFSA (2010-2019) ' +
+          'series, so it cannot descend from them. Numeric check: 1-2 of 19 adult-male values match either (vitamin C 40 mg vs ' +
+          'EFSA 110 / IOM 90; folate 200 µg vs 330 / 400).',
+      },
+      minerals: {
+        class: 'primary',
+        derivedFrom: [],
+        evidence:
+          'BNF Nutrition Requirements (2021) p. 1 and mineral table sources: COMA 1991 (Department of Health, HMSO 1991). ' +
+          'Calcium 700 mg against 950-1000 elsewhere; iron 8.7 mg; zinc 9.5 mg — values found in no other source here.',
+      },
+      energy: {
+        class: 'primary',
+        derivedFrom: [],
+        evidence: 'BNF Nutrition Requirements (2021) p. 1: "SACN revised the population recommendations for estimated energy requirements in 2011" — the UK\'s own advisory committee (Scientific Advisory Committee on Nutrition).',
+      },
+      carbohydrate: {
+        class: 'primary',
+        derivedFrom: [],
+        evidence: 'BNF Nutrition Requirements (2021) p. 1: SACN, "in its report Carbohydrates and Health (2015), made new recommendations for free sugars and fibre" — the source of the UK\'s 5% free-sugars and 30 g fibre values, stricter than WHO\'s 10%.',
+      },
+    },
+  },
+  DACH: {
+    groups: {
+      vitamins: {
+        class: 'primary',
+        derivedFrom: [],
+        evidence:
+          'DGE, Referenzwerte für die Nährstoffzufuhr — Erläuterungen (Erlaeuterungen_2021.pdf, p. 1): chapters are revised ' +
+          'nutrient by nutrient in successive editions — vitamin D, calcium and folate (2012/2013), energy, thiamin, riboflavin, ' +
+          'niacin, vitamin C and selenium (2015), sodium, chloride and potassium (2016), protein (2017) — and "Die Basis für die ' +
+          'Ableitung der Referenzwerte wurde überprüft und gegebenenfalls geändert." Own derivations, chapter by chapter. ' +
+          'CAVEAT: the per-nutrient derivation chapters are in the paid loose-leaf edition; some are stated elsewhere to follow ' +
+          'EFSA\'s procedure (e.g. pantothenic acid "analog zum Vorgehen der EFSA"). Numeric check: 12 of 27 adult-male values ' +
+          'equal EFSA\'s (some differences are unit artefacts of the comparison), 6 of 28 equal IOM\'s.',
+      },
+      minerals: {
+        class: 'primary',
+        derivedFrom: [],
+        evidence:
+          'Erlaeuterungen_2021.pdf p. 1: sodium, chloride and potassium "wurden in 2016 komplett überarbeitet"; selenium and ' +
+          'calcium in their own revised chapters. Values such as potassium 4000 mg, molybdenum 75 µg and chromium 65 µg appear ' +
+          'in no other source here.',
+      },
+    },
+  },
   INDONESIA: {
     groups: {
       vitamins: {
@@ -601,6 +698,6 @@ export const SOURCE_PROVENANCE: Record<string, SourceProvenance> = {
 
 /** Sources whose values are loaded but whose provenance has not been audited yet (see dv-sources/PROVENANCE.md). */
 export const PROVENANCE_PENDING = [
-  'NORDIC', 'UK', 'DACH', 'RUSSIA',
+  'RUSSIA',
   'ITALY', 'TAIWAN', 'SINGAPORE', 'INDIA',
 ];

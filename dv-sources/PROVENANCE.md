@@ -79,9 +79,9 @@ Sources marked ✅ have both their text evidence read and their entry written in
 | ✅ | Japan (MHLW 2025) | `primary`: own PICO-form review, meta-analyses prioritised, Japanese intake medians for AIs. Foreign DRIs are one input to the tentative goals only. |
 | ✅ | China (CNS 2023) | `primary`: ~100 experts, 3 years, Chinese reference weights and breast-milk database. Evidence is the CNS's own statement; the book's methods chapter is a scan with no text layer, not yet quoted. |
 | ✅ | Korea (KDRI 2020) | **`primary`**: IOM's vocabulary, Korea's own systematic review (203,237 studies screened). Only 11 of 34 adult values match IOM. |
-| ⬜ | Nordic (NNR 2023) | Own systematic reviews (de-novo for some nutrients only). |
-| ⬜ | UK (COMA/SACN) | 1991 baseline, own derivation; later updates per nutrient. |
-| ⬜ | DACH | Own derivation; some values from EFSA. |
+| ✅ | Nordic (NNR 2023) | **`adapted` from EFSA, by its own account**: "Harmonized criteria similar to EFSA was set for 22 nutrients, and similar to IOM/NASEM for 3." Own derivations only for vitamin D, E and iron. |
+| ✅ | UK (COMA/SACN) | `primary`: COMA 1991 predates IOM and EFSA, and 1-2 of 19 adult values match either. SACN's own energy, sugars and vitamin D updates. |
+| 🟡 | DACH | `primary`, chapter by chapter — but the derivation chapters are in the paid binder, and some follow EFSA's procedure. 12 of 27 adult values equal EFSA's. |
 | ✅ | Australia/NZ (NHMRC) | `adapted`: adopted IOM's *approach*, kept its own reference point for chronic disease; 15 of 30 adult values differ from IOM. |
 | ⬜ | Russia (MR 2.3.1.0253-21) | Own tradition; little cross-citation. |
 
@@ -409,6 +409,46 @@ decade"*, with new Chinese reference body weights and the Chinese Breast Milk Co
 calculations. The numbers fit (adult calcium 800 mg, checked in the database, against 1000 mg from IOM and WHO/FAO).
 But the evidence is the Society's summary page, not the book: the 655-page volume we transcribe is a scan whose
 methods chapter has no text layer. Recorded honestly as such, so the gap is visible rather than papered over.
+
+### Nordic, UK and D-A-CH (done 2026-09-21)
+
+**Nordic — `adapted`, and the audit's biggest reclassification.** The task list assumed Nordic was a primary body
+with its own systematic reviews. It does have them — ~100 qualified systematic reviews, 9 of them de novo — but for
+setting the actual reference values, NNR 2023 says (p. 52):
+
+> "In general, we selected the most recent source document that was based on a methodology similar to that
+> described in the NNR2023 methodology papers ... **Harmonized criteria similar to EFSA was set for 22 nutrients, and
+> similar to IOM/NASEM for 3 nutrients.** The specific source document for each nutrient is presented in Tables 6
+> and 7."
+
+Tables 6 and 7 (pp. 53-54) name EFSA for vitamin A, K, thiamin, riboflavin, niacin, pantothenic acid, B6, biotin,
+folate, B12, C, choline, calcium, phosphorus, potassium, magnesium, zinc, iodine, selenium, fluoride, manganese and
+molybdenum. Its own derivations are vitamin D (own dose-response analysis), vitamin E (tied to PUFA intake) and iron.
+Copper is *"adopted from the IOM (IOM, 2001)"* (p. 175); sodium follows NASEM 2019.
+
+It is `adapted` rather than `adopted` because it applies EFSA's *criteria* with Nordic reference body weights —
+manganese is EFSA's AI *"Using reference weights for NNR2023"* (p. 183) — so the numbers often but not always match
+(16 of 25 adult-male values equal EFSA's). This also completes the Netherlands chain: Dutch copper → Nordic → IOM.
+
+**UK — `primary`, the most independent source in the set.** Its values *"were set by the Committee on Medical
+Aspects of Food and Nutrition Policy (COMA) in 1991"*, which predates both the IOM (1997-2005) and EFSA (2010-2019)
+series — it cannot descend from them. Only 1-2 of 19 adult-male values match either (vitamin C 40 mg vs 110/90;
+folate 200 µg vs 330/400; calcium 700 mg vs 950/1000). SACN's later updates (energy 2011, free sugars and fibre
+2015, vitamin D 2016) are the UK's own committee.
+
+**D-A-CH — `primary`, provisionally.** DGE's explanatory notes show the reference values revised chapter by chapter
+in successive editions, with *"Die Basis für die Ableitung der Referenzwerte wurde überprüft und gegebenenfalls
+geändert"*. But the per-nutrient derivation chapters are only in the paid loose-leaf edition, and some nutrients are
+stated elsewhere to follow EFSA's procedure. 12 of 27 adult-male values equal EFSA's. Marked 🟡 until a chapter can
+be read.
+
+**A caution on the numeric checks themselves.** They compare raw stored values, so a unit difference reads as a
+disagreement — Nordic "copper 900 ≠ 1.6" is µg against mg, and thiamin per MJ against mg/day. I have quoted only
+differences that survive that, and the counts include some such artefacts. The checks are a signal, which is why
+the rule keeps them subordinate to the text.
+
+**Also corrected before commit:** I had cited the Nordic calcium quote as p. 157 from memory of the text dump; it is
+on p. 88. Every page in these entries was then re-located in the PDF.
 
 ## Open question for aggregation (decide after the audit)
 
