@@ -583,11 +583,33 @@ of all because its real parent is not in the data. No cut-off separates the two 
 
 None moves into alpha; none is proven independent or dependent by numbers alone.
 
-**New open question: the East Asian roots overlap.** Japan, Korea and China share more otherwise-unique values with
-each other (Japan-Korea 52) than several copiers share with their parents. Similar reference body weights and shared
-evidence can produce this; so can one body reading another's tables. The text evidence says all three derive their
-own values, and numbers do not override text — but Korea and Japan are worth a closer look at the per-nutrient level
-before alpha treats them as two fully separate votes.
+**The East Asian overlap — checked per nutrient, and resolved.** Japan, Korea and China share more otherwise-unique
+values with each other (Japan-Korea 52) than several copiers share with their parents. A copied nutrient would match
+in nearly every age/sex cell, so each nutrient × value-class series was compared cell by cell (life stage NONE,
+units converted, within 0.5%):
+
+| Pair | Series identical in ≥80% of cells |
+|---|---|
+| Korea vs Japan | 3 of 57 — magnesium UL, manganese UL, protein EAR |
+| Korea vs China | 1 of 65 — phosphorus UL |
+| Japan vs China | 1 of 52 — manganese UL |
+
+So the shared values are **scattered coincidences** — similar reference body weights make individual rounded values
+collide — not copied tables. Protein EAR agrees because both use the same g/kg on near-identical weights; manganese
+UL 11 mg is IOM's value, which several bodies share. **Japan, Korea and China stay three separate votes.**
+
+**Nutrient-level adoption found inside Korea.** The same comparison against IOM shows 6 Korean series identical to
+IOM's in ≥80% of cells: the ULs for calcium (26/26 cells), iron (26/26) and folic acid (18/22); carbohydrate EAR
+(22/22) and recommended intake (24/26) — IOM's distinctive 100/130 g brain-glucose values; and pantothenic acid
+(24/26). Japan matches IOM on only one series (manganese UL). By the rule this is a numeric signal, not a
+reclassification — Korea's text evidence (its own systematic review) stands — but for these six series Korea and
+IOM should not be counted as two independent votes. That is a nutrient-level collapse for the aggregator to apply,
+recorded here so it is not lost:
+
+| Region | Series | Matches |
+|---|---|---|
+| KOREA | Calcium UL, Iron UL, Folic Acid UL, Carbohydrate EAR + RDA, Pantothenic acid AI | IOM, ≥80% of cells |
+| JAPAN, CHINA, KOREA | Manganese UL | IOM (11 mg) |
 
 ## Decision for Nutri Alpha (Jens, 2026-09-21)
 
