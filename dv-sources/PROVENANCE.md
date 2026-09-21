@@ -1,7 +1,7 @@
 # DV source provenance — who actually derived each number
 
-**Status: in progress. This file is the run-state for the provenance audit — update it as each source is done, and
-it is safe to pick up cold from here.**
+**Status: first pass complete (2026-09-21) — all 22 loaded sources have an entry.** Open items are listed under
+"Remaining work" below. This file is the run-state for the audit; it is safe to pick up cold from here.
 
 ## Why
 
@@ -83,7 +83,7 @@ Sources marked ✅ have both their text evidence read and their entry written in
 | ✅ | UK (COMA/SACN) | `primary`: COMA 1991 predates IOM and EFSA, and 1-2 of 19 adult values match either. SACN's own energy, sugars and vitamin D updates. |
 | 🟡 | DACH | `primary`, chapter by chapter — but the derivation chapters are in the paid binder, and some follow EFSA's procedure. 12 of 27 adult values equal EFSA's. |
 | ✅ | Australia/NZ (NHMRC) | `adapted`: adopted IOM's *approach*, kept its own reference point for chronic disease; 15 of 30 adult values differ from IOM. |
-| ⬜ | Russia (MR 2.3.1.0253-21) | Own tradition; little cross-citation. |
+| ✅ | Russia (MR 2.3.1.0253-21) | `primary`: continuation of its own 2008 norms and national nutrition surveillance; 10 of 29 adult values equal IOM's. |
 
 ### Known or suspected adopters
 
@@ -95,11 +95,11 @@ Sources marked ✅ have both their text evidence read and their entry written in
 | ✅ | Vietnam (RDA 2016) | Attributable table by table via its "Nguồn:" lines: IOM 2006, Japanese DRIs 2015, FAO/WHO 2004. B1/B2/C/D and energy print no source. |
 | ✅ | France (ANSES 2021) | `adapted`: selects the most appropriate reference per nutrient, but substitutes French INCA3 intake data where the reference was intake-based. ULs are EFSA's, `adopted`. |
 | ✅ | Spain (AESAN 2019) | **`aggregate`** — its values are the mode/median/mean of other bodies' values. Must be excluded from our median entirely. |
-| ⬜ | Italy (LARN 2014) | Check per nutrient. |
-| ⬜ | Taiwan (DRIs 8th) | Check per nutrient. |
+| 🟡 | Italy (LARN 2014) | `unknown`: method only in the paid book; free mirror unreachable. 13 of 28 adult values equal IOM's. |
+| ✅ | Taiwan (DRIs 8th) | `adapted`: own national surveillance data on an IOM-leaning basis; 12 of 24 adult values equal IOM's. |
 | 🟡 | Indonesia (AKG 2019) | `unknown`: the regulation states no derivation. Numeric signal points hard at IOM (17/31 adult values identical) but the WNPG XI proceedings are needed to confirm. |
-| ⬜ | Singapore (HPB) | Small table; origin unstated so far. |
-| ⬜ | India (ICMR brief) | 131 rows only. |
+| ✅ | Singapore (HPB) | `adopted` — every value footnoted to FAO/WHO reports of **1961-1985** or IOM 2001. Only vitamin D is locally adjusted. |
+| ✅ | India (ICMR brief) | `primary`: the 2020 committee's own estimates from Indian absorption and loss data; far from IOM (iron 19 vs 8 mg). |
 
 ### Not yet loaded (do provenance at load time, not as a second pass)
 
@@ -449,6 +449,61 @@ the rule keeps them subordinate to the text.
 
 **Also corrected before commit:** I had cited the Nordic calcium quote as p. 157 from memory of the text dump; it is
 on p. 88. Every page in these entries was then re-located in the PDF.
+
+### Russia, Taiwan, Singapore, India, Italy (done 2026-09-21)
+
+**Russia — `primary`.** MR 2.3.1.0253-21 §1.3: the norms were *"разработаны в развитие действовавших методических
+рекомендаций МР 2.3.1.2432-08 ... Сохраняя преемственность"* (developed as a continuation of its own 2008 norms),
+resting on national surveillance of the nutritional status of all population groups. WHO/FAO are mentioned only as
+consistent approaches. Its own lineage; 10 of 29 adult values equal IOM's.
+
+**Taiwan — `adapted`.** The 8th edition's preface: revised by *"綜整國人飲食營養、健康狀況及疾病風險等監測調査和研究資料，
+同時參考美國、歐盟、日本、中國、韓國等國際實證"* — Taiwan's own surveillance data, referring to US, EU, Japanese,
+Chinese and Korean evidence. IOM influence is explicit in places and 12 of 24 adult values equal IOM's.
+
+**Singapore — `adopted`, and stale.** Every value on the HealthHub RDA page is footnoted to an external report:
+FAO/WHO expert groups of **1961** (calcium), **1965** (vitamin A, thiamin, riboflavin, niacin), **1970** (vitamin C, D,
+B12, folate, iron), WHO TRS 724 of **1985** (energy, protein), and IOM 2001. The only local judgement is vitamin D,
+lowered to 2.5 µg *"only applicable to Singapore, which is a tropical country"*. So Singapore is not an independent
+vote — and worse, it carries **WHO/FAO judgements that WHO/FAO itself replaced in 2001-2007**. It should not count
+as a second WHO vote either: it is an older, superseded WHO.
+
+**India — `primary`.** The 2020 committee *"used recent data on energy expenditure, protein metabolism; and available
+data on minerals and vitamins losses and absorption to estimate nutrient requirements for Indians"*, moving on from
+the 2010 edition's reliance on FAO/WHO/UNU 2004. Its own comparison table shows iron 19 mg against IOM's 8 and zinc
+17 against 11 — values shaped by the low mineral bioavailability of Indian diets.
+
+**Italy — `unknown`.** SINU's free pages describe what LARN contains but not how it was derived; the method is in
+the paid book, and the one free mirror refused connections. A search summary says extrapolation followed IoM and
+EFSA criteria — unverified, recorded as a lead only.
+
+## Summary of the first pass
+
+Classification by where each source's **vitamin and mineral** values come from (sources that mix classes by
+nutrient group are listed under their main one; see each entry for exceptions):
+
+| Class | Sources | Role in the aggregate |
+|---|---|---|
+| `primary` | USA/Canada, EU (EFSA), WHO/FAO, Japan, China, Korea, UK, D-A-CH, Russia, India | Independent votes, full weight |
+| `adapted` | Nordic, Australia/NZ, France, Malaysia, Taiwan | Re-derived for their own population — full weight, but trace their parent |
+| `adopted` | Netherlands, Vietnam, Singapore | Collapse into the body they copied |
+| `aggregate` | Spain | Exclude entirely — its values are already a median of others |
+| `unknown` | Philippines, Indonesia, Italy | Left as independent until evidenced; numeric signals recorded |
+
+Upper levels are separately `adopted` in Malaysia, the Philippines and France regardless of their main class.
+
+**Ten independent roots, not twenty-two.** That is the honest size of the evidence base, and the number the UI
+should be able to state.
+
+## Remaining work
+
+- **Unfinished entries (🟡):** USA/Canada 1997-2005 reports; EFSA protein/fat/fibre opinions; D-A-CH derivation
+  chapters (paid binder); Philippines full PDRI report; Indonesia WNPG XI proceedings; Italy LARN method text.
+- **Loads still to do, with provenance at load time:** Thailand, Poland, Belgium, Türkiye.
+- **Aggregation change:** collapse `adopted` into its parent, follow chains (Netherlands → Nordic → IOM), exclude
+  `aggregate`, and decide how to treat `unknown`.
+- **Stale adopters:** Singapore's values descend from WHO/FAO reports WHO/FAO has since replaced. The aggregator
+  needs to know that a copy of a *superseded* judgement is not a vote for the current one.
 
 ## Open question for aggregation (decide after the audit)
 

@@ -472,6 +472,115 @@ export const SOURCE_PROVENANCE: Record<string, SourceProvenance> = {
       },
     },
   },
+  RUSSIA: {
+    groups: {
+      vitamins: {
+        class: 'primary',
+        derivedFrom: [],
+        evidence:
+          'MR 2.3.1.0253-21 (Garant snapshot dv-sources/russia-mr-2021/source/garant-mr-2.3.1.0253-21.html), §1.3: the norms ' +
+          '"разработаны в развитие действовавших методических рекомендаций МР 2.3.1.2432-08 ... Сохраняя преемственность с нормами" ' +
+          '(developed as a continuation of the 2008 norms, preserving continuity), resting on "систематических исследований ' +
+          'состояния питания всех групп населения на всей территории страны" (systematic surveillance of the nutritional status of ' +
+          'all population groups across the country); §1.6 re-cut its activity groups from national occupational data. WHO/FAO ' +
+          'appear only as consistent approaches ("согласуются с опытом и рекомендациями ... ВОЗ, ФАО"). Numeric check: 10 of 29 ' +
+          'adult-male values equal IOM\'s, 6 of 28 EFSA\'s, 3 of 19 WHO\'s — its own lineage.',
+      },
+      minerals: {
+        class: 'primary',
+        derivedFrom: [],
+        evidence: 'MR 2.3.1.0253-21 §1.3 (Garant snapshot): same continuity with the national 2008 norms and national nutrition surveillance. Iron 18 mg for all adult women (no post-menopausal reduction) is found in no other source here.',
+      },
+    },
+  },
+  TAIWAN: {
+    groups: {
+      vitamins: {
+        class: 'adapted',
+        derivedFrom: ['IOM'],
+        evidence:
+          '國人膳食營養素參考攝取量 第八版 序 (ntshb-backup.pdf, preface): revised by "綜整國人飲食營養、健康狀況及疾病風險等監測調査和' +
+          '研究資料，同時參考美國、歐盟、日本、中國、韓國等國際實證" — integrating Taiwan\'s own dietary, health and disease-risk ' +
+          'surveillance data while referring to US, EU, Japanese, Chinese and Korean evidence. The IOM influence is explicit in ' +
+          'places (e.g. the preface\'s history: children\'s zinc RDA lowered "參考美國兒童鋅的 RDA"), and 12 of 24 adult-male values ' +
+          'equal IOM\'s (9 of 19 WHO\'s) — national data on an IOM-leaning basis, hence adapted.',
+      },
+      minerals: {
+        class: 'adapted',
+        derivedFrom: ['IOM'],
+        evidence: '國人膳食營養素參考攝取量 第八版 序: iodine "依據國人攝取與最新國內相關調查結果，調整碘建議量" (adjusted from Taiwanese intake and domestic surveys); calcium, iron, magnesium, sodium and potassium chapters revised 2015-2020 on national data.',
+      },
+    },
+  },
+  SINGAPORE: {
+    groups: {
+      vitamins: {
+        class: 'adopted',
+        derivedFrom: ['WHO_FAO', 'IOM'],
+        evidence:
+          'HealthHub Recommended Dietary Allowances (snapshot healthhub-rda-2022.html), Notes (a)-(f): every value is footnoted to an ' +
+          'external report — "(c) Calcium Requirements. Report of a FAO/WHO Expert Group, FAO, Rome, 1961", "(d) Requirements of ' +
+          'Ascorbic Acid, Vitamin D, Vitamin B12, Folate and Iron. Report of a Joint FAO/WHO Expert Group, FAO, Rome, 1970", "(f) ' +
+          'Requirements of Vitamin A, Thiamin, Riboflavin and Niacin. Report of a Joint FAO/WHO Expert Group, FAO, Rome, 1965", "(a) ' +
+          'Energy and Protein Requirements. WHO Technical Report Series No. 724, 1985", and IOM (2001) for vitamin A, K, iron, zinc ' +
+          'and the trace elements. NOTE: the WHO/FAO reports cited are the 1960s-1980s editions that WHO/FAO itself superseded in ' +
+          '2001-2007, so these are not WHO_FAO\'s current judgement either.',
+        exceptions: [
+          {
+            compounds: ['Vitamin D (Total)'],
+            class: 'adapted',
+            derivedFrom: ['WHO_FAO'],
+            evidence: 'HealthHub RDA Notes (j) (snapshot healthhub-rda-2022.html): "2.5mcg of Vitamin D is only applicable to Singapore, which is a tropical country and has strong sunlight exposure all year round." — a local adjustment on the 1970 FAO/WHO basis.',
+          },
+        ],
+      },
+      minerals: {
+        class: 'adopted',
+        derivedFrom: ['WHO_FAO', 'IOM'],
+        evidence: 'HealthHub RDA Notes (c)-(e) (snapshot healthhub-rda-2022.html): calcium from the 1961 FAO/WHO report, iron from the 1970 report and IOM (2001); "(e) Values apply when 10-25% of energy in diet comes from animal foods."',
+      },
+    },
+  },
+  INDIA: {
+    groups: {
+      vitamins: {
+        class: 'primary',
+        derivedFrom: [],
+        evidence:
+          'ICMR-NIN, A Brief Note on Nutrient Requirements for Indians (2020) (brief-note.pdf p. 1): "The ICMR 2010 committee RDA ' +
+          'recommendations further revised and upgraded the RDAs for Indians based on the international data provided by ' +
+          'FAO/WHO/UNU 2004 expert committee ... The present (2020) committee used recent data on energy expenditure, protein ' +
+          'metabolism; and available data on minerals and vitamins losses and absorption to estimate nutrient requirements for ' +
+          'Indians." Its own comparison table (p. 6, "Nutrient values comparison ICMR-2010/2020 and IOM") shows values far from ' +
+          'IOM\'s: riboflavin 2.5 vs 1.3 mg, thiamine 1.8 vs 1.2 mg.',
+      },
+      minerals: {
+        class: 'primary',
+        derivedFrom: [],
+        evidence: 'ICMR-NIN Brief Note 2020 p. 1 (2020 committee\'s own estimates from mineral loss and absorption data) and p. 6 comparison table: iron RDA 19 vs IOM 8 mg, zinc 17 vs 11 mg, calcium 1000 (EAR 800) — reflecting Indian diets\' low mineral bioavailability.',
+      },
+    },
+  },
+  ITALY: {
+    groups: {
+      vitamins: {
+        class: 'unknown',
+        derivedFrom: [],
+        evidence:
+          'SINU, LARN Tables 2014 (eng.sinu.it/tabelle-larn-2014/; snapshot dv-sources/larn-2014/source/eng.sinu.it.html): the ' +
+          'free pages describe the document\'s contents and uses but say nothing about how values were set; the derivation is in ' +
+          'the paid book, and the one free mirror of the method text (Regione Piemonte) refused connections on 2026-09-21. A ' +
+          'search-engine summary of that mirror says extrapolation followed "the criteria proposed by IoM (2000b) and EFSA ' +
+          '(2010)" — unverified, recorded only as a lead. Numeric signal: 13 of 28 adult-male values equal IOM\'s, 8 of 27 ' +
+          'EFSA\'s, 7 of 19 WHO\'s.',
+      },
+      minerals: {
+        class: 'unknown',
+        derivedFrom: [],
+        evidence: 'As for vitamins (snapshot eng.sinu.it.html): no method statement reachable for free. Left unknown.',
+      },
+    },
+  },
   INDONESIA: {
     groups: {
       vitamins: {
@@ -697,7 +806,4 @@ export const SOURCE_PROVENANCE: Record<string, SourceProvenance> = {
 };
 
 /** Sources whose values are loaded but whose provenance has not been audited yet (see dv-sources/PROVENANCE.md). */
-export const PROVENANCE_PENDING = [
-  'RUSSIA',
-  'ITALY', 'TAIWAN', 'SINGAPORE', 'INDIA',
-];
+export const PROVENANCE_PENDING: string[] = [];
