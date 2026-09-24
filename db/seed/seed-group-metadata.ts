@@ -6,7 +6,9 @@
  */
 
 import 'dotenv/config';
-import { supabase } from '../supabase-client';
+import { db } from '@/db';
+import { compoundGroups } from '@/db/schema';
+import { eq } from 'drizzle-orm';
 
 // Group metadata matching the hardcoded COMPOUND_HIERARCHY in AnalysisClient.tsx
 const GROUP_METADATA: Record<string, {
@@ -218,19 +220,17 @@ export async function seedGroupMetadata() {
   let notFoundCount = 0;
 
   for (const [groupName, metadata] of Object.entries(GROUP_METADATA)) {
-    const { data, error } = await supabase
-      .from('compound_groups')
-      .update({
-        compound_types: metadata.compoundTypes || [],
-        compound_names: metadata.compoundNames || [],
-        representative_compound: metadata.representativeCompound || null,
+    const updated = await db
+      .update(compoundGroups)
+      .set({
+        compoundTypes: metadata.compoundTypes || [],
+        compoundNames: metadata.compoundNames || [],
+        representativeCompound: metadata.representativeCompound || null,
       })
-      .eq('name', groupName)
-      .select('id');
+      .where(eq(compoundGroups.name, groupName))
+      .returning({ id: compoundGroups.id });
 
-    if (error) {
-      console.log(`   ⚠️  Error updating ${groupName}: ${error.message}`);
-    } else if (!data || data.length === 0) {
+    if (updated.length === 0) {
       console.log(`   ⚠️  Group not found: ${groupName}`);
       notFoundCount++;
     } else {

@@ -7,7 +7,9 @@
  */
 
 import 'dotenv/config';
-import { supabase } from '../supabase-client';
+import { db } from '@/db';
+import { compoundGroups } from '@/db/schema';
+import { eq } from 'drizzle-orm';
 
 const GROUPS_WITH_DV: string[] = [
   'Macronutrients',
@@ -20,22 +22,17 @@ const GROUPS_WITH_DV: string[] = [
 export async function seedDisplaySettings() {
   console.log('\n🌱 Seeding group has_dv flags...\n');
 
-  await supabase
-    .from('compound_groups')
-    .update({ has_dv: false })
-    .neq('id', '00000000-0000-0000-0000-000000000000');
+  await db.update(compoundGroups).set({ hasDv: false });
 
   let groupCount = 0;
   for (const groupName of GROUPS_WITH_DV) {
-    const { data, error } = await supabase
-      .from('compound_groups')
-      .update({ has_dv: true })
-      .eq('name', groupName)
-      .select('id');
+    const updated = await db
+      .update(compoundGroups)
+      .set({ hasDv: true })
+      .where(eq(compoundGroups.name, groupName))
+      .returning({ id: compoundGroups.id });
 
-    if (error) {
-      console.log(`   ⚠️  Failed to update: ${groupName} - ${error.message}`);
-    } else if (!data || data.length === 0) {
+    if (updated.length === 0) {
       console.log(`   ⚠️  Group not found: ${groupName}`);
     } else {
       groupCount++;

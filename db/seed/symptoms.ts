@@ -1,5 +1,6 @@
-import { dbHttp as db } from '../drizzle-http-adapter';
-import { symptomDefinitions } from '../schema/symptoms';
+import 'dotenv/config';
+import { db } from '@/db';
+import { symptomDefinitions } from '@/db/schema';
 
 /**
  * Seed Default Symptom Definitions
