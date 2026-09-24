@@ -13,7 +13,7 @@ import SymptomDropdown from './components/SymptomDropdown';
 import CompoundTooltip from './components/CompoundTooltip';
 import { useDateNavigation } from '@/lib/hooks/useDateNavigation';
 import { useDebouncedValue } from '@/lib/hooks/useDebouncedValue';
-import { WeekStrip } from '@/components/calendar';
+import { WeekStrip } from '@/app/components/calendar/WeekStrip';
 import {
   assemblePayload,
   computeCompoundValues,
