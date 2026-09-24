@@ -150,9 +150,30 @@ drops, so the defects below are its own report, not a guess.
 
 # G. PLAN — agreed 2026-09-24
 
-Three things turned out to share one blocker, which is why they are planned together: **WHO's amino
-acid requirements, every heavy-metal limit, and several WHO/FAO values we already hold are published
-per kilogram of body weight.** Adding body weight unlocks all three at once.
+Body weight is not a heavy-metal problem. **It is a hole in the data we already hold**, found by
+grepping every extract for what it refused to store.
+
+`reference_daily_values` has age (in months), sex, life stage, activity level and dietary context —
+and nothing else. A value published per kilogram of body weight cannot be expressed, so every
+transcriber hit the same wall and wrote the same line in their header. What was dropped:
+
+| Source | Dropped because it is per kg |
+|---|---|
+| **EFSA (EU)** | Protein AR/PRI (Table 2) and its pregnancy/lactation increments |
+| **DACH** | Protein — skipped outright in the loop |
+| **Nordic (NNR)** | Protein AR/RI, infant energy |
+| **UK (SACN)** | Adult protein RNI 0.75 g/kg and its increments |
+| **WHO/FAO** | Adult energy (ch. 5, per kg × PAL), iodine for infants and premature infants, DHA 6–24 mo |
+| **Taiwan** | Infant energy (kcal/kg) and protein (g/kg) |
+| **Russia** | Infant energy, protein, fat and carbohydrate |
+| **Vietnam** | **All amino acid requirements** (Phụ lục 2.2–2.3) and all water values |
+
+The visible consequence: **protein has 7 of the 10 independent bodies** (China, India, Japan, Korea,
+Russia, UK, USA) — EU, DACH and WHO/FAO are missing *entirely*, not because they are silent on protein
+but because they state it per kilogram. Protein is one of the three macronutrients on the main bar.
+
+So supporting per-kg values recovers protein for three bodies, amino acids for a second body before
+WHO is even added, and every infant value across five sources — before any heavy metal is transcribed.
 
 ## G1. Collect body weight *(decided: yes)*
 
@@ -217,7 +238,83 @@ no safe level exists:
   margin, with the words the authorities use — "no safe level has been identified". Inventing a limit
   here would be exactly the kind of unverified claim §0 of CLAUDE.md is about.
 
-## G5. Order
+## G5. Actionable steps
+
+Each step is a unit of work with its own check. Nothing here is "and then verify" — the check is named.
+
+### G1 — body weight (8 steps)
+
+1. **Source the reference weights first**, before collecting anything. EFSA, IOM and WHO each publish
+   default body weights per age and sex; they disagree. Pick one per region or one global default, and
+   record which, with a quote — the same provenance rules as any other value. *Check: a new section in
+   `PROVENANCE.md` naming the document and table for each weight used.*
+2. **Schema**: `user_profiles.body_weight_kg_encrypted text` — ciphertext only, no plaintext column, no
+   history table. Migration generated with `npm run db:generate`. *Check: `drizzle.__drizzle_migrations`
+   against `drizzle/meta/_journal.json` per the door in CLAUDE.md §2, then a live-column diff against
+   the snapshot with zero drift both ways.*
+3. **Encrypt/decrypt** through the existing `encryptPHI`/`decryptPHI` with the key from
+   `user_encryption_keys`, in the same service that handles `life_stage`. *Check: a raw `psql` read of
+   the column returns ciphertext, plus an integration test round-tripping the real read/write path —
+   the same two checks 2.5 used.*
+4. **API**: add to the demographics route with Zod — optional, integer kilograms, rejected outside a
+   plausible range. *Check: the route rejects 0, 1000 and a decimal, and accepts null.*
+5. **UI**: one optional field with a plain sentence saying what it is used for and that leaving it
+   blank is fine. Never blocks a bar.
+6. **Export and erasure**: the export must include the decrypted weight; erasure already cascades from
+   `user_profiles`. *Check: re-run the 2.8 end-to-end test against a throwaway account — export
+   contains it, deletion removes it. Do not assume the cascade; 2.8 found three tables that had none.*
+7. **Paperwork** (this is a scope change, and the DPIA says to reissue on one): a
+   `docs/DATA-SCOPE-DECISIONS.md` entry recording what is collected, what was refused (history, height,
+   BMI) and why; a DPIA reissue; the privacy policy's data-category list.
+8. **Fallback behaviour**: when no weight is stored, use the reference weight and **say so on the bar**.
+   *Check: a test asserting the resolver reports which weight it used.*
+
+### G2 — schema for per-kg and per-period values (6 steps)
+
+1. `reference_daily_values.per_kg_body_weight boolean not null default false`.
+2. `reference_daily_values.averaging_days integer not null default 1` — 1 daily, 7 weekly, 30 for
+   cadmium's monthly PTMI.
+3. Extend `dv_type_enum` with **TWI, TDI, PTMI, RfD** (ceilings) and **BMDL** (a reference point, not a
+   ceiling). *Check: the migration door, as in G1.2.*
+4. **Resolver**: `resolveBar` takes the user's weight and the reference weight; a per-kg value is
+   multiplied before it enters any pool, and a per-kg value may never be pooled with an absolute one
+   unconverted. A BMDL never enters `limit`. *Check: tests for each of those three rules.*
+5. **Consistency checker**: a per-kg value must be plausible for its magnitude, a value with
+   `averaging_days > 1` must not be rendered as a daily target, and a BMDL must carry its endpoint.
+6. **Backfill the dropped values**: re-transcribe what each extract skipped (the table above),
+   source by source. *Check: protein goes from 7 to 10 bodies; `check-source-db.ts` still reports
+   file = database for every source touched.*
+
+### G3 — WHO/FAO TRS 935 (5 steps)
+
+1. `dv-sources/who-trs935-2007/` with the PDF's extracted text as the snapshot (the PDF is 4.2 MB;
+   the repo keeps text snapshots elsewhere).
+2. `extract.ts` for **Table 23** (adult indispensable amino acids, mg/kg/day), **§8.4** (safe intake =
+   requirement + 24 %, so requirement → EAR and safe intake → RDA), **§9.4** (infancy to 18 y) and the
+   **protein** requirements (0.66 g/kg EAR, 0.83 g/kg RNI).
+3. A `PROVENANCE.md` entry: this is a *different document* from the 2004 report already recorded under
+   WHO_FAO, so it needs its own per-nutrient-group entry with quotes.
+4. Load and verify with the existing three checkers (`check-source-db`, `check-source-consistency`,
+   `check-provenance`). *Check: all three at 0 failures.*
+5. Effect to confirm afterwards: amino acids move from one body to two (three with Vietnam from G2.6),
+   and protein gains WHO.
+
+### G4 — heavy metals (5 steps)
+
+1. Region codes: JECFA is a joint FAO/WHO committee and EFSA CONTAM is EFSA, so both fit existing
+   codes; **EPA IRIS needs a new one** (`USA_EPA`) — an enum change, and a provenance entry saying it
+   is a separate body from the IOM behind `USA_CANADA`.
+2. **JECFA** first, from its own monographs: cadmium PTMI, methylmercury PTWI, inorganic tin, and
+   whatever else it still maintains. Record each withdrawal explicitly — a withdrawn value is a fact
+   about the source, not a blank.
+3. **EFSA CONTAM**: TWIs for cadmium, methylmercury and inorganic mercury; BMDLs for lead and inorganic
+   arsenic with their endpoints.
+4. **EPA IRIS** third, flagged as dated, with its food-vs-water split for cadmium kept as two values.
+5. **Display rules** for lead and inorganic arsenic: no percentage bar, show the margin and the
+   authorities' own words. *Check: a test asserting no bar is produced for a compound whose only
+   reference point is a BMDL.*
+
+## G6. Order
 
 1. **G2** (schema) — everything else writes into it.
 2. **G1** (body weight) — independent of G2, has the longest paperwork tail, start it in parallel.
