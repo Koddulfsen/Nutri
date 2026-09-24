@@ -270,7 +270,12 @@ Checkboxes are the timeline. Update them as work lands.
       — `CIRCADIAN_DESIGN_SYSTEM.md` and `sandalwood-design-system.md` deleted, zero code
       references confirmed first. The `--bg` drift was already resolved in `app/globals.css`
       (`#000000`, verified) — no CSS change needed, only this doc's own stale mention
-- [ ] **3.7** Rewrite `DATABASE_SETUP.md` — it predates the local-Postgres move
+- [x] **3.7** Rewrite `DATABASE_SETUP.md` — it predates the local-Postgres move *(done
+      2026-09-24)* — old version described creating a new Supabase project from scratch under
+      a wrong, since-abandoned repo path, claimed 11 tables (actual: 94+), and repeated 3 of
+      the exact false compliance claims §0 calls out (HIPAA retention, RLS, DEK "for E2EE").
+      Rewritten to describe the actual current local-dev-against-Supabase setup and defer to
+      this doc for anything that changes over time, instead of duplicating it
 - [~] **3.8** Split `AnalysisClient.tsx` — free extraction first *(S8)* — **free extraction
       done 2026-09-24**: the ~290-line self-contained card-rendering block (`DvBar`,
       `formatPortion`, `findGroup`, `buildCardRows`, `balanceCards`, `AnalysisCard`) moved to
