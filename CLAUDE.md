@@ -256,7 +256,12 @@ Checkboxes are the timeline. Update them as work lands.
       confirmed zero importers repo-wide before deleting; was gitignored, not tracked, so
       nothing to remove from git history
 - [ ] **3.4** **DECIDE:** ship the BullMQ worker or return 501 — imports currently vanish *(S4)*
-- [ ] **3.5** Archive ~310 one-off scripts to `scripts/archive/` *(S10)*
+- [x] **3.5** Archive ~310 one-off scripts to `scripts/archive/` *(S10)* *(done 2026-09-24)* —
+      147 files moved via `git mv` (history preserved; the "~310" estimate counted both
+      `scripts/` and other locations, actual top-level count was 152). Left in place:
+      `check-route-auth.ts`/`test-outliers.ts` (wired in `package.json`),
+      `fix-conversion-factors.ts`/`-2.ts` (still run manually per this doc),
+      `backfill-life-stage-encryption.ts` (recent). `dv-verify/`/`seed/` subdirs untouched
 - [x] **3.6** Delete Circadian + Sandalwood docs; fix the `--bg` drift *(S9)* *(done 2026-09-24)*
       — `CIRCADIAN_DESIGN_SYSTEM.md` and `sandalwood-design-system.md` deleted, zero code
       references confirmed first. The `--bg` drift was already resolved in `app/globals.css`
