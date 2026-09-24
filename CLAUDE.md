@@ -267,7 +267,16 @@ Checkboxes are the timeline. Update them as work lands.
       references confirmed first. The `--bg` drift was already resolved in `app/globals.css`
       (`#000000`, verified) — no CSS change needed, only this doc's own stale mention
 - [ ] **3.7** Rewrite `DATABASE_SETUP.md` — it predates the local-Postgres move
-- [ ] **3.8** Split `AnalysisClient.tsx` — free extraction first *(S8)*
+- [~] **3.8** Split `AnalysisClient.tsx` — free extraction first *(S8)* — **free extraction
+      done 2026-09-24**: the ~290-line self-contained card-rendering block (`DvBar`,
+      `formatPortion`, `findGroup`, `buildCardRows`, `balanceCards`, `AnalysisCard`) moved to
+      `app/analysis/components/CompoundCards.tsx`, pure extraction, verified via build + dev
+      server + full test suite. File is 4,190 → 3,886 lines. **The actual split — the
+      remaining ~3,880-line component's state/effects/handlers/JSX — is not done.** That's a
+      much larger, judgment-heavy hook-extraction refactor, deliberately deferred: this file
+      is under active concurrent development (two unrelated commits landed in it from other
+      work during this same session), so attempting a large mechanical refactor now carries
+      real collision risk. Do as its own dedicated pass, not opportunistically
 - [ ] Structure verdict: **cleanup in place. Do NOT start a new folder** *(S7)*
 
 ### Phase 4 — Verify
