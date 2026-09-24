@@ -1,7 +1,7 @@
 // Test Suite: Consent Management Data Access Layer
 // Tests for lib/dal/consent.ts
-// Generated: 2025-11-10
 
+import { describe, test, expect, vi, beforeEach, type Mock } from 'vitest';
 import {
   getUserConsent,
   updateUserConsent,
@@ -12,30 +12,44 @@ import {
   ConsentRecord
 } from '@/lib/dal/consent';
 import { db } from '@/db';
-import { userConsent } from '@/db/schema';
 import { createClient } from '@/lib/supabase/server';
 import { logAudit } from '@/lib/security/audit-logger';
 
-// Mock dependencies
-jest.mock('@/db');
-jest.mock('@/lib/supabase/server');
-jest.mock('@/lib/security/audit-logger');
+// Explicit factory — see profiles.test.ts for why a bare vi.mock('@/db')
+// triggers db/index.ts's real lazy-connecting getter.
+vi.mock('@/db', () => ({
+  db: {
+    query: { userConsent: { findFirst: vi.fn() } },
+    update: vi.fn(),
+    insert: vi.fn(),
+    delete: vi.fn(),
+  },
+}));
+vi.mock('@/lib/supabase/server');
+vi.mock('@/lib/security/audit-logger');
+
+// lib/dal/consent.ts's requireAuth() calls supabase.auth.getUser(), not
+// getSession() — mocking getSession() (as the original Jest file did) leaves
+// every "authenticated" test actually hitting the Unauthorized path.
+function mockAuthedUser(userId: string | null) {
+  (createClient as unknown as Mock).mockResolvedValue({
+    auth: {
+      getUser: vi.fn().mockResolvedValue({
+        data: { user: userId ? { id: userId } : null },
+        error: null,
+      }),
+    },
+  });
+}
 
 describe('Consent DAL - getUserConsent', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   test('should retrieve user consent successfully', async () => {
     // Arrange
-    (createClient as jest.Mock).mockResolvedValue({
-      auth: {
-        getSession: jest.fn().mockResolvedValue({
-          data: { session: { user: { id: 'user-123' } } },
-          error: null
-        })
-      }
-    });
+    mockAuthedUser('user-123');
 
     const mockConsent: ConsentRecord = {
       id: 'consent-456',
@@ -45,12 +59,14 @@ describe('Consent DAL - getUserConsent', () => {
       research: true,
       analytics: false,
       thirdParty: false,
+      sensitiveHealthData: false,
+      aiProcessing: false,
       createdAt: new Date(),
       updatedAt: new Date()
     };
 
-    (db.query.userConsent.findFirst as jest.Mock) = jest.fn().mockResolvedValue(mockConsent);
-    (logAudit as jest.Mock) = jest.fn().mockResolvedValue(undefined);
+    (db.query.userConsent.findFirst as Mock) = vi.fn().mockResolvedValue(mockConsent);
+    (logAudit as Mock).mockResolvedValue(undefined);
 
     // Act
     const result = await getUserConsent('user-123');
@@ -67,14 +83,7 @@ describe('Consent DAL - getUserConsent', () => {
 
   test('should throw error if user not authenticated', async () => {
     // Arrange
-    (createClient as jest.Mock).mockResolvedValue({
-      auth: {
-        getSession: jest.fn().mockResolvedValue({
-          data: { session: null },
-          error: null
-        })
-      }
-    });
+    mockAuthedUser(null);
 
     // Act & Assert
     await expect(getUserConsent('user-123')).rejects.toThrow('Unauthorized: User must be authenticated');
@@ -82,14 +91,7 @@ describe('Consent DAL - getUserConsent', () => {
 
   test('should throw error if userId mismatch', async () => {
     // Arrange
-    (createClient as jest.Mock).mockResolvedValue({
-      auth: {
-        getSession: jest.fn().mockResolvedValue({
-          data: { session: { user: { id: 'user-123' } } },
-          error: null
-        })
-      }
-    });
+    mockAuthedUser('user-123');
 
     // Act & Assert
     await expect(getUserConsent('user-456')).rejects.toThrow('Unauthorized: Cannot access another user\'s consent');
@@ -97,16 +99,9 @@ describe('Consent DAL - getUserConsent', () => {
 
   test('should throw error if consent record not found', async () => {
     // Arrange
-    (createClient as jest.Mock).mockResolvedValue({
-      auth: {
-        getSession: jest.fn().mockResolvedValue({
-          data: { session: { user: { id: 'user-123' } } },
-          error: null
-        })
-      }
-    });
+    mockAuthedUser('user-123');
 
-    (db.query.userConsent.findFirst as jest.Mock) = jest.fn().mockResolvedValue(null);
+    (db.query.userConsent.findFirst as Mock) = vi.fn().mockResolvedValue(null);
 
     // Act & Assert
     await expect(getUserConsent('user-123')).rejects.toThrow('User consent record not found');
@@ -115,19 +110,12 @@ describe('Consent DAL - getUserConsent', () => {
 
 describe('Consent DAL - updateUserConsent', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   test('should update user consent with GDPR audit trail', async () => {
     // Arrange
-    (createClient as jest.Mock).mockResolvedValue({
-      auth: {
-        getSession: jest.fn().mockResolvedValue({
-          data: { session: { user: { id: 'user-123' } } },
-          error: null
-        })
-      }
-    });
+    mockAuthedUser('user-123');
 
     const oldConsent: ConsentRecord = {
       id: 'consent-456',
@@ -137,6 +125,8 @@ describe('Consent DAL - updateUserConsent', () => {
       research: true,
       analytics: true,
       thirdParty: false,
+      sensitiveHealthData: false,
+      aiProcessing: false,
       createdAt: new Date(),
       updatedAt: new Date()
     };
@@ -148,15 +138,15 @@ describe('Consent DAL - updateUserConsent', () => {
       updatedAt: new Date()
     };
 
-    (db.query.userConsent.findFirst as jest.Mock) = jest.fn().mockResolvedValue(oldConsent);
-    (db.update as jest.Mock) = jest.fn(() => ({
-      set: jest.fn(() => ({
-        where: jest.fn(() => ({
-          returning: jest.fn().mockResolvedValue([updatedConsent])
+    (db.query.userConsent.findFirst as Mock) = vi.fn().mockResolvedValue(oldConsent);
+    (db.update as Mock) = vi.fn(() => ({
+      set: vi.fn(() => ({
+        where: vi.fn(() => ({
+          returning: vi.fn().mockResolvedValue([updatedConsent])
         }))
       }))
     }));
-    (logAudit as jest.Mock) = jest.fn().mockResolvedValue(undefined);
+    (logAudit as Mock).mockResolvedValue(undefined);
 
     // Act
     const result = await updateUserConsent('user-123', { analytics: false });
@@ -179,14 +169,7 @@ describe('Consent DAL - updateUserConsent', () => {
 
   test('should throw error if unauthorized', async () => {
     // Arrange
-    (createClient as jest.Mock).mockResolvedValue({
-      auth: {
-        getSession: jest.fn().mockResolvedValue({
-          data: { session: { user: { id: 'user-123' } } },
-          error: null
-        })
-      }
-    });
+    mockAuthedUser('user-123');
 
     // Act & Assert
     await expect(updateUserConsent('user-456', { newsletter: false })).rejects.toThrow(
@@ -196,16 +179,9 @@ describe('Consent DAL - updateUserConsent', () => {
 
   test('should throw error if consent record not found', async () => {
     // Arrange
-    (createClient as jest.Mock).mockResolvedValue({
-      auth: {
-        getSession: jest.fn().mockResolvedValue({
-          data: { session: { user: { id: 'user-123' } } },
-          error: null
-        })
-      }
-    });
+    mockAuthedUser('user-123');
 
-    (db.query.userConsent.findFirst as jest.Mock) = jest.fn().mockResolvedValue(null);
+    (db.query.userConsent.findFirst as Mock) = vi.fn().mockResolvedValue(null);
 
     // Act & Assert
     await expect(updateUserConsent('user-123', { newsletter: false })).rejects.toThrow(
@@ -215,14 +191,7 @@ describe('Consent DAL - updateUserConsent', () => {
 
   test('should handle multiple consent updates', async () => {
     // Arrange
-    (createClient as jest.Mock).mockResolvedValue({
-      auth: {
-        getSession: jest.fn().mockResolvedValue({
-          data: { session: { user: { id: 'user-123' } } },
-          error: null
-        })
-      }
-    });
+    mockAuthedUser('user-123');
 
     const oldConsent: ConsentRecord = {
       id: 'consent-456',
@@ -232,6 +201,8 @@ describe('Consent DAL - updateUserConsent', () => {
       research: false,
       analytics: false,
       thirdParty: false,
+      sensitiveHealthData: false,
+      aiProcessing: false,
       createdAt: new Date(),
       updatedAt: new Date()
     };
@@ -244,15 +215,15 @@ describe('Consent DAL - updateUserConsent', () => {
       updatedAt: new Date()
     };
 
-    (db.query.userConsent.findFirst as jest.Mock) = jest.fn().mockResolvedValue(oldConsent);
-    (db.update as jest.Mock) = jest.fn(() => ({
-      set: jest.fn(() => ({
-        where: jest.fn(() => ({
-          returning: jest.fn().mockResolvedValue([updatedConsent])
+    (db.query.userConsent.findFirst as Mock) = vi.fn().mockResolvedValue(oldConsent);
+    (db.update as Mock) = vi.fn(() => ({
+      set: vi.fn(() => ({
+        where: vi.fn(() => ({
+          returning: vi.fn().mockResolvedValue([updatedConsent])
         }))
       }))
     }));
-    (logAudit as jest.Mock) = jest.fn().mockResolvedValue(undefined);
+    (logAudit as Mock).mockResolvedValue(undefined);
 
     // Act
     const result = await updateUserConsent('user-123', {
@@ -270,19 +241,12 @@ describe('Consent DAL - updateUserConsent', () => {
 
 describe('Consent DAL - checkConsent', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   test('should return true if consent granted', async () => {
     // Arrange
-    (createClient as jest.Mock).mockResolvedValue({
-      auth: {
-        getSession: jest.fn().mockResolvedValue({
-          data: { session: { user: { id: 'user-123' } } },
-          error: null
-        })
-      }
-    });
+    mockAuthedUser('user-123');
 
     const mockConsent: ConsentRecord = {
       id: 'consent-456',
@@ -292,12 +256,14 @@ describe('Consent DAL - checkConsent', () => {
       research: true,
       analytics: true,
       thirdParty: false,
+      sensitiveHealthData: false,
+      aiProcessing: false,
       createdAt: new Date(),
       updatedAt: new Date()
     };
 
-    (db.query.userConsent.findFirst as jest.Mock) = jest.fn().mockResolvedValue(mockConsent);
-    (logAudit as jest.Mock) = jest.fn().mockResolvedValue(undefined);
+    (db.query.userConsent.findFirst as Mock) = vi.fn().mockResolvedValue(mockConsent);
+    (logAudit as Mock).mockResolvedValue(undefined);
 
     // Act
     const hasAnalytics = await checkConsent('user-123', 'analytics');
@@ -308,14 +274,7 @@ describe('Consent DAL - checkConsent', () => {
 
   test('should return false if consent not granted', async () => {
     // Arrange
-    (createClient as jest.Mock).mockResolvedValue({
-      auth: {
-        getSession: jest.fn().mockResolvedValue({
-          data: { session: { user: { id: 'user-123' } } },
-          error: null
-        })
-      }
-    });
+    mockAuthedUser('user-123');
 
     const mockConsent: ConsentRecord = {
       id: 'consent-456',
@@ -325,12 +284,14 @@ describe('Consent DAL - checkConsent', () => {
       research: false,
       analytics: false,
       thirdParty: false,
+      sensitiveHealthData: false,
+      aiProcessing: false,
       createdAt: new Date(),
       updatedAt: new Date()
     };
 
-    (db.query.userConsent.findFirst as jest.Mock) = jest.fn().mockResolvedValue(mockConsent);
-    (logAudit as jest.Mock) = jest.fn().mockResolvedValue(undefined);
+    (db.query.userConsent.findFirst as Mock) = vi.fn().mockResolvedValue(mockConsent);
+    (logAudit as Mock).mockResolvedValue(undefined);
 
     // Act
     const hasThirdParty = await checkConsent('user-123', 'thirdParty');
@@ -342,19 +303,12 @@ describe('Consent DAL - checkConsent', () => {
 
 describe('Consent DAL - grantAllConsents', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   test('should grant all consent types', async () => {
     // Arrange
-    (createClient as jest.Mock).mockResolvedValue({
-      auth: {
-        getSession: jest.fn().mockResolvedValue({
-          data: { session: { user: { id: 'user-123' } } },
-          error: null
-        })
-      }
-    });
+    mockAuthedUser('user-123');
 
     const oldConsent: ConsentRecord = {
       id: 'consent-456',
@@ -364,6 +318,8 @@ describe('Consent DAL - grantAllConsents', () => {
       research: false,
       analytics: false,
       thirdParty: false,
+      sensitiveHealthData: false,
+      aiProcessing: false,
       createdAt: new Date(),
       updatedAt: new Date()
     };
@@ -375,18 +331,20 @@ describe('Consent DAL - grantAllConsents', () => {
       research: true,
       analytics: true,
       thirdParty: true,
+      sensitiveHealthData: false,
+      aiProcessing: false,
       updatedAt: new Date()
     };
 
-    (db.query.userConsent.findFirst as jest.Mock) = jest.fn().mockResolvedValue(oldConsent);
-    (db.update as jest.Mock) = jest.fn(() => ({
-      set: jest.fn(() => ({
-        where: jest.fn(() => ({
-          returning: jest.fn().mockResolvedValue([allGranted])
+    (db.query.userConsent.findFirst as Mock) = vi.fn().mockResolvedValue(oldConsent);
+    (db.update as Mock) = vi.fn(() => ({
+      set: vi.fn(() => ({
+        where: vi.fn(() => ({
+          returning: vi.fn().mockResolvedValue([allGranted])
         }))
       }))
     }));
-    (logAudit as jest.Mock) = jest.fn().mockResolvedValue(undefined);
+    (logAudit as Mock).mockResolvedValue(undefined);
 
     // Act
     const result = await grantAllConsents('user-123');
@@ -402,19 +360,12 @@ describe('Consent DAL - grantAllConsents', () => {
 
 describe('Consent DAL - revokeAllConsents', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   test('should revoke all consent types', async () => {
     // Arrange
-    (createClient as jest.Mock).mockResolvedValue({
-      auth: {
-        getSession: jest.fn().mockResolvedValue({
-          data: { session: { user: { id: 'user-123' } } },
-          error: null
-        })
-      }
-    });
+    mockAuthedUser('user-123');
 
     const oldConsent: ConsentRecord = {
       id: 'consent-456',
@@ -424,6 +375,8 @@ describe('Consent DAL - revokeAllConsents', () => {
       research: true,
       analytics: true,
       thirdParty: true,
+      sensitiveHealthData: false,
+      aiProcessing: false,
       createdAt: new Date(),
       updatedAt: new Date()
     };
@@ -435,18 +388,20 @@ describe('Consent DAL - revokeAllConsents', () => {
       research: false,
       analytics: false,
       thirdParty: false,
+      sensitiveHealthData: false,
+      aiProcessing: false,
       updatedAt: new Date()
     };
 
-    (db.query.userConsent.findFirst as jest.Mock) = jest.fn().mockResolvedValue(oldConsent);
-    (db.update as jest.Mock) = jest.fn(() => ({
-      set: jest.fn(() => ({
-        where: jest.fn(() => ({
-          returning: jest.fn().mockResolvedValue([allRevoked])
+    (db.query.userConsent.findFirst as Mock) = vi.fn().mockResolvedValue(oldConsent);
+    (db.update as Mock) = vi.fn(() => ({
+      set: vi.fn(() => ({
+        where: vi.fn(() => ({
+          returning: vi.fn().mockResolvedValue([allRevoked])
         }))
       }))
     }));
-    (logAudit as jest.Mock) = jest.fn().mockResolvedValue(undefined);
+    (logAudit as Mock).mockResolvedValue(undefined);
 
     // Act
     const result = await revokeAllConsents('user-123');
@@ -462,7 +417,7 @@ describe('Consent DAL - revokeAllConsents', () => {
 
 describe('Consent DAL - createInitialConsent', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   test('should create initial consent record with all false', async () => {
@@ -475,17 +430,19 @@ describe('Consent DAL - createInitialConsent', () => {
       research: false,
       analytics: false,
       thirdParty: false,
+      sensitiveHealthData: false,
+      aiProcessing: false,
       createdAt: new Date(),
       updatedAt: new Date()
     };
 
-    (db.query.userConsent.findFirst as jest.Mock) = jest.fn().mockResolvedValue(null);
-    (db.insert as jest.Mock) = jest.fn(() => ({
-      values: jest.fn(() => ({
-        returning: jest.fn().mockResolvedValue([newConsent])
+    (db.query.userConsent.findFirst as Mock) = vi.fn().mockResolvedValue(null);
+    (db.insert as Mock) = vi.fn(() => ({
+      values: vi.fn(() => ({
+        returning: vi.fn().mockResolvedValue([newConsent])
       }))
     }));
-    (logAudit as jest.Mock) = jest.fn().mockResolvedValue(undefined);
+    (logAudit as Mock).mockResolvedValue(undefined);
 
     // Act
     const result = await createInitialConsent('user-new');
@@ -519,11 +476,13 @@ describe('Consent DAL - createInitialConsent', () => {
       research: false,
       analytics: false,
       thirdParty: false,
+      sensitiveHealthData: false,
+      aiProcessing: false,
       createdAt: new Date(),
       updatedAt: new Date()
     };
 
-    (db.query.userConsent.findFirst as jest.Mock) = jest.fn().mockResolvedValue(existingConsent);
+    (db.query.userConsent.findFirst as Mock) = vi.fn().mockResolvedValue(existingConsent);
 
     // Act & Assert
     await expect(createInitialConsent('user-123')).rejects.toThrow(
@@ -533,10 +492,10 @@ describe('Consent DAL - createInitialConsent', () => {
 
   test('should throw error if insert fails', async () => {
     // Arrange
-    (db.query.userConsent.findFirst as jest.Mock) = jest.fn().mockResolvedValue(null);
-    (db.insert as jest.Mock) = jest.fn(() => ({
-      values: jest.fn(() => ({
-        returning: jest.fn().mockResolvedValue([])
+    (db.query.userConsent.findFirst as Mock) = vi.fn().mockResolvedValue(null);
+    (db.insert as Mock) = vi.fn(() => ({
+      values: vi.fn(() => ({
+        returning: vi.fn().mockResolvedValue([])
       }))
     }));
 
