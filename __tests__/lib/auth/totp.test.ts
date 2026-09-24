@@ -1,9 +1,12 @@
-/**
- * TOTP Utilities Tests
- *
- * Run: npx tsx __tests__/lib/auth/totp.test.ts
- */
+// Test Suite: TOTP Utilities (Multi-Factor Authentication)
+// Tests for lib/auth/totp.ts
+//
+// Replaces a console.assert()-based script that never failed the process on
+// a mismatch — every "test" here was silently passing regardless of actual
+// behavior. This is a real assertion suite instead.
 
+import { describe, test, expect } from 'vitest';
+import * as OTPAuth from 'otpauth';
 import {
   generateSecret,
   generateQRCode,
@@ -12,126 +15,114 @@ import {
   hashBackupCodes,
   verifyBackupCode,
   generateMFASetup,
-} from '@/lib/auth/totp'
-import * as OTPAuth from 'otpauth'
+} from '@/lib/auth/totp';
 
-console.log('🧪 Testing TOTP Utilities...\n')
+describe('generateSecret', () => {
+  test('returns a non-empty base32 secret', () => {
+    const secret = generateSecret();
+    expect(secret.length).toBeGreaterThan(0);
+    expect(secret).toMatch(/^[A-Z2-7]+=*$/); // base32 alphabet
+  });
 
-async function runTests() {
-  // Test 1: Generate secret
-  console.log('Test 1: Generate TOTP secret')
-  const secret = generateSecret()
-  console.log('✓ Secret generated:', secret)
-  console.assert(
-    secret.length > 0,
-    'Secret should not be empty'
-  )
-  console.log('')
+  test('generates a different secret each call', () => {
+    expect(generateSecret()).not.toBe(generateSecret());
+  });
+});
 
-  // Test 2: Generate QR code
-  console.log('Test 2: Generate QR code')
-  const qrCode = await generateQRCode(secret, 'test@example.com')
-  console.log('✓ QR code generated:', qrCode.substring(0, 100) + '...')
-  console.assert(
-    qrCode.startsWith('data:image/png;base64,'),
-    'QR code should be data URL'
-  )
-  console.log('')
+describe('generateQRCode', () => {
+  test('returns a PNG data URL', async () => {
+    const secret = generateSecret();
+    const qrCode = await generateQRCode(secret, 'test@example.com');
+    expect(qrCode.startsWith('data:image/png;base64,')).toBe(true);
+  });
+});
 
-  // Test 3: Generate and verify TOTP code
-  console.log('Test 3: Generate and verify TOTP code')
-  const totp = new OTPAuth.TOTP({
-    issuer: 'Nutri',
-    label: 'test@example.com',
-    algorithm: 'SHA1',
-    digits: 6,
-    period: 30,
-    secret: OTPAuth.Secret.fromBase32(secret),
-  })
-  const code = totp.generate()
-  console.log('✓ Generated code:', code)
+describe('verifyCode', () => {
+  test('accepts a code freshly generated from the same secret', () => {
+    const secret = generateSecret();
+    const totp = new OTPAuth.TOTP({
+      issuer: 'Nutri',
+      label: 'test@example.com',
+      algorithm: 'SHA1',
+      digits: 6,
+      period: 30,
+      secret: OTPAuth.Secret.fromBase32(secret),
+    });
+    const code = totp.generate();
 
-  const isValid = verifyCode(code, secret)
-  console.log('✓ Verification result:', isValid)
-  console.assert(
-    isValid === true,
-    'Code should be valid'
-  )
-  console.log('')
+    expect(verifyCode(code, secret)).toBe(true);
+  });
 
-  // Test 4: Verify invalid code
-  console.log('Test 4: Verify invalid code')
-  const invalidResult = verifyCode('000000', secret)
-  console.log('✓ Invalid code rejected:', !invalidResult)
-  console.assert(
-    invalidResult === false,
-    'Invalid code should fail'
-  )
-  console.log('')
+  test('rejects an arbitrary wrong code', () => {
+    const secret = generateSecret();
+    expect(verifyCode('000000', secret)).toBe(false);
+  });
 
-  // Test 5: Generate backup codes
-  console.log('Test 5: Generate backup codes')
-  const backupCodes = generateBackupCodes()
-  console.log('✓ Backup codes generated:', backupCodes)
-  console.assert(
-    backupCodes.length === 10,
-    'Should generate 10 backup codes'
-  )
-  console.assert(
-    backupCodes[0].length === 8,
-    'Each code should be 8 characters'
-  )
-  console.log('')
+  test('rejects a code generated from a different secret', () => {
+    const secretA = generateSecret();
+    const secretB = generateSecret();
+    const totpB = new OTPAuth.TOTP({
+      algorithm: 'SHA1',
+      digits: 6,
+      period: 30,
+      secret: OTPAuth.Secret.fromBase32(secretB),
+    });
+    expect(verifyCode(totpB.generate(), secretA)).toBe(false);
+  });
 
-  // Test 6: Hash backup codes
-  console.log('Test 6: Hash backup codes')
-  const hashedCodes = await hashBackupCodes(backupCodes)
-  console.log('✓ Hashed codes:', hashedCodes.map(h => h.substring(0, 20) + '...'))
-  console.assert(
-    hashedCodes.length === 10,
-    'Should hash 10 codes'
-  )
-  console.log('')
+  test('returns false rather than throwing on a malformed secret', () => {
+    expect(verifyCode('123456', 'not-valid-base32!!!')).toBe(false);
+  });
+});
 
-  // Test 7: Verify backup code
-  console.log('Test 7: Verify backup code')
-  const codeIndex = await verifyBackupCode(backupCodes[0], hashedCodes)
-  console.log('✓ Found code at index:', codeIndex)
-  console.assert(
-    codeIndex === 0,
-    'Should find code at index 0'
-  )
-  console.log('')
+describe('generateBackupCodes', () => {
+  test('generates 10 codes of 8 hex characters each', () => {
+    const codes = generateBackupCodes();
+    expect(codes).toHaveLength(10);
+    for (const code of codes) {
+      expect(code).toMatch(/^[0-9a-f]{8}$/);
+    }
+  });
 
-  // Test 8: Verify invalid backup code
-  console.log('Test 8: Verify invalid backup code')
-  const invalidIndex = await verifyBackupCode('invalid123', hashedCodes)
-  console.log('✓ Invalid code index:', invalidIndex)
-  console.assert(
-    invalidIndex === -1,
-    'Invalid code should return -1'
-  )
-  console.log('')
+  test('generates distinct codes', () => {
+    const codes = generateBackupCodes();
+    expect(new Set(codes).size).toBe(codes.length);
+  });
+});
 
-  // Test 9: Complete MFA setup
-  console.log('Test 9: Complete MFA setup')
-  const mfaSetup = await generateMFASetup('user@example.com')
-  console.log('✓ MFA setup generated:')
-  console.log('  - Secret:', mfaSetup.secret)
-  console.log('  - QR code length:', mfaSetup.qrCode.length)
-  console.log('  - Backup codes:', mfaSetup.backupCodes.length)
-  console.log('  - Hashed backup codes:', mfaSetup.hashedBackupCodes.length)
-  console.assert(
-    mfaSetup.secret.length > 0,
-    'Should have secret'
-  )
-  console.assert(
-    mfaSetup.backupCodes.length === 10,
-    'Should have 10 backup codes'
-  )
-  console.log('')
+describe('hashBackupCodes / verifyBackupCode', () => {
+  test('round-trips: a hashed code verifies against its own plaintext', async () => {
+    const codes = generateBackupCodes();
+    const hashed = await hashBackupCodes(codes);
 
-  console.log('✅ All TOTP tests passed!\n')
-}
+    expect(hashed).toHaveLength(10);
+    // bcrypt hashes never equal their plaintext input
+    hashed.forEach((h, i) => expect(h).not.toBe(codes[i]));
 
-runTests().catch(console.error)
+    const index = await verifyBackupCode(codes[0], hashed);
+    expect(index).toBe(0);
+  });
+
+  test('returns -1 for a code that matches none of the hashes', async () => {
+    const codes = generateBackupCodes();
+    const hashed = await hashBackupCodes(codes);
+
+    const index = await verifyBackupCode('deadbeef', hashed);
+    expect(index).toBe(-1);
+  });
+});
+
+describe('generateMFASetup', () => {
+  test('produces a complete, internally consistent setup', async () => {
+    const setup = await generateMFASetup('user@example.com');
+
+    expect(setup.secret.length).toBeGreaterThan(0);
+    expect(setup.qrCode.startsWith('data:image/png;base64,')).toBe(true);
+    expect(setup.backupCodes).toHaveLength(10);
+    expect(setup.hashedBackupCodes).toHaveLength(10);
+
+    // The setup's own backup codes verify against its own hashes.
+    const index = await verifyBackupCode(setup.backupCodes[3], setup.hashedBackupCodes);
+    expect(index).toBe(3);
+  });
+});

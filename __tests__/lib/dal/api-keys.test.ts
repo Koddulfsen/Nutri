@@ -177,6 +177,35 @@ describe('API Keys DAL - generateApiKey', () => {
     // Assert: Should succeed (4 active < 5 limit)
     expect(result.keyRecord).toBeDefined();
   });
+
+  // Regression: base64url's alphabet includes '_', so the random suffix
+  // frequently contains one (~39% of real keys, by the birthday bound over
+  // 32 characters). extractKeyPrefix() used to split the whole key on '_'
+  // and require exactly 3 parts, which broke on any such key — an
+  // intermittent "Invalid API key format" on key generation that had
+  // nothing to do with test mocking (it used real, unmocked crypto).
+  // Node's builtin crypto module can't be spied on under ESM (its exports
+  // are non-configurable), so this proves the fix statistically instead:
+  // with the old bug, each generation independently had a ~39% failure
+  // chance, so all 50 succeeding is a ~4e-11 coincidence if the bug were
+  // still present.
+  test('should not fail across many real key generations (underscore-in-suffix regression)', async () => {
+    mockAuthedUser('user-123');
+    (db.query.apiKeys.findMany as Mock) = vi.fn().mockResolvedValue([]);
+    (bcrypt.hash as Mock) = vi.fn().mockResolvedValue('$2b$10$hash');
+    (db.insert as Mock) = vi.fn(() => ({
+      values: vi.fn((row: any) => ({
+        returning: vi.fn().mockResolvedValue([row])
+      }))
+    }));
+    (logAudit as Mock).mockResolvedValue(undefined);
+
+    for (let i = 0; i < 50; i++) {
+      const result = await generateApiKey('user-123', `Key ${i}`);
+      expect(result.key.startsWith('nutri_live_')).toBe(true);
+      expect(result.keyRecord.keyPrefix.startsWith('nutri_live_')).toBe(true);
+    }
+  });
 });
 
 describe('API Keys DAL - listApiKeys', () => {

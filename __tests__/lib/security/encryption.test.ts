@@ -2,6 +2,7 @@
 // Tests for lib/security/encryption.ts
 // Generated: 2025-11-10
 
+import { randomBytes } from 'node:crypto';
 import {
   generateDEK,
   encryptPHI,
@@ -102,7 +103,7 @@ describe('Encryption - encryptPHI', () => {
 
   test('should throw error with wrong DEK length', async () => {
     // Arrange: 128-bit key instead of 256-bit
-    const shortDEK = Buffer.from(crypto.randomBytes(16)).toString('base64');
+    const shortDEK = Buffer.from(randomBytes(16)).toString('base64');
     const plaintext = 'Test Data';
 
     // Act & Assert
@@ -186,34 +187,15 @@ describe('Encryption - decryptPHI', () => {
 });
 
 describe('Encryption - rotateDEK', () => {
-  test('should generate new DEK for rotation', async () => {
-    // Arrange
+  // rotateDEK is intentionally unimplemented: a version that generated a new key
+  // without re-encrypting existing PHI under it would silently orphan every
+  // already-encrypted field. It must throw until it does the full
+  // decrypt-under-old/re-encrypt-under-new/persist cycle. See lib/security/encryption.ts.
+  test('should throw rather than silently returning an unused key', async () => {
     const oldDEK = await generateDEK();
     const userId = 'user-123';
 
-    // Act
-    const newDEK = await rotateDEK(userId, oldDEK);
-
-    // Assert
-    expect(typeof newDEK).toBe('string');
-    expect(newDEK).not.toBe(oldDEK);
-
-    // Verify new DEK is 256-bit
-    const decoded = Buffer.from(newDEK, 'base64');
-    expect(decoded.length).toBe(32);
-  });
-
-  test('should generate unique new DEKs each rotation', async () => {
-    // Arrange
-    const oldDEK = await generateDEK();
-    const userId = 'user-123';
-
-    // Act
-    const newDEK1 = await rotateDEK(userId, oldDEK);
-    const newDEK2 = await rotateDEK(userId, oldDEK);
-
-    // Assert
-    expect(newDEK1).not.toBe(newDEK2);
+    await expect(rotateDEK(userId, oldDEK)).rejects.toThrow(/not implemented/i);
   });
 });
 
