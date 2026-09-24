@@ -1,7 +1,7 @@
 // Test Suite: User Profiles Data Access Layer
 // Tests for lib/dal/profiles.ts
-// Generated: 2025-11-10
 
+import { describe, test, expect, vi, beforeEach, type Mock } from 'vitest';
 import {
   getUserProfile,
   updateUserProfile,
@@ -12,42 +12,62 @@ import {
   UserProfileUpdate
 } from '@/lib/dal/profiles';
 import { db } from '@/db';
-import { userProfiles } from '@/db/schema';
 import { createClient } from '@/lib/supabase/server';
 import { logAudit } from '@/lib/security/audit-logger';
 
-// Mock dependencies
-jest.mock('@/db');
-jest.mock('@/lib/supabase/server');
-jest.mock('@/lib/security/audit-logger');
+// Explicit factory, not bare vi.mock('@/db') — an automock introspects the
+// real module first, and db/index.ts's `db` export is a lazily-connecting
+// getter, so automocking it actually triggers a real connection attempt.
+vi.mock('@/db', () => ({
+  db: {
+    query: { userProfiles: { findFirst: vi.fn() } },
+    update: vi.fn(),
+    insert: vi.fn(),
+    delete: vi.fn(),
+  },
+}));
+vi.mock('@/lib/supabase/server');
+vi.mock('@/lib/security/audit-logger');
+
+// requireAuth() in lib/dal/profiles.ts calls supabase.auth.getUser() — NOT
+// getSession(). Mocking getSession() here would leave `user` undefined and
+// make every "success" test actually hit the Unauthorized path silently
+// passing for the wrong reason (or failing) — this was the bug in the
+// original Jest version of this file.
+function mockAuthedUser(userId: string | null) {
+  (createClient as unknown as Mock).mockResolvedValue({
+    auth: {
+      getUser: vi.fn().mockResolvedValue({
+        data: { user: userId ? { id: userId } : null },
+        error: null,
+      }),
+    },
+  });
+}
 
 describe('Profiles DAL - getUserProfile', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   test('should retrieve user profile successfully', async () => {
-    // Arrange: Mock authenticated session
-    const mockSession = {
-      user: { id: 'user-123' }
-    };
-    (createClient as jest.Mock).mockResolvedValue({
-      auth: {
-        getSession: jest.fn().mockResolvedValue({
-          data: { session: mockSession },
-          error: null
-        })
-      }
-    });
+    mockAuthedUser('user-123');
 
-    // Mock database query
     const mockProfile: UserProfile = {
       id: 'profile-456',
       userId: 'user-123',
       fullName: 'Jane Doe',
       avatarUrl: 'https://example.com/avatar.jpg',
-      dataEncryptionKey: 'base64-dek-string',
       sessionVersion: 1,
+      mfaEnabled: false,
+      mfaSecret: null,
+      mfaBackupCodes: null,
+      birthYear: null,
+      birthMonth: null,
+      biologicalSex: null,
+      lifeStageEncrypted: null,
+      manualAgeGroup: null,
+      dvSourcePreference: 'AVERAGE',
       dashboardWidgets: {
         staple: ['rda_snapshot', 'recent_meals'],
         custom: []
@@ -56,13 +76,11 @@ describe('Profiles DAL - getUserProfile', () => {
       updatedAt: new Date()
     };
 
-    (db.query.userProfiles.findFirst as jest.Mock) = jest.fn().mockResolvedValue(mockProfile);
-    (logAudit as jest.Mock) = jest.fn().mockResolvedValue(undefined);
+    (db.query.userProfiles.findFirst as Mock) = vi.fn().mockResolvedValue(mockProfile);
+    (logAudit as Mock).mockResolvedValue(undefined);
 
-    // Act
     const result = await getUserProfile('user-123');
 
-    // Assert
     expect(result).toEqual(mockProfile);
     expect(logAudit).toHaveBeenCalledWith({
       userId: 'user-123',
@@ -73,53 +91,25 @@ describe('Profiles DAL - getUserProfile', () => {
   });
 
   test('should throw error if user not authenticated', async () => {
-    // Arrange: No session
-    (createClient as jest.Mock).mockResolvedValue({
-      auth: {
-        getSession: jest.fn().mockResolvedValue({
-          data: { session: null },
-          error: null
-        })
-      }
-    });
+    mockAuthedUser(null);
 
-    // Act & Assert
     await expect(getUserProfile('user-123')).rejects.toThrow('Unauthorized: User must be authenticated');
   });
 
   test('should throw error if userId mismatch (authorization check)', async () => {
-    // Arrange: Session user is 'user-123', requesting 'user-456'
-    (createClient as jest.Mock).mockResolvedValue({
-      auth: {
-        getSession: jest.fn().mockResolvedValue({
-          data: { session: { user: { id: 'user-123' } } },
-          error: null
-        })
-      }
-    });
+    mockAuthedUser('user-123');
 
-    // Act & Assert
-    await expect(getUserProfile('user-456')).rejects.toThrow('Unauthorized: Cannot access another user\'s profile');
+    await expect(getUserProfile('user-456')).rejects.toThrow("Unauthorized: Cannot access another user's profile");
   });
 
   test('should return null if profile not found', async () => {
-    // Arrange
-    (createClient as jest.Mock).mockResolvedValue({
-      auth: {
-        getSession: jest.fn().mockResolvedValue({
-          data: { session: { user: { id: 'user-123' } } },
-          error: null
-        })
-      }
-    });
+    mockAuthedUser('user-123');
 
-    (db.query.userProfiles.findFirst as jest.Mock) = jest.fn().mockResolvedValue(null);
-    (logAudit as jest.Mock) = jest.fn().mockResolvedValue(undefined);
+    (db.query.userProfiles.findFirst as Mock) = vi.fn().mockResolvedValue(null);
+    (logAudit as Mock).mockResolvedValue(undefined);
 
-    // Act
     const result = await getUserProfile('user-123');
 
-    // Assert
     expect(result).toBeNull();
     expect(logAudit).toHaveBeenCalledWith(expect.objectContaining({
       resourceId: null
@@ -129,27 +119,27 @@ describe('Profiles DAL - getUserProfile', () => {
 
 describe('Profiles DAL - updateUserProfile', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   test('should update user profile successfully', async () => {
-    // Arrange
-    (createClient as jest.Mock).mockResolvedValue({
-      auth: {
-        getSession: jest.fn().mockResolvedValue({
-          data: { session: { user: { id: 'user-123' } } },
-          error: null
-        })
-      }
-    });
+    mockAuthedUser('user-123');
 
     const oldProfile: UserProfile = {
       id: 'profile-456',
       userId: 'user-123',
       fullName: 'Jane Doe',
       avatarUrl: null,
-      dataEncryptionKey: 'dek-string',
       sessionVersion: 1,
+      mfaEnabled: false,
+      mfaSecret: null,
+      mfaBackupCodes: null,
+      birthYear: null,
+      birthMonth: null,
+      biologicalSex: null,
+      lifeStageEncrypted: null,
+      manualAgeGroup: null,
+      dvSourcePreference: 'AVERAGE',
       dashboardWidgets: { staple: [], custom: [] },
       createdAt: new Date(),
       updatedAt: new Date()
@@ -162,25 +152,23 @@ describe('Profiles DAL - updateUserProfile', () => {
       updatedAt: new Date()
     };
 
-    (db.query.userProfiles.findFirst as jest.Mock) = jest.fn().mockResolvedValue(oldProfile);
-    (db.update as jest.Mock) = jest.fn(() => ({
-      set: jest.fn(() => ({
-        where: jest.fn(() => ({
-          returning: jest.fn().mockResolvedValue([updatedProfile])
+    (db.query.userProfiles.findFirst as Mock) = vi.fn().mockResolvedValue(oldProfile);
+    (db.update as Mock) = vi.fn(() => ({
+      set: vi.fn(() => ({
+        where: vi.fn(() => ({
+          returning: vi.fn().mockResolvedValue([updatedProfile])
         }))
       }))
     }));
-    (logAudit as jest.Mock) = jest.fn().mockResolvedValue(undefined);
+    (logAudit as Mock).mockResolvedValue(undefined);
 
     const updates: UserProfileUpdate = {
       fullName: 'Jane Smith',
       avatarUrl: 'https://example.com/new-avatar.jpg'
     };
 
-    // Act
     const result = await updateUserProfile('user-123', updates);
 
-    // Assert
     expect(result).toEqual(updatedProfile);
     expect(logAudit).toHaveBeenCalledWith({
       userId: 'user-123',
@@ -197,43 +185,25 @@ describe('Profiles DAL - updateUserProfile', () => {
   });
 
   test('should throw error if unauthorized', async () => {
-    // Arrange: Session user is 'user-123', trying to update 'user-456'
-    (createClient as jest.Mock).mockResolvedValue({
-      auth: {
-        getSession: jest.fn().mockResolvedValue({
-          data: { session: { user: { id: 'user-123' } } },
-          error: null
-        })
-      }
-    });
+    mockAuthedUser('user-123');
 
-    // Act & Assert
     await expect(updateUserProfile('user-456', { fullName: 'Hacker' })).rejects.toThrow(
-      'Unauthorized: Cannot update another user\'s profile'
+      "Unauthorized: Cannot update another user's profile"
     );
   });
 
   test('should throw error if profile not found', async () => {
-    // Arrange
-    (createClient as jest.Mock).mockResolvedValue({
-      auth: {
-        getSession: jest.fn().mockResolvedValue({
-          data: { session: { user: { id: 'user-123' } } },
-          error: null
-        })
-      }
-    });
+    mockAuthedUser('user-123');
 
-    (db.query.userProfiles.findFirst as jest.Mock) = jest.fn().mockResolvedValue(null);
-    (db.update as jest.Mock) = jest.fn(() => ({
-      set: jest.fn(() => ({
-        where: jest.fn(() => ({
-          returning: jest.fn().mockResolvedValue([])
+    (db.query.userProfiles.findFirst as Mock) = vi.fn().mockResolvedValue(null);
+    (db.update as Mock) = vi.fn(() => ({
+      set: vi.fn(() => ({
+        where: vi.fn(() => ({
+          returning: vi.fn().mockResolvedValue([])
         }))
       }))
     }));
 
-    // Act & Assert
     await expect(updateUserProfile('user-123', { fullName: 'Test' })).rejects.toThrow(
       'Profile update failed: User profile not found'
     );
@@ -242,44 +212,42 @@ describe('Profiles DAL - updateUserProfile', () => {
 
 describe('Profiles DAL - incrementSessionVersion', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   test('should increment session version successfully', async () => {
-    // Arrange
-    (createClient as jest.Mock).mockResolvedValue({
-      auth: {
-        getSession: jest.fn().mockResolvedValue({
-          data: { session: { user: { id: 'user-123' } } },
-          error: null
-        })
-      }
-    });
+    mockAuthedUser('user-123');
 
     const mockProfile: UserProfile = {
       id: 'profile-456',
       userId: 'user-123',
       fullName: 'Jane Doe',
       avatarUrl: null,
-      dataEncryptionKey: 'dek',
       sessionVersion: 5,
+      mfaEnabled: false,
+      mfaSecret: null,
+      mfaBackupCodes: null,
+      birthYear: null,
+      birthMonth: null,
+      biologicalSex: null,
+      lifeStageEncrypted: null,
+      manualAgeGroup: null,
+      dvSourcePreference: 'AVERAGE',
       dashboardWidgets: { staple: [], custom: [] },
       createdAt: new Date(),
       updatedAt: new Date()
     };
 
-    (db.query.userProfiles.findFirst as jest.Mock) = jest.fn().mockResolvedValue(mockProfile);
-    (db.update as jest.Mock) = jest.fn(() => ({
-      set: jest.fn(() => ({
-        where: jest.fn().mockResolvedValue(undefined)
+    (db.query.userProfiles.findFirst as Mock) = vi.fn().mockResolvedValue(mockProfile);
+    (db.update as Mock) = vi.fn(() => ({
+      set: vi.fn(() => ({
+        where: vi.fn().mockResolvedValue(undefined)
       }))
     }));
-    (logAudit as jest.Mock) = jest.fn().mockResolvedValue(undefined);
+    (logAudit as Mock).mockResolvedValue(undefined);
 
-    // Act
     await incrementSessionVersion('user-123');
 
-    // Assert
     expect(db.update).toHaveBeenCalled();
     expect(logAudit).toHaveBeenCalledWith({
       userId: 'user-123',
@@ -296,63 +264,45 @@ describe('Profiles DAL - incrementSessionVersion', () => {
   });
 
   test('should throw error if unauthorized', async () => {
-    // Arrange
-    (createClient as jest.Mock).mockResolvedValue({
-      auth: {
-        getSession: jest.fn().mockResolvedValue({
-          data: { session: { user: { id: 'user-123' } } },
-          error: null
-        })
-      }
-    });
+    mockAuthedUser('user-123');
 
-    // Act & Assert
     await expect(incrementSessionVersion('user-456')).rejects.toThrow(
-      'Unauthorized: Cannot increment another user\'s session version'
+      "Unauthorized: Cannot increment another user's session version"
     );
   });
 
   test('should throw error if profile not found', async () => {
-    // Arrange
-    (createClient as jest.Mock).mockResolvedValue({
-      auth: {
-        getSession: jest.fn().mockResolvedValue({
-          data: { session: { user: { id: 'user-123' } } },
-          error: null
-        })
-      }
-    });
+    mockAuthedUser('user-123');
 
-    (db.query.userProfiles.findFirst as jest.Mock) = jest.fn().mockResolvedValue(null);
+    (db.query.userProfiles.findFirst as Mock) = vi.fn().mockResolvedValue(null);
 
-    // Act & Assert
     await expect(incrementSessionVersion('user-123')).rejects.toThrow('User profile not found');
   });
 });
 
 describe('Profiles DAL - getDashboardWidgets', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   test('should retrieve dashboard widgets successfully', async () => {
-    // Arrange
-    (createClient as jest.Mock).mockResolvedValue({
-      auth: {
-        getSession: jest.fn().mockResolvedValue({
-          data: { session: { user: { id: 'user-123' } } },
-          error: null
-        })
-      }
-    });
+    mockAuthedUser('user-123');
 
     const mockProfile: UserProfile = {
       id: 'profile-456',
       userId: 'user-123',
       fullName: 'Jane Doe',
       avatarUrl: null,
-      dataEncryptionKey: 'dek',
       sessionVersion: 1,
+      mfaEnabled: false,
+      mfaSecret: null,
+      mfaBackupCodes: null,
+      birthYear: null,
+      birthMonth: null,
+      biologicalSex: null,
+      lifeStageEncrypted: null,
+      manualAgeGroup: null,
+      dvSourcePreference: 'AVERAGE',
       dashboardWidgets: {
         staple: ['rda_snapshot', 'recent_meals', 'compound_trends'],
         custom: ['my_custom_widget']
@@ -361,12 +311,10 @@ describe('Profiles DAL - getDashboardWidgets', () => {
       updatedAt: new Date()
     };
 
-    (db.query.userProfiles.findFirst as jest.Mock) = jest.fn().mockResolvedValue(mockProfile);
+    (db.query.userProfiles.findFirst as Mock) = vi.fn().mockResolvedValue(mockProfile);
 
-    // Act
     const result = await getDashboardWidgets('user-123');
 
-    // Assert
     expect(result).toEqual({
       staple: ['rda_snapshot', 'recent_meals', 'compound_trends'],
       custom: ['my_custom_widget']
@@ -374,46 +322,37 @@ describe('Profiles DAL - getDashboardWidgets', () => {
   });
 
   test('should throw error if unauthorized', async () => {
-    // Arrange
-    (createClient as jest.Mock).mockResolvedValue({
-      auth: {
-        getSession: jest.fn().mockResolvedValue({
-          data: { session: { user: { id: 'user-123' } } },
-          error: null
-        })
-      }
-    });
+    mockAuthedUser('user-123');
 
-    // Act & Assert
     await expect(getDashboardWidgets('user-456')).rejects.toThrow(
-      'Unauthorized: Cannot access another user\'s dashboard widgets'
+      "Unauthorized: Cannot access another user's dashboard widgets"
     );
   });
 });
 
 describe('Profiles DAL - updateDashboardWidgets', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   test('should update dashboard widgets successfully', async () => {
-    // Arrange
-    (createClient as jest.Mock).mockResolvedValue({
-      auth: {
-        getSession: jest.fn().mockResolvedValue({
-          data: { session: { user: { id: 'user-123' } } },
-          error: null
-        })
-      }
-    });
+    mockAuthedUser('user-123');
 
     const updatedProfile: UserProfile = {
       id: 'profile-456',
       userId: 'user-123',
       fullName: 'Jane Doe',
       avatarUrl: null,
-      dataEncryptionKey: 'dek',
       sessionVersion: 1,
+      mfaEnabled: false,
+      mfaSecret: null,
+      mfaBackupCodes: null,
+      birthYear: null,
+      birthMonth: null,
+      biologicalSex: null,
+      lifeStageEncrypted: null,
+      manualAgeGroup: null,
+      dvSourcePreference: 'AVERAGE',
       dashboardWidgets: {
         staple: ['rda_snapshot'],
         custom: ['compound_trends']
@@ -422,24 +361,22 @@ describe('Profiles DAL - updateDashboardWidgets', () => {
       updatedAt: new Date()
     };
 
-    (db.update as jest.Mock) = jest.fn(() => ({
-      set: jest.fn(() => ({
-        where: jest.fn(() => ({
-          returning: jest.fn().mockResolvedValue([updatedProfile])
+    (db.update as Mock) = vi.fn(() => ({
+      set: vi.fn(() => ({
+        where: vi.fn(() => ({
+          returning: vi.fn().mockResolvedValue([updatedProfile])
         }))
       }))
     }));
-    (logAudit as jest.Mock) = jest.fn().mockResolvedValue(undefined);
+    (logAudit as Mock).mockResolvedValue(undefined);
 
     const newWidgets = {
       staple: ['rda_snapshot'],
       custom: ['compound_trends']
     };
 
-    // Act
     const result = await updateDashboardWidgets('user-123', newWidgets);
 
-    // Assert
     expect(result).toEqual(newWidgets);
     expect(logAudit).toHaveBeenCalledWith({
       userId: 'user-123',
@@ -454,19 +391,10 @@ describe('Profiles DAL - updateDashboardWidgets', () => {
   });
 
   test('should throw error if unauthorized', async () => {
-    // Arrange
-    (createClient as jest.Mock).mockResolvedValue({
-      auth: {
-        getSession: jest.fn().mockResolvedValue({
-          data: { session: { user: { id: 'user-123' } } },
-          error: null
-        })
-      }
-    });
+    mockAuthedUser('user-123');
 
-    // Act & Assert
     await expect(
       updateDashboardWidgets('user-456', { staple: [], custom: [] })
-    ).rejects.toThrow('Unauthorized: Cannot update another user\'s dashboard widgets');
+    ).rejects.toThrow("Unauthorized: Cannot update another user's dashboard widgets");
   });
 });
