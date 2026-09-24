@@ -104,8 +104,8 @@ drops, so the defects below are its own report, not a guess.
 
 ## D. Coverage — the real ceiling
 
-- [ ] **D1. Decide what to do about 22 single-body compounds.** Of the 77 compounds with any alpha DV,
-      22 rest on one authority: every essential amino acid but one (Korea), omega-3 and omega-6 (Japan),
+- [ ] **D1. Decide what to do about 19 single-body compounds.** Counting goals (RDA/AI) for an adult
+      male, 19 of the 56 compounds that have one rest on a single authority: every essential amino acid but one (Korea), omega-3 and omega-6 (Japan),
       total fat (Russia). "Median of independent sources" is a median of one. Either mark them as such
       in the UI (C1 does this), add a source that covers them, or hide them for alpha.
 
@@ -132,3 +132,15 @@ drops, so the defects below are its own report, not a guess.
 - **Korea's vitamin A limit** is printed against total vitamin A with no preformed-only footnote, while
   the other five bodies limit retinol. Stored as printed; see `VALUE-TYPES.md`. Needs a chapter read.
 - **Whether to show EAR at all**, and how.
+
+
+---
+
+## F. Corrections to this document's own numbers
+
+- The first sweep (2026-09-24) filtered ages with `age_min <= 360 AND age_max >= 360`, which drops every
+  row with a NULL age bound — EU, Russia and India publish many. It undercounted: vitamin C reads 10
+  bodies, not 7, and the single-body count is 19, not 22. The service's own filter
+  (`age_max IS NULL OR age_max >= 360`) was correct throughout; only the ad-hoc sweep was wrong. Any
+  number in this file that predates this note and is not marked as checked against the service should be
+  re-derived before it is quoted.
