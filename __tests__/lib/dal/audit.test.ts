@@ -1,7 +1,7 @@
 // Test Suite: Audit Log Queries Data Access Layer
 // Tests for lib/dal/audit.ts
-// Generated: 2025-11-10
 
+import { describe, test, expect, vi, beforeEach, type Mock } from 'vitest';
 import {
   getAuditLogs,
   getRecentAuditLogs,
@@ -10,32 +10,42 @@ import {
   getAuditLogsByDateRange,
   getConsentChangeHistory,
   AuditLogEntry,
-  AuditLogPage,
-  AuditLogPaginationOptions
 } from '@/lib/dal/audit';
 import { db } from '@/db';
-import { auditLog } from '@/db/schema';
 import { createClient } from '@/lib/supabase/server';
 
-// Mock dependencies
-jest.mock('@/db');
-jest.mock('@/lib/supabase/server');
+// Explicit factory — see profiles.test.ts for why a bare vi.mock('@/db')
+// triggers db/index.ts's real lazy-connecting getter.
+vi.mock('@/db', () => ({
+  db: {
+    query: { auditLog: { findMany: vi.fn() } },
+    select: vi.fn(),
+  },
+}));
+vi.mock('@/lib/supabase/server');
+
+// lib/dal/audit.ts's requireAuth() calls supabase.auth.getUser(), not
+// getSession() — mocking getSession() (as the original Jest file did) leaves
+// every "authenticated" test actually hitting the Unauthorized path.
+function mockAuthedUser(userId: string | null) {
+  (createClient as unknown as Mock).mockResolvedValue({
+    auth: {
+      getUser: vi.fn().mockResolvedValue({
+        data: { user: userId ? { id: userId } : null },
+        error: null,
+      }),
+    },
+  });
+}
 
 describe('Audit DAL - getAuditLogs', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   test('should retrieve paginated audit logs', async () => {
     // Arrange
-    (createClient as jest.Mock).mockResolvedValue({
-      auth: {
-        getSession: jest.fn().mockResolvedValue({
-          data: { session: { user: { id: 'user-123' } } },
-          error: null
-        })
-      }
-    });
+    mockAuthedUser('user-123');
 
     const mockLogs: AuditLogEntry[] = [
       {
@@ -62,13 +72,12 @@ describe('Audit DAL - getAuditLogs', () => {
       }
     ];
 
-    (db.query.auditLog.findMany as jest.Mock) = jest.fn().mockResolvedValue(mockLogs);
-    (db.select as jest.Mock) = jest.fn(() => ({
-      from: jest.fn(() => ({
-        where: jest.fn().mockResolvedValue([{ count: 150 }])
+    (db.query.auditLog.findMany as Mock) = vi.fn().mockResolvedValue(mockLogs);
+    (db.select as Mock) = vi.fn(() => ({
+      from: vi.fn(() => ({
+        where: vi.fn().mockResolvedValue([{ count: 150 }])
       }))
     }));
-    (db.$count as jest.Mock) = jest.fn();
 
     // Act
     const result = await getAuditLogs('user-123', { page: 1, limit: 100 });
@@ -85,14 +94,7 @@ describe('Audit DAL - getAuditLogs', () => {
 
   test('should throw error if user not authenticated', async () => {
     // Arrange
-    (createClient as jest.Mock).mockResolvedValue({
-      auth: {
-        getSession: jest.fn().mockResolvedValue({
-          data: { session: null },
-          error: null
-        })
-      }
-    });
+    mockAuthedUser(null);
 
     // Act & Assert
     await expect(getAuditLogs('user-123')).rejects.toThrow('Unauthorized: User must be authenticated');
@@ -100,14 +102,7 @@ describe('Audit DAL - getAuditLogs', () => {
 
   test('should throw error if userId mismatch', async () => {
     // Arrange
-    (createClient as jest.Mock).mockResolvedValue({
-      auth: {
-        getSession: jest.fn().mockResolvedValue({
-          data: { session: { user: { id: 'user-123' } } },
-          error: null
-        })
-      }
-    });
+    mockAuthedUser('user-123');
 
     // Act & Assert
     await expect(getAuditLogs('user-456')).rejects.toThrow('Unauthorized: Cannot access another user\'s audit logs');
@@ -115,14 +110,7 @@ describe('Audit DAL - getAuditLogs', () => {
 
   test('should filter by action type', async () => {
     // Arrange
-    (createClient as jest.Mock).mockResolvedValue({
-      auth: {
-        getSession: jest.fn().mockResolvedValue({
-          data: { session: { user: { id: 'user-123' } } },
-          error: null
-        })
-      }
-    });
+    mockAuthedUser('user-123');
 
     const mockLogs: AuditLogEntry[] = [
       {
@@ -138,13 +126,12 @@ describe('Audit DAL - getAuditLogs', () => {
       }
     ];
 
-    (db.query.auditLog.findMany as jest.Mock) = jest.fn().mockResolvedValue(mockLogs);
-    (db.select as jest.Mock) = jest.fn(() => ({
-      from: jest.fn(() => ({
-        where: jest.fn().mockResolvedValue([{ count: 1 }])
+    (db.query.auditLog.findMany as Mock) = vi.fn().mockResolvedValue(mockLogs);
+    (db.select as Mock) = vi.fn(() => ({
+      from: vi.fn(() => ({
+        where: vi.fn().mockResolvedValue([{ count: 1 }])
       }))
     }));
-    (db.$count as jest.Mock) = jest.fn();
 
     // Act
     const result = await getAuditLogs('user-123', { action: 'CONSENT_CHANGE' });
@@ -156,14 +143,7 @@ describe('Audit DAL - getAuditLogs', () => {
 
   test('should filter by resource type', async () => {
     // Arrange
-    (createClient as jest.Mock).mockResolvedValue({
-      auth: {
-        getSession: jest.fn().mockResolvedValue({
-          data: { session: { user: { id: 'user-123' } } },
-          error: null
-        })
-      }
-    });
+    mockAuthedUser('user-123');
 
     const mockLogs: AuditLogEntry[] = [
       {
@@ -179,13 +159,12 @@ describe('Audit DAL - getAuditLogs', () => {
       }
     ];
 
-    (db.query.auditLog.findMany as jest.Mock) = jest.fn().mockResolvedValue(mockLogs);
-    (db.select as jest.Mock) = jest.fn(() => ({
-      from: jest.fn(() => ({
-        where: jest.fn().mockResolvedValue([{ count: 1 }])
+    (db.query.auditLog.findMany as Mock) = vi.fn().mockResolvedValue(mockLogs);
+    (db.select as Mock) = vi.fn(() => ({
+      from: vi.fn(() => ({
+        where: vi.fn().mockResolvedValue([{ count: 1 }])
       }))
     }));
-    (db.$count as jest.Mock) = jest.fn();
 
     // Act
     const result = await getAuditLogs('user-123', { resourceType: 'user_profile' });
@@ -196,14 +175,7 @@ describe('Audit DAL - getAuditLogs', () => {
 
   test('should filter by date range', async () => {
     // Arrange
-    (createClient as jest.Mock).mockResolvedValue({
-      auth: {
-        getSession: jest.fn().mockResolvedValue({
-          data: { session: { user: { id: 'user-123' } } },
-          error: null
-        })
-      }
-    });
+    mockAuthedUser('user-123');
 
     const mockLogs: AuditLogEntry[] = [
       {
@@ -219,13 +191,12 @@ describe('Audit DAL - getAuditLogs', () => {
       }
     ];
 
-    (db.query.auditLog.findMany as jest.Mock) = jest.fn().mockResolvedValue(mockLogs);
-    (db.select as jest.Mock) = jest.fn(() => ({
-      from: jest.fn(() => ({
-        where: jest.fn().mockResolvedValue([{ count: 1 }])
+    (db.query.auditLog.findMany as Mock) = vi.fn().mockResolvedValue(mockLogs);
+    (db.select as Mock) = vi.fn(() => ({
+      from: vi.fn(() => ({
+        where: vi.fn().mockResolvedValue([{ count: 1 }])
       }))
     }));
-    (db.$count as jest.Mock) = jest.fn();
 
     // Act
     const result = await getAuditLogs('user-123', {
@@ -239,22 +210,14 @@ describe('Audit DAL - getAuditLogs', () => {
 
   test('should enforce max limit of 500', async () => {
     // Arrange
-    (createClient as jest.Mock).mockResolvedValue({
-      auth: {
-        getSession: jest.fn().mockResolvedValue({
-          data: { session: { user: { id: 'user-123' } } },
-          error: null
-        })
-      }
-    });
+    mockAuthedUser('user-123');
 
-    (db.query.auditLog.findMany as jest.Mock) = jest.fn().mockResolvedValue([]);
-    (db.select as jest.Mock) = jest.fn(() => ({
-      from: jest.fn(() => ({
-        where: jest.fn().mockResolvedValue([{ count: 0 }])
+    (db.query.auditLog.findMany as Mock) = vi.fn().mockResolvedValue([]);
+    (db.select as Mock) = vi.fn(() => ({
+      from: vi.fn(() => ({
+        where: vi.fn().mockResolvedValue([{ count: 0 }])
       }))
     }));
-    (db.$count as jest.Mock) = jest.fn();
 
     // Act
     const result = await getAuditLogs('user-123', { limit: 1000 }); // Try to request 1000
@@ -265,14 +228,7 @@ describe('Audit DAL - getAuditLogs', () => {
 
   test('should calculate hasMore correctly', async () => {
     // Arrange
-    (createClient as jest.Mock).mockResolvedValue({
-      auth: {
-        getSession: jest.fn().mockResolvedValue({
-          data: { session: { user: { id: 'user-123' } } },
-          error: null
-        })
-      }
-    });
+    mockAuthedUser('user-123');
 
     const mockLogs: AuditLogEntry[] = Array.from({ length: 100 }, (_, i) => ({
       id: `audit-${i}`,
@@ -286,13 +242,12 @@ describe('Audit DAL - getAuditLogs', () => {
       createdAt: new Date()
     }));
 
-    (db.query.auditLog.findMany as jest.Mock) = jest.fn().mockResolvedValue(mockLogs);
-    (db.select as jest.Mock) = jest.fn(() => ({
-      from: jest.fn(() => ({
-        where: jest.fn().mockResolvedValue([{ count: 250 }])
+    (db.query.auditLog.findMany as Mock) = vi.fn().mockResolvedValue(mockLogs);
+    (db.select as Mock) = vi.fn(() => ({
+      from: vi.fn(() => ({
+        where: vi.fn().mockResolvedValue([{ count: 250 }])
       }))
     }));
-    (db.$count as jest.Mock) = jest.fn();
 
     // Act
     const result = await getAuditLogs('user-123', { page: 1, limit: 100 });
@@ -304,30 +259,22 @@ describe('Audit DAL - getAuditLogs', () => {
     const lastPage = await getAuditLogs('user-123', { page: 3, limit: 100 });
 
     // Assert: 200 offset + 100 logs >= 250 total = hasMore false
-    (db.select as jest.Mock) = jest.fn(() => ({
-      from: jest.fn(() => ({
-        where: jest.fn().mockResolvedValue([{ count: 250 }])
+    (db.select as Mock) = vi.fn(() => ({
+      from: vi.fn(() => ({
+        where: vi.fn().mockResolvedValue([{ count: 250 }])
       }))
     }));
-    (db.$count as jest.Mock) = jest.fn();
   });
 });
 
 describe('Audit DAL - getRecentAuditLogs', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   test('should retrieve last 100 audit logs', async () => {
     // Arrange
-    (createClient as jest.Mock).mockResolvedValue({
-      auth: {
-        getSession: jest.fn().mockResolvedValue({
-          data: { session: { user: { id: 'user-123' } } },
-          error: null
-        })
-      }
-    });
+    mockAuthedUser('user-123');
 
     const mockLogs: AuditLogEntry[] = Array.from({ length: 100 }, (_, i) => ({
       id: `audit-${i}`,
@@ -341,13 +288,12 @@ describe('Audit DAL - getRecentAuditLogs', () => {
       createdAt: new Date()
     }));
 
-    (db.query.auditLog.findMany as jest.Mock) = jest.fn().mockResolvedValue(mockLogs);
-    (db.select as jest.Mock) = jest.fn(() => ({
-      from: jest.fn(() => ({
-        where: jest.fn().mockResolvedValue([{ count: 500 }])
+    (db.query.auditLog.findMany as Mock) = vi.fn().mockResolvedValue(mockLogs);
+    (db.select as Mock) = vi.fn(() => ({
+      from: vi.fn(() => ({
+        where: vi.fn().mockResolvedValue([{ count: 500 }])
       }))
     }));
-    (db.$count as jest.Mock) = jest.fn();
 
     // Act
     const result = await getRecentAuditLogs('user-123');
@@ -359,19 +305,12 @@ describe('Audit DAL - getRecentAuditLogs', () => {
 
 describe('Audit DAL - getAuditLogsByAction', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   test('should filter logs by action type', async () => {
     // Arrange
-    (createClient as jest.Mock).mockResolvedValue({
-      auth: {
-        getSession: jest.fn().mockResolvedValue({
-          data: { session: { user: { id: 'user-123' } } },
-          error: null
-        })
-      }
-    });
+    mockAuthedUser('user-123');
 
     const mockLogs: AuditLogEntry[] = [
       {
@@ -387,13 +326,12 @@ describe('Audit DAL - getAuditLogsByAction', () => {
       }
     ];
 
-    (db.query.auditLog.findMany as jest.Mock) = jest.fn().mockResolvedValue(mockLogs);
-    (db.select as jest.Mock) = jest.fn(() => ({
-      from: jest.fn(() => ({
-        where: jest.fn().mockResolvedValue([{ count: 1 }])
+    (db.query.auditLog.findMany as Mock) = vi.fn().mockResolvedValue(mockLogs);
+    (db.select as Mock) = vi.fn(() => ({
+      from: vi.fn(() => ({
+        where: vi.fn().mockResolvedValue([{ count: 1 }])
       }))
     }));
-    (db.$count as jest.Mock) = jest.fn();
 
     // Act
     const result = await getAuditLogsByAction('user-123', 'CONSENT_CHANGE');
@@ -406,19 +344,12 @@ describe('Audit DAL - getAuditLogsByAction', () => {
 
 describe('Audit DAL - getAuditLogsByResourceType', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   test('should filter logs by resource type', async () => {
     // Arrange
-    (createClient as jest.Mock).mockResolvedValue({
-      auth: {
-        getSession: jest.fn().mockResolvedValue({
-          data: { session: { user: { id: 'user-123' } } },
-          error: null
-        })
-      }
-    });
+    mockAuthedUser('user-123');
 
     const mockLogs: AuditLogEntry[] = [
       {
@@ -434,13 +365,12 @@ describe('Audit DAL - getAuditLogsByResourceType', () => {
       }
     ];
 
-    (db.query.auditLog.findMany as jest.Mock) = jest.fn().mockResolvedValue(mockLogs);
-    (db.select as jest.Mock) = jest.fn(() => ({
-      from: jest.fn(() => ({
-        where: jest.fn().mockResolvedValue([{ count: 1 }])
+    (db.query.auditLog.findMany as Mock) = vi.fn().mockResolvedValue(mockLogs);
+    (db.select as Mock) = vi.fn(() => ({
+      from: vi.fn(() => ({
+        where: vi.fn().mockResolvedValue([{ count: 1 }])
       }))
     }));
-    (db.$count as jest.Mock) = jest.fn();
 
     // Act
     const result = await getAuditLogsByResourceType('user-123', 'user_profile');
@@ -452,19 +382,12 @@ describe('Audit DAL - getAuditLogsByResourceType', () => {
 
 describe('Audit DAL - getAuditLogsByDateRange', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   test('should filter logs by date range', async () => {
     // Arrange
-    (createClient as jest.Mock).mockResolvedValue({
-      auth: {
-        getSession: jest.fn().mockResolvedValue({
-          data: { session: { user: { id: 'user-123' } } },
-          error: null
-        })
-      }
-    });
+    mockAuthedUser('user-123');
 
     const mockLogs: AuditLogEntry[] = [
       {
@@ -480,13 +403,12 @@ describe('Audit DAL - getAuditLogsByDateRange', () => {
       }
     ];
 
-    (db.query.auditLog.findMany as jest.Mock) = jest.fn().mockResolvedValue(mockLogs);
-    (db.select as jest.Mock) = jest.fn(() => ({
-      from: jest.fn(() => ({
-        where: jest.fn().mockResolvedValue([{ count: 1 }])
+    (db.query.auditLog.findMany as Mock) = vi.fn().mockResolvedValue(mockLogs);
+    (db.select as Mock) = vi.fn(() => ({
+      from: vi.fn(() => ({
+        where: vi.fn().mockResolvedValue([{ count: 1 }])
       }))
     }));
-    (db.$count as jest.Mock) = jest.fn();
 
     // Act
     const result = await getAuditLogsByDateRange(
@@ -502,19 +424,12 @@ describe('Audit DAL - getAuditLogsByDateRange', () => {
 
 describe('Audit DAL - getConsentChangeHistory', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   test('should retrieve consent change history', async () => {
     // Arrange
-    (createClient as jest.Mock).mockResolvedValue({
-      auth: {
-        getSession: jest.fn().mockResolvedValue({
-          data: { session: { user: { id: 'user-123' } } },
-          error: null
-        })
-      }
-    });
+    mockAuthedUser('user-123');
 
     const mockLogs: AuditLogEntry[] = [
       {
@@ -535,13 +450,12 @@ describe('Audit DAL - getConsentChangeHistory', () => {
       }
     ];
 
-    (db.query.auditLog.findMany as jest.Mock) = jest.fn().mockResolvedValue(mockLogs);
-    (db.select as jest.Mock) = jest.fn(() => ({
-      from: jest.fn(() => ({
-        where: jest.fn().mockResolvedValue([{ count: 1 }])
+    (db.query.auditLog.findMany as Mock) = vi.fn().mockResolvedValue(mockLogs);
+    (db.select as Mock) = vi.fn(() => ({
+      from: vi.fn(() => ({
+        where: vi.fn().mockResolvedValue([{ count: 1 }])
       }))
     }));
-    (db.$count as jest.Mock) = jest.fn();
 
     // Act
     const result = await getConsentChangeHistory('user-123');
