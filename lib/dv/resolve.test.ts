@@ -199,3 +199,40 @@ describe('a body that publishes several rows for one demographic', () => {
     expect(bar.diseaseFloor?.value).toBe(15);
   });
 });
+
+describe('a share of energy is not an amount', () => {
+  it('does not let a percent win the unit vote and discard the bodies that published grams', () => {
+    const bar = resolveBar('Linoleic Acid', [
+      row({ region: 'CHINA', valueType: 'AI', value: 4, unit: '%', isPercentOfEnergy: true }),
+      row({ region: 'DACH', valueType: 'RDA', value: 2.5, unit: '%', isPercentOfEnergy: true }),
+      row({ region: 'KOREA', valueType: 'AI', value: 11.5, unit: 'g' }),
+      row({ region: 'USA_CANADA', valueType: 'AI', value: 17, unit: 'g' }),
+    ]);
+    expect(bar.goal).toMatchObject({ value: 14.25, unit: 'g', sources: ['KOREA', 'USA_CANADA'] });
+    expect(bar.energyShare?.goal).toMatchObject({ value: 3.25, unit: '%', sources: ['CHINA', 'DACH'] });
+  });
+
+  it('catches a percent that was never flagged', () => {
+    const bar = resolveBar('Test', [
+      row({ region: 'PHILIPPINES', valueType: 'AI', value: 2, unit: '%E' }),   // flag missing in the data
+      row({ region: 'USA_CANADA', valueType: 'AI', value: 17, unit: 'g' }),
+    ]);
+    expect(bar.goal?.value).toBe(17);
+  });
+
+  it('keeps an energy-share ceiling out of the food limit', () => {
+    const bar = resolveBar('Total Fat', [
+      row({ region: 'RUSSIA', valueType: 'CDRR', value: 30, valueMax: 30, unit: '%', isPercentOfEnergy: true }),
+      row({ region: 'USA_CANADA', valueType: 'RDA', value: 70, unit: 'g' }),
+    ]);
+    expect(bar.limit).toBeNull();
+    expect(bar.energyShare?.limit?.value).toBe(30);
+  });
+
+  it('still keeps a published range as a range', () => {
+    const bar = resolveBar('Total Fat', [
+      row({ region: 'USA_CANADA', valueType: 'AMDR', value: 27.5, valueMin: 20, valueMax: 35, unit: '%', isPercentOfEnergy: true }),
+    ]);
+    expect(bar.range).toMatchObject({ min: 20, max: 35 });
+  });
+});

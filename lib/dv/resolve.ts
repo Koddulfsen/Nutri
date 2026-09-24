@@ -57,6 +57,12 @@ export interface ResolvedBar {
   limit: (Aggregate & { from: Array<'UL' | 'CDRR' | 'AMDR'> }) | null;
   /** Range to stay inside (macronutrients, % of energy). */
   range: { min: number; max: number; unit: string; sources: string[] } | null;
+  /**
+   * Values expressed as a share of energy rather than as an amount — China's 4 %E linoleic acid, Russia's 30 %E fat
+   * ceiling. They are NOT amounts and must never be mixed with one: a 4 and a 17 are not two opinions about the same
+   * quantity. Kept here in percent until the caller knows the user's energy intake and can convert them.
+   */
+  energyShare: { goal: Aggregate | null; limit: Aggregate | null } | null;
   /** Limits that apply only to supplements or fortified foods — shown apart, never against food intake. */
   supplementLimit: Aggregate | null;
   /**
@@ -139,6 +145,12 @@ function dropCollapsed(compound: string, rows: DvRow[], excluded: ResolvedBar['e
  * @param formRows rows for compounds whose limits belong beside this bar (see lib/dv/compound-links.ts), keyed by
  *   compound name. Omit when the caller has not loaded them; the bar is then returned without form limits.
  */
+/**
+ * True when a row states a share of the day's energy, not an amount. The stored flag is authoritative; the unit is
+ * checked too because a `%` that is not flagged is the same trap either way.
+ */
+const isEnergyShare = (r: DvRow) => r.isPercentOfEnergy === true || /^%/.test(parseUnit(r.unit).magnitude.trim());
+
 export function resolveBar(compound: string, allRows: DvRow[], formRows: Record<string, DvRow[]> = {}): ResolvedBar {
   const excluded: ResolvedBar['excluded'] = [];
   const rows: DvRow[] = [];
@@ -157,8 +169,25 @@ export function resolveBar(compound: string, allRows: DvRow[], formRows: Record<
   const ceilings: Array<{ region: string; value: number; unit: string; from: 'UL' | 'CDRR' | 'AMDR' }> = [];
   const suppCeilings: Array<{ region: string; value: number; unit: string }> = [];
   const ranges: Array<{ region: string; min: number; max: number; unit: string }> = [];
+  const shareGoals: Array<{ region: string; value: number; unit: string }> = [];
+  const shareCeilings: Array<{ region: string; value: number; unit: string }> = [];
 
   for (const r of kept) {
+    // A share of energy is not an amount. Letting one into the pool lets it win the unit vote and drop every body
+    // that published a real amount — which is exactly what linoleic acid did (3.25 % from 2 bodies, 11.5 g and
+    // 17 g discarded). Ranges are the one place a share belongs as published.
+    if (isEnergyShare(r) && !(r.valueMin != null && r.valueMax != null)) {
+      if (r.valueType === 'RDA' || r.valueType === 'AI') shareGoals.push({ region: r.region, value: r.value, unit: r.unit });
+      else if (r.valueMax != null) shareCeilings.push({ region: r.region, value: r.valueMax, unit: r.unit });
+      else if (r.valueMin != null) shareGoals.push({ region: r.region, value: r.valueMin, unit: r.unit });
+      // A share with no min or max is a point target — Russia prints protein at 14 % of energy per activity group,
+      // DGE prints fat at 30 % as a Richtwert. That is something to aim at, so it belongs with the share goals.
+      // `scripts/dv-verify/check-source-consistency.ts` is what stops a mistranscribed range from arriving here:
+      // a direction-less row must be on its verified point-target allowlist or the checker fails.
+      else shareGoals.push({ region: r.region, value: r.value, unit: r.unit });
+      excluded.push({ region: r.region, valueType: r.valueType, unit: r.unit, reason: 'stated as a share of energy, not an amount; kept under energyShare' });
+      continue;
+    }
     if (r.valueType === 'RDA' || r.valueType === 'AI') {
       const cur = perRegionGoal.get(r.region);
       // An RDA supersedes the same body's AI; further rows of the type it publishes are kept and collapsed below.
@@ -219,5 +248,9 @@ export function resolveBar(compound: string, allRows: DvRow[], formRows: Record<
     if (agg) formLimits.push({ ...agg, compound: link.form, countsParentTotal: link.countsParentTotal, unitNote: link.unitNote });
   }
 
-  return { compound, goal, diseaseFloor, limit, range, supplementLimit: suppAgg, formLimits, excluded };
+  const shareGoal = aggregate(shareGoals, excluded, 'energy share goal');
+  const shareLimit = aggregate(shareCeilings, excluded, 'energy share limit');
+  const energyShare = shareGoal || shareLimit ? { goal: shareGoal, limit: shareLimit } : null;
+
+  return { compound, goal, diseaseFloor, limit, range, energyShare, supplementLimit: suppAgg, formLimits, excluded };
 }
