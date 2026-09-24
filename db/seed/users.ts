@@ -1,5 +1,5 @@
 import { db } from '@/db';
-import { userProfiles, apiKeys, userConsent } from '@/db/schema/users';
+import { userProfiles, userEncryptionKeys, apiKeys, userConsent } from '@/db/schema/users';
 
 /**
  * Seed Users
@@ -620,9 +620,12 @@ export async function seedUsers() {
         userId: user.userId,
         fullName: user.profile.fullName,
         avatarUrl: user.profile.avatarUrl,
-        dataEncryptionKey: user.profile.dataEncryptionKey,
         sessionVersion: user.profile.sessionVersion,
         dashboardWidgets: user.profile.dashboardWidgets,
+      });
+      await db.insert(userEncryptionKeys).values({
+        userId: user.userId,
+        dataEncryptionKey: user.profile.dataEncryptionKey,
       });
       profileCount++;
     }

@@ -1,0 +1,2 @@
+ALTER TABLE "user_consent" ADD COLUMN "sensitive_health_data" boolean DEFAULT false NOT NULL;--> statement-breakpoint
+ALTER TABLE "user_consent" ADD COLUMN "ai_processing" boolean DEFAULT false NOT NULL;

@@ -1,6 +1,6 @@
 import { pgTable, uuid, text, integer, smallint, jsonb, timestamp, boolean, uniqueIndex, index } from 'drizzle-orm/pg-core';
 import { sql } from 'drizzle-orm';
-import { biologicalSexEnum, ageGroupEnum, lifeStageEnum, dvSourcePreferenceEnum } from './daily_values_enums';
+import { biologicalSexEnum, ageGroupEnum, dvSourcePreferenceEnum } from './daily_values_enums';
 
 /**
  * User Profiles Table
@@ -12,7 +12,6 @@ export const userProfiles = pgTable('user_profiles', {
   userId: uuid('user_id').notNull().unique(),
   fullName: text('full_name'),
   avatarUrl: text('avatar_url'),
-  dataEncryptionKey: text('data_encryption_key').notNull(),
   sessionVersion: integer('session_version').notNull().default(1),
   dashboardWidgets: jsonb('dashboard_widgets').notNull().default(sql`'{"staple": ["rda_snapshot", "recent_meals", "compound_trends"], "custom": []}'::jsonb`),
 
@@ -39,7 +38,15 @@ export const userProfiles = pgTable('user_profiles', {
   birthYear: smallint('birth_year'),                                      // e.g. 1990
   birthMonth: smallint('birth_month'),                                    // 1-12
   biologicalSex: biologicalSexEnum('biological_sex'),                     // MALE | FEMALE
-  lifeStage: lifeStageEnum('life_stage').notNull().default('NONE'),       // NONE | PREGNANT | LACTATING
+  // Article 9 GDPR special-category health data (pregnancy/lactation). Stored as
+  // AES-256-GCM ciphertext (see lib/security/encryption.ts), never as a plain enum
+  // value — an enum column would leak the value's shape/cardinality and couldn't
+  // hold ciphertext anyway. NULL means "NONE" and is left unencrypted: NONE
+  // discloses nothing, so there is nothing to protect by encrypting it, and this
+  // way an unset value doesn't require a DEK lookup to interpret. Only read/write
+  // through lib/services/daily-value-service.ts (getUserDemographics /
+  // updateUserDemographics) — those functions do the encrypt/decrypt round trip.
+  lifeStageEncrypted: text('life_stage_encrypted'),
   manualAgeGroup: ageGroupEnum('manual_age_group'),                       // Optional override for age calculation
   dvSourcePreference: dvSourcePreferenceEnum('dv_source_preference').notNull().default('AVERAGE'), // Preferred RDA source
 
@@ -49,6 +56,25 @@ export const userProfiles = pgTable('user_profiles', {
   userUnique: uniqueIndex('idx_user_profiles_user').on(table.userId),
   widgetsIdx: index('idx_user_profiles_widgets').using('gin', table.dashboardWidgets).where(sql`jsonb_typeof(${table.dashboardWidgets}) = 'object'`),
 }));
+
+/**
+ * User Encryption Keys Table
+ *
+ * Holds each user's Data Encryption Key (DEK), used by lib/security/encryption.ts
+ * to encrypt/decrypt PHI columns (currently: user_profiles.life_stage).
+ *
+ * Deliberately a SEPARATE table from user_profiles, not a column on it. A key
+ * stored on the same row as the data it protects gives an attacker with read
+ * access to that row both the ciphertext and the key in one query — no different
+ * from not encrypting at all. This table exists so the key and the encrypted
+ * data are never returned by the same query path; no route should ever join
+ * across both in a single response.
+ */
+export const userEncryptionKeys = pgTable('user_encryption_keys', {
+  userId: uuid('user_id').primaryKey(),
+  dataEncryptionKey: text('data_encryption_key').notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+});
 
 /**
  * API Keys Table
@@ -85,6 +111,14 @@ export const userConsent = pgTable('user_consent', {
   research: boolean('research').notNull().default(false),
   analytics: boolean('analytics').notNull().default(false),
   thirdParty: boolean('third_party').notNull().default(false),
+  // Article 9 GDPR consent: processing life_stage (pregnancy/lactation) for
+  // personalized daily values. Kept separate from `thirdParty` ("share data with
+  // partners") because this is a distinct purpose requiring its own explicit,
+  // specific consent — bundling them would not be valid GDPR consent.
+  sensitiveHealthData: boolean('sensitive_health_data').notNull().default(false),
+  // Consent to send the user's own free-text food/chat messages to the Anthropic
+  // API for AI-assisted logging. Distinct from `thirdParty` for the same reason.
+  aiProcessing: boolean('ai_processing').notNull().default(false),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
 }, (table) => ({

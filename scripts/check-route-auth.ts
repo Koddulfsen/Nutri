@@ -49,10 +49,6 @@ const PUBLIC_ROUTES: Record<string, string> = {
   'app/api/waitlist/route.ts': 'Pre-launch signup form — open by design.',
   'app/api/auth/callback/route.ts': 'OAuth callback; runs before a session exists.',
   'app/api/auth/confirm/route.ts': 'Email confirmation link; runs before a session exists.',
-  'app/api/user/delete-account/route.ts':
-    'DISABLED — returns 501 unconditionally until the erasure job exists (audit P1).',
-  'app/api/user/export/route.ts':
-    'DISABLED — returns 501 unconditionally until the export pipeline exists (audit P3).',
 
   // ── Public reference data ──────────────────────────────────────────────────
   // Reviewed 2026-08-11. These read the compound/food reference database only.
