@@ -236,15 +236,19 @@ Checkboxes are the timeline. Update them as work lands.
 - [ ] **2.9** Per-user spend budget on `/api/ai/log-food` *(B3)*
 
 ### Phase 3 — Refurbish (serves Phase 2; not cosmetics)
-- [~] **3.1** Delete the dead Supabase-HTTP cluster — 5,555 lines *(S1)* — **partially done
-      2026-09-24**: deleted the 6 duplicate `db/seed/*-http.ts` files with live non-http twins
-      (categories/research/users/validation/interactions/index, 3,490 lines) plus 2 stray
-      zero-reference scripts. **Not deleted, still needed**: `db/supabase-client.ts` and
-      `db/drizzle-http-adapter.ts` (still imported by `seed-display-settings.ts`,
-      `seed-group-metadata.ts`, `apply-gdpr-http.mjs`, `apply-rls.mjs`) and
-      `db/seed/symptoms-http.ts` (no non-http twin — the only symptom seed data). These three
-      need an actual port to Drizzle/non-http, not a delete — real work, tracked as a
-      follow-up, not silently dropped
+- [x] **3.1** Delete the dead Supabase-HTTP cluster — 5,555 lines *(S1)* *(done 2026-09-24)* —
+      finished in two passes. First: deleted 6 duplicate `db/seed/*-http.ts` files with live
+      non-http twins (categories/research/users/validation/interactions/index) plus 2 stray
+      zero-reference scripts. Second: found and deleted a 7th duplicate missed the first time
+      (`compounds-http.ts`); ported `seed-display-settings.ts`/`seed-group-metadata.ts` from
+      the Supabase REST client to Drizzle (type-checked clean); renamed `symptoms-http.ts` →
+      `symptoms.ts` and swapped its HTTP-proxy adapter import for the direct Drizzle client
+      (it already used Drizzle syntax, just via the wrong transport) — kept as the only source
+      of symptom seed data, per `docs/DATA-SCOPE-DECISIONS.md`. With those three off it,
+      deleted `db/supabase-client.ts` and `db/drizzle-http-adapter.ts`. Two archived one-off
+      migration scripts (`scripts/archive/apply-gdpr-http.mjs`, `apply-rls.mjs`) still
+      reference the deleted adapter — left as-is: both already ran (their tables/policies are
+      confirmed live in this ledger), they're one-time scripts that will never run again
 - [x] **3.2** Move `components/calendar/` → `app/components/`, delete prototype UI *(S2)*
       *(done 2026-09-24)* — `WeekStrip` (the only live export) moved to
       `app/components/calendar/`; `CalendarGrid`/`CalendarPopup`/barrel deleted (zero
