@@ -144,3 +144,84 @@ drops, so the defects below are its own report, not a guess.
   (`age_max IS NULL OR age_max >= 360`) was correct throughout; only the ad-hoc sweep was wrong. Any
   number in this file that predates this note and is not marked as checked against the service should be
   re-derived before it is quoted.
+
+
+---
+
+# G. PLAN — agreed 2026-09-24
+
+Three things turned out to share one blocker, which is why they are planned together: **WHO's amino
+acid requirements, every heavy-metal limit, and several WHO/FAO values we already hold are published
+per kilogram of body weight.** Adding body weight unlocks all three at once.
+
+## G1. Collect body weight *(decided: yes)*
+
+- New column on `user_profiles`, **encrypted at rest** like `life_stage`: it is health data, the key
+  lives in `user_encryption_keys`, and the pattern is already built (`encryptPHI`/`decryptPHI`).
+- **Optional, never blocking.** Every bar must still work without it, using the reference body weight
+  the authorities themselves publish per age and sex. A bar computed from a reference weight must say
+  so — it is an assumption about the user, not a measurement of them.
+- Data minimisation, per the door in CLAUDE.md §2: store **one current value to the nearest kg**, no
+  history and no time series. A weight *trend* is a different and much more sensitive dataset, and
+  nothing in the read path needs it. If tracking weight over time is ever wanted, that is a separate
+  decision with its own DPIA entry.
+- Paperwork this triggers, none of it optional:
+  - `docs/DATA-SCOPE-DECISIONS.md` — a new entry saying what is collected, why, and what was refused.
+  - `docs/DPIA-2026-09-23.md` — **the DPIA says to reissue if scope changes. This is a scope change.**
+  - `docs/PRIVACY-POLICY-DRAFT.md` — the data categories list.
+  - The export must include it (decrypted) and erasure already cascades from `user_profiles` — both
+    need re-verifying end-to-end, not assuming.
+
+## G2. Teach the schema what a per-kg, per-week value is
+
+`reference_daily_values` currently assumes every value is an absolute amount per day. Two columns fix it:
+
+- `per_kg_body_weight boolean` — the stored number is per kilogram.
+- `averaging_days integer` — 1 for a daily value, 7 for a weekly one, 30 for cadmium's monthly PTMI.
+  A daily bar reading 300 % after one shellfish meal is not what a monthly limit means.
+
+New value types alongside the seven we have: **TWI / TDI / PTMI / RfD** (all ceilings), and **BMDL**
+(a reference point, *not* a ceiling — see G4). The resolver converts per-kg values to absolute using
+the user's weight, or the reference weight, and states which it used.
+
+## G3. WHO/FAO amino acids — TRS 935 *(free, downloaded, verified)*
+
+Not paywalled and not missing by decision: our WHO source is the **2004 Vitamin and mineral
+requirements** report, and amino acids live in a **different document** — *Protein and amino acid
+requirements in human nutrition*, WHO Technical Report Series 935 (2007), a joint FAO/WHO/UNU
+consultation. It is free from WHO IRIS (4.2 MB PDF, text layer intact, downloaded and read).
+
+- **Table 23** (p. 149) gives the adult requirements in **mg/kg per day**: histidine 10, isoleucine 20,
+  leucine 39, lysine 30, methionine+cysteine 15, phenylalanine+tyrosine 25, threonine 15, tryptophan 4,
+  valine 26.
+- **§8.4** gives the safe intake as the requirement **+24 %** (CV 12 %), which maps to our EAR → RDA
+  distinction exactly.
+- **§9.4** covers infancy to 18 years; **§8.5** says elderly requirements are the adult pattern.
+- Effect: amino acids stop resting on Korea alone. Two independent bodies, which is the difference
+  between a median and a single opinion.
+
+## G4. Heavy metals
+
+Sources and their state are in `HEAVY-METALS-SOURCING.md`. The one open decision is what to show where
+no safe level exists:
+
+- **Cadmium, methylmercury, inorganic mercury** have real tolerable intakes from JECFA and EFSA, so they
+  become ordinary limit bars (per kg, weekly or monthly).
+- **Lead and inorganic arsenic do not, and this is not a gap in our sourcing.** Both JECFA and EFSA
+  withdrew their tolerable intakes in 2010 after concluding no threshold exists. What they publish
+  instead is a benchmark dose — for lead, EFSA 2010: BMDL01 **0.50 µg/kg bw/day** (developmental
+  neurotoxicity in young children), BMDL01 1.50 (systolic blood pressure), BMDL10 0.63 (chronic kidney
+  disease); for inorganic arsenic, EFSA 2024: BMDL05 **0.06 µg/kg bw/day** (skin cancer). You are meant
+  to divide the reference point by the exposure to get a margin, not to fill a bar to 100 %.
+  **Recommendation: no percentage bar for these two.** Show the intake, the reference point, and the
+  margin, with the words the authorities use — "no safe level has been identified". Inventing a limit
+  here would be exactly the kind of unverified claim §0 of CLAUDE.md is about.
+
+## G5. Order
+
+1. **G2** (schema) — everything else writes into it.
+2. **G1** (body weight) — independent of G2, has the longest paperwork tail, start it in parallel.
+3. **G3** (TRS 935) — the cheapest real win: one free document, one new body for 9 compounds.
+4. **G4** (metals) — JECFA and EFSA first, each from its own document; EPA IRIS third and flagged as
+   dated (its cadmium assessment is from 1989 and sits ~3x from EFSA's).
+5. Codex maximum levels, if ever — a limit on the food, not on the person. Separate feature.

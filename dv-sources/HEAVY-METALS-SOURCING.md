@@ -56,8 +56,13 @@ decades. The same provenance rules apply: read how each body derived its number 
 
 ## 4. Order of work
 
-- [ ] **H1.** Decide the body-weight question (collect vs reference weights). Blocks everything else.
-- [ ] **H2.** Decide what to show for lead and inorganic arsenic, where no safe level exists.
+- [x] **H1.** ~~Decide the body-weight question~~ — **DECIDED 2026-09-24: collect it, with a reference
+      weight as the fallback.** See §G of `DV-ACCURACY-TASKS.md` for the implementation.
+- [ ] **H2.** Decide what to show for lead and inorganic arsenic. The reference points are now known
+      exactly (EFSA 2010 for lead: BMDL01 0.50 µg/kg bw/day for developmental neurotoxicity in children,
+      BMDL01 1.50 for systolic blood pressure, BMDL10 0.63 for chronic kidney disease; EFSA 2024 for
+      inorganic arsenic: BMDL05 0.06 µg/kg bw/day, skin cancer). These are **reference points for a
+      margin-of-exposure calculation, not limits** — see §G4.
 - [ ] **H3.** Add the value types and the averaging window to the schema (TWI / TDI / PTMI / RfD, plus
       a `per_kg_body_weight` flag and an `averaging_days` field).
 - [ ] **H4.** Transcribe JECFA and EFSA first, each from its own document, with a provenance entry.
