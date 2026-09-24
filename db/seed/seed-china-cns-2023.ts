@@ -247,7 +247,7 @@ function buildAllRows(): SeedRow[] {
   pushPrinted(rows, 'Vitamin D', 'µg', 'EAR', EAR.vitaminD);
   pushPrinted(rows, 'Thiamin', 'mg', 'EAR', EAR.thiamin);
   pushPrinted(rows, 'Riboflavin', 'mg', 'EAR', EAR.riboflavin);
-  pushPrinted(rows, 'Niacin', 'mg', 'EAR', EAR.niacin, 'mg NE.');
+  pushPrinted(rows, 'Niacin', 'mg NE', 'EAR', EAR.niacin, 'Printed as mg NE (niacin equivalents).');
   pushPrinted(rows, 'Vitamin B6', 'mg', 'EAR', EAR.vitaminB6);
   pushPrinted(rows, 'Folate', 'µg DFE', 'EAR', EAR.folate);
   pushPrinted(rows, 'Vitamin B12', 'µg', 'EAR', EAR.vitaminB12);
@@ -275,11 +275,11 @@ function buildAllRows(): SeedRow[] {
   const VIT = TABLE_3_8_VITAMINS;
   pushPrinted(rows, 'Vitamin A', 'µg RAE', VIT.vitaminA.valueType, VIT.vitaminA);
   pushPrinted(rows, 'Vitamin D', 'µg', VIT.vitaminD.valueType, VIT.vitaminD);
-  pushPrinted(rows, 'Vitamin E', 'mg', VIT.vitaminE.valueType, VIT.vitaminE, 'α-TE.');
+  pushPrinted(rows, 'Vitamin E', 'mg α-TE', VIT.vitaminE.valueType, VIT.vitaminE, 'Printed as mg α-TE (α-tocopherol equivalents).');
   pushPrinted(rows, 'Vitamin K', 'µg', VIT.vitaminK.valueType, VIT.vitaminK);
   pushPrinted(rows, 'Thiamin', 'mg', VIT.thiamin.valueType, VIT.thiamin);
   pushPrinted(rows, 'Riboflavin', 'mg', VIT.riboflavin.valueType, VIT.riboflavin);
-  pushPrinted(rows, 'Niacin', 'mg', VIT.niacin.valueType, VIT.niacin, 'mg NE.');
+  pushPrinted(rows, 'Niacin', 'mg NE', VIT.niacin.valueType, VIT.niacin, 'Printed as mg NE (niacin equivalents).');
   pushPrinted(rows, 'Vitamin B6', 'mg', VIT.vitaminB6.valueType, VIT.vitaminB6);
   pushPrinted(rows, 'Folate', 'µg DFE', VIT.folate.valueType, VIT.folate);
   pushPrinted(rows, 'Vitamin B12', 'µg', VIT.vitaminB12.valueType, VIT.vitaminB12);
