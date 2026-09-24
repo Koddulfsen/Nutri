@@ -5569,6 +5569,25 @@ textarea.chat-input { white-space: pre-wrap; }
   line-height: 1.1;
 }
 
+/* Whole-card collapse: the title is the toggle */
+.ac-title-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 0;
+  border: none;
+  background: none;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.ac-title-btn .ac-caret { width: 18px; font-size: 26px; }
+.ac-title-btn:hover .ac-caret { color: #2e1a0e; }
+.ac-title-btn:focus-visible { outline: 2px solid #d42a55; outline-offset: 4px; border-radius: 4px; }
+.ac-card--closed .ac-title { margin-bottom: 0; }
+
 .ac-section + .ac-section { margin-top: 14px; }
 
 .ac-heading {
@@ -5644,7 +5663,17 @@ textarea.chat-input { white-space: pre-wrap; }
   padding: 40px 0 120px;
   color: #2e1a0e;
 }
-.an-page .hl-card .ac-title { margin-left: 0 !important; padding-left: 72px; }
+/* Low-key label, not a serif headline — the rings are the content here */
+.an-page .hl-card .hl-title {
+  margin: 0 !important;
+  padding-left: 0;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: rgba(46, 26, 14, 0.5);
+}
 .hl-rings {
   display: flex;
   flex-wrap: wrap;

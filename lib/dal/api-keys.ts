@@ -42,6 +42,8 @@ async function requireAuth(): Promise<string> {
   return user.id;
 }
 
+const KEY_PREFIX = 'nutri_live_';
+
 /**
  * Generate Random API Key
  *
@@ -55,7 +57,7 @@ async function requireAuth(): Promise<string> {
 function generateRandomKey(): string {
   const randomBytes = crypto.randomBytes(24); // 24 bytes = 32 chars base64
   const randomString = randomBytes.toString('base64url').substring(0, 32);
-  return `nutri_live_${randomString}`;
+  return `${KEY_PREFIX}${randomString}`;
 }
 
 /**
@@ -70,12 +72,16 @@ function generateRandomKey(): string {
  * @returns Key prefix for indexing
  */
 function extractKeyPrefix(key: string): string {
-  // Extract first 8 characters after "nutri_live_"
-  const parts = key.split('_');
-  if (parts.length !== 3 || parts[0] !== 'nutri' || parts[1] !== 'live') {
+  // The random suffix is base64url, whose alphabet includes '_' — splitting
+  // the whole key on '_' broke on ~39% of generated keys (any key whose
+  // random portion happened to contain an underscore produced more than the
+  // 3 parts this function expected, throwing "Invalid API key format" on a
+  // key that had just been legitimately generated). Checking the fixed
+  // prefix directly, instead of delimiter-counting, doesn't have this bug.
+  if (!key.startsWith(KEY_PREFIX)) {
     throw new Error('Invalid API key format');
   }
-  return `nutri_live_${parts[2].substring(0, 8)}`;
+  return `${KEY_PREFIX}${key.slice(KEY_PREFIX.length, KEY_PREFIX.length + 8)}`;
 }
 
 /**

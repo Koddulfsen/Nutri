@@ -10,9 +10,10 @@
  */
 
 import { db } from '@/db'
-import { userProfiles } from '@/db/schema'
+import { userProfiles, userEncryptionKeys } from '@/db/schema'
 import { eq } from 'drizzle-orm'
 import { generateDEK } from '@/lib/security/encryption'
+import { createInitialConsent } from '@/lib/dal/consent'
 import { logger } from '@/lib/logger'
 
 /**
@@ -42,14 +43,24 @@ export async function ensureUserProfile(
       return false // Profile already exists
     }
 
-    // Create profile with generated DEK
+    // Create profile and its encryption key as separate inserts — the key lives
+    // in its own table, never on user_profiles. See db/schema/users.ts
+    // (userEncryptionKeys) for why.
     const dek = await generateDEK()
     await db.insert(userProfiles).values({
       userId,
       fullName: metadata?.fullName || null,
       avatarUrl: metadata?.avatarUrl || null,
+    })
+    await db.insert(userEncryptionKeys).values({
+      userId,
       dataEncryptionKey: dek,
     })
+
+    // Every new user needs a real consent row from the start (all flags false) —
+    // checkConsent() throws for a user with none at all. See app/auth/callback/route.ts
+    // for the OAuth-path equivalent of this same wiring.
+    await createInitialConsent(userId)
 
     logger.info(
       { service: 'user-service', userId },

@@ -163,6 +163,20 @@ export async function checkAiRateLimit(userId: string): Promise<RateLimitResult>
 }
 
 /**
+ * Account deletion: 3 attempts per user per 24 hours.
+ * Fails CLOSED — this triggers an irreversible, immediate deletion; an outage
+ * must not let the limit be bypassed.
+ */
+export async function checkDeleteAccountRateLimit(userId: string): Promise<RateLimitResult> {
+  return checkRateLimit({
+    key: `delete-account:${userId}`,
+    limit: 3,
+    windowSeconds: 24 * 60 * 60,
+    failMode: 'closed',
+  });
+}
+
+/**
  * API key usage: 500 requests per key per minute.
  * Fails OPEN — this is a throughput quota for already-authenticated callers, not
  * an authentication control, so availability wins.

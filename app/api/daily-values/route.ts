@@ -226,6 +226,17 @@ export async function POST(request: NextRequest) {
             upperLimit: row.upperLimit,
             upperLimitUnit: row.upperLimitUnit,
             upperLimitSourceCount: row.upperLimitSourceCount,
+            // The rest of the resolved bar (lib/dv/resolve.ts). Each answers a different question from the target,
+            // so none of them may be folded into it: which bodies set it and how far apart they are, the intake for
+            // lower chronic-disease risk, a ceiling that only applies to supplements, ceilings on a FORM of the
+            // nutrient, values published as a share of energy, and a published range.
+            sources: row.targetSources,
+            spread: row.targetSpread,
+            diseaseFloor: row.diseaseFloor,
+            supplementLimit: row.supplementLimit,
+            formLimits: row.formLimits,
+            energyShare: row.energyShare,
+            range: row.range,
           };
         });
       } else {

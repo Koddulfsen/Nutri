@@ -1,199 +1,158 @@
 /**
- * Data Export API - FS-4 Security & Compliance System
+ * Data Export API - GDPR Article 15/20 (Access & Portability)
  *
- * POST /api/user/export - Request data export (GDPR Article 20)
- * GET /api/user/export - Check export status and get download URL
+ * GET /api/user/export - Returns the caller's own data as a downloadable JSON file.
  *
- * Rate Limit: 3 req/24hr
- * Format: JSON (machine-readable)
- * Expiration: 7 days
+ * Synchronous, direct download — no async job, no email-a-link flow. The
+ * previous version recorded an `export_requests` row and promised a download
+ * "within 5 minutes" with the actual collection/generation/upload/email steps
+ * left as TODOs; `download_url` was never populated. At alpha's data volume per
+ * user, generating the export inline is simpler and has fewer ways to silently
+ * fail than a queued job nobody has built yet. Revisit if export size becomes
+ * a real latency problem.
  *
- * Created: 2025-11-10
+ * Rate limit: 3 req/24hr per user, fails closed (see lib/rate-limit).
  */
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { logAudit, getRequestMetadata } from '@/lib/security/audit-logger';
+import { checkRateLimit } from '@/lib/rate-limit';
 import { db } from '@/db';
-import { exportRequests } from '@/db/schema';
-import { eq, and, desc } from 'drizzle-orm';
+import { userProfiles, userConsent, apiKeys, mealLogs, mealItems, userCustomDailyValues } from '@/db/schema';
+import { eq } from 'drizzle-orm';
+import { getUserDemographics } from '@/lib/services/daily-value-service';
 
-/**
- * POST /api/user/export
- *
- * Request complete data export
- *
- * GDPR Article 20: Right to Data Portability
- */
-export async function POST(request: NextRequest) {
-  // ─── DISABLED 2026-08-11 ────────────────────────────────────────────────────
-  // This endpoint promised something the system does not do.
-  //
-  // It recorded a row in `export_requests` and promised a download "within 5 minutes".
-// The collection, generation, upload and email steps were all TODO comments, and
-// `download_url` was never populated.
-  //
-  // Under GDPR that is both an Art. 15/20 (access and portability) breach on Article 9
-  // health data and a misleading statement to the data subject
-  // (Art. 5(1)(a), fairness and transparency).
-  //
-  // 501 is the honest state until the export pipeline exists. Re-enable only
-  // together with that implementation.
-  // See docs/AUDIT-2026-08-11.md (P3) and CLAUDE.md task 2.8.
-  //
-  // The original implementation is preserved below for reference.
-  // ────────────────────────────────────────────────────────────────────────────
-  return NextResponse.json(
-    {
-      error: 'Not implemented',
-      message: 'Data export is temporarily unavailable and no request has been recorded. Please contact support to obtain a copy of your data.',
-    },
-    { status: 501 }
-  );
-}
+export async function GET(request: NextRequest) {
+  const supabase = await createClient();
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
 
-/* Original implementation — restore when the export pipeline is built:
-try {
-    // Verify authentication
-    const supabase = await createClient();
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+  if (authError || !user) {
+    return NextResponse.json(
+      { error: 'Unauthorized: Authentication required' },
+      { status: 401 }
+    );
+  }
 
-    if (authError || !user) {
-      return NextResponse.json(
-        { error: 'Unauthorized: Authentication required' },
-        { status: 401 }
-      );
-    }
+  const rateLimit = await checkRateLimit({
+    key: `export:${user.id}`,
+    limit: 3,
+    windowSeconds: 24 * 60 * 60,
+    failMode: 'closed',
+  });
+  if (!rateLimit.allowed) {
+    return NextResponse.json(
+      { error: 'Too many export requests. Try again later.' },
+      { status: 429 }
+    );
+  }
 
-    // TODO: Check rate limit (3 req/24hr)
-    // This will be implemented when rate limiting infrastructure is added
+  try {
+    const [profile, demographics, consent, apiKeyRows, meals] = await Promise.all([
+      db.query.userProfiles.findFirst({ where: eq(userProfiles.userId, user.id) }),
+      getUserDemographics(user.id), // decrypts life_stage via the real service path
+      db.query.userConsent.findFirst({ where: eq(userConsent.userId, user.id) }),
+      db.query.apiKeys.findMany({ where: eq(apiKeys.userId, user.id) }),
+      db.query.mealLogs.findMany({
+        where: eq(mealLogs.userId, user.id),
+        with: { items: true },
+      }),
+    ]);
 
-    // Create export request
-    const exportRequest = await db.insert(exportRequests).values({
-      userId: user.id,
-      userEmail: user.email || '',
-      status: 'pending',
-      requestedAt: new Date(),
-      createdAt: new Date(),
-      updatedAt: new Date()
-    }).returning();
+    const customDailyValues = await db.query.userCustomDailyValues.findMany({
+      where: eq(userCustomDailyValues.userId, user.id),
+    });
 
-    if (!exportRequest || exportRequest.length === 0) {
-      throw new Error('Failed to create export request');
-    }
+    const exportPayload = {
+      exportedAt: new Date().toISOString(),
+      account: {
+        userId: user.id,
+        email: user.email,
+      },
+      profile: profile
+        ? {
+            fullName: profile.fullName,
+            avatarUrl: profile.avatarUrl,
+            createdAt: profile.createdAt,
+            updatedAt: profile.updatedAt,
+          }
+        : null,
+      demographics: demographics
+        ? {
+            birthYearMonth:
+              demographics.birthYear && demographics.birthMonth
+                ? `${demographics.birthYear}-${String(demographics.birthMonth).padStart(2, '0')}`
+                : null,
+            biologicalSex: demographics.biologicalSex,
+            lifeStage: demographics.lifeStage,
+            manualAgeGroup: demographics.manualAgeGroup,
+            dvSourcePreference: demographics.dvSourcePreference,
+          }
+        : null,
+      consent: consent
+        ? {
+            newsletter: consent.newsletter,
+            pushNotifications: consent.pushNotifications,
+            research: consent.research,
+            analytics: consent.analytics,
+            thirdParty: consent.thirdParty,
+            sensitiveHealthData: consent.sensitiveHealthData,
+            aiProcessing: consent.aiProcessing,
+            updatedAt: consent.updatedAt,
+          }
+        : null,
+      // Never the key hash — only what identifies the key to its owner.
+      apiKeys: apiKeyRows.map((k) => ({
+        name: k.name,
+        keyPrefix: k.keyPrefix,
+        createdAt: k.createdAt,
+        lastUsedAt: k.lastUsedAt,
+        expiresAt: k.expiresAt,
+        isRevoked: k.isRevoked,
+      })),
+      customDailyValues: customDailyValues.map((v) => ({
+        compoundId: v.compoundId,
+        value: v.value,
+        unit: v.unit,
+        note: v.note,
+        createdAt: v.createdAt,
+      })),
+      meals: meals.map((m) => ({
+        date: m.date,
+        mealType: m.mealType,
+        loggedAt: m.loggedAt,
+        items: m.items.map((i) => ({
+          foodId: i.foodId,
+          portionSize: i.portionSize,
+          portionType: i.portionType,
+          notes: i.notes,
+        })),
+      })),
+    };
 
-    // Extract request metadata for audit log
     const metadata = getRequestMetadata(request);
-
-    // Audit log the export request
     await logAudit({
       userId: user.id,
       action: 'EXPORT',
       resourceType: 'user_data',
-      resourceId: exportRequest[0].id,
-      metadata: {
-        export_request_id: exportRequest[0].id,
-        status: 'pending'
+      resourceId: user.id,
+      metadata: { format: 'json', mealCount: meals.length },
+      ...metadata,
+    });
+
+    const body = JSON.stringify(exportPayload, null, 2);
+    return new NextResponse(body, {
+      status: 200,
+      headers: {
+        'Content-Type': 'application/json',
+        'Content-Disposition': `attachment; filename="nutri-export-${user.id}.json"`,
       },
-      ...metadata
-    });
-
-    // TODO: Trigger background job to generate export
-    // This will be implemented as a serverless function that:
-    // 1. Collects ALL user data from all tables
-    // 2. Formats as JSON
-    // 3. Uploads to Supabase Storage
-    // 4. Generates signed URL (7-day expiration)
-    // 5. Sends email notification with download link
-
-    return NextResponse.json({
-      success: true,
-      exportId: exportRequest[0].id,
-      status: 'pending',
-      message: 'Export request created. You will receive an email when your data is ready (typically within 5 minutes).'
-    });
-  } catch (error) {
-    console.error('POST /api/user/export error:', error);
-
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
-  }
-*/
-
-/**
- * GET /api/user/export
- *
- * Get export status and download URL
- */
-export async function GET(request: NextRequest) {
-  // ─── DISABLED 2026-08-11 ────────────────────────────────────────────────────
-  // This endpoint promised something the system does not do.
-  //
-  // It recorded a row in `export_requests` and promised a download "within 5 minutes".
-// The collection, generation, upload and email steps were all TODO comments, and
-// `download_url` was never populated.
-  //
-  // Under GDPR that is both an Art. 15/20 (access and portability) breach on Article 9
-  // health data and a misleading statement to the data subject
-  // (Art. 5(1)(a), fairness and transparency).
-  //
-  // 501 is the honest state until the export pipeline exists. Re-enable only
-  // together with that implementation.
-  // See docs/AUDIT-2026-08-11.md (P3) and CLAUDE.md task 2.8.
-  //
-  // The original implementation is preserved below for reference.
-  // ────────────────────────────────────────────────────────────────────────────
-  return NextResponse.json(
-    {
-      error: 'Not implemented',
-      message: 'Data export is temporarily unavailable and no request has been recorded. Please contact support to obtain a copy of your data.',
-    },
-    { status: 501 }
-  );
-}
-
-/* Original implementation — restore when the export pipeline is built:
-try {
-    // Verify authentication
-    const supabase = await createClient();
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-
-    if (authError || !user) {
-      return NextResponse.json(
-        { error: 'Unauthorized: Authentication required' },
-        { status: 401 }
-      );
-    }
-
-    // Get user's most recent export request
-    const exports = await db.query.exportRequests.findMany({
-      where: eq(exportRequests.userId, user.id),
-      orderBy: [desc(exportRequests.requestedAt)],
-      limit: 10 // Show last 10 export requests
-    });
-
-    // Format response
-    const formattedExports = exports?.map(exp => ({
-      id: exp.id,
-      status: exp.status,
-      requestedAt: exp.requestedAt.toISOString(),
-      completedAt: exp.completedAt?.toISOString() || null,
-      downloadUrl: exp.downloadUrl,
-      expiresAt: exp.expiresAt?.toISOString() || null,
-      isExpired: exp.expiresAt ? exp.expiresAt < new Date() : false
-    })) || [];
-
-    return NextResponse.json({
-      exports: formattedExports
     });
   } catch (error) {
     console.error('GET /api/user/export error:', error);
-
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: 'Internal server error', message: 'Export failed. No data was modified — try again or contact support.' },
       { status: 500 }
     );
   }
-*/
+}

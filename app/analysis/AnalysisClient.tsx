@@ -295,6 +295,9 @@ function AnalysisCard({
   selectedMealIds: string[];
 }) {
   const sections = buildCardRows(groups, def, byName);
+  // Whole-card collapse; open by default. Local state: a card folding shouldn't
+  // re-render its siblings, and it doesn't need to survive a reload.
+  const [cardOpen, setCardOpen] = useState(true);
 
   const renderRow = (row: CardRow, child = false) => {
     const data = row.compound ? getNutrientValue(row.compound.id) : null;
@@ -335,9 +338,19 @@ function AnalysisCard({
   return (
     // order: restores the original card order when the columns collapse
     // into one on a phone (see .ac-col in globals.css)
-    <div className="ac-card" style={{ order: index }}>
-      <h3 className="ac-title">{def.title}</h3>
-      {sections.map((sec, i) => (
+    <div className={`ac-card${cardOpen ? '' : ' ac-card--closed'}`} style={{ order: index }}>
+      <h3 className="ac-title">
+        <button
+          type="button"
+          className="ac-title-btn"
+          onClick={() => setCardOpen((o) => !o)}
+          aria-expanded={cardOpen}
+        >
+          <span className={`ac-caret${cardOpen ? ' ac-caret--open' : ''}`} aria-hidden="true">›</span>
+          {def.title}
+        </button>
+      </h3>
+      {cardOpen && sections.map((sec, i) => (
         <div key={sec.heading ?? i} className="ac-section">
           {sec.heading && <p className="ac-heading">{sec.heading}</p>}
           {sec.rows.map((r) => renderRow(r))}
@@ -1717,6 +1730,7 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
           <section className="an-panel an-panel--macros">
             <div className="an-macros">
             <section className="rc-macros macros-section">
+                <p className="section-label mv-panel-title">Macros</p>
                 {(() => {
                   const energyCompound  = allCompounds.find(c => c.name === 'Energy');
                   const waterCompound   = allCompounds.find(c => c.name === 'Water');
@@ -1782,6 +1796,7 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
           <section className="an-panel an-panel--compounds">
               <section className="rc-compounds compounds-section">
                 <div className="an-analysis-head">
+                  <p className="section-label">Nutrient breakdown</p>
                   <div className="picker picker--bare">
                   <div className="picker-group">
                       <span className={`picker-opt picker-opt--male${sex === 'male' ? ' sel' : ''}`} onClick={() => setSex('male')}>
@@ -1831,7 +1846,7 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
                 <div className="compounds-header">
                   {/* Highlighted compounds — % of daily target, gradient rings (option A) */}
                   <div className="hl-card">
-                    <h3 className="ac-title">Highlighted</h3>
+                    <h3 className="ac-title hl-title">Highlighted nutrients</h3>
                     <div className="hl-rings">
                       {(() => {
                         const HL: Array<[string, string[]]> = [
@@ -3949,13 +3964,15 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
           flex-direction: column;
           gap: 28px;
         }
-        /* Gear floats in the card's corner so it adds no header row */
+        /* Gear floats in the card's corner; the "Macros" title lives on the
+           outer panel, above the card */
         .an-page :global(.mv-section-head) {
           position: absolute;
           top: 14px;
           right: 14px;
           z-index: 2;
         }
+        .an-page :global(.mv-panel-title) { margin: 0 0 22px !important; }
 
         /* Mobile default: kcal/water above, card below, no divider */
         .an-page :global(.mv-layout) {
@@ -4029,9 +4046,13 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
            chat input (white, 12px radius, house shadow). ── */
         .an-analysis-head {
           display: flex;
-          justify-content: flex-end;
+          justify-content: space-between;
+          align-items: center;
+          flex-wrap: wrap;
+          gap: 20px;
           margin-bottom: 72px;
         }
+        .an-analysis-head :global(.section-label) { margin: 0 !important; }
         .picker--bare {
           display: grid !important;
           grid-template-columns: 1fr 1fr 1.3fr;

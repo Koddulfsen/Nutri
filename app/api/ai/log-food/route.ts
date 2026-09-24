@@ -11,6 +11,7 @@ import { getFoodLogChatSystemPrompt } from '@/lib/ai/prompts';
 import { searchService } from '@/lib/search/search-service';
 import { createMeal } from '@/lib/services/meal-service';
 import { ensureUserProfile } from '@/lib/services/user-service';
+import { checkConsent } from '@/lib/dal/consent';
 import { logger } from '@/lib/logger';
 import { db } from '@/db';
 import { foods, foodComponents, foodApprovals } from '@/db/schema';
@@ -60,6 +61,19 @@ export async function POST(req: NextRequest) {
     fullName: user.user_metadata?.full_name || user.user_metadata?.name,
     avatarUrl: user.user_metadata?.avatar_url,
   });
+
+  // This sends the user's verbatim message to the Anthropic API — requires its
+  // own explicit consent, separate from general "third party" sharing.
+  const hasAiConsent = await checkConsent(userId, 'aiProcessing');
+  if (!hasAiConsent) {
+    return NextResponse.json(
+      {
+        error: 'AI processing not enabled',
+        message: 'Enable "AI-Assisted Logging" in Settings > Privacy to use the chat logger.',
+      },
+      { status: 403 }
+    );
+  }
 
   const tools: ChatTool[] = [
     {

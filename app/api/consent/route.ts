@@ -43,6 +43,8 @@ export async function GET(request: NextRequest) {
       research: consent.research,
       analytics: consent.analytics,
       thirdParty: consent.thirdParty,
+      sensitiveHealthData: consent.sensitiveHealthData,
+      aiProcessing: consent.aiProcessing,
       createdAt: consent.createdAt.toISOString(),
       updatedAt: consent.updatedAt.toISOString()
     });
@@ -94,7 +96,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
 
     // Validate consent updates (only allow boolean values for known consent types)
-    const validKeys = ['newsletter', 'pushNotifications', 'research', 'analytics', 'thirdParty'];
+    const validKeys = ['newsletter', 'pushNotifications', 'research', 'analytics', 'thirdParty', 'sensitiveHealthData', 'aiProcessing'];
     const updates: Record<string, boolean> = {};
 
     for (const key of validKeys) {
@@ -127,6 +129,8 @@ export async function POST(request: NextRequest) {
         research: updated.research,
         analytics: updated.analytics,
         thirdParty: updated.thirdParty,
+        sensitiveHealthData: updated.sensitiveHealthData,
+        aiProcessing: updated.aiProcessing,
         updatedAt: updated.updatedAt.toISOString()
       }
     });

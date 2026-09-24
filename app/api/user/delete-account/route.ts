@@ -1,269 +1,120 @@
 /**
- * Account Deletion API - FS-4 Security & Compliance System
+ * Account Deletion API - GDPR Article 17 (Right to Erasure)
  *
- * POST /api/user/delete-account - Request account deletion (GDPR Article 17)
+ * POST /api/user/delete-account - Immediately and permanently delete the
+ * caller's own account and all associated data.
  *
- * Grace Period: 30 days
- * Rate Limit: 3 req/24hr
+ * No grace period: per the retention decision in docs/DATA-SCOPE-DECISIONS.md,
+ * deletion means deletion, now, not a 30-day soft-delete window. The previous
+ * version of this endpoint recorded a `deletion_requests` row and told users
+ * their data would be deleted in 30 days; nothing ever consumed that table, so
+ * it was a promise the system did not keep. That table and flow are retired —
+ * this endpoint does the actual deletion synchronously and reports what happened.
  *
- * Created: 2025-11-10
+ * Rate limit: 3 req/24hr per user, fails closed (see lib/rate-limit).
  */
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { createClient as createSupabaseClient } from '@supabase/supabase-js';
 import { logAudit, getRequestMetadata } from '@/lib/security/audit-logger';
+import { checkDeleteAccountRateLimit } from '@/lib/rate-limit';
 import { db } from '@/db';
-import { deletionRequests } from '@/db/schema';
-import { eq, and } from 'drizzle-orm';
+import { userProfiles, userConsent, apiKeys, userEncryptionKeys } from '@/db/schema';
+import { eq } from 'drizzle-orm';
 
-/**
- * POST /api/user/delete-account
- *
- * Request account deletion with 30-day grace period
- *
- * GDPR Article 17: Right to Erasure (Right to be Forgotten)
- */
 export async function POST(request: NextRequest) {
-  // ─── DISABLED 2026-08-11 ────────────────────────────────────────────────────
-  // This endpoint promised something the system does not do.
-  //
-  // It recorded a row in `deletion_requests` and told the user their data would be
-// deleted in 30 days. Nothing ever consumed that table — no cron, no worker, no
-// scheduled job. Five related tables also lack the foreign keys needed to cascade.
-  //
-  // Under GDPR that is both an Art. 17 (right to erasure) breach on Article 9
-  // health data and a misleading statement to the data subject
-  // (Art. 5(1)(a), fairness and transparency).
-  //
-  // 501 is the honest state until the erasure job exists. Re-enable only
-  // together with that implementation.
-  // See docs/AUDIT-2026-08-11.md (P1/P2) and CLAUDE.md task 2.8.
-  //
-  // The original implementation is preserved below for reference.
-  // ────────────────────────────────────────────────────────────────────────────
-  return NextResponse.json(
-    {
-      error: 'Not implemented',
-      message: 'Account deletion is temporarily unavailable and no request has been recorded. Please contact support to have your data erased.',
-    },
-    { status: 501 }
-  );
-}
+  const supabase = await createClient();
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
 
-/* Original implementation — restore when the erasure job is built:
-try {
-    // Verify authentication
-    const supabase = await createClient();
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+  if (authError || !user) {
+    return NextResponse.json(
+      { error: 'Unauthorized: Authentication required' },
+      { status: 401 }
+    );
+  }
 
-    if (authError || !user) {
-      return NextResponse.json(
-        { error: 'Unauthorized: Authentication required' },
-        { status: 401 }
-      );
-    }
+  const rateLimit = await checkDeleteAccountRateLimit(user.id);
+  if (!rateLimit.allowed) {
+    return NextResponse.json(
+      { error: 'Too many deletion attempts. Try again later.' },
+      { status: 429 }
+    );
+  }
 
-    // TODO: Check rate limit (3 req/24hr)
-    // This will be implemented when rate limiting infrastructure is added
+  const metadata = getRequestMetadata(request);
 
-    // Check if there's already a pending deletion request
-    const existingRequest = await db.query.deletionRequests.findFirst({
-      where: and(
-        eq(deletionRequests.userId, user.id),
-        eq(deletionRequests.status, 'pending')
-      )
-    });
-
-    if (existingRequest) {
-      return NextResponse.json({
-        error: 'Deletion request already pending',
-        scheduledDate: existingRequest.scheduledDeletionAt.toISOString(),
-        cancellationUrl: `/settings/privacy?cancel-deletion=${existingRequest.id}`
-      }, { status: 400 });
-    }
-
-    // Calculate scheduled deletion date (30 days from now)
-    const scheduledDate = new Date();
-    scheduledDate.setDate(scheduledDate.getDate() + 30);
-
-    // Create deletion request
-    const deletionRequest = await db.insert(deletionRequests).values({
-      userId: user.id,
-      userEmail: user.email || '',
-      status: 'pending',
-      requestedAt: new Date(),
-      scheduledDeletionAt: scheduledDate,
-      createdAt: new Date(),
-      updatedAt: new Date()
-    }).returning();
-
-    if (!deletionRequest || deletionRequest.length === 0) {
-      throw new Error('Failed to create deletion request');
-    }
-
-    // Extract request metadata for audit log
-    const metadata = getRequestMetadata(request);
-
-    // Audit log the deletion request
+  try {
+    // Audit log BEFORE deleting — once the profile row is gone there is nothing
+    // left to attribute the action to. audit_log.user_id has no FK constraint,
+    // so the row survives the user's deletion (this is the expected, standard
+    // shape for a security audit trail).
     await logAudit({
       userId: user.id,
       action: 'DELETE',
       resourceType: 'user_account',
-      resourceId: deletionRequest[0].id,
-      metadata: {
-        grace_period_ends: scheduledDate.toISOString(),
-        can_cancel_before: scheduledDate.toISOString(),
-        deletion_request_id: deletionRequest[0].id
-      },
-      ...metadata
+      resourceId: user.id,
+      metadata: { email: user.email, immediate: true },
+      ...metadata,
     });
 
-    // TODO: Send confirmation email with cancellation link
-    // Email template should include:
-    // - Account deletion scheduled for [scheduledDate]
-    // - Cancellation link (valid for 30 days)
-    // - Warning that all data will be permanently deleted
+    // user_consent, api_keys, and user_encryption_keys have NO foreign key to
+    // user_profiles (verified via \d on the live schema) — deleting the profile
+    // row does not cascade to them, so each must be deleted explicitly.
+    await db.delete(userConsent).where(eq(userConsent.userId, user.id));
+    await db.delete(apiKeys).where(eq(apiKeys.userId, user.id));
+    await db.delete(userEncryptionKeys).where(eq(userEncryptionKeys.userId, user.id));
+
+    // Deleting user_profiles cascades (verified via \d on the live schema) to:
+    // meal_logs -> meal_items, symptom_logs, symptom_definitions (custom),
+    // user_custom_daily_values, daily_totals, favorite_foods,
+    // saved_meal_templates, ag_ui_logs. It sets NULL on food_approvals,
+    // food_sources, foods, manual_review_queue, quarantine_imports — correct,
+    // those are shared content records, not this user's personal data.
+    const deletedProfile = await db
+      .delete(userProfiles)
+      .where(eq(userProfiles.userId, user.id))
+      .returning({ id: userProfiles.id });
+
+    if (deletedProfile.length === 0) {
+      // No profile row existed — still proceed to delete the auth user below,
+      // since the account itself is what the user asked to remove.
+    }
+
+    // Delete the actual Supabase Auth user. This requires the service-role key
+    // — the one legitimate use of it in this codebase, since deleting an auth
+    // user is an admin-only operation with no user-scoped equivalent. Nothing
+    // in Postgres FK-cascades from auth.users to public.* here (they're
+    // matched by UUID convention, not a real FK across schemas), which is why
+    // every public-schema row above had to be deleted explicitly first.
+    const adminClient = createSupabaseClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    );
+    const { error: deleteAuthError } = await adminClient.auth.admin.deleteUser(user.id);
+
+    if (deleteAuthError) {
+      // The user's app data is already gone at this point. Report the auth
+      // deletion failure honestly rather than claiming full success.
+      return NextResponse.json(
+        {
+          error: 'Partial deletion',
+          message: 'Your data was deleted, but removing your login credentials failed. Contact support to finish closing your account.',
+          detail: deleteAuthError.message,
+        },
+        { status: 500 }
+      );
+    }
 
     return NextResponse.json({
       success: true,
-      deletionRequestId: deletionRequest[0].id,
-      scheduledDate: scheduledDate.toISOString(),
-      message: `Account deletion scheduled for ${scheduledDate.toLocaleDateString()}. You can cancel this request within 30 days.`,
-      cancellationToken: deletionRequest[0].id
+      message: 'Your account and all associated data have been permanently deleted.',
     });
   } catch (error) {
     console.error('POST /api/user/delete-account error:', error);
-
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: 'Internal server error', message: 'Account deletion failed. No partial changes were confirmed — contact support.' },
       { status: 500 }
     );
   }
-*/
-
-/**
- * DELETE /api/user/delete-account
- *
- * Cancel pending account deletion
- *
- * Query Parameters:
- * - requestId: Deletion request ID to cancel
- */
-export async function DELETE(request: NextRequest) {
-  // ─── DISABLED 2026-08-11 ────────────────────────────────────────────────────
-  // This endpoint promised something the system does not do.
-  //
-  // It recorded a row in `deletion_requests` and told the user their data would be
-// deleted in 30 days. Nothing ever consumed that table — no cron, no worker, no
-// scheduled job. Five related tables also lack the foreign keys needed to cascade.
-  //
-  // Under GDPR that is both an Art. 17 (right to erasure) breach on Article 9
-  // health data and a misleading statement to the data subject
-  // (Art. 5(1)(a), fairness and transparency).
-  //
-  // 501 is the honest state until the erasure job exists. Re-enable only
-  // together with that implementation.
-  // See docs/AUDIT-2026-08-11.md (P1/P2) and CLAUDE.md task 2.8.
-  //
-  // The original implementation is preserved below for reference.
-  // ────────────────────────────────────────────────────────────────────────────
-  return NextResponse.json(
-    {
-      error: 'Not implemented',
-      message: 'Account deletion is temporarily unavailable and no request has been recorded. Please contact support to have your data erased.',
-    },
-    { status: 501 }
-  );
 }
-
-/* Original implementation — restore when the erasure job is built:
-try {
-    // Verify authentication
-    const supabase = await createClient();
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-
-    if (authError || !user) {
-      return NextResponse.json(
-        { error: 'Unauthorized: Authentication required' },
-        { status: 401 }
-      );
-    }
-
-    // Get requestId from query params
-    const { searchParams } = new URL(request.url);
-    const requestId = searchParams.get('requestId');
-
-    if (!requestId) {
-      return NextResponse.json(
-        { error: 'Missing requestId parameter' },
-        { status: 400 }
-      );
-    }
-
-    // Find deletion request
-    const deletionRequest = await db.query.deletionRequests.findFirst({
-      where: and(
-        eq(deletionRequests.id, requestId),
-        eq(deletionRequests.userId, user.id),
-        eq(deletionRequests.status, 'pending')
-      )
-    });
-
-    if (!deletionRequest) {
-      return NextResponse.json(
-        { error: 'Deletion request not found or already cancelled' },
-        { status: 404 }
-      );
-    }
-
-    // Check if grace period has expired
-    if (deletionRequest.scheduledDeletionAt < new Date()) {
-      return NextResponse.json(
-        { error: 'Grace period has expired. Account deletion is in progress.' },
-        { status: 400 }
-      );
-    }
-
-    // Cancel deletion request
-    const cancelled = await db.update(deletionRequests)
-      .set({
-        status: 'cancelled',
-        cancelledAt: new Date(),
-        updatedAt: new Date()
-      })
-      .where(eq(deletionRequests.id, requestId))
-      .returning();
-
-    if (!cancelled || cancelled.length === 0) {
-      throw new Error('Failed to cancel deletion request');
-    }
-
-    // Extract request metadata for audit log
-    const metadata = getRequestMetadata(request);
-
-    // Audit log the cancellation
-    await logAudit({
-      userId: user.id,
-      action: 'UPDATE',
-      resourceType: 'deletion_request',
-      resourceId: requestId,
-      metadata: {
-        action: 'cancelled',
-        original_scheduled_date: deletionRequest.scheduledDeletionAt.toISOString()
-      },
-      ...metadata
-    });
-
-    return NextResponse.json({
-      success: true,
-      message: 'Account deletion cancelled successfully'
-    });
-  } catch (error) {
-    console.error('DELETE /api/user/delete-account error:', error);
-
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
-  }
-*/

@@ -1,9 +1,10 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { db } from '@/db'
-import { userProfiles } from '@/db/schema'
+import { userProfiles, userEncryptionKeys } from '@/db/schema'
 import { eq } from 'drizzle-orm'
 import { generateDEK } from '@/lib/security/encryption'
+import { createInitialConsent } from '@/lib/dal/consent'
 
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url)
@@ -46,14 +47,24 @@ export async function GET(request: Request) {
         .limit(1)
 
       if (existingProfile.length === 0) {
-        // Create user profile with generated DEK
+        // Create user profile and, separately, its encryption key. The key lives
+        // in its own table — never on user_profiles — so that reading a profile
+        // never also returns the key that decrypts its own PHI columns.
         const dek = await generateDEK()
         await db.insert(userProfiles).values({
           userId: user.id,
           fullName: user.user_metadata?.full_name || user.user_metadata?.name || null,
           avatarUrl: user.user_metadata?.avatar_url || null,
+        })
+        await db.insert(userEncryptionKeys).values({
+          userId: user.id,
           dataEncryptionKey: dek,
         })
+        // Every new user needs a real consent row from the start, with every flag
+        // defaulting false — checkConsent() throws for a user with no row at all,
+        // which previously meant new users got errors instead of a clean "not
+        // consented yet" until they happened to visit settings.
+        await createInitialConsent(user.id)
       }
     }
 

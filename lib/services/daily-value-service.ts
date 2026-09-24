@@ -18,12 +18,14 @@ import {
   referenceDailyValues,
   userCustomDailyValues,
   userProfiles,
+  userEncryptionKeys,
   compounds,
   compoundGroups,
 } from '@/db/schema';
 import { eq, and, inArray, avg, sql, isNotNull } from 'drizzle-orm';
 import { logger } from '@/lib/logger';
 import { redis } from './redis';
+import { encryptPHI, decryptPHI } from '@/lib/security/encryption';
 import { resolveBar, toUnit, type DvRow } from '@/lib/dv/resolve';
 import { formLinksOf } from '@/lib/dv/compound-links';
 
@@ -156,7 +158,7 @@ export async function getUserDemographics(userId: string): Promise<UserDemograph
         birthYear: userProfiles.birthYear,
         birthMonth: userProfiles.birthMonth,
         biologicalSex: userProfiles.biologicalSex,
-        lifeStage: userProfiles.lifeStage,
+        lifeStageEncrypted: userProfiles.lifeStageEncrypted,
         manualAgeGroup: userProfiles.manualAgeGroup,
         dvSourcePreference: userProfiles.dvSourcePreference,
       })
@@ -169,11 +171,29 @@ export async function getUserDemographics(userId: string): Promise<UserDemograph
       return null;
     }
 
+    // life_stage is Article 9 health data — stored as AES-256-GCM ciphertext.
+    // NULL means NONE (never encrypted, since NONE discloses nothing). Any other
+    // value requires decrypting with the user's own DEK from user_encryption_keys.
+    let lifeStage: LifeStage = 'NONE';
+    if (profile.lifeStageEncrypted) {
+      const keyRow = await db.query.userEncryptionKeys.findFirst({
+        where: eq(userEncryptionKeys.userId, userId),
+      });
+      if (!keyRow) {
+        logger.error(
+          { service: 'daily-value-service', userId },
+          'life_stage is encrypted but no encryption key exists for this user — falling back to NONE'
+        );
+      } else {
+        lifeStage = (await decryptPHI(profile.lifeStageEncrypted, keyRow.dataEncryptionKey)) as LifeStage;
+      }
+    }
+
     const demographics: UserDemographics = {
       birthYear: profile.birthYear ?? null,
       birthMonth: profile.birthMonth ?? null,
       biologicalSex: profile.biologicalSex as BiologicalSex | null,
-      lifeStage: (profile.lifeStage as LifeStage) || 'NONE',
+      lifeStage,
       manualAgeGroup: profile.manualAgeGroup as AgeGroup | null,
       dvSourcePreference: (profile.dvSourcePreference as SourcePreference) || 'AVERAGE',
     };
@@ -200,13 +220,30 @@ export async function updateUserDemographics(
   data: Partial<UserDemographics>
 ): Promise<void> {
   try {
+    // Encrypt life_stage before it touches the database. NONE is stored as NULL
+    // (unencrypted — it discloses nothing); anything else requires the user's DEK.
+    let lifeStageEncrypted: string | null | undefined = undefined;
+    if (data.lifeStage !== undefined) {
+      if (data.lifeStage === 'NONE') {
+        lifeStageEncrypted = null;
+      } else {
+        const keyRow = await db.query.userEncryptionKeys.findFirst({
+          where: eq(userEncryptionKeys.userId, userId),
+        });
+        if (!keyRow) {
+          throw new Error(`Cannot set life_stage: no encryption key exists for user ${userId}`);
+        }
+        lifeStageEncrypted = await encryptPHI(data.lifeStage, keyRow.dataEncryptionKey);
+      }
+    }
+
     await db
       .update(userProfiles)
       .set({
         birthYear: data.birthYear ?? undefined,
         birthMonth: data.birthMonth ?? undefined,
         biologicalSex: data.biologicalSex,
-        lifeStage: data.lifeStage,
+        lifeStageEncrypted,
         manualAgeGroup: data.manualAgeGroup,
         dvSourcePreference: data.dvSourcePreference,
         updatedAt: new Date(),
@@ -577,24 +614,42 @@ export interface BatchDvByDemographicsArgs {
 }
 
 export interface DvLookupRow {
-  target: number | null;       // averaged RDA/AI across sources
+  target: number | null;       // median RDA/AI across the independent sources
   targetUnit: string | null;
-  targetType: 'RDA' | 'AI' | 'MIXED' | null; // what we averaged
-  targetSourceCount: number;
-  upperLimit: number | null;   // averaged UL across sources (if any)
+  targetType: 'RDA' | 'AI' | 'MIXED' | null; // what the sources published
+  targetSourceCount: number;   // independent bodies behind the target, each counted once
+  upperLimit: number | null;   // median food ceiling (UL or CDRR), if any
   upperLimitUnit: string | null;
   upperLimitSourceCount: number;
+
+  /**
+   * What the number rests on. A target from one book and a target from ten look identical without this, and the
+   * whole point of the source audit (dv-sources/PROVENANCE.md) is that they are not the same claim.
+   */
+  targetSources: string[];              // the bodies, named
+  targetSpread: [number, number] | null; // lowest and highest, in targetUnit — how much they disagree
+  /** Intake for lower chronic-disease risk, where a body sets one. A different question from adequacy. */
+  diseaseFloor: { value: number; unit: string; sourceCount: number } | null;
+  /** A ceiling that applies only to supplements or fortified foods. Never compare it with intake from food. */
+  supplementLimit: { value: number; unit: string; sourceCount: number } | null;
+  /** Ceilings on a FORM of the nutrient (retinol within vitamin A). Only comparable with intake of that form. */
+  formLimits: Array<{ compound: string; value: number; unit: string; sourceCount: number; unitNote?: string }>;
+  /** Values published as a share of energy, still in percent — they need the user's energy intake to become amounts. */
+  energyShare: { goal: number | null; limit: number | null } | null;
+  /** Range to stay inside, where the sources publish one (macronutrients). */
+  range: { min: number; max: number; unit: string } | null;
 }
 
 /**
- * Batch lookup using explicit demographics + the new age-range columns.
- * - Selects rows where the user's age (in months) falls inside [age_min_months, age_max_months]
- *   (NULL age_max_months = no upper bound).
- * - life_stage = 'NONE' (alpha: no pregnancy/lactation paths).
- * - activity_level / dietary_context ignored (averaged across whatever the source published).
- * - For the "target" we average RDA + AI rows per compound. Per (compound, source) we prefer RDA
- *   when both exist so we don't double-count a single source.
- * - For "upper limit" we average UL rows per compound.
+ * Batch lookup of the targets a user sees, resolved by lib/dv/resolve.ts.
+ *
+ * That resolver is the single place where the source audit is applied: only the 10 bodies that derive their own
+ * values count (never a copy, never Spain's median-of-others), values that two bodies share count once, the median
+ * replaces the mean, units are converted rather than matched as text, chronic-disease ceilings count as limits, and
+ * a limit that applies only to supplements never constrains food. See dv-sources/PROVENANCE.md and VALUE-TYPES.md.
+ *
+ * This function returns the flat shape the UI already consumes; the resolver also produces a disease-prevention
+ * floor, macronutrient ranges and form-specific limits, which this shape cannot carry yet.
  */
 export async function getDailyValuesBatchByDemographics(
   args: BatchDvByDemographicsArgs
@@ -675,6 +730,8 @@ export async function getDailyValuesBatchByDemographics(
       results.set(compoundId, {
         target: null, targetUnit: null, targetType: null, targetSourceCount: 0,
         upperLimit: null, upperLimitUnit: null, upperLimitSourceCount: 0,
+        targetSources: [], targetSpread: null, diseaseFloor: null, supplementLimit: null,
+        formLimits: [], energyShare: null, range: null,
       });
       continue;
     }
@@ -687,6 +744,9 @@ export async function getDailyValuesBatchByDemographics(
     // by the resolver and belong to a richer UI, not to this number.
     const limit = bar.limit && (!bar.goal || toUnit(bar.limit.value, bar.limit.unit, bar.goal.unit) != null) ? bar.limit : null;
 
+    const agg = (a: { value: number; unit: string; sources: string[] } | null) =>
+      a ? { value: a.value, unit: a.unit, sourceCount: a.sources.length } : null;
+
     results.set(compoundId, {
       target: bar.goal?.value ?? null,
       targetUnit: bar.goal?.unit ?? null,
@@ -695,6 +755,13 @@ export async function getDailyValuesBatchByDemographics(
       upperLimit: limit?.value ?? null,
       upperLimitUnit: limit?.unit ?? null,
       upperLimitSourceCount: limit?.sources.length ?? 0,
+      targetSources: bar.goal?.sources ?? [],
+      targetSpread: bar.goal?.spread ?? null,
+      diseaseFloor: agg(bar.diseaseFloor),
+      supplementLimit: agg(bar.supplementLimit),
+      formLimits: bar.formLimits.map((f) => ({ compound: f.compound, value: f.value, unit: f.unit, sourceCount: f.sources.length, unitNote: f.unitNote })),
+      energyShare: bar.energyShare ? { goal: bar.energyShare.goal?.value ?? null, limit: bar.energyShare.limit?.value ?? null } : null,
+      range: bar.range ? { min: bar.range.min, max: bar.range.max, unit: bar.range.unit } : null,
     });
   }
 

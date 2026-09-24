@@ -180,6 +180,16 @@ export interface DvValue {
   source: string | null;
   upperLimit?: number | null;
   upperLimitUnit?: string | null;
+  /**
+   * How well founded the target is: which independent bodies set it, and how far apart they are. A value backed by
+   * one book and one backed by ten are different claims and should not render identically — see
+   * dv-sources/PROVENANCE.md for why only ten bodies count at all.
+   */
+  sourceCount?: number;
+  sources?: string[];
+  spread?: [number, number] | null;
+  /** A ceiling that applies only to supplements or fortified foods — never to be compared with intake from food. */
+  supplementLimit?: { value: number; unit: string; sourceCount: number } | null;
 }
 
 export type DvZone = 'deficient' | 'low' | 'optimal' | 'high' | 'excess' | 'unknown';

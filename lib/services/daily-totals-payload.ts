@@ -43,6 +43,10 @@ async function lookupDvs(
           source: 'average',
           upperLimit: row.upperLimit,
           upperLimitUnit: row.upperLimitUnit,
+          sourceCount: row.targetSourceCount,
+          sources: row.targetSources,
+          spread: row.targetSpread,
+          supplementLimit: row.supplementLimit,
         });
       }
     });

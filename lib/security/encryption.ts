@@ -27,7 +27,7 @@ const ENCRYPTION_CONFIG = {
  *
  * Converts base64-encoded DEK string into CryptoKey for use with Web Crypto API.
  *
- * @param dek - Base64-encoded 256-bit key from user_profiles.data_encryption_key
+ * @param dek - Base64-encoded 256-bit key from user_encryption_keys.data_encryption_key
  * @returns CryptoKey for encryption/decryption
  *
  * @throws Error if DEK format is invalid
@@ -59,17 +59,13 @@ async function importDEK(dek: string): Promise<CryptoKey> {
  * Generate New Data Encryption Key
  *
  * Generates a random 256-bit DEK for a new user.
- * Store in user_profiles.data_encryption_key as base64 string.
+ * Store in user_encryption_keys.data_encryption_key as base64 string.
  *
  * @returns Base64-encoded 256-bit key
  *
  * @example
  * const dek = await generateDEK();
- * await db.insert(userProfiles).values({
- *   userId,
- *   dataEncryptionKey: dek,
- *   ...
- * });
+ * await db.insert(userEncryptionKeys).values({ userId, dataEncryptionKey: dek });
  */
 export async function generateDEK(): Promise<string> {
   const keyData = crypto.getRandomValues(new Uint8Array(32)); // 256 bits
@@ -87,7 +83,7 @@ export async function generateDEK(): Promise<string> {
  * - notes (text field in meal_logs)
  *
  * @param plaintext - Sensitive data to encrypt
- * @param dek - Base64-encoded DEK from user_profiles.data_encryption_key
+ * @param dek - Base64-encoded DEK from user_encryption_keys.data_encryption_key
  * @returns Base64URL-encoded: iv + ciphertext (tag automatically appended by GCM)
  *
  * @throws Error if encryption fails
@@ -137,7 +133,7 @@ export async function encryptPHI(plaintext: string, dek: string): Promise<string
  * Decrypts AES-256-GCM encrypted PHI data.
  *
  * @param encrypted - Base64URL-encoded: iv + ciphertext (from encryptPHI)
- * @param dek - Base64-encoded DEK from user_profiles.data_encryption_key
+ * @param dek - Base64-encoded DEK from user_encryption_keys.data_encryption_key
  * @returns Decrypted plaintext
  *
  * @throws Error if decryption fails (wrong key, tampered data, etc.)
@@ -180,34 +176,28 @@ export async function decryptPHI(encrypted: string, dek: string): Promise<string
 }
 
 /**
- * Rotate Data Encryption Key
+ * Rotate Data Encryption Key — NOT IMPLEMENTED.
  *
- * WARNING: this does NOT rotate anything. It generates a new key and returns it.
- * Nothing is decrypted, re-encrypted, stored, or cleaned up, and the function does
- * not even read `oldDEK`. The docstring here previously described a five-step
- * rotation process that no code performs.
+ * A real rotation must, atomically: read every PHI column encrypted under `oldDEK`,
+ * decrypt each with `oldDEK`, re-encrypt with a freshly generated key, write all of
+ * it back, and only then persist the new DEK on the user's profile. None of that
+ * exists yet. A stub that generates and returns a new key without doing the above
+ * would silently orphan every already-encrypted field the moment it's called — the
+ * previous version of this function did exactly that.
  *
- * Calling this on password change would DESTROY access to any encrypted data, since
- * the old key would be replaced without re-encrypting under the new one.
- *
- * (Currently harmless only because encryptPHI/decryptPHI have no callers at all —
- * no data is encrypted yet. See docs/AUDIT-2026-08-11.md P4/P5, CLAUDE.md task 2.5.)
+ * Throws unconditionally so a caller fails loudly instead of corrupting data.
+ * Implement properly alongside the Phase B encryption rollout (CLAUDE.md task 2.5)
+ * before this is ever wired up to a route.
  *
  * @param userId - User ID for key rotation
  * @param oldDEK - Current DEK (for decryption)
- * @returns New DEK (base64-encoded)
- *
- * @example
- * const newDEK = await rotateDEK(userId, user.dataEncryptionKey);
- * // Background job re-encrypts all PHI fields
  */
 export async function rotateDEK(userId: string, oldDEK: string): Promise<string> {
-  // Generate new DEK
-  const newDEK = await generateDEK();
-
-  // Return new DEK - caller must re-encrypt PHI fields
-  // (Implementation in background job for Phase 3+)
-  return newDEK;
+  throw new Error(
+    'rotateDEK is not implemented: it would generate a new key without re-encrypting ' +
+    'existing PHI, orphaning any data already encrypted under the old key. Do not call ' +
+    'this until it performs a full decrypt-under-old/re-encrypt-under-new/persist cycle.'
+  );
 }
 
 /**

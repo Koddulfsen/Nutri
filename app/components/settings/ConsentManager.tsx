@@ -19,6 +19,8 @@ interface ConsentStatus {
   research: boolean;
   analytics: boolean;
   thirdParty: boolean;
+  sensitiveHealthData: boolean;
+  aiProcessing: boolean;
 }
 
 interface ConsentManagerProps {
@@ -31,7 +33,9 @@ export default function ConsentManager({ userId }: ConsentManagerProps) {
     pushNotifications: false,
     research: false,
     analytics: false,
-    thirdParty: false
+    thirdParty: false,
+    sensitiveHealthData: false,
+    aiProcessing: false
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -60,7 +64,9 @@ export default function ConsentManager({ userId }: ConsentManagerProps) {
         pushNotifications: data.pushNotifications,
         research: data.research,
         analytics: data.analytics,
-        thirdParty: data.thirdParty
+        thirdParty: data.thirdParty,
+        sensitiveHealthData: data.sensitiveHealthData,
+        aiProcessing: data.aiProcessing
       });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load consent preferences');
@@ -108,6 +114,8 @@ export default function ConsentManager({ userId }: ConsentManagerProps) {
   }
 
   function handleAcceptAll() {
+    // Deliberately excludes sensitiveHealthData and aiProcessing — GDPR Article 9
+    // consent must be specific, not granted via a bundled "accept all" action.
     updateConsent({
       newsletter: true,
       pushNotifications: true,
@@ -123,7 +131,9 @@ export default function ConsentManager({ userId }: ConsentManagerProps) {
       pushNotifications: false,
       research: false,
       analytics: false,
-      thirdParty: false
+      thirdParty: false,
+      sensitiveHealthData: false,
+      aiProcessing: false
     });
   }
 
@@ -208,6 +218,34 @@ export default function ConsentManager({ userId }: ConsentManagerProps) {
           icon="🤝"
           checked={consent.thirdParty}
           onChange={() => handleToggle('thirdParty')}
+          disabled={saving}
+        />
+      </div>
+
+      {/* Article 9 sensitive-data consents — kept separate from the toggles above
+          and excluded from Accept All, since GDPR requires these to be specific
+          and explicitly granted, not bundled with general preferences. */}
+      <div className="mb-2">
+        <p className="text-white/70 text-sm mb-1 font-medium">Health data</p>
+        <p className="text-white/50 text-xs mb-4">
+          These control processing of health-related data and are never turned on by "Accept All" — you choose them individually.
+        </p>
+      </div>
+      <div className="space-y-4 mb-6">
+        <ConsentToggle
+          label="Pregnancy / Lactation Status"
+          description="Use your life-stage status to personalize your daily nutrient targets. Special-category health data under GDPR — used only for this purpose."
+          icon="🩺"
+          checked={consent.sensitiveHealthData}
+          onChange={() => handleToggle('sensitiveHealthData')}
+          disabled={saving}
+        />
+        <ConsentToggle
+          label="AI-Assisted Logging"
+          description="Send the messages you type to the AI food logger to Anthropic for processing. Required to use the chat-based logger."
+          icon="🤖"
+          checked={consent.aiProcessing}
+          onChange={() => handleToggle('aiProcessing')}
           disabled={saving}
         />
       </div>

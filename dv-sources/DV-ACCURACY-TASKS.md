@@ -82,11 +82,23 @@ drops, so the defects below are its own report, not a guess.
 
 ## C. Visibility — the audit is invisible to the user
 
-- [ ] **C1. Surface how many independent bodies back a target, and the spread.** The resolver produces
+- [~] **C1. Surface how many independent bodies back a target, and the spread.** *(server side done
+      2026-09-24; the UI still has to draw it.)* `DvLookupRow` now carries `targetSources` (the bodies,
+      named), `targetSpread`, and per-source counts; `GET /api/daily-values` returns them, and the daily
+      totals payload passes `sourceCount`/`sources`/`spread` into `DvValue`. Remaining: `/analysis` does
+      not render any of it yet — a target from one body still looks like a target from ten on screen.
+      *Check: the service smoke run prints, for adult male, vitamin C 100 mg from 10 bodies spread
+      40–110, and total fat 96.5 g from RUSSIA alone.* The resolver produces
       `sources`, `spread` and a full `excluded` list; `DvLookupRow` drops all of it at the service
       boundary. A target from one book currently looks identical to one from ten.
 
-- [ ] **C2. Carry the rest of the resolved bar through to the UI** — the disease-prevention floor, the
+- [~] **C2. Carry the rest of the resolved bar through to the UI** *(server side done 2026-09-24)* —
+      `diseaseFloor`, `supplementLimit`, `formLimits`, `energyShare` and `range` all reach the API
+      response now. Verified end-to-end against the live database: vitamin A returns a 3000 µg retinol
+      FORM limit beside its 850 µg RAE target, magnesium returns its 350 mg limit as supplement-only and
+      no food limit, vitamin C returns China's 200 mg disease floor apart from the goal, total fat
+      returns a 20–32.5 %E range. Remaining: the UI draws none of them.
+      *Was:* — the disease-prevention floor, the
       macronutrient range, the supplement-only limit and the form-specific limits. All four are computed
       and thrown away.
 

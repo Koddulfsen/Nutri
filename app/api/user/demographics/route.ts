@@ -21,6 +21,7 @@ import {
   type SourcePreference,
 } from '@/lib/services/daily-value-service';
 import { logger } from '@/lib/logger';
+import { checkConsent } from '@/lib/dal/consent';
 
 /**
  * Valid values for enums
@@ -190,6 +191,45 @@ export async function PATCH(request: NextRequest) {
     }
 
     const updates = validationResult.data;
+
+    // life_stage (pregnant/lactating) is Article 9 special-category health data.
+    // Setting it to anything other than NONE requires its own explicit consent —
+    // "NONE" is allowed without a consent check since it discloses nothing.
+    if (updates.lifeStage && updates.lifeStage !== 'NONE') {
+      const hasConsent = await checkConsent(userId, 'sensitiveHealthData');
+      if (!hasConsent) {
+        return NextResponse.json(
+          {
+            error: 'Consent required',
+            message: 'Enable "Pregnancy / Lactation Status" in Settings > Privacy before setting this field.',
+          },
+          { status: 403 }
+        );
+      }
+    }
+
+    // Alpha minimum age: 16. This is the only point in the app that collects a
+    // birth date, so it's the only enforceable checkpoint. Norway's digital-consent
+    // age is 13, but this app also processes Article 9 health data (life_stage);
+    // 16 is a pragmatic alpha default chosen to avoid the murkier under-16 consent
+    // question, not a definitive legal line — revisit with real legal advice before
+    // relaxing it. See docs/DATA-SCOPE-DECISIONS.md.
+    if (updates.birthYearMonth) {
+      const [y, m] = updates.birthYearMonth.split('-').map(Number);
+      const now = new Date();
+      let age = now.getUTCFullYear() - y;
+      if (now.getUTCMonth() + 1 < m) age -= 1;
+      if (age < 16) {
+        logger.warn(
+          { service: 'demographics-api', endpoint: 'PATCH /api/user/demographics', userId },
+          'Rejected demographics update: under alpha minimum age'
+        );
+        return NextResponse.json(
+          { error: 'Nutri alpha is currently limited to users aged 16 and up.' },
+          { status: 403 }
+        );
+      }
+    }
 
     logger.debug(
       {
