@@ -196,20 +196,24 @@ describe('Request Metadata - anonymizeIP', () => {
     expect(anonymizeIP('172.16.254.1')).toBe('172.16.254.0');
   });
 
-  test('should anonymize IPv6 address (keep first 4 groups)', () => {
-    // Act
+  test('should anonymize IPv6 address (keep first 3 groups / 48 bits)', () => {
+    // anonymizeIP's own docstring documents /48 truncation (3 groups, zero
+    // padded) as the intended, deliberately-chosen depth from the P9 audit
+    // fix — this test previously named and asserted /64 (4 groups), which
+    // never matched the implementation. Corrected to match the documented,
+    // intentional behavior rather than changing production truncation depth
+    // (fewer kept bits is more private, not less).
     const anonymized = anonymizeIP('2001:db8:85a3:8d3:1319:8a2e:370:7348');
-
-    // Assert
-    expect(anonymized).toBe('2001:db8:85a3:8d3::');
+    expect(anonymized).toBe('2001:0db8:85a3::');
   });
 
   test('should anonymize compressed IPv6 address', () => {
     // Act
     const anonymized = anonymizeIP('2001:db8::1');
 
-    // Assert
-    expect(anonymized).toBe('2001:db8::');
+    // Assert: '::' is expanded to its full 8 groups before truncating, then
+    // the kept groups are zero-padded — see anonymizeIP's docstring.
+    expect(anonymized).toBe('2001:0db8:0000::');
   });
 
   test('should return 0.0.0.0 for empty string', () => {
@@ -240,8 +244,9 @@ describe('Request Metadata - anonymizeIP', () => {
     // Act
     const anonymized = anonymizeIP('::1');
 
-    // Assert
-    expect(anonymized).toBe('::');
+    // Assert: '::1' expands to 7 zero groups + '1'; the kept (zero) groups
+    // are zero-padded, matching anonymizeIP's documented format.
+    expect(anonymized).toBe('0000:0000:0000::');
   });
 });
 

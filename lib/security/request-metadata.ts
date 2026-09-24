@@ -230,18 +230,25 @@ export function parseUserAgent(userAgent: string | null): {
   else if (userAgent.includes('Chrome')) browser = 'Chrome';
   else if (userAgent.includes('Safari')) browser = 'Safari';
 
-  // Detect OS
+  // Detect OS. Order matters: real iPhone/iPad user agents never contain the
+  // literal string "iOS" — they say e.g. "iPhone OS 17_0 like Mac OS X" — so
+  // they must be matched on "iPhone"/"iPad" before the "Mac" check, or every
+  // iOS device gets misreported as macOS. Likewise Android user agents
+  // contain "Linux" (e.g. "Linux; Android 13; Pixel 7"), so Android must be
+  // checked before Linux or every Android device gets misreported as Linux.
   let os = 'Unknown';
   if (userAgent.includes('Windows')) os = 'Windows';
+  else if (userAgent.includes('iPhone') || userAgent.includes('iPad') || userAgent.includes('iPod')) os = 'iOS';
+  else if (userAgent.includes('Android')) os = 'Android';
   else if (userAgent.includes('Mac')) os = 'macOS';
   else if (userAgent.includes('Linux')) os = 'Linux';
-  else if (userAgent.includes('Android')) os = 'Android';
-  else if (userAgent.includes('iOS')) os = 'iOS';
 
-  // Detect device
+  // Detect device. iPad Safari user agents also contain "Mobile" (e.g.
+  // "Mobile/15E148"), so iPad must be checked before the generic "Mobile"
+  // check or every iPad gets misreported as a phone.
   let device: 'mobile' | 'tablet' | 'desktop' = 'desktop';
-  if (userAgent.includes('Mobile')) device = 'mobile';
-  else if (userAgent.includes('Tablet') || userAgent.includes('iPad')) device = 'tablet';
+  if (userAgent.includes('iPad') || userAgent.includes('Tablet')) device = 'tablet';
+  else if (userAgent.includes('Mobile')) device = 'mobile';
 
   return { browser, os, device };
 }
