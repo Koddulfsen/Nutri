@@ -24,6 +24,8 @@ import {
 import { eq, and, inArray, avg, sql, isNotNull } from 'drizzle-orm';
 import { logger } from '@/lib/logger';
 import { redis } from './redis';
+import { resolveBar, toUnit, type DvRow } from '@/lib/dv/resolve';
+import { formLinksOf } from '@/lib/dv/compound-links';
 
 // ═══════════════════════════════════════════════════════════════
 // Types
@@ -606,107 +608,93 @@ export async function getDailyValuesBatchByDemographics(
   // landing on year-boundaries is consistent with the source bracketing convention.
   const ageMonths = Math.max(0, Math.floor(ageYears * 12));
 
-  // One query for everything we need; we'll bucket in JS.
+  // Compound names, because the resolver keys its rules (shared judgements, form links) on them.
+  const compoundRows = await db
+    .select({ id: compounds.id, name: compounds.name })
+    .from(compounds)
+    .where(inArray(compounds.id, compoundIds));
+  const nameById = new Map<string, string>(compoundRows.map((c) => [c.id, c.name]));
+
+  // A limit may live on a FORM of the nutrient (retinol within vitamin A), so those compounds are loaded too.
+  const formNames = [...new Set(compoundRows.flatMap((c) => formLinksOf(c.name).map((l) => l.form)))];
+  const formCompounds = formNames.length
+    ? await db.select({ id: compounds.id, name: compounds.name }).from(compounds).where(inArray(compounds.name, formNames))
+    : [];
+  for (const c of formCompounds) nameById.set(c.id, c.name);
+
   const rows = await db
     .select({
       compoundId: referenceDailyValues.compoundId,
       sourceRegion: referenceDailyValues.sourceRegion,
       value: referenceDailyValues.value,
+      valueMin: referenceDailyValues.valueMin,
+      valueMax: referenceDailyValues.valueMax,
       unit: referenceDailyValues.unit,
       valueType: referenceDailyValues.valueType,
+      isPercentOfEnergy: referenceDailyValues.isPercentOfEnergy,
+      supplementalOnly: referenceDailyValues.supplementalOnly,
     })
     .from(referenceDailyValues)
     .where(
       and(
-        inArray(referenceDailyValues.compoundId, compoundIds),
+        inArray(referenceDailyValues.compoundId, [...compoundIds, ...formCompounds.map((c) => c.id)]),
         eq(referenceDailyValues.sex, sex),
         eq(referenceDailyValues.lifeStage, 'NONE'),
         sql`(${referenceDailyValues.ageMinMonths} IS NULL OR ${referenceDailyValues.ageMinMonths} <= ${ageMonths})`,
         sql`(${referenceDailyValues.ageMaxMonths} IS NULL OR ${referenceDailyValues.ageMaxMonths} >= ${ageMonths})`,
-        inArray(referenceDailyValues.valueType, ['RDA', 'AI', 'UL']),
       )
     );
 
-  // Bucket: compoundId → { perSourceTarget: Map<region, {val, unit, type}>, ulRows: [{val, unit}] }
-  type Bucket = {
-    perSourceTarget: Map<string, { value: number; unit: string; type: 'RDA' | 'AI' }>;
-    ulRows: { value: number; unit: string }[];
-  };
-  const buckets = new Map<string, Bucket>();
-
+  const byCompoundName = new Map<string, DvRow[]>();
   for (const r of rows) {
-    let b = buckets.get(r.compoundId);
-    if (!b) {
-      b = { perSourceTarget: new Map(), ulRows: [] };
-      buckets.set(r.compoundId, b);
-    }
-    const val = parseFloat(r.value as unknown as string);
-    if (Number.isNaN(val)) continue;
-
-    if (r.valueType === 'UL') {
-      b.ulRows.push({ value: val, unit: r.unit });
-    } else if (r.valueType === 'RDA' || r.valueType === 'AI') {
-      const existing = b.perSourceTarget.get(r.sourceRegion);
-      // Prefer RDA over AI when a single source publishes both
-      if (!existing || (existing.type === 'AI' && r.valueType === 'RDA')) {
-        b.perSourceTarget.set(r.sourceRegion, { value: val, unit: r.unit, type: r.valueType });
-      }
-    }
+    const name = nameById.get(r.compoundId);
+    if (!name) continue;
+    const value = parseFloat(r.value as unknown as string);
+    if (Number.isNaN(value)) continue;
+    const num = (x: unknown) => (x == null ? null : parseFloat(x as string));
+    byCompoundName.set(name, [
+      ...(byCompoundName.get(name) ?? []),
+      {
+        region: r.sourceRegion as string,
+        compound: name,
+        valueType: r.valueType as DvRow['valueType'],
+        value,
+        valueMin: num(r.valueMin),
+        valueMax: num(r.valueMax),
+        unit: r.unit,
+        isPercentOfEnergy: r.isPercentOfEnergy ?? false,
+        supplementalOnly: r.supplementalOnly ?? false,
+      },
+    ]);
   }
 
   for (const compoundId of compoundIds) {
-    const b = buckets.get(compoundId);
-    if (!b) {
+    const name = nameById.get(compoundId);
+    const own = name ? byCompoundName.get(name) ?? [] : [];
+    if (!name || own.length === 0) {
       results.set(compoundId, {
         target: null, targetUnit: null, targetType: null, targetSourceCount: 0,
         upperLimit: null, upperLimitUnit: null, upperLimitSourceCount: 0,
       });
       continue;
     }
+    const formRows: Record<string, DvRow[]> = {};
+    for (const link of formLinksOf(name)) formRows[link.form] = byCompoundName.get(link.form) ?? [];
+    const bar = resolveBar(name, own, formRows);
 
-    // Target: average across sources, grouped by unit. Pick the dominant unit if mixed.
-    const byUnit = new Map<string, { sum: number; n: number; types: Set<'RDA' | 'AI'> }>();
-    for (const row of b.perSourceTarget.values()) {
-      const u = byUnit.get(row.unit) ?? { sum: 0, n: 0, types: new Set() };
-      u.sum += row.value;
-      u.n += 1;
-      u.types.add(row.type);
-      byUnit.set(row.unit, u);
-    }
-    let target: number | null = null;
-    let targetUnit: string | null = null;
-    let targetType: 'RDA' | 'AI' | 'MIXED' | null = null;
-    let targetSourceCount = 0;
-    if (byUnit.size > 0) {
-      // Pick unit with the most sources
-      const [pickedUnit, picked] = [...byUnit.entries()].sort((a, b) => b[1].n - a[1].n)[0];
-      target = picked.sum / picked.n;
-      targetUnit = pickedUnit;
-      targetSourceCount = picked.n;
-      targetType = picked.types.size === 1 ? [...picked.types][0] : 'MIXED';
-    }
-
-    // UL: average across sources, grouped by unit. Same idea.
-    const ulByUnit = new Map<string, { sum: number; n: number }>();
-    for (const row of b.ulRows) {
-      const u = ulByUnit.get(row.unit) ?? { sum: 0, n: 0 };
-      u.sum += row.value;
-      u.n += 1;
-      ulByUnit.set(row.unit, u);
-    }
-    let upperLimit: number | null = null;
-    let upperLimitUnit: string | null = null;
-    let upperLimitSourceCount = 0;
-    if (ulByUnit.size > 0) {
-      const [pickedUnit, picked] = [...ulByUnit.entries()].sort((a, b) => b[1].n - a[1].n)[0];
-      upperLimit = picked.sum / picked.n;
-      upperLimitUnit = pickedUnit;
-      upperLimitSourceCount = picked.n;
-    }
+    // Only surface a limit the caller can compare with the target: a % -of-energy ceiling cannot be read against a
+    // target in grams, and a form limit counts a different thing (preformed vitamin A, not total). Those are carried
+    // by the resolver and belong to a richer UI, not to this number.
+    const limit = bar.limit && (!bar.goal || toUnit(bar.limit.value, bar.limit.unit, bar.goal.unit) != null) ? bar.limit : null;
 
     results.set(compoundId, {
-      target, targetUnit, targetType, targetSourceCount,
-      upperLimit, upperLimitUnit, upperLimitSourceCount,
+      target: bar.goal?.value ?? null,
+      targetUnit: bar.goal?.unit ?? null,
+      targetType: bar.goal?.type ?? null,
+      targetSourceCount: bar.goal?.sources.length ?? 0,
+      upperLimit: limit?.value ?? null,
+      upperLimitUnit: limit?.unit ?? null,
+      upperLimitSourceCount: limit?.sources.length ?? 0,
     });
   }
 

@@ -821,3 +821,22 @@ export const PROVENANCE_PENDING: string[] = [];
 export const ALPHA_INDEPENDENT_REGIONS = [
   'USA_CANADA', 'EU', 'WHO_FAO', 'JAPAN', 'CHINA', 'KOREA', 'UK', 'DACH', 'RUSSIA', 'INDIA',
 ] as const;
+
+/**
+ * Values that two independent bodies share, nutrient by nutrient — found by comparing every age/sex cell
+ * (dv-sources/PROVENANCE.md, "The East Asian overlap"). Japan, Korea and China derive their own values overall, but on
+ * these series one body's numbers are IOM's, so counting both would count one judgement twice.
+ *
+ * `region` follows `sameAs` for this compound and class; the aggregator keeps one of them.
+ */
+export const NUTRIENT_COLLAPSES: Array<{ region: string; compound: string; cls: 'REC' | 'EAR' | 'UL'; sameAs: string; evidence: string }> = [
+  { region: 'KOREA', compound: 'Calcium', cls: 'UL', sameAs: 'USA_CANADA', evidence: 'Identical to IOM in 26 of 26 adult cells (per-nutrient comparison, 2026-09-21).' },
+  { region: 'KOREA', compound: 'Iron (Total)', cls: 'UL', sameAs: 'USA_CANADA', evidence: 'Identical to IOM in 26 of 26 cells.' },
+  { region: 'KOREA', compound: 'Folic Acid (Synthetic)', cls: 'UL', sameAs: 'USA_CANADA', evidence: 'Identical to IOM in 18 of 22 cells.' },
+  { region: 'KOREA', compound: 'Carbohydrates', cls: 'EAR', sameAs: 'USA_CANADA', evidence: "Identical to IOM in 22 of 22 cells — IOM's distinctive 100 g brain-glucose value." },
+  { region: 'KOREA', compound: 'Carbohydrates', cls: 'REC', sameAs: 'USA_CANADA', evidence: "Identical to IOM in 24 of 26 cells — IOM's distinctive 130 g." },
+  { region: 'KOREA', compound: 'Pantothenic Acid (B5)', cls: 'REC', sameAs: 'USA_CANADA', evidence: 'Identical to IOM in 24 of 26 cells.' },
+  { region: 'JAPAN', compound: 'Manganese', cls: 'UL', sameAs: 'USA_CANADA', evidence: "Identical to IOM in 10 of 10 cells — IOM's 11 mg, shared by Japan, China and Korea." },
+  { region: 'CHINA', compound: 'Manganese', cls: 'UL', sameAs: 'USA_CANADA', evidence: "Identical to IOM's 11 mg." },
+  { region: 'KOREA', compound: 'Manganese', cls: 'UL', sameAs: 'USA_CANADA', evidence: "Identical to IOM's 11 mg." },
+];

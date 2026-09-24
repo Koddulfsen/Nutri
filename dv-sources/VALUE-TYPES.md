@@ -118,8 +118,37 @@ toxicity. Stored as Korea printed it, recorded here rather than silently reassig
 link whose parent has no goal, or whose evidence omits a region that publishes the limit. Negative-tested on all
 three.
 
-## Open decisions (for the calculation step)
+## How the calculation now works
+
+`lib/dv/resolve.ts` is the single place where all of the above is applied, and `lib/dv/resolve.test.ts` holds 23
+tests over fixed inputs, so its behaviour is checkable without a database. It is wired into
+`getDailyValuesBatchByDemographics()` in `lib/services/daily-value-service.ts`, which is what
+`/api/daily-values` and the daily totals payload read.
+
+Decisions it makes, each settled here rather than per call site:
+
+- **Only the 10 independent bodies count** (`ALPHA_INDEPENDENT_REGIONS`); a copy or an average-of-others never votes.
+- **One body, one vote.** A body that publishes several rows for the same demographic — Russia prints fat and protein
+  per physical-activity group — is collapsed to its own median first. A body that sets both an RDA and an AI counts
+  its RDA. A judgement two bodies share (`NUTRIENT_COLLAPSES`) counts once.
+- **Median, not mean**, for goals, floors and limits, so one outlying authority cannot drag the target.
+- **Units are converted, not matched as text** (`lib/food-health/units.ts`); two different qualifiers — µg DFE against
+  µg RAE — are refused rather than silently equated, and a per-energy value is excluded with a reason.
+- **Goals and disease-prevention floors are kept apart**, so China counting both for vitamin C is one source, not two.
+- **A ceiling is the strictest one a body sets** (its UL or its CDRR, whichever binds), then the median across bodies.
+- **A supplement-only limit never becomes a food limit**; it is returned separately.
+- **A form-specific limit stays on the form** and is returned beside the bar, never merged into the parent's total.
+
+Two consequences worth knowing when reading a bar:
+
+- Vitamin A shows a 3000 µg RAE food limit backed by **one** body, because Korea is the only source that prints its
+  limit against total vitamin A (see above). The other five limit retinol, and those are carried as form limits.
+- Total fat's bar comes from gram figures only; every percent-of-energy range is excluded until intake is compared
+  with the user's energy intake.
+
+## Open decisions
 
 - Whether to show EAR at all, and how.
-- How to aggregate each bar kind across sources (median of goals; strictest or median of limits?).
 - Whether to add a TWI/TDI type and a contaminant source set for heavy metals.
+- Whether the flat `DvLookupRow` shape should grow to carry the disease floor, ranges, form limits, the
+  supplement-only limit and the goal's spread — the resolver produces all five; the UI currently shows none.
