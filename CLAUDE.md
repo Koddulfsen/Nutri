@@ -236,9 +236,25 @@ Checkboxes are the timeline. Update them as work lands.
 - [ ] **2.9** Per-user spend budget on `/api/ai/log-food` *(B3)*
 
 ### Phase 3 — Refurbish (serves Phase 2; not cosmetics)
-- [ ] **3.1** Delete the dead Supabase-HTTP cluster — 5,555 lines *(S1)*
-- [ ] **3.2** Move `components/calendar/` → `app/components/`, delete prototype UI *(S2)*
-- [ ] **3.3** Delete `lib/data/compounds.ts` — 26,508 stale lines *(S3)*
+- [~] **3.1** Delete the dead Supabase-HTTP cluster — 5,555 lines *(S1)* — **partially done
+      2026-09-24**: deleted the 6 duplicate `db/seed/*-http.ts` files with live non-http twins
+      (categories/research/users/validation/interactions/index, 3,490 lines) plus 2 stray
+      zero-reference scripts. **Not deleted, still needed**: `db/supabase-client.ts` and
+      `db/drizzle-http-adapter.ts` (still imported by `seed-display-settings.ts`,
+      `seed-group-metadata.ts`, `apply-gdpr-http.mjs`, `apply-rls.mjs`) and
+      `db/seed/symptoms-http.ts` (no non-http twin — the only symptom seed data). These three
+      need an actual port to Drizzle/non-http, not a delete — real work, tracked as a
+      follow-up, not silently dropped
+- [x] **3.2** Move `components/calendar/` → `app/components/`, delete prototype UI *(S2)*
+      *(done 2026-09-24)* — `WeekStrip` (the only live export) moved to
+      `app/components/calendar/`; `CalendarGrid`/`CalendarPopup`/barrel deleted (zero
+      importers). Separately, the entire `components/` root prototype-UI cluster deleted:
+      13 files + backing `lib/api-stubs.ts`/`lib/types/{meal,compound,stats,index}.ts`/
+      `lib/utils/{cn,index}.ts` (~1,197 lines, zero importers confirmed for every file).
+      `lib/types/api.ts` confirmed live (4 importers) and left untouched
+- [x] **3.3** Delete `lib/data/compounds.ts` — 26,508 stale lines *(S3)* *(done 2026-09-24)* —
+      confirmed zero importers repo-wide before deleting; was gitignored, not tracked, so
+      nothing to remove from git history
 - [ ] **3.4** **DECIDE:** ship the BullMQ worker or return 501 — imports currently vanish *(S4)*
 - [ ] **3.5** Archive ~310 one-off scripts to `scripts/archive/` *(S10)*
 - [x] **3.6** Delete Circadian + Sandalwood docs; fix the `--bg` drift *(S9)* *(done 2026-09-24)*
