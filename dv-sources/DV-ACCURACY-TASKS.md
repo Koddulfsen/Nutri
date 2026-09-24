@@ -150,6 +150,10 @@ drops, so the defects below are its own report, not a guess.
 
 # G. PLAN — agreed 2026-09-24
 
+> **The detailed, subtasked version of everything below now lives in
+> `dv-sources/PLAN-BODY-WEIGHT.md`** (workstreams A–F, each subtask with the check that proves it,
+> plus the dependency order and the risks). This section stays as the summary and the findings.
+
 Body weight is not a heavy-metal problem. **It is a hole in the data we already hold**, found by
 grepping every extract for what it refused to store.
 
