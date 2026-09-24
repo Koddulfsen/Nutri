@@ -81,14 +81,42 @@ FAO/WHO JECFA) as **tolerable weekly or daily intakes per kg of body weight** (T
 "no safe level" (lead). That is a different kind of source, with its own provenance question, and a different
 shape of value (per kg, per week). A heavy-metal bar would be a limit bar, but it needs body weight and a new type.
 
-**3. Compounds with only a ceiling — two kinds.** 6 compounds have a UL and nothing else:
+**3. Form-specific limits — resolved 2026-09-24.** Some limits do not cap a nutrient, they cap one chemical *form*
+of it, and are stored on that form's compound. Reading them against the nutrient's total intake would flag food the
+limit does not cover. Every one is now linked to the nutrient whose goal it belongs beside, in
+`lib/dv/compound-links.ts`, with the source's own wording:
 
-- **Boron, nickel** — genuinely limit-only; their bar can only be a limit, and showing no goal must be deliberate.
-- **Folic Acid (Synthetic), Nicotinic Acid, Nicotinamide, Retinol** — *forms* of a vitamin whose goal is stored on the
-  parent compound (Folate, Niacin, Vitamin A). The limit applies to the form, the goal to the total: folic acid from
-  supplements is capped while total folate has a target. So a vitamin A bar needs the goal from "Vitamin A (RAE/RE)"
-  and the ceiling from "Retinol" — two compounds feeding one bar. The calculation needs that parent/form link; the
-  compound hierarchy already has parents, but which UL belongs to which bar must be explicit.
+| Limit on | Belongs beside | Counts | Unit trap |
+|---|---|---|---|
+| Retinol | Vitamin A (RAE) | Preformed vitamin A only, not carotenoids | 1 µg retinol = 1 µg RAE, so comparable once intake is restricted to preformed |
+| Folic Acid (Synthetic) | Folate (Total) | Folic acid added to food or in supplements, not natural folate | µg folic acid ≠ µg DFE — 1 µg folic acid with food counts as 1.7 µg DFE |
+| Nicotinic Acid | Niacin (B3) | Free nicotinic acid (supplements, fortified), not the bound forms in food | mg nicotinic acid vs the parent's mg NE |
+| Nicotinamide | Niacin (B3) | Nicotinamide | mg nicotinamide vs mg NE |
+
+Only **boron** and **nickel** are genuinely limit-only: no body in the alpha set sets a requirement for them.
+
+**Three real data errors were found while verifying this, all in China's values, all now fixed and reloaded:**
+
+| Was stored on | Should be | Source's wording |
+|---|---|---|
+| Vitamin A (RAE) | **Retinol** | 第十一章第一节 (p. 332): "维生素A的UL只针对视黄醇" — the UL applies to retinol only; hence its unit is µg/d, not µg RAE |
+| Folate (Total) | **Folic Acid (Synthetic)**, supplement-only | 第十二章第五节 (p. 394): "过量摄入天然食物叶酸未发现不良反应" — no adverse effects from natural food folate; the UL is computed from synthetic folic acid in fortified foods and supplements |
+| Niacin (B3) | **Nicotinic Acid**, supplement-only | 第十二章第三节 (p. 379): "食物中的烟酸不会引起摄入过量的不良反应" — niacin in food causes no adverse effects; the UL comes from the flushing LOAEL of nicotinic acid |
+
+A fourth correction, in EFSA's data: its nicotinic acid limit is now flagged supplement-only, because SCF 2002 says
+*"the upper level for free nicotinic acid has been derived from data on flushing ... Flushing has not been reported
+for the bound forms of nicotinic acid that are present in foods."* Without that flag, ordinary food niacin could be
+counted against a 10 mg limit.
+
+**Checked, and correct as stored:** Korea's folate limit (its footnote restricts it to supplements and fortified
+foods); EFSA's and Japan's retinol and folic acid limits; EFSA's, Japan's, Korea's and China's split of niacin into
+two forms. **Korea's vitamin A limit is an open question of the source's own making:** its summary table prints the
+limit under plain "비타민 A (μg RAE)" with no preformed-only footnote, while the chapter derives it from preformed
+toxicity. Stored as Korea printed it, recorded here rather than silently reassigned.
+
+`scripts/dv-verify/check-compound-links.ts` enforces all of this: an unlinked limit-only compound fails, as does a
+link whose parent has no goal, or whose evidence omits a region that publishes the limit. Negative-tested on all
+three.
 
 ## Open decisions (for the calculation step)
 

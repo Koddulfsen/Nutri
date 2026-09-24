@@ -352,8 +352,12 @@ const LPI: Array<[DietaryContext, number]> = [['PHYTATE_LOW', 300], ['PHYTATE_ME
     { compound: 'Selenium', unit: 'µg', table: 'UL Table 1', cells: [45, 55, 70, 95, 130, 180, 230, 255], preg: 255, lact: 255 },
     { compound: 'Zinc', unit: 'mg', table: 'UL Table 1', cells: [null, null, 7, 10, 13, 18, 22, 25], preg: 25, lact: 25 },
     { compound: 'Folic Acid (Synthetic)', unit: 'µg', table: 'UL Table 3', supplementalOnly: true, note: 'Folic acid and authorised MTHF salts added to foods or in supplements; excludes natural food folate.', cells: [200, 200, 200, 300, 400, 600, 800, 1000], preg: 1000, lact: 1000 },
-    { compound: 'Nicotinamide', unit: 'mg', table: 'UL Table 3', cells: [null, null, 150, 220, 350, 500, 700, 900], preg: null, lact: null },
-    { compound: 'Nicotinic Acid', unit: 'mg', table: 'UL Table 3', cells: [null, null, 2, 3, 4, 6, 8, 10], preg: null, lact: null },
+    { compound: 'Nicotinamide', unit: 'mg', table: 'UL Table 3', note: 'SCF 2002 states no restriction to supplemental forms for nicotinamide (unlike free nicotinic acid). Not set for pregnancy or lactation.', cells: [null, null, 150, 220, 350, 500, 700, 900], preg: null, lact: null },
+    // SCF (2002a), Opinion on the UL of Nicotinic Acid and Nicotinamide: "The upper level for free nicotinic acid has been
+    // derived from data on flushing ... Flushing has not been reported for the bound forms of nicotinic acid that are
+    // present in foods." So this limits free (supplemental/fortified) nicotinic acid, not niacin in ordinary food. No
+    // equivalent restriction is stated for nicotinamide, so that row is left unflagged.
+    { compound: 'Nicotinic Acid', unit: 'mg', table: 'UL Table 3', supplementalOnly: true, note: 'Free nicotinic acid (supplements, fortified foods): SCF 2002 derived it from flushing, and "flushing has not been reported for the bound forms of nicotinic acid that are present in foods". Not set for pregnancy or lactation.', cells: [null, null, 2, 3, 4, 6, 8, 10], preg: null, lact: null },
     { compound: 'Retinol', unit: 'µg RE', table: 'UL Table 3', note: 'Preformed vitamin A (retinol and retinyl esters).', cells: [600, 600, 800, 1100, 1500, 2000, 2600, 3000], preg: 3000, lact: 3000 },
     { compound: 'Vitamin B6', unit: 'mg', table: 'UL Table 3', cells: [2.2, 2.5, 3.2, 4.5, 6.1, 8.6, 10.7, 12], preg: 12, lact: 12 },
     { compound: 'Vitamin E (Total)', unit: 'mg', table: 'UL Table 3', note: 'Review of this UL is ongoing.', cells: [null, null, 100, 120, 160, 220, 260, 300], preg: 300, lact: 300 },

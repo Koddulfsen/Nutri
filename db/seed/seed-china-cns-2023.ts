@@ -80,6 +80,8 @@ interface SeedRow {
   unit: string;
   isPercentOfEnergy?: boolean;
   activityLevel?: Activity | null;
+  /** The limit applies only to supplements / fortified foods, not to the nutrient in ordinary food. */
+  supplementalOnly?: boolean;
   valueNote?: string | null;
 }
 
@@ -293,15 +295,30 @@ function buildAllRows(): SeedRow[] {
   pushCells(rows, 'Vitamin C', { valueType: 'CDRR', cells: PI.vitaminC.cells, preg: PI.vitaminC.preg, unit: 'mg' }, BAND_ROWS, 'PI-NCD: intake to reach.');
 
   // ─── UL (附表 3-10) — from the verified printed transcription ───
+  /**
+   * 附表 3-10 prints one column per nutrient, but three of those limits apply to a FORM, not to the nutrient total —
+   * each chapter says so explicitly, and storing them on the total compound would flag food that the limit does not
+   * cover (carrots against the vitamin A UL, spinach against the folate UL). Quotes in UL_SCOPE below.
+   */
   const UL_COMPOUND: Record<string, string> = {
     calcium: 'Calcium', phosphorus: 'Phosphorus', iron: 'Iron', iodine: 'Iodine', zinc: 'Zinc', selenium: 'Selenium',
-    copper: 'Copper', fluoride: 'Fluoride', manganese: 'Manganese', molybdenum: 'Molybdenum', vitaminA: 'Vitamin A',
-    vitaminD: 'Vitamin D', vitaminE: 'Vitamin E', niacin: 'Niacin', nicotinamide: 'Nicotinamide', vitaminB6: 'Vitamin B6',
-    folate: 'Folate', choline: 'Choline', vitaminC: 'Vitamin C',
+    copper: 'Copper', fluoride: 'Fluoride', manganese: 'Manganese', molybdenum: 'Molybdenum', vitaminA: 'Retinol',
+    vitaminD: 'Vitamin D', vitaminE: 'Vitamin E', niacin: 'Nicotinic Acid', nicotinamide: 'Nicotinamide', vitaminB6: 'Vitamin B6',
+    folate: 'Folic Acid (Synthetic)', choline: 'Choline', vitaminC: 'Vitamin C',
+  };
+  const UL_SCOPE: Record<string, { note: string; supplementalOnly?: boolean }> = {
+    vitaminA: { note: '第十一章第一节 (printed p. 332): "维生素A的UL只针对视黄醇" — the UL applies to retinol only, because carotenoid toxicity is very low; "因此，维生素A的UL数值单位使用 µg/d" (hence µg/d, not µg RAE).' },
+    folate: { note: '第十二章第五节 (printed p. 394): "过量摄入天然食物叶酸未发现不良反应，叶酸的 UL 根据食物强化和补充剂的合成叶酸摄入量（µg/d）计算" — computed from synthetic folic acid in fortified foods and supplements; natural food folate showed no adverse effects.', supplementalOnly: true },
+    niacin: { note: '第十二章第三节 (printed p. 379): "食物中的烟酸不会引起摄入过量的不良反应。烟酸的不良反应多由于服用烟酸补充剂、强化食品所致" — niacin in food causes no adverse effects; the 35 mg NE UL is derived from the flushing LOAEL of nicotinic acid (烟酸, printed as a separate column from 烟酰胺 nicotinamide).', supplementalOnly: true },
+    nicotinamide: { note: '第十二章第三节 (printed p. 379): nicotinamide does not cause flushing; NOAEL 25 mg/kg bw/d with UF 5 gives the adult UL of 310 mg/d, the uncertainty factor chosen for "其作为营养素补充剂的安全性" (its safety as a nutrient supplement). The chapter does not restrict this UL to non-food sources, so it is not flagged supplement-only.' },
   };
   for (const [key, u] of Object.entries(TABLE_3_10_UL)) {
     if (new Set(u.preg).size !== 1) throw new Error(`UL ${key}: pregnancy cells differ; pushCells stores one`);
-    pushCells(rows, UL_COMPOUND[key], { valueType: 'UL', cells: u.cells, preg: u.preg[0], unit: u.unit }, BAND_ROWS, '附表 3-10.');
+    const scope = UL_SCOPE[key];
+    const before = rows.length;
+    pushCells(rows, UL_COMPOUND[key], { valueType: 'UL', cells: u.cells, preg: u.preg[0], unit: u.unit }, BAND_ROWS,
+      ['附表 3-10.', scope?.note].filter(Boolean).join(' '));
+    if (scope?.supplementalOnly) for (let i = before; i < rows.length; i++) rows[i].supplementalOnly = true;
   }
 
   // ─── OTHER FOOD COMPONENTS (附表 3-12) — adults, SPL -> CDRR floor, UL ───
@@ -398,13 +415,13 @@ async function seed() {
           age_min_months, age_max_months,
           sex, life_stage, value_type, activity_level,
           value, value_min, value_max, unit,
-          is_percent_of_energy, is_provisional, value_note
+          is_percent_of_energy, is_provisional, supplemental_only, value_note
         ) VALUES (
           ${idByName.get(resolveDbName(row.compoundName))}, ${SOURCE.regionCode}, ${source.id},
           ${row.ageMinMonths}, ${row.ageMaxMonths},
           ${row.sex}, ${row.lifeStage}, ${row.valueType}, ${row.activityLevel ?? null},
           ${row.value}, ${row.valueMin ?? null}, ${row.valueMax ?? null}, ${row.unit},
-          ${row.isPercentOfEnergy ?? false}, false, ${row.valueNote ?? null}
+          ${row.isPercentOfEnergy ?? false}, false, ${row.supplementalOnly ?? false}, ${row.valueNote ?? null}
         )`;
       n++;
     }

@@ -11472,7 +11472,7 @@
   "isPercentOfEnergy": false,
   "isProvisional": false,
   "supplementalOnly": false,
-  "note": null,
+  "note": "SCF 2002 states no restriction to supplemental forms for nicotinamide (unlike free nicotinic acid). Not set for pregnancy or lactation.",
   "from": "UL Table 3, Nicotinamide, 1-3 y"
  },
  {
@@ -11491,7 +11491,7 @@
   "isPercentOfEnergy": false,
   "isProvisional": false,
   "supplementalOnly": false,
-  "note": null,
+  "note": "SCF 2002 states no restriction to supplemental forms for nicotinamide (unlike free nicotinic acid). Not set for pregnancy or lactation.",
   "from": "UL Table 3, Nicotinamide, 4-6 y"
  },
  {
@@ -11510,7 +11510,7 @@
   "isPercentOfEnergy": false,
   "isProvisional": false,
   "supplementalOnly": false,
-  "note": null,
+  "note": "SCF 2002 states no restriction to supplemental forms for nicotinamide (unlike free nicotinic acid). Not set for pregnancy or lactation.",
   "from": "UL Table 3, Nicotinamide, 7-10 y"
  },
  {
@@ -11529,7 +11529,7 @@
   "isPercentOfEnergy": false,
   "isProvisional": false,
   "supplementalOnly": false,
-  "note": null,
+  "note": "SCF 2002 states no restriction to supplemental forms for nicotinamide (unlike free nicotinic acid). Not set for pregnancy or lactation.",
   "from": "UL Table 3, Nicotinamide, 11-14 y"
  },
  {
@@ -11548,7 +11548,7 @@
   "isPercentOfEnergy": false,
   "isProvisional": false,
   "supplementalOnly": false,
-  "note": null,
+  "note": "SCF 2002 states no restriction to supplemental forms for nicotinamide (unlike free nicotinic acid). Not set for pregnancy or lactation.",
   "from": "UL Table 3, Nicotinamide, 15-17 y"
  },
  {
@@ -11567,7 +11567,7 @@
   "isPercentOfEnergy": false,
   "isProvisional": false,
   "supplementalOnly": false,
-  "note": null,
+  "note": "SCF 2002 states no restriction to supplemental forms for nicotinamide (unlike free nicotinic acid). Not set for pregnancy or lactation.",
   "from": "UL Table 3, Nicotinamide, Adults"
  },
  {
@@ -11586,7 +11586,7 @@
   "isPercentOfEnergy": false,
   "isProvisional": false,
   "supplementalOnly": false,
-  "note": null,
+  "note": "SCF 2002 states no restriction to supplemental forms for nicotinamide (unlike free nicotinic acid). Not set for pregnancy or lactation.",
   "from": "UL Table 3, Nicotinamide, 1-3 y"
  },
  {
@@ -11605,7 +11605,7 @@
   "isPercentOfEnergy": false,
   "isProvisional": false,
   "supplementalOnly": false,
-  "note": null,
+  "note": "SCF 2002 states no restriction to supplemental forms for nicotinamide (unlike free nicotinic acid). Not set for pregnancy or lactation.",
   "from": "UL Table 3, Nicotinamide, 4-6 y"
  },
  {
@@ -11624,7 +11624,7 @@
   "isPercentOfEnergy": false,
   "isProvisional": false,
   "supplementalOnly": false,
-  "note": null,
+  "note": "SCF 2002 states no restriction to supplemental forms for nicotinamide (unlike free nicotinic acid). Not set for pregnancy or lactation.",
   "from": "UL Table 3, Nicotinamide, 7-10 y"
  },
  {
@@ -11643,7 +11643,7 @@
   "isPercentOfEnergy": false,
   "isProvisional": false,
   "supplementalOnly": false,
-  "note": null,
+  "note": "SCF 2002 states no restriction to supplemental forms for nicotinamide (unlike free nicotinic acid). Not set for pregnancy or lactation.",
   "from": "UL Table 3, Nicotinamide, 11-14 y"
  },
  {
@@ -11662,7 +11662,7 @@
   "isPercentOfEnergy": false,
   "isProvisional": false,
   "supplementalOnly": false,
-  "note": null,
+  "note": "SCF 2002 states no restriction to supplemental forms for nicotinamide (unlike free nicotinic acid). Not set for pregnancy or lactation.",
   "from": "UL Table 3, Nicotinamide, 15-17 y"
  },
  {
@@ -11681,7 +11681,7 @@
   "isPercentOfEnergy": false,
   "isProvisional": false,
   "supplementalOnly": false,
-  "note": null,
+  "note": "SCF 2002 states no restriction to supplemental forms for nicotinamide (unlike free nicotinic acid). Not set for pregnancy or lactation.",
   "from": "UL Table 3, Nicotinamide, Adults"
  },
  {
@@ -11699,8 +11699,8 @@
   "unit": "mg",
   "isPercentOfEnergy": false,
   "isProvisional": false,
-  "supplementalOnly": false,
-  "note": null,
+  "supplementalOnly": true,
+  "note": "Free nicotinic acid (supplements, fortified foods): SCF 2002 derived it from flushing, and \"flushing has not been reported for the bound forms of nicotinic acid that are present in foods\". Not set for pregnancy or lactation.",
   "from": "UL Table 3, Nicotinic Acid, 1-3 y"
  },
  {
@@ -11718,8 +11718,8 @@
   "unit": "mg",
   "isPercentOfEnergy": false,
   "isProvisional": false,
-  "supplementalOnly": false,
-  "note": null,
+  "supplementalOnly": true,
+  "note": "Free nicotinic acid (supplements, fortified foods): SCF 2002 derived it from flushing, and \"flushing has not been reported for the bound forms of nicotinic acid that are present in foods\". Not set for pregnancy or lactation.",
   "from": "UL Table 3, Nicotinic Acid, 4-6 y"
  },
  {
@@ -11737,8 +11737,8 @@
   "unit": "mg",
   "isPercentOfEnergy": false,
   "isProvisional": false,
-  "supplementalOnly": false,
-  "note": null,
+  "supplementalOnly": true,
+  "note": "Free nicotinic acid (supplements, fortified foods): SCF 2002 derived it from flushing, and \"flushing has not been reported for the bound forms of nicotinic acid that are present in foods\". Not set for pregnancy or lactation.",
   "from": "UL Table 3, Nicotinic Acid, 7-10 y"
  },
  {
@@ -11756,8 +11756,8 @@
   "unit": "mg",
   "isPercentOfEnergy": false,
   "isProvisional": false,
-  "supplementalOnly": false,
-  "note": null,
+  "supplementalOnly": true,
+  "note": "Free nicotinic acid (supplements, fortified foods): SCF 2002 derived it from flushing, and \"flushing has not been reported for the bound forms of nicotinic acid that are present in foods\". Not set for pregnancy or lactation.",
   "from": "UL Table 3, Nicotinic Acid, 11-14 y"
  },
  {
@@ -11775,8 +11775,8 @@
   "unit": "mg",
   "isPercentOfEnergy": false,
   "isProvisional": false,
-  "supplementalOnly": false,
-  "note": null,
+  "supplementalOnly": true,
+  "note": "Free nicotinic acid (supplements, fortified foods): SCF 2002 derived it from flushing, and \"flushing has not been reported for the bound forms of nicotinic acid that are present in foods\". Not set for pregnancy or lactation.",
   "from": "UL Table 3, Nicotinic Acid, 15-17 y"
  },
  {
@@ -11794,8 +11794,8 @@
   "unit": "mg",
   "isPercentOfEnergy": false,
   "isProvisional": false,
-  "supplementalOnly": false,
-  "note": null,
+  "supplementalOnly": true,
+  "note": "Free nicotinic acid (supplements, fortified foods): SCF 2002 derived it from flushing, and \"flushing has not been reported for the bound forms of nicotinic acid that are present in foods\". Not set for pregnancy or lactation.",
   "from": "UL Table 3, Nicotinic Acid, Adults"
  },
  {
@@ -11813,8 +11813,8 @@
   "unit": "mg",
   "isPercentOfEnergy": false,
   "isProvisional": false,
-  "supplementalOnly": false,
-  "note": null,
+  "supplementalOnly": true,
+  "note": "Free nicotinic acid (supplements, fortified foods): SCF 2002 derived it from flushing, and \"flushing has not been reported for the bound forms of nicotinic acid that are present in foods\". Not set for pregnancy or lactation.",
   "from": "UL Table 3, Nicotinic Acid, 1-3 y"
  },
  {
@@ -11832,8 +11832,8 @@
   "unit": "mg",
   "isPercentOfEnergy": false,
   "isProvisional": false,
-  "supplementalOnly": false,
-  "note": null,
+  "supplementalOnly": true,
+  "note": "Free nicotinic acid (supplements, fortified foods): SCF 2002 derived it from flushing, and \"flushing has not been reported for the bound forms of nicotinic acid that are present in foods\". Not set for pregnancy or lactation.",
   "from": "UL Table 3, Nicotinic Acid, 4-6 y"
  },
  {
@@ -11851,8 +11851,8 @@
   "unit": "mg",
   "isPercentOfEnergy": false,
   "isProvisional": false,
-  "supplementalOnly": false,
-  "note": null,
+  "supplementalOnly": true,
+  "note": "Free nicotinic acid (supplements, fortified foods): SCF 2002 derived it from flushing, and \"flushing has not been reported for the bound forms of nicotinic acid that are present in foods\". Not set for pregnancy or lactation.",
   "from": "UL Table 3, Nicotinic Acid, 7-10 y"
  },
  {
@@ -11870,8 +11870,8 @@
   "unit": "mg",
   "isPercentOfEnergy": false,
   "isProvisional": false,
-  "supplementalOnly": false,
-  "note": null,
+  "supplementalOnly": true,
+  "note": "Free nicotinic acid (supplements, fortified foods): SCF 2002 derived it from flushing, and \"flushing has not been reported for the bound forms of nicotinic acid that are present in foods\". Not set for pregnancy or lactation.",
   "from": "UL Table 3, Nicotinic Acid, 11-14 y"
  },
  {
@@ -11889,8 +11889,8 @@
   "unit": "mg",
   "isPercentOfEnergy": false,
   "isProvisional": false,
-  "supplementalOnly": false,
-  "note": null,
+  "supplementalOnly": true,
+  "note": "Free nicotinic acid (supplements, fortified foods): SCF 2002 derived it from flushing, and \"flushing has not been reported for the bound forms of nicotinic acid that are present in foods\". Not set for pregnancy or lactation.",
   "from": "UL Table 3, Nicotinic Acid, 15-17 y"
  },
  {
@@ -11908,8 +11908,8 @@
   "unit": "mg",
   "isPercentOfEnergy": false,
   "isProvisional": false,
-  "supplementalOnly": false,
-  "note": null,
+  "supplementalOnly": true,
+  "note": "Free nicotinic acid (supplements, fortified foods): SCF 2002 derived it from flushing, and \"flushing has not been reported for the bound forms of nicotinic acid that are present in foods\". Not set for pregnancy or lactation.",
   "from": "UL Table 3, Nicotinic Acid, Adults"
  },
  {
