@@ -55,7 +55,7 @@ exist to keep them out. This project is built to repel them.
 | **Authentication** | ✅ **WORKS.** Supabase Auth is live — `auth` schema present, 1 confirmed user, `/auth/v1/settings` 200, sign-in/sign-up/OAuth/reset all wired in `app/(auth)/actions.ts` |
 | Authorization | ✅ **AUDITED 2026-09-23.** Admin routes/pages gated; the app still connects as the table owner so RLS doesn't cover its own queries, but all 27 files touching user-scoped tables were checked and every one filters by the authenticated `userId` — no exploitable ownership gaps found |
 | Privacy compliance | Erasure and export both work for real (2.8 done 2026-09-23) — immediate deletion, synchronous JSON download, verified end-to-end. `life_stage` (Article 9) is encrypted at rest with its key in a separate table (2.5 done); consent has a real UI (`ConsentManager.tsx`) with 7 flags including dedicated Article 9 consents (`sensitiveHealthData`, `aiProcessing`), auto-created for every new user. DPIA and privacy policy (5.1, 5.2) still not written — see `docs/DATA-SCOPE-DECISIONS.md` |
-| Tests | Vitest works (`lib/food-health` passes). The 13 legacy Jest files still fail; 4 assert nothing |
+| Tests | ✅ Jest fully retired 2026-09-24 — 6 files ported to Vitest, 1 deleted (tested dead code). The 4 "assert-nothing" files (console.assert, never fails the process) fixed: 2 deleted (dead/phantom-module), 2 rewritten as real suites. Full suite: 235+ passing. Known pre-existing gap, out of this pass's scope: `__tests__/lib/security/request-metadata.test.ts` has 8 real failures (anonymizeIP IPv6 handling, parseUserAgent device/OS detection) |
 | Deployment | Repo `Koddulfsen/Nutri`; `origin/main` synced 2026-09-17 (`04a5c05`). No `basePath` — the app is served at the root (verified 2026-09-14: `/` 200, `/nutri` 404) |
 
 **Alpha access is gated by `app/components/AlphaGate.tsx`.** Signups are open in Supabase
@@ -271,7 +271,23 @@ Checkboxes are the timeline. Update them as work lands.
 - [ ] Structure verdict: **cleanup in place. Do NOT start a new folder** *(S7)*
 
 ### Phase 4 — Verify
-- [ ] **4.1** Port Jest→Vitest; delete the 4 fake test files
+- [x] **4.1** Port Jest→Vitest; delete the 4 fake test files *(done 2026-09-24)* — 7 legacy
+      Jest files found (not 13; re-verified by grep for `@jest/globals`/`jest.mock`), 6 ported
+      to Vitest (`profiles`, `consent`, `audit`, `api-keys` DAL tests, `audit-logger`,
+      `auth-server-actions`), 1 deleted (`lib/security/rate-limit.test.ts` — tested
+      `lib/security/rate-limit.ts`, which had zero live importers, fully superseded by the
+      Postgres-backed `lib/rate-limit/index.ts`). Several ported files had real bugs, not just
+      stale syntax: `profiles`/`consent`/`audit`/`api-keys` all mocked `getSession()` when the
+      real DAL calls `getUser()` (every "success" test was silently exercising the Unauthorized
+      path); `audit-logger` asserted the pre-anonymization raw IP. The 4 "assert nothing" files
+      were `console.assert()` scripts (never fail the process) — `jwt.ts`/its test deleted
+      (zero live importers, a pre-Supabase-migration leftover per `docs/AUDIT-2026-08-11.md`
+      A5), `password.test.ts`/`totp.test.ts` rewritten as real Vitest suites (both test live,
+      security-critical code), `redis/rate-limit.test.ts` deleted (imported `@/lib/redis/rate-limit`,
+      which doesn't exist). Converting `api-keys.test.ts` surfaced a real production bug —
+      `extractKeyPrefix()` split on `_`, but base64url's alphabet includes `_`, so ~39% of
+      generated API keys threw "Invalid API key format" — fixed and covered by a 50-iteration
+      regression test using real crypto
 - [ ] **4.2** Test the security layer first — authorization, ownership, encryption round-trip,
       deletion cascade. These are where silent failure means breach
 - [x] **4.3** Conversion factors *(done 2026-08-22)* — 23 rows fixed (17 FRIDA + 6 DUKE) via
