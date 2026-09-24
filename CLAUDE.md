@@ -55,7 +55,7 @@ exist to keep them out. This project is built to repel them.
 | **Authentication** | ✅ **WORKS.** Supabase Auth is live — `auth` schema present, 1 confirmed user, `/auth/v1/settings` 200, sign-in/sign-up/OAuth/reset all wired in `app/(auth)/actions.ts` |
 | Authorization | ✅ **AUDITED 2026-09-23.** Admin routes/pages gated; the app still connects as the table owner so RLS doesn't cover its own queries, but all 27 files touching user-scoped tables were checked and every one filters by the authenticated `userId` — no exploitable ownership gaps found |
 | Privacy compliance | Erasure and export both work for real (2.8 done 2026-09-23) — immediate deletion, synchronous JSON download, verified end-to-end. `life_stage` (Article 9) is encrypted at rest with its key in a separate table (2.5 done); consent has a real UI (`ConsentManager.tsx`) with 7 flags including dedicated Article 9 consents (`sensitiveHealthData`, `aiProcessing`), auto-created for every new user. DPIA and privacy policy (5.1, 5.2) still not written — see `docs/DATA-SCOPE-DECISIONS.md` |
-| Tests | ✅ Jest fully retired 2026-09-24 — 6 files ported to Vitest, 1 deleted (tested dead code). The 4 "assert-nothing" files (console.assert, never fails the process) fixed: 2 deleted (dead/phantom-module), 2 rewritten as real suites. Full suite: 235+ passing. Known pre-existing gap, out of this pass's scope: `__tests__/lib/security/request-metadata.test.ts` has 8 real failures (anonymizeIP IPv6 handling, parseUserAgent device/OS detection) |
+| Tests | ✅ Jest fully retired 2026-09-24 — 6 files ported to Vitest, 1 deleted (tested dead code). The 4 "assert-nothing" files (console.assert, never fails the process) fixed: 2 deleted (dead/phantom-module), 2 rewritten as real suites. `request-metadata.test.ts`'s 8 failures also fixed 2026-09-24 — see 2.7. Full suite: 242/243 passing (the 1 remaining failure is a live Supabase email-send rate limit hit by repeated test runs, not a code bug) |
 | Deployment | Repo `Koddulfsen/Nutri`; `origin/main` synced 2026-09-17 (`04a5c05`). No `basePath` — the app is served at the root (verified 2026-09-14: `/` 200, `/nutri` 404) |
 
 **Alpha access is gated by `app/components/AlphaGate.tsx`.** Signups are open in Supabase
@@ -218,7 +218,7 @@ Checkboxes are the timeline. Update them as work lands.
       (`lib/services/daily-value-service.life-stage-encryption.test.ts`). See
       `docs/DATA-SCOPE-DECISIONS.md` for why `life_stage` was kept instead of dropped
 - [x] **2.6** Fail-open trio *(A7, A8)* — Postgres rate limiter (`lib/rate-limit/`), fails **closed** on auth; MFA verify now 401 + 5/15min lockout. Session-version (A10) still open, belongs with 2.2
-- [x] **2.7** `anonymizeIP` fixed (IPv6 expansion, IPv4-mapped, 10 cases pass) and wired into **all three** audit write paths. `parseUserAgent` still open
+- [x] **2.7** `anonymizeIP` fixed (IPv6 expansion, IPv4-mapped, 10 cases pass) and wired into **all three** audit write paths. `parseUserAgent` fixed 2026-09-24 — iPhone/iPad were misdetected as macOS (their UA says "like Mac OS X", never literally "iOS"), Android was misdetected as Linux (its UA contains "Linux"), iPad was misdetected as mobile (its UA contains "Mobile/..."). Reordered the checks; all 39 tests in `request-metadata.test.ts` pass
 - [x] **2.8** Real erasure + export jobs; add the 5 missing FKs *(P1, P2, P3)* *(done
       2026-09-23)* — `delete-account` now performs immediate, synchronous, real deletion
       (no grace period, per `docs/DATA-SCOPE-DECISIONS.md`): explicitly deletes
