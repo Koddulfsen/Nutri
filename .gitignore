@@ -64,12 +64,6 @@ dv-sources/**/*.pdf
 # @/lib/data/core-compounds.
 /data/
 
-# 799 KB of compound definitions superseded by the database. Nothing imports
-# it — verified by grep for '@/lib/data/compounds'; the hits are all
-# db/schema/compounds.ts via a relative './compounds'. Slated for deletion in
-# CLAUDE.md 3.3; ignored meanwhile so it does not get committed by accident.
-lib/data/compounds.ts
-
 # IDE
 .vscode
 .idea
