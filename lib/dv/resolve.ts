@@ -18,6 +18,7 @@
 import { conversionBetween, parseUnit } from '../food-health/units';
 import { ALPHA_INDEPENDENT_REGIONS, NUTRIENT_COLLAPSES } from './source-provenance';
 import { formLinksOf } from './compound-links';
+import { qualifiersInterchangeable, rulingFor, isRuledQualifier } from './unit-rulings';
 
 export type ValueClass = 'REC' | 'EAR' | 'UL';
 
@@ -86,9 +87,9 @@ export const median = (xs: number[]): number => {
 };
 
 /**
- * Convert to `to`, or null when the value cannot be expressed in it. Qualifiers describe accounting, not scale, so a
- * bare unit and a qualified one combine ('µg' with 'µg RAE'); two DIFFERENT qualifiers do not, because they count
- * different things (µg folic acid is not µg DFE).
+ * Mechanical conversion: scale only, no judgement about what a qualifier means. Two different qualifiers are refused
+ * outright (µg DFE is not µg RAE). Whether a BARE unit may be pooled with a qualified one depends on the nutrient and
+ * is not decidable here — use `convertFor`, which consults the per-compound rulings.
  */
 export function toUnit(value: number, from: string, to: string): number | null {
   const a = parseUnit(from);
@@ -98,21 +99,67 @@ export function toUnit(value: number, from: string, to: string): number | null {
   return f == null ? null : value * f;
 }
 
-/** The unit most rows already use — converting the minority loses the least. */
-function canonicalUnit(rows: DvRow[]): string {
-  const votes = new Map<string, number>();
-  for (const r of rows) votes.set(r.unit, (votes.get(r.unit) ?? 0) + 1);
-  return [...votes.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))[0][0];
+/**
+ * Convert within one nutrient, applying that nutrient's unit ruling (lib/dv/unit-rulings.ts). Returns the converted
+ * value, or a reason it cannot be converted — the reason is carried into `excluded` so a dropped source is always
+ * accounted for rather than silently missing.
+ */
+function convertFor(compound: string, value: number, from: string, to: string): { value: number } | { reason: string } {
+  const a = parseUnit(from);
+  const b = parseUnit(to);
+  if (a.qualifier !== b.qualifier) {
+    const ok = qualifiersInterchangeable(compound, a.qualifier, b.qualifier);
+    const name = (u: string) => u || 'the bare unit';
+    if (ok === null)
+      return { reason: `${name(from)} and ${name(to)} have no ruling for this nutrient, so they are not pooled — see lib/dv/unit-rulings.ts` };
+    if (ok === false)
+      return { reason: `${name(from)} is not ${name(to)} for this nutrient: ${rulingFor(compound, a.qualifier, b.qualifier)?.difference ?? ''}` };
+  }
+  const f = conversionBetween(a.magnitude, b.magnitude);
+  return f == null ? { reason: `cannot be expressed in ${to}` } : { value: value * f };
 }
 
-function aggregate(entries: Array<{ region: string; value: number; unit: string }>, excluded: ResolvedBar['excluded'], what: string) {
+/**
+ * The unit to express the bar in.
+ *
+ * Entries are grouped by what their qualifier MEANS for this nutrient — one group per quantity, with spellings the
+ * ruling calls equivalent folded together — and the largest group wins. A plain majority vote over unit strings
+ * would decide folate's bar by a coin flip between two bodies writing µg and two writing µg DFE, and silently drop
+ * whichever half lost. Ties go to the group with a stated basis, because a book that says what it is counting is the
+ * safer thing to build a target from.
+ */
+function chooseUnit(compound: string, entries: Array<{ region: string; unit: string }>): string {
+  const groups = new Map<string, { units: Map<string, number>; regions: Set<string>; qualified: boolean; known: boolean }>();
+  for (const e of entries) {
+    const q = parseUnit(e.unit).qualifier;
+    const key = [...groups.keys()].find((k) => qualifiersInterchangeable(compound, k, q) === true) ?? q;
+    const g = groups.get(key) ?? { units: new Map(), regions: new Set(), qualified: false, known: isRuledQualifier(compound, q) };
+    g.units.set(e.unit, (g.units.get(e.unit) ?? 0) + 1);
+    g.regions.add(e.region);
+    if (q) g.qualified = true;
+    groups.set(key, g);
+  }
+  const best = [...groups.values()].sort(
+    (a, b) =>
+      b.regions.size - a.regions.size ||
+      // A qualifier this nutrient has no ruling for is not a basis, it is an unknown — it should not win a tie
+      // against a plain unit just for carrying letters after the magnitude.
+      Number(b.known) - Number(a.known) ||
+      Number(b.qualified) - Number(a.qualified) ||
+      [...a.units.keys()][0].localeCompare([...b.units.keys()][0])
+  )[0];
+  // Within the winning group, the spelling most of its rows already use.
+  return [...best.units.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))[0][0];
+}
+
+function aggregate(compound: string, entries: Array<{ region: string; value: number; unit: string }>, excluded: ResolvedBar['excluded'], what: string) {
   if (!entries.length) return null;
-  const unit = canonicalUnit(entries.map((e) => ({ unit: e.unit }) as DvRow));
+  const unit = chooseUnit(compound, entries);
   const kept: Array<{ region: string; value: number }> = [];
   for (const e of entries) {
-    const v = toUnit(e.value, e.unit, unit);
-    if (v == null) { excluded.push({ region: e.region, valueType: what, unit: e.unit, reason: `cannot be expressed in ${unit}` }); continue; }
-    kept.push({ region: e.region, value: v });
+    const c = convertFor(compound, e.value, e.unit, unit);
+    if ('reason' in c) { excluded.push({ region: e.region, valueType: what, unit: e.unit, reason: c.reason }); continue; }
+    kept.push({ region: e.region, value: c.value });
   }
   if (!kept.length) return null;
   // A body can publish several rows for one demographic — Russia prints a separate protein and fat intake per
@@ -208,8 +255,8 @@ export function resolveBar(compound: string, allRows: DvRow[], formRows: Record<
   }
 
   const goalEntries = [...perRegionGoal.entries()].flatMap(([region, g]) => g.values.map((v) => ({ region, ...v })));
-  const goalAgg = aggregate(goalEntries, excluded, 'goal');
-  const diseaseFloor = aggregate(floors, excluded, 'disease floor');
+  const goalAgg = aggregate(compound, goalEntries, excluded, 'goal');
+  const diseaseFloor = aggregate(compound, floors, excluded, 'disease floor');
   const goalTypes = new Set([...perRegionGoal.values()].map((g) => g.type));
   const goal = goalAgg ? { ...goalAgg, type: (goalTypes.size === 1 ? [...goalTypes][0] : 'MIXED') as 'RDA' | 'AI' | 'MIXED' } : null;
 
@@ -218,22 +265,22 @@ export function resolveBar(compound: string, allRows: DvRow[], formRows: Record<
   for (const c of ceilings) {
     const cur = perRegionCeiling.get(c.region);
     if (!cur) { perRegionCeiling.set(c.region, c); continue; }
-    const inCur = toUnit(c.value, c.unit, cur.unit);
-    if (inCur != null && inCur < cur.value) perRegionCeiling.set(c.region, c);
+    const inCur = convertFor(compound, c.value, c.unit, cur.unit);
+    if ('value' in inCur && inCur.value < cur.value) perRegionCeiling.set(c.region, c);
   }
-  const limitAgg = aggregate([...perRegionCeiling.entries()].map(([region, c]) => ({ region, value: c.value, unit: c.unit })), excluded, 'limit');
+  const limitAgg = aggregate(compound, [...perRegionCeiling.entries()].map(([region, c]) => ({ region, value: c.value, unit: c.unit })), excluded, 'limit');
   const limit = limitAgg ? { ...limitAgg, from: [...new Set([...perRegionCeiling.values()].map((c) => c.from))] } : null;
 
-  const suppAgg = aggregate(suppCeilings, excluded, 'supplement limit');
+  const suppAgg = aggregate(compound, suppCeilings, excluded, 'supplement limit');
 
   let range: ResolvedBar['range'] = null;
   if (ranges.length) {
-    const unit = canonicalUnit(ranges.map((r) => ({ unit: r.unit }) as DvRow));
+    const unit = chooseUnit(compound, ranges);
     const mins: number[] = []; const maxs: number[] = []; const regions: string[] = [];
     for (const r of ranges) {
-      const lo = toUnit(r.min, r.unit, unit); const hi = toUnit(r.max, r.unit, unit);
-      if (lo == null || hi == null) { excluded.push({ region: r.region, valueType: 'range', unit: r.unit, reason: `cannot be expressed in ${unit}` }); continue; }
-      mins.push(lo); maxs.push(hi); regions.push(r.region);
+      const lo = convertFor(compound, r.min, r.unit, unit); const hi = convertFor(compound, r.max, r.unit, unit);
+      if ('reason' in lo || 'reason' in hi) { excluded.push({ region: r.region, valueType: 'range', unit: r.unit, reason: 'reason' in lo ? lo.reason : (hi as { reason: string }).reason }); continue; }
+      mins.push(lo.value); maxs.push(hi.value); regions.push(r.region);
     }
     if (mins.length) range = { min: median(mins), max: median(maxs), unit, sources: regions.sort() };
   }
@@ -248,8 +295,8 @@ export function resolveBar(compound: string, allRows: DvRow[], formRows: Record<
     if (agg) formLimits.push({ ...agg, compound: link.form, countsParentTotal: link.countsParentTotal, unitNote: link.unitNote });
   }
 
-  const shareGoal = aggregate(shareGoals, excluded, 'energy share goal');
-  const shareLimit = aggregate(shareCeilings, excluded, 'energy share limit');
+  const shareGoal = aggregate(compound, shareGoals, excluded, 'energy share goal');
+  const shareLimit = aggregate(compound, shareCeilings, excluded, 'energy share limit');
   const energyShare = shareGoal || shareLimit ? { goal: shareGoal, limit: shareLimit } : null;
 
   return { compound, goal, diseaseFloor, limit, range, energyShare, supplementLimit: suppAgg, formLimits, excluded };

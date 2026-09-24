@@ -26,7 +26,16 @@ drops, so the defects below are its own report, not a guess.
       *Check: `resolveBar` on those rows returns a gram goal from 2 bodies and lists the %E rows as
       excluded with a reason; a test covers it.*
 
-- [ ] **A2. Vitamin E splits on a qualifier that is probably cosmetic.** Six alpha bodies publish it,
+- [x] **A2. Vitamin E splits on a qualifier that is probably cosmetic.** *(fixed 2026-09-24 — and it was
+      not only the ruling.)* `parseUnit('mg α-TE')` returned magnitude **`mg α`**: the Greek α is not a
+      qualifier token, so the peeling stopped early and the magnitude was an unknown scale. Every one of
+      the 411 rows spelled that way converted to nothing and was dropped from every aggregate, in both
+      directions. `lib/food-health/units.ts` now folds α→alpha and β→beta before splitting, and
+      canonicalises `α-TE` / `alfa-TE` / `ATE` / `AT` to one token so three sources that agree are not
+      treated as three different quantities. RE and RAE are deliberately NOT folded — they count
+      β-carotene at 1/6 and 1/12. Food-side data was unaffected (0 `compound_sources.source_unit` rows
+      contain α; checked).
+      *Was:* Six alpha bodies publish it,
       three as `mg` and three as `mg α-TE`; `toUnit` refuses to cross a qualifier boundary, so three are
       dropped whichever spelling wins the majority. See B1 — this is not fixable by a blanket rule,
       because bare `mg` vs `mg NE` for niacin IS a different quantity.
@@ -45,7 +54,25 @@ drops, so the defects below are its own report, not a guess.
 
 ## B. The deep dive — units, one compound at a time
 
-- [ ] **B1. Rule on every qualifier pair, per compound, with a quote.** `mg` vs `mg α-TE`, `mg` vs
+- [x] **B1. Rule on every qualifier pair, per compound, with a quote.** *(done 2026-09-24)* —
+      `lib/dv/unit-rulings.ts` holds 5 rulings covering all 5 qualifier pairs that occur among the
+      independent sources, each with a quote and a locator per affected region (24 quotes):
+      **same quantity** — Vitamin E `mg` ≡ `mg α-TE` (every body means α-tocopherol), Retinol `µg` ≡
+      `µg RE`; **different quantities** — Folate `µg` vs `µg DFE` (DFE weights synthetic folic acid at
+      1.7), Niacin `mg` vs `mg NE` (NE counts tryptophan conversion), Vitamin A `µg` vs `µg RAE`.
+      A pair with no ruling is treated as different, so the safe direction is the default. The resolver
+      converts through `convertFor()`, which consults the ruling, and picks the bar's unit by grouping
+      entries by what they MEAN rather than by a majority vote over strings — a vote would have decided
+      folate's bar by a coin flip between two bodies writing µg and two writing µg DFE.
+      *Check: `npx tsx scripts/dv-verify/check-unit-rulings.ts` — 5 rulings / 5 pairs / 0 failures. It
+      fails on an unruled pair that occurs, a ruling that describes a pair that does not occur, a region
+      that publishes an affected unit and is not quoted, a quote with no locator, and a `same: false`
+      ruling that does not say what differs. Negative-tested on all five.*
+
+- [ ] **B2. China's own labels were wrong, found while gathering B1's evidence.** `seed-china-cns-2023.ts`
+      passed the basis as a *note* while the unit column stayed bare: niacin stored `mg` with the note
+      "mg NE.", vitamin E stored `mg` with the note "α-TE.". The book prints NE and α-TE. Corrected in
+      the seed and re-run. *Check: re-seed output, then the units in the database.* `mg` vs `mg α-TE`, `mg` vs
       `mg NE`, `µg` vs `µg RAE`, `µg` vs `µg DFE`, `mg` vs `mg ATE`. Each pair is either the same
       quantity under two names (vitamin E: the USA's bare mg IS α-tocopherol) or genuinely different
       (niacin: mg NE counts tryptophan conversion, bare mg does not). A blanket rule is wrong in both

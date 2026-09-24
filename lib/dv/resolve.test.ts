@@ -56,8 +56,8 @@ describe('resolveBar', () => {
     const bar = resolveBar('Vitamin A (RAE)', [
       row({ region: 'USA_CANADA', valueType: 'RDA', value: 900, unit: 'µg RAE' }),
       row({ region: 'JAPAN', valueType: 'RDA', value: 850, unit: 'µg RAE' }),
-      row({ region: 'CHINA', valueType: 'RDA', value: 770, unit: 'µg' }),
-      row({ region: 'RUSSIA', valueType: 'RDA', value: 0.9, unit: 'mg' }),
+      row({ region: 'CHINA', valueType: 'RDA', value: 770, unit: 'µg RAE' }),
+      row({ region: 'RUSSIA', valueType: 'RDA', value: 0.9, unit: 'mg RAE' }),
     ]);
     expect(bar.goal?.sources).toHaveLength(4);   // nothing dropped for spelling
     expect(bar.goal?.unit).toBe('µg RAE');
@@ -234,5 +234,41 @@ describe('a share of energy is not an amount', () => {
       row({ region: 'USA_CANADA', valueType: 'AMDR', value: 27.5, valueMin: 20, valueMax: 35, unit: '%', isPercentOfEnergy: true }),
     ]);
     expect(bar.range).toMatchObject({ min: 20, max: 35 });
+  });
+});
+
+describe('a qualifier means what the nutrient says it means', () => {
+  it('pools vitamin E across mg and mg α-TE, because every source means α-tocopherol', () => {
+    const bar = resolveBar('Vitamin E (Total)', [
+      row({ region: 'USA_CANADA', valueType: 'RDA', value: 15, unit: 'mg' }),
+      row({ region: 'DACH', valueType: 'AI', value: 8, unit: 'mg' }),
+      row({ region: 'CHINA', valueType: 'AI', value: 14, unit: 'mg' }),
+      row({ region: 'EU', valueType: 'AI', value: 13, unit: 'mg' }),
+      row({ region: 'JAPAN', valueType: 'AI', value: 6.5, unit: 'mg α-TE' }),
+      row({ region: 'KOREA', valueType: 'AI', value: 12, unit: 'mg α-TE' }),
+      row({ region: 'WHO_FAO', valueType: 'AI', value: 10, unit: 'mg α-TE' }),
+    ]);
+    expect(bar.goal?.sources).toHaveLength(7);   // nothing dropped for spelling
+    expect(bar.goal?.value).toBe(12);
+  });
+
+  it('refuses to pool folate µg with µg DFE, which counts folic acid at 1.7x', () => {
+    const bar = resolveBar('Folate (Total)', [
+      row({ region: 'USA_CANADA', valueType: 'RDA', value: 400, unit: 'µg DFE' }),
+      row({ region: 'CHINA', valueType: 'RDA', value: 400, unit: 'µg DFE' }),
+      row({ region: 'UK', valueType: 'RDA', value: 200, unit: 'µg' }),
+      row({ region: 'JAPAN', valueType: 'RDA', value: 240, unit: 'µg' }),
+    ]);
+    expect(bar.goal?.sources).toEqual(['CHINA', 'USA_CANADA']);
+    expect(bar.excluded.filter((e) => /is not/.test(e.reason)).map((e) => e.region).sort()).toEqual(['JAPAN', 'UK']);
+  });
+
+  it('refuses a pair nobody has ruled on, rather than guessing', () => {
+    const bar = resolveBar('Selenium', [
+      row({ region: 'USA_CANADA', valueType: 'RDA', value: 55, unit: 'µg' }),
+      row({ region: 'JAPAN', valueType: 'RDA', value: 30, unit: 'µg DFE' }),   // no ruling exists for selenium
+    ]);
+    expect(bar.goal?.sources).toEqual(['USA_CANADA']);
+    expect(bar.excluded.some((e) => /no ruling/.test(e.reason))).toBe(true);
   });
 });

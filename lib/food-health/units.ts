@@ -29,6 +29,16 @@ export const QUALIFIERS = [
   'alpha',
 ];
 
+/**
+ * One qualifier, one spelling. 'mg α-TE', 'mg alfa-TE' and 'mg ATE' are the same accounting — Japan, the Nordic
+ * council and Matvaretabellen just write it differently — and leaving them as three distinct strings makes a
+ * comparison refuse three sources that agree. RE and RAE are NOT folded together: they count carotenoids
+ * differently (1/6 vs 1/12 for β-carotene), so they are different quantities, not different spellings.
+ */
+const QUALIFIER_CANON: Record<string, string> = {
+  'alpha te': 'alpha-te', 'alfa te': 'alpha-te', ate: 'alpha-te', at: 'alpha-te', 'alpha t': 'alpha-te',
+};
+
 export function parseUnit(raw: string | null | undefined): { magnitude: string; qualifier: string } {
   if (!raw) return { magnitude: '', qualifier: '' };
 
@@ -36,6 +46,11 @@ export function parseUnit(raw: string | null | undefined): { magnitude: string; 
     .normalize('NFKC')          // collapses some compatibility forms
     .toLowerCase()
     .replace(/\u00b5|\u03bc/g, 'u')   // micro sign + Greek mu -> 'u'
+    .replace(/\u03b1/g, 'alpha')      // Greek alpha: 'mg α-TE' is 'mg alpha-TE'. Without this the token 'α'
+                                      // is not a known qualifier, the peeling stops, and the magnitude comes
+                                      // out as 'mg α' — an unknown scale, so the value converts to nothing
+                                      // and is dropped from every aggregate. 411 DV rows spell it this way.
+    .replace(/\u03b2/g, 'beta')
     .trim();
 
   // Strip the per-100g basis suffix in its several spellings.
@@ -49,7 +64,8 @@ export function parseUnit(raw: string | null | undefined): { magnitude: string; 
     qualifierParts.unshift(parts.pop() as string);
   }
 
-  return { magnitude: parts.join(' '), qualifier: qualifierParts.join(' ') };
+  const qualifier = qualifierParts.join(' ');
+  return { magnitude: parts.join(' '), qualifier: QUALIFIER_CANON[qualifier] ?? qualifier };
 }
 
 /**
