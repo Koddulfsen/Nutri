@@ -1,245 +1,86 @@
-# Database Setup Guide - Nutri Phase 1
+# Database Setup
 
-## Current Status
+**Status:** the database already exists and is in daily use. This doc is for
+setting up a **local development environment** against it, or understanding
+how migrations work — not for creating the database from scratch. The
+project's actual state lives in `CLAUDE.md` §1 (current status) and §7
+(patterns/commands); this file is deliberately narrower and defers to that
+doc rather than duplicating it, so it can't drift out of sync again the way
+the old version of this file did.
 
-✅ **COMPLETED:**
-- Database schema files created (9 files in `db/schema/`)
-- Migrations generated (`drizzle/0000_windy_meltdown.sql`)
-- 11 tables defined (280 compounds, citations, users, audit, etc.)
-- 26 indexes optimized for performance
-- All foreign key relationships configured
+## Where the database lives
 
-❌ **REQUIRED BEFORE PROCEEDING:**
-- Supabase project must be created
-- DATABASE_URL must be configured in `.env`
+Supabase Postgres 17.6, project `knwfnixfanmydbeatamu`, **eu-west-1** (EU
+region — this matters, the app stores Article 9 GDPR data). See `CLAUDE.md`
+§7 "Local environment" for the full connection details.
 
----
+Two connection strings are configured in `.env`, on purpose:
+- `DATABASE_URL` — transaction pooler, port **6543**. What the running app uses.
+- `MIGRATION_DATABASE_URL` — session mode, port **5432**. What `drizzle-kit`,
+  `psql`, and bulk data loaders use. Route anything long-running or
+  schema-changing through this one, not the pooler.
 
-## Setup Instructions
+## First-time local setup
 
-### Step 1: Create Supabase Project
+1. Get `.env` from Jens (or 1Password/wherever secrets are kept) — it is
+   gitignored and not reconstructable from this repo alone.
+2. `npm install`
+3. `npx next dev -p 3003` — the dev server always runs on port 3003.
+4. Confirm you're actually talking to the real database:
+   ```bash
+   npm run db:studio
+   ```
+   If this doesn't show real data (tables with rows, not just empty schema),
+   stop and check `.env` before doing anything else.
 
-1. Go to https://supabase.com and sign in/sign up
-2. Click "New Project"
-3. Fill in project details:
-   - **Name:** Nutri (or your preferred name)
-   - **Database Password:** (generate a strong password - SAVE THIS!)
-   - **Region:** Choose closest to your location
-   - **Pricing Plan:** Free tier is sufficient for Phase 1 development
+## Making a schema change
 
-### Step 2: Get Database Connection String
+1. Edit the relevant file under `db/schema/`.
+2. `npm run db:generate` — this diffs your schema against the last migration
+   and writes a new SQL file to `drizzle/`.
+3. **Read the generated SQL before applying it.** `drizzle-kit` sometimes
+   asks whether a column change is a create/drop or a rename — get this
+   wrong and you silently lose data. If the change involves transforming
+   existing data (not just adding/dropping a column), the generated
+   migration usually needs hand-editing — see `drizzle/0055_supreme_archangel.sql`
+   for an example of splitting a migration into "add column" now, an
+   application-level backfill script, then "drop old column" once the
+   backfill is verified.
+4. `npm run db:migrate` — applies it.
+5. Verify: query the live table structure directly and confirm it matches
+   what the schema file says, in both directions (no column the schema
+   doesn't know about, no column the schema expects that isn't there).
+   `psql "$MIGRATION_DATABASE_URL" -c '\d table_name'` is the fastest way.
 
-1. In Supabase dashboard, go to **Project Settings** (gear icon)
-2. Click **Database** in left sidebar
-3. Scroll to **Connection string** section
-4. Select **URI** tab
-5. Copy the connection string (format: `postgresql://postgres:[password]@[host]:5432/postgres`)
-6. Replace `[password]` with your actual database password from Step 1
+Don't use `npm run db:push` against this database — it's for quick local
+iteration on a throwaway database, not for a database with real user data
+in it. It skips the migration history and any hand-editing step above.
 
-### Step 3: Configure Environment Variables
+## What NOT to trust from an old comment or doc
 
-1. Open `/home/kodd/VibeWiz/Projects/Nutri/.env`
-2. Add your Supabase credentials:
-
-```env
-# Supabase Configuration
-NEXT_PUBLIC_SUPABASE_URL=https://[your-project-ref].supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=[your-anon-key]
-SUPABASE_SERVICE_ROLE_KEY=[your-service-role-key]
-DATABASE_URL=postgresql://postgres:[password]@[host]:5432/postgres
-```
-
-**Where to find each value:**
-- **NEXT_PUBLIC_SUPABASE_URL:** Project Settings > API > Project URL
-- **NEXT_PUBLIC_SUPABASE_ANON_KEY:** Project Settings > API > Project API keys > anon public
-- **SUPABASE_SERVICE_ROLE_KEY:** Project Settings > API > Project API keys > service_role (⚠️ secret!)
-- **DATABASE_URL:** Project Settings > Database > Connection string > URI
-
-### Step 4: Apply Database Migrations
-
-Once environment variables are configured, run:
-
-```bash
-cd /home/kodd/VibeWiz/Projects/Nutri
-npm run db:migrate
-```
-
-This will:
-- Create 4 PostgreSQL ENUM types
-- Create 11 database tables
-- Create 26 indexes for query optimization
-- Set up all foreign key relationships
-
-### Step 5: Verify Database Setup
-
-Run Drizzle Studio to visually inspect your database:
-
-```bash
-npm run db:studio
-```
-
-Or verify tables were created:
-
-```sql
--- In Supabase SQL Editor
-SELECT table_name
-FROM information_schema.tables
-WHERE table_schema = 'public'
-ORDER BY table_name;
-```
-
-Expected tables (11 total):
-1. `api_keys`
-2. `audit_log`
-3. `compound_citations`
-4. `compound_sources`
-5. `compound_validation_ranges`
-6. `compounds`
-7. `food_categories`
-8. `medication_interactions`
-9. `research_citations`
-10. `user_consent`
-11. `user_profiles`
-
----
-
-## What Was Built (Wave 1 - Database Foundation)
-
-### Schema Files Created
-
-```
-/home/kodd/VibeWiz/Projects/Nutri/db/
-├── schema/
-│   ├── enums.ts          # 4 PostgreSQL ENUM types
-│   ├── compounds.ts      # Compounds + compound sources tables
-│   ├── research.ts       # Research citations + junction table
-│   ├── categories.ts     # Food categories (5-level hierarchy)
-│   ├── interactions.ts   # Medication interactions
-│   ├── validation.ts     # Compound validation ranges
-│   ├── users.ts          # User profiles, API keys, consent
-│   ├── audit.ts          # Audit log (HIPAA compliance)
-│   ├── relations.ts      # CRITICAL: All FK relationships
-│   └── index.ts          # Schema exports
-└── index.ts              # Database client with connection pooling
-```
-
-### Database Architecture
-
-**Performance Targets:**
-- Compound lookups: <50ms p95
-- Search queries: <100ms p95
-- API responses: <200ms p95
-
-**Security Features:**
-- Row-Level Security (RLS) for user data isolation
-- Data Encryption Key (DEK) storage for E2EE (Phase 3)
-- Audit logging (6-year HIPAA retention)
-- bcrypt hashed API keys
-
-**Caching Strategy:**
-- 4-layer caching (Browser → CDN → Redis → PostgreSQL)
-- Redis cache keys defined in architecture
-- IndexedDB for offline access
-
-### Migration File
-
-Generated migration: `drizzle/0000_windy_meltdown.sql`
-- 11 tables
-- 26 indexes (B-tree, GIN, partial)
-- 7 foreign keys with proper CASCADE behaviors
-- 4 CHECK constraints for data validation
-- 6 UNIQUE constraints
-
----
-
-## Next Steps After Database Setup
-
-### Wave 2: Data Population (Tasks 14-21)
-
-Once migrations are applied, you'll need to:
-
-1. **Seed 280 compounds** (manual curation: $8,100 investment)
-   - Source: USDA FoodData Central + research
-   - File: `db/seed/compounds.ts`
-
-2. **Seed ~2,500 research citations** (PubMed E-utilities)
-   - File: `db/seed/research.ts`
-
-3. **Seed 18 medication interactions**
-   - File: `db/seed/interactions.ts`
-
-4. **Seed 280 validation ranges**
-   - File: `db/seed/validation.ts`
-
-5. **Create 20-25 test users**
-   - File: `db/seed/users.ts`
-
-6. **Seed ~100 food categories**
-   - File: `db/seed/categories.ts`
-
-### Wave 3: Caching & Optimization (Tasks 22-24)
-
-- Configure Upstash Redis
-- Implement cache-aside patterns
-- Test cache performance (target >85% hit rate)
-
-### Wave 4: Testing & Validation (Tasks 25-29)
-
-- Unit tests for queries
-- Integration tests for APIs
-- RLS policy verification
-- Performance benchmarks
-- Security audit
-
----
+This codebase has a documented history of comments and docs asserting
+things that were never actually implemented — see `CLAUDE.md` §0 ("What a
+parasite is"). Specifically for the database: nothing in `db/schema/` should
+be assumed to be encrypted, retained on a schedule, or covered by
+row-level-security just because a comment says so. Check `CLAUDE.md`'s trust
+ledger (§4) for what's actually been verified, or verify it yourself against
+the live database before repeating a claim.
 
 ## Troubleshooting
 
-### Error: "DATABASE_URL is not set"
+**"DATABASE_URL environment variable is not set"** — usually means a script
+was run with `npx tsx` directly rather than through an npm script, and it's
+missing `import 'dotenv/config'` at the top, or `.env` genuinely isn't
+present. Next.js itself loads `.env` automatically; standalone scripts do
+not.
 
-**Solution:** Follow Step 2 and Step 3 above to configure environment variables.
+**A migration you expected to be applied doesn't show up** — check
+`drizzle.__drizzle_migrations` (the table Drizzle uses to track what's been
+applied) against `drizzle/meta/_journal.json` (what's recorded locally).
+These have been out of sync before. Don't assume they match; query both.
 
-### Error: "Connection refused" or "timeout"
-
-**Possible causes:**
-1. Database password is incorrect in DATABASE_URL
-2. Supabase project is paused (Free tier pauses after inactivity)
-3. IP address is not allowed (check Supabase Network restrictions)
-
-**Solution:**
-- Verify password matches Supabase project
-- Wake up project by visiting Supabase dashboard
-- Check Project Settings > Database > Connection Pooling
-
-### Error: "relation already exists"
-
-**Solution:**
-- You've already run migrations. To reset:
-  ```sql
-  -- In Supabase SQL Editor, CAREFUL - this deletes ALL data
-  DROP SCHEMA public CASCADE;
-  CREATE SCHEMA public;
-  GRANT ALL ON SCHEMA public TO postgres;
-  GRANT ALL ON SCHEMA public TO public;
-  ```
-- Then re-run: `npm run db:migrate`
-
-### Migration fails with foreign key error
-
-**Solution:**
-- Ensure migrations are applied in order (Drizzle handles this automatically)
-- Check that all referenced tables exist before creating foreign keys
-
----
-
-## Reference Documentation
-
-- **Architecture:** `.wiz/phases/phase-1-browse-compounds/architecture.md`
-- **DRD:** `.wiz/phases/phase-1-browse-compounds/phase-1-drd.md`
-- **TODO:** `.wiz/phases/phase-1-browse-compounds/TODO.md`
-
----
-
-**Generated:** 2025-11-10
-**Phase:** 1 - Browse Compounds (Data Architecture Core)
-**Status:** Wave 1 Complete - Database Foundation Ready for Migration
+**Seed script fails with a network/connection error against a "local"
+database** — some seed scripts route through the session connection
+(`MIGRATION_DATABASE_URL`) rather than the pooler; using the wrong one, or
+using it against the wrong port, is the most common cause. See `CLAUDE.md`
+§6d for the exact invocation pattern used by the food-data loaders.
