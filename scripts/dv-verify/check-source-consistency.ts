@@ -71,6 +71,20 @@ for (const v of values) {
     fail(`${v.from}: CDRR with neither min nor max — is it a floor or a ceiling?`);
   if (v.valueType === 'AMDR' && v.valueMin == null && v.valueMax == null && !VERIFIED_POINT_TARGETS[region]?.[v.compound])
     fail(`${v.from}: AMDR with neither min nor max, not a verified point target — read the source's wording and either set a bound or list it in VERIFIED_POINT_TARGETS`);
+  // A per-kg value that slipped through as absolute is invisible in the data and wrong by a factor of
+  // ~70 in the bar. The magnitudes of the two are far apart, so a plausibility bound catches it:
+  // no body publishes a per-kg intake above 10 of its unit (protein's is 0.83 g/kg, cadmium's
+  // 2.5 µg/kg), and nothing per-kg is a share of energy.
+  if (v.perKgBodyWeight) {
+    if (v.isPercentOfEnergy) fail(`${v.from}: marked per kg of body weight AND a share of energy — it cannot be both`);
+    if (v.value > 10) fail(`${v.from}: ${v.value} ${v.unit} per kg of body weight is implausible — is this an absolute value mislabelled?`);
+  }
+  if (v.averagingDays !== undefined && ![1, 7, 30].includes(v.averagingDays))
+    fail(`${v.from}: averagingDays ${v.averagingDays} — only 1 (daily), 7 (weekly) and 30 (monthly) are stored`);
+  // A benchmark dose is a reference point for a margin of exposure, not a limit. It must say what
+  // endpoint it was derived from, or nothing downstream can explain what the margin is against.
+  if (v.valueType === 'BMDL' && !v.note)
+    fail(`${v.from}: a BMDL needs a note naming the endpoint it was derived from (e.g. "developmental neurotoxicity")`);
   if (v.valueMin != null && v.value < v.valueMin) fail(`${v.from}: value ${v.value} < min ${v.valueMin}`);
   if (v.valueMax != null && v.value > v.valueMax) fail(`${v.from}: value ${v.value} > max ${v.valueMax}`);
   const k = demo(v);

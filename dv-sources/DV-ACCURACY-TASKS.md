@@ -269,21 +269,34 @@ Each step is a unit of work with its own check. Nothing here is "and then verify
 8. **Fallback behaviour**: when no weight is stored, use the reference weight and **say so on the bar**.
    *Check: a test asserting the resolver reports which weight it used.*
 
-### G2 — schema for per-kg and per-period values (6 steps)
+### G2 — schema for per-kg and per-period values — **DONE 2026-09-24, except step 6**
 
-1. `reference_daily_values.per_kg_body_weight boolean not null default false`.
-2. `reference_daily_values.averaging_days integer not null default 1` — 1 daily, 7 weekly, 30 for
-   cadmium's monthly PTMI.
-3. Extend `dv_type_enum` with **TWI, TDI, PTMI, RfD** (ceilings) and **BMDL** (a reference point, not a
-   ceiling). *Check: the migration door, as in G1.2.*
-4. **Resolver**: `resolveBar` takes the user's weight and the reference weight; a per-kg value is
-   multiplied before it enters any pool, and a per-kg value may never be pooled with an absolute one
-   unconverted. A BMDL never enters `limit`. *Check: tests for each of those three rules.*
-5. **Consistency checker**: a per-kg value must be plausible for its magnitude, a value with
-   `averaging_days > 1` must not be rendered as a daily target, and a BMDL must carry its endpoint.
-6. **Backfill the dropped values**: re-transcribe what each extract skipped (the table above),
-   source by source. *Check: protein goes from 7 to 10 bodies; `check-source-db.ts` still reports
-   file = database for every source touched.*
+1. [x] `reference_daily_values.per_kg_body_weight boolean not null default false`.
+2. [x] `reference_daily_values.averaging_days integer not null default 1`.
+3. [x] `dv_type_enum` extended with **TWI, TDI, PTMI, RfD** (ceilings) and **BMDL** (a reference point).
+       Migration `0057_lively_gwen_stacy.sql`. *Checked, both halves of the door: 57 applied vs 57
+       journal entries before generating; 58 vs 58 after; live columns diffed against
+       `0057_snapshot.json` — **764/764, zero drift both directions**; all 28,666 existing rows
+       defaulted to not-per-kg and daily.*
+4. [x] **Resolver.** `resolveBar(compound, rows, formRows, { weightKg, referenceWeightKg })` multiplies
+       a per-kg value by the user's weight before it enters any pool, or by the published reference
+       weight while recording `weightBasis: { kg, source: 'reference' }` so the bar can say it assumed.
+       With no weight at all the value is **excluded with that reason** rather than pooled — 0.83 g/kg
+       of protein beside the UK's 56 g would drag the median to nothing. A ceiling's strictness is
+       compared only within one averaging window, and `aggregate` pools only values that share one:
+       2.5 µg/kg per week is not a looser version of 1 µg/kg per day, it is a different statement.
+       A BMDL never reaches `limit`; it comes back under `referencePoints`. *Check: 10 new tests
+       (37 in the file, all passing) covering each rule, including "lead produces no bar".*
+5. [x] **Loader and consistency checker.** `SourceValue` gained both fields (optional, so the 22
+       existing extracts still compile); the loader rejects an `averagingDays` that is not 1, 7 or 30.
+       The checker now fails a per-kg value that is also a share of energy, a per-kg value above 10 of
+       its unit (no body publishes one — protein's is 0.83 g/kg, cadmium's 2.5 µg/kg — so this catches
+       an absolute value mislabelled as per-kg), and a BMDL with no endpoint in its note. *Check: run
+       over all 13 loaded sources — 0 failures, Vietnam's 4 known defects unchanged;
+       `check-source-db` still reports file = database.*
+6. [ ] **Backfill the dropped values** — re-transcribe what each extract skipped (the table above),
+       source by source. *Check: protein goes from 7 bodies to 10; `check-source-db.ts` reports
+       file = database for every source touched.* **This is the next piece of work.**
 
 ### G3 — WHO/FAO TRS 935 (5 steps)
 

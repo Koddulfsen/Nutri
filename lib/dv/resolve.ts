@@ -26,18 +26,42 @@ export type ValueClass = 'REC' | 'EAR' | 'UL';
 export interface DvRow {
   region: string;
   compound: string;
-  valueType: 'RDA' | 'AI' | 'EAR' | 'UL' | 'CDRR' | 'AMDR' | 'EER';
+  valueType: DvValueType;
   value: number;
   valueMin?: number | null;
   valueMax?: number | null;
   unit: string;
   isPercentOfEnergy?: boolean;
   supplementalOnly?: boolean;
+  /** `value` is per kilogram of body weight, not an absolute amount. */
+  perKgBodyWeight?: boolean;
+  /** The period the value is averaged over: 1 daily, 7 weekly, 30 monthly. */
+  averagingDays?: number;
+}
+
+export type DvValueType =
+  | 'RDA' | 'AI' | 'EAR' | 'UL' | 'CDRR' | 'AMDR' | 'EER'
+  // Contaminant ceilings, and the one reference point that is not a ceiling.
+  | 'TWI' | 'TDI' | 'PTMI' | 'RfD' | 'BMDL';
+
+/**
+ * The body weight a per-kg value was resolved against.
+ *
+ * `source: 'reference'` means we used the published default weight for this age and sex, not the
+ * user's own — an assumption about them, which the bar has to be able to say out loud.
+ */
+export interface WeightBasis {
+  kg: number;
+  source: 'measured' | 'reference';
+  /** Where a reference weight came from, so the claim is attributable. */
+  note?: string;
 }
 
 export interface Aggregate {
   value: number;
   unit: string;
+  /** Period the value is averaged over: 1 daily, 7 weekly, 30 monthly. */
+  averagingDays: number;
   /** Regions that contributed, after collapsing shared judgements. */
   sources: string[];
   /** Lowest and highest contributing value, in `unit` — how much the bodies disagree. */
@@ -55,7 +79,7 @@ export interface ResolvedBar {
    */
   diseaseFloor: Aggregate | null;
   /** Intake to stay under: the median of each body's strictest food-applicable ceiling. */
-  limit: (Aggregate & { from: Array<'UL' | 'CDRR' | 'AMDR'> }) | null;
+  limit: (Aggregate & { from: CeilingKind[] }) | null;
   /** Range to stay inside (macronutrients, % of energy). */
   range: { min: number; max: number; unit: string; sources: string[] } | null;
   /**
@@ -72,8 +96,24 @@ export interface ResolvedBar {
    * they are returned separately, with the form's own compound, for the caller to apply to that form's intake.
    */
   formLimits: Array<Aggregate & { compound: string; countsParentTotal: boolean; unitNote?: string }>;
+  /**
+   * Reference points, which are NOT limits. A BMDL is the dose you divide an exposure into to get a
+   * margin; lead and inorganic arsenic have one precisely because JECFA and EFSA withdrew their
+   * tolerable intakes after finding no threshold. Showing one as a limit would invent a safe level.
+   */
+  referencePoints: Array<Aggregate & { valueType: 'BMDL'; endpoints: string[] }>;
+  /** The body weight per-kg values were resolved against, when any were. */
+  weightBasis: WeightBasis | null;
   /** Every row that did not contribute, and why. */
   excluded: Array<{ region: string; valueType: string; unit: string; reason: string }>;
+}
+
+export interface ResolveOptions {
+  /** The user's own weight, if they gave one. */
+  weightKg?: number | null;
+  /** The published default for this age and sex, used when the user gave none. */
+  referenceWeightKg?: number | null;
+  referenceWeightNote?: string;
 }
 
 const ALPHA = new Set<string>(ALPHA_INDEPENDENT_REGIONS);
@@ -152,8 +192,32 @@ function chooseUnit(compound: string, entries: Array<{ region: string; unit: str
   return [...best.units.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))[0][0];
 }
 
-function aggregate(compound: string, entries: Array<{ region: string; value: number; unit: string }>, excluded: ResolvedBar['excluded'], what: string) {
-  if (!entries.length) return null;
+type Entry = { region: string; value: number; unit: string; averagingDays?: number };
+
+/** Every value type that states a ceiling. BMDL is deliberately absent — it is a reference point. */
+const CEILING_TYPES = new Set<DvValueType>(['UL', 'TWI', 'TDI', 'PTMI', 'RfD']);
+export type CeilingKind = 'UL' | 'CDRR' | 'AMDR' | 'TWI' | 'TDI' | 'PTMI' | 'RfD';
+
+function aggregate(compound: string, all: Entry[], excluded: ResolvedBar['excluded'], what: string) {
+  if (!all.length) return null;
+
+  // A weekly limit and a daily one are not two opinions about the same quantity: JECFA made cadmium's
+  // monthly because its half-life in the body is decades, and dividing that by 30 to compare it with a
+  // daily figure discards the committee's judgement. So pool only values that share a window, and let
+  // the window backed by the most bodies win — the same rule as the unit groups.
+  const windows = new Map<number, Entry[]>();
+  for (const e of all) {
+    const w = e.averagingDays ?? 1;
+    windows.set(w, [...(windows.get(w) ?? []), e]);
+  }
+  const ranked = [...windows.entries()].sort(
+    (a, b) => new Set(b[1].map((e) => e.region)).size - new Set(a[1].map((e) => e.region)).size || a[0] - b[0]
+  );
+  const [averagingDays, entries] = ranked[0];
+  for (const [w, losing] of ranked.slice(1))
+    for (const e of losing)
+      excluded.push({ region: e.region, valueType: what, unit: e.unit, reason: `averaged over ${w} days, and this bar is over ${averagingDays}; the two are not the same statement` });
+
   const unit = chooseUnit(compound, entries);
   const kept: Array<{ region: string; value: number }> = [];
   for (const e of entries) {
@@ -168,7 +232,7 @@ function aggregate(compound: string, entries: Array<{ region: string; value: num
   const perRegion = new Map<string, number[]>();
   for (const k of kept) perRegion.set(k.region, [...(perRegion.get(k.region) ?? []), k.value]);
   const values = [...perRegion.values()].map(median);
-  return { value: median(values), unit, sources: [...perRegion.keys()].sort(), spread: [Math.min(...values), Math.max(...values)] as [number, number] };
+  return { value: median(values), unit, averagingDays, sources: [...perRegion.keys()].sort(), spread: [Math.min(...values), Math.max(...values)] as [number, number] };
 }
 
 /**
@@ -198,10 +262,41 @@ function dropCollapsed(compound: string, rows: DvRow[], excluded: ResolvedBar['e
  */
 const isEnergyShare = (r: DvRow) => r.isPercentOfEnergy === true || /^%/.test(parseUnit(r.unit).magnitude.trim());
 
-export function resolveBar(compound: string, allRows: DvRow[], formRows: Record<string, DvRow[]> = {}): ResolvedBar {
+export function resolveBar(
+  compound: string,
+  allRows: DvRow[],
+  formRows: Record<string, DvRow[]> = {},
+  opts: ResolveOptions = {}
+): ResolvedBar {
   const excluded: ResolvedBar['excluded'] = [];
-  const rows: DvRow[] = [];
+
+  // A per-kg value is not comparable with anything until it is multiplied by a weight, and it must
+  // never reach a pool unconverted — 0.83 g/kg of protein sitting beside the UK's 56 g would drag the
+  // median to nothing. The user's own weight is used when they gave one; otherwise the published
+  // reference weight for their age and sex, which the bar then has to declare as an assumption.
+  const weight: WeightBasis | null =
+    opts.weightKg != null ? { kg: opts.weightKg, source: 'measured' }
+    : opts.referenceWeightKg != null ? { kg: opts.referenceWeightKg, source: 'reference', note: opts.referenceWeightNote }
+    : null;
+  let weightUsed = false;
+
+  const scaled: DvRow[] = [];
   for (const r of allRows) {
+    if (!r.perKgBodyWeight) { scaled.push(r); continue; }
+    if (!weight) {
+      excluded.push({ region: r.region, valueType: r.valueType, unit: r.unit, reason: 'stated per kg of body weight, and no weight — measured or reference — was available' });
+      continue;
+    }
+    weightUsed = true;
+    const x = (v: number | null | undefined) => (v == null ? v : v * weight.kg);
+    scaled.push({ ...r, value: r.value * weight.kg, valueMin: x(r.valueMin), valueMax: x(r.valueMax), perKgBodyWeight: false });
+  }
+
+  // Benchmark doses are separated before anything else: they are reference points for a margin-of-
+  // exposure calculation, not ceilings, and nothing downstream should be able to mistake one for a limit.
+  const bmdlRows = scaled.filter((r) => r.valueType === 'BMDL');
+  const rows: DvRow[] = [];
+  for (const r of scaled.filter((r) => r.valueType !== 'BMDL')) {
     if (!ALPHA.has(r.region)) { excluded.push({ region: r.region, valueType: r.valueType, unit: r.unit, reason: 'not one of the independent sources' }); continue; }
     if (r.valueType === 'EAR') { excluded.push({ region: r.region, valueType: r.valueType, unit: r.unit, reason: 'an average requirement is not a personal target' }); continue; }
     if (r.valueType === 'EER') { excluded.push({ region: r.region, valueType: r.valueType, unit: r.unit, reason: 'energy is resolved separately (depends on activity)' }); continue; }
@@ -211,46 +306,50 @@ export function resolveBar(compound: string, allRows: DvRow[], formRows: Record<
   const kept = dropCollapsed(compound, rows, excluded);
 
   // ── Goal: one per body (RDA beats AI), plus floors from CDRR/AMDR ──
-  const perRegionGoal = new Map<string, { values: Array<{ value: number; unit: string }>; type: 'RDA' | 'AI' }>();
-  const floors: Array<{ region: string; value: number; unit: string }> = [];
-  const ceilings: Array<{ region: string; value: number; unit: string; from: 'UL' | 'CDRR' | 'AMDR' }> = [];
-  const suppCeilings: Array<{ region: string; value: number; unit: string }> = [];
+  const perRegionGoal = new Map<string, { values: Array<{ value: number; unit: string; averagingDays?: number }>; type: 'RDA' | 'AI' }>();
+  const floors: Entry[] = [];
+  const ceilings: Array<Entry & { from: CeilingKind }> = [];
+  const suppCeilings: Entry[] = [];
   const ranges: Array<{ region: string; min: number; max: number; unit: string }> = [];
-  const shareGoals: Array<{ region: string; value: number; unit: string }> = [];
-  const shareCeilings: Array<{ region: string; value: number; unit: string }> = [];
+  const shareGoals: Entry[] = [];
+  const shareCeilings: Entry[] = [];
 
   for (const r of kept) {
     // A share of energy is not an amount. Letting one into the pool lets it win the unit vote and drop every body
     // that published a real amount — which is exactly what linoleic acid did (3.25 % from 2 bodies, 11.5 g and
     // 17 g discarded). Ranges are the one place a share belongs as published.
     if (isEnergyShare(r) && !(r.valueMin != null && r.valueMax != null)) {
-      if (r.valueType === 'RDA' || r.valueType === 'AI') shareGoals.push({ region: r.region, value: r.value, unit: r.unit });
-      else if (r.valueMax != null) shareCeilings.push({ region: r.region, value: r.valueMax, unit: r.unit });
-      else if (r.valueMin != null) shareGoals.push({ region: r.region, value: r.valueMin, unit: r.unit });
+      const w = r.averagingDays;
+      if (r.valueType === 'RDA' || r.valueType === 'AI') shareGoals.push({ region: r.region, value: r.value, unit: r.unit, averagingDays: w });
+      else if (r.valueMax != null) shareCeilings.push({ region: r.region, value: r.valueMax, unit: r.unit, averagingDays: w });
+      else if (r.valueMin != null) shareGoals.push({ region: r.region, value: r.valueMin, unit: r.unit, averagingDays: w });
       // A share with no min or max is a point target — Russia prints protein at 14 % of energy per activity group,
       // DGE prints fat at 30 % as a Richtwert. That is something to aim at, so it belongs with the share goals.
       // `scripts/dv-verify/check-source-consistency.ts` is what stops a mistranscribed range from arriving here:
       // a direction-less row must be on its verified point-target allowlist or the checker fails.
-      else shareGoals.push({ region: r.region, value: r.value, unit: r.unit });
+      else shareGoals.push({ region: r.region, value: r.value, unit: r.unit, averagingDays: w });
       excluded.push({ region: r.region, valueType: r.valueType, unit: r.unit, reason: 'stated as a share of energy, not an amount; kept under energyShare' });
       continue;
     }
     if (r.valueType === 'RDA' || r.valueType === 'AI') {
       const cur = perRegionGoal.get(r.region);
       // An RDA supersedes the same body's AI; further rows of the type it publishes are kept and collapsed below.
-      if (!cur || (cur.type === 'AI' && r.valueType === 'RDA')) perRegionGoal.set(r.region, { values: [{ value: r.value, unit: r.unit }], type: r.valueType });
-      else if (cur.type === r.valueType) cur.values.push({ value: r.value, unit: r.unit });
+      if (!cur || (cur.type === 'AI' && r.valueType === 'RDA')) perRegionGoal.set(r.region, { values: [{ value: r.value, unit: r.unit, averagingDays: r.averagingDays }], type: r.valueType });
+      else if (cur.type === r.valueType) cur.values.push({ value: r.value, unit: r.unit, averagingDays: r.averagingDays });
       continue;
     }
-    if (r.valueType === 'UL') {
-      if (r.supplementalOnly) suppCeilings.push({ region: r.region, value: r.value, unit: r.unit });
-      else ceilings.push({ region: r.region, value: r.value, unit: r.unit, from: 'UL' });
+    // A tolerable intake from a toxicology committee is a ceiling in exactly the same sense as a UL —
+    // it differs in who derived it and over what period, and the period travels with the value.
+    if (CEILING_TYPES.has(r.valueType)) {
+      const e = { region: r.region, value: r.value, unit: r.unit, averagingDays: r.averagingDays };
+      if (r.supplementalOnly) suppCeilings.push(e);
+      else ceilings.push({ ...e, from: r.valueType as CeilingKind });
       continue;
     }
     // CDRR and AMDR carry their direction in min/max, never in the type name.
     if (r.valueMin != null && r.valueMax != null) { ranges.push({ region: r.region, min: r.valueMin, max: r.valueMax, unit: r.unit }); continue; }
-    if (r.valueMax != null) { ceilings.push({ region: r.region, value: r.valueMax, unit: r.unit, from: r.valueType === 'CDRR' ? 'CDRR' : 'AMDR' }); continue; }
-    if (r.valueMin != null) { floors.push({ region: r.region, value: r.valueMin, unit: r.unit }); continue; }
+    if (r.valueMax != null) { ceilings.push({ region: r.region, value: r.valueMax, unit: r.unit, averagingDays: r.averagingDays, from: r.valueType === 'CDRR' ? 'CDRR' : 'AMDR' }); continue; }
+    if (r.valueMin != null) { floors.push({ region: r.region, value: r.valueMin, unit: r.unit, averagingDays: r.averagingDays }); continue; }
     excluded.push({ region: r.region, valueType: r.valueType, unit: r.unit, reason: 'point target: neither a goal nor a limit' });
   }
 
@@ -260,15 +359,18 @@ export function resolveBar(compound: string, allRows: DvRow[], formRows: Record<
   const goalTypes = new Set([...perRegionGoal.values()].map((g) => g.type));
   const goal = goalAgg ? { ...goalAgg, type: (goalTypes.size === 1 ? [...goalTypes][0] : 'MIXED') as 'RDA' | 'AI' | 'MIXED' } : null;
 
-  // One ceiling per body — the strictest it sets — then the median of those.
-  const perRegionCeiling = new Map<string, { value: number; unit: string; from: 'UL' | 'CDRR' | 'AMDR' }>();
+  // One ceiling per body — the strictest it sets — then the median of those. Strictness is only
+  // meaningful within one averaging window: 2.5 µg/kg per week is not "looser" than 1 µg/kg per day,
+  // it is a different statement, so the two are kept apart and `aggregate` picks the window.
+  const perRegionCeiling = new Map<string, Entry & { from: CeilingKind }>();
   for (const c of ceilings) {
-    const cur = perRegionCeiling.get(c.region);
-    if (!cur) { perRegionCeiling.set(c.region, c); continue; }
+    const key = `${c.region}|${c.averagingDays ?? 1}`;
+    const cur = perRegionCeiling.get(key);
+    if (!cur) { perRegionCeiling.set(key, c); continue; }
     const inCur = convertFor(compound, c.value, c.unit, cur.unit);
-    if ('value' in inCur && inCur.value < cur.value) perRegionCeiling.set(c.region, c);
+    if ('value' in inCur && inCur.value < cur.value) perRegionCeiling.set(key, c);
   }
-  const limitAgg = aggregate(compound, [...perRegionCeiling.entries()].map(([region, c]) => ({ region, value: c.value, unit: c.unit })), excluded, 'limit');
+  const limitAgg = aggregate(compound, [...perRegionCeiling.values()], excluded, 'limit');
   const limit = limitAgg ? { ...limitAgg, from: [...new Set([...perRegionCeiling.values()].map((c) => c.from))] } : null;
 
   const suppAgg = aggregate(compound, suppCeilings, excluded, 'supplement limit');
@@ -299,5 +401,18 @@ export function resolveBar(compound: string, allRows: DvRow[], formRows: Record<
   const shareLimit = aggregate(compound, shareCeilings, excluded, 'energy share limit');
   const energyShare = shareGoal || shareLimit ? { goal: shareGoal, limit: shareLimit } : null;
 
-  return { compound, goal, diseaseFloor, limit, range, energyShare, supplementLimit: suppAgg, formLimits, excluded };
+  const bmdlAgg = aggregate(
+    compound,
+    bmdlRows.filter((r) => ALPHA.has(r.region)).map((r) => ({ region: r.region, value: r.value, unit: r.unit, averagingDays: r.averagingDays })),
+    excluded,
+    'reference point'
+  );
+  const referencePoints: ResolvedBar['referencePoints'] = bmdlAgg
+    ? [{ ...bmdlAgg, valueType: 'BMDL', endpoints: [...new Set(bmdlRows.map((r) => r.compound))] }]
+    : [];
+
+  return {
+    compound, goal, diseaseFloor, limit, range, energyShare, supplementLimit: suppAgg, formLimits,
+    referencePoints, weightBasis: weightUsed ? weight : null, excluded,
+  };
 }

@@ -31,6 +31,8 @@ async function main() {
     if (seen.has(k)) problems.push(`duplicate key ${k} (${seen.get(k)} / ${v.from})`);
     seen.set(k, v.from);
     if (typeof v.supplementalOnly !== 'boolean') problems.push(`supplementalOnly missing at ${v.from}`);
+    if (v.perKgBodyWeight !== undefined && typeof v.perKgBodyWeight !== 'boolean') problems.push(`perKgBodyWeight must be a boolean at ${v.from}`);
+    if (v.averagingDays !== undefined && ![1, 7, 30].includes(v.averagingDays)) problems.push(`averagingDays must be 1, 7 or 30 at ${v.from}`);
     for (const [field, x] of [['value', v.value], ['valueMin', v.valueMin], ['valueMax', v.valueMax]] as const) {
       if (x == null) continue;
       if (!Number.isFinite(x)) problems.push(`non-numeric ${field} at ${v.from}`);
@@ -74,6 +76,7 @@ async function main() {
       value_type: v.valueType, activity_level: v.activityLevel, dietary_context: v.dietaryContext,
       value: v.value, value_min: v.valueMin, value_max: v.valueMax, unit: v.unit,
       is_percent_of_energy: v.isPercentOfEnergy, is_provisional: v.isProvisional, supplemental_only: v.supplementalOnly,
+      per_kg_body_weight: v.perKgBodyWeight ?? false, averaging_days: v.averagingDays ?? 1,
       value_note: v.note, source_note: v.from,
     }));
     for (let i = 0; i < rows.length; i += 500) {

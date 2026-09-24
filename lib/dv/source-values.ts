@@ -33,6 +33,14 @@ export interface SourceValue {
   isProvisional: boolean;
   /** Applies only to supplements / fortified or synthetic forms, not to total food intake. */
   supplementalOnly: boolean;
+  /**
+   * `value` is per kilogram of body weight. Optional so the extracts written before this existed keep
+   * compiling; absent means false. Eight sources dropped values for want of this — see
+   * dv-sources/DV-ACCURACY-TASKS.md §G.
+   */
+  perKgBodyWeight?: boolean;
+  /** Period the value is averaged over: 1 daily (the default), 7 weekly, 30 monthly. */
+  averagingDays?: number;
   note: string | null;
   /** Where in the source document this value was read, e.g. "Table J-3, Iron, Females 19–30 y". */
   from: string;

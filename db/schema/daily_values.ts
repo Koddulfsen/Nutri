@@ -90,6 +90,22 @@ export const referenceDailyValues = pgTable('reference_daily_values', {
   unit: text('unit').notNull(),
   isPercentOfEnergy: boolean('is_percent_of_energy').notNull().default(false),
 
+  // True when `value` is per kilogram of the person's body weight, not an absolute amount.
+  //
+  // Without this column a per-kg value cannot be stored at all, and eight sources silently dropped
+  // values because of it: EFSA, DACH, the Nordic council and the UK all publish protein per kg (so
+  // protein reached only 7 of the 10 independent bodies), Vietnam publishes every amino acid per kg,
+  // and WHO/FAO, Taiwan and Russia publish infant energy and protein that way. Every contaminant
+  // limit is per kg too. A per-kg value must be multiplied by the user's weight — or by the
+  // published reference weight for their age and sex, stated as such — before it is comparable with
+  // anything, and must never be pooled with an absolute value unconverted.
+  perKgBodyWeight: boolean('per_kg_body_weight').notNull().default(false),
+
+  // The period `value` is averaged over: 1 for a daily value, 7 for a weekly one (EFSA's TWIs),
+  // 30 for JECFA's monthly cadmium PTMI. A weekly or monthly limit divided into a single day is not
+  // what the committee set — one high day inside a compliant week is not an exceedance.
+  averagingDays: integer('averaging_days').notNull().default(1),
+
   valueType: dvTypeEnum('value_type').notNull().default('RDA'),
 
   // Provisional flag — NNR distinguishes "provisional AR" from established AR; lower confidence.

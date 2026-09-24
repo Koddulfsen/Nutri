@@ -611,6 +611,13 @@ export interface BatchDvByDemographicsArgs {
   compoundIds: string[];
   ageYears: number;
   sex: 'MALE' | 'FEMALE';
+  /**
+   * The user's own body weight, when they have given one. Without it, values published per kilogram —
+   * EFSA's, DACH's and the Nordic council's protein, every amino acid Vietnam publishes, every
+   * contaminant limit — cannot be turned into an amount and are excluded with that reason. The
+   * reference-weight fallback is G1 of dv-sources/DV-ACCURACY-TASKS.md and is not built yet.
+   */
+  weightKg?: number | null;
 }
 
 export interface DvLookupRow {
@@ -638,6 +645,12 @@ export interface DvLookupRow {
   energyShare: { goal: number | null; limit: number | null } | null;
   /** Range to stay inside, where the sources publish one (macronutrients). */
   range: { min: number; max: number; unit: string } | null;
+  /** 1 for a daily target, 7 or 30 where the bodies set a weekly or monthly one. */
+  averagingDays: number;
+  /** Reference points for a margin of exposure — never a limit. See lib/dv/resolve.ts. */
+  referencePoints: Array<{ value: number; unit: string; sourceCount: number }>;
+  /** The body weight per-kg values were resolved against, and whether it was theirs or a default. */
+  weightBasis: { kg: number; source: 'measured' | 'reference'; note?: string } | null;
 }
 
 /**
@@ -654,7 +667,7 @@ export interface DvLookupRow {
 export async function getDailyValuesBatchByDemographics(
   args: BatchDvByDemographicsArgs
 ): Promise<Map<string, DvLookupRow>> {
-  const { compoundIds, ageYears, sex } = args;
+  const { compoundIds, ageYears, sex, weightKg } = args;
   const results = new Map<string, DvLookupRow>();
   if (compoundIds.length === 0) return results;
 
@@ -688,6 +701,8 @@ export async function getDailyValuesBatchByDemographics(
       valueType: referenceDailyValues.valueType,
       isPercentOfEnergy: referenceDailyValues.isPercentOfEnergy,
       supplementalOnly: referenceDailyValues.supplementalOnly,
+      perKgBodyWeight: referenceDailyValues.perKgBodyWeight,
+      averagingDays: referenceDailyValues.averagingDays,
     })
     .from(referenceDailyValues)
     .where(
@@ -719,6 +734,8 @@ export async function getDailyValuesBatchByDemographics(
         unit: r.unit,
         isPercentOfEnergy: r.isPercentOfEnergy ?? false,
         supplementalOnly: r.supplementalOnly ?? false,
+        perKgBodyWeight: r.perKgBodyWeight ?? false,
+        averagingDays: r.averagingDays ?? 1,
       },
     ]);
   }
@@ -731,13 +748,13 @@ export async function getDailyValuesBatchByDemographics(
         target: null, targetUnit: null, targetType: null, targetSourceCount: 0,
         upperLimit: null, upperLimitUnit: null, upperLimitSourceCount: 0,
         targetSources: [], targetSpread: null, diseaseFloor: null, supplementLimit: null,
-        formLimits: [], energyShare: null, range: null,
+        formLimits: [], energyShare: null, range: null, averagingDays: 1, referencePoints: [], weightBasis: null,
       });
       continue;
     }
     const formRows: Record<string, DvRow[]> = {};
     for (const link of formLinksOf(name)) formRows[link.form] = byCompoundName.get(link.form) ?? [];
-    const bar = resolveBar(name, own, formRows);
+    const bar = resolveBar(name, own, formRows, { weightKg });
 
     // Only surface a limit the caller can compare with the target: a % -of-energy ceiling cannot be read against a
     // target in grams, and a form limit counts a different thing (preformed vitamin A, not total). Those are carried
@@ -762,6 +779,9 @@ export async function getDailyValuesBatchByDemographics(
       formLimits: bar.formLimits.map((f) => ({ compound: f.compound, value: f.value, unit: f.unit, sourceCount: f.sources.length, unitNote: f.unitNote })),
       energyShare: bar.energyShare ? { goal: bar.energyShare.goal?.value ?? null, limit: bar.energyShare.limit?.value ?? null } : null,
       range: bar.range ? { min: bar.range.min, max: bar.range.max, unit: bar.range.unit } : null,
+      averagingDays: bar.goal?.averagingDays ?? bar.limit?.averagingDays ?? 1,
+      referencePoints: bar.referencePoints.map((r) => ({ value: r.value, unit: r.unit, sourceCount: r.sources.length })),
+      weightBasis: bar.weightBasis,
     });
   }
 

@@ -126,6 +126,21 @@ export const dvTypeEnum = pgEnum('dv_type_enum', [
   'NRV_NCD',  // Codex NRV – Noncommunicable Disease
   'DV',       // FDA Daily Value
   'RI',       // EU/UK Reference Intake
+
+  // Contaminant limits. A tolerable intake is a ceiling like a UL, but derived by a toxicology
+  // committee and almost always stated per kg of body weight over a week or a month rather than a
+  // day — see per_kg_body_weight and averaging_days on reference_daily_values.
+  'TWI',      // Tolerable Weekly Intake (EFSA), and JECFA's PTWI
+  'TDI',      // Tolerable Daily Intake
+  'PTMI',     // Provisional Tolerable Monthly Intake (JECFA cadmium — monthly on purpose, the
+              // half-life in the body is decades and a daily figure would mislead)
+  'RfD',      // US EPA IRIS chronic oral reference dose
+
+  // NOT a ceiling. A benchmark dose is the reference POINT you divide exposure into to get a margin
+  // of exposure. Lead and inorganic arsenic have one because JECFA and EFSA both withdrew their
+  // tolerable intakes in 2010: no threshold exists, so no intake is "within the limit". Rendering a
+  // BMDL as a limit would invent a safe level the science explicitly declines to set.
+  'BMDL',
 ]);
 
 /**

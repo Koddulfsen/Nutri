@@ -272,3 +272,66 @@ describe('a qualifier means what the nutrient says it means', () => {
     expect(bar.excluded.some((e) => /no ruling/.test(e.reason))).toBe(true);
   });
 });
+
+describe('values published per kilogram of body weight', () => {
+  const perKg = (region: string, value: number, unit = 'g') =>
+    row({ region, valueType: 'RDA', value, unit, perKgBodyWeight: true });
+
+  it('multiplies by the user\'s own weight before pooling', () => {
+    const bar = resolveBar('Protein',
+      [perKg('EU', 0.83), perKg('DACH', 0.8), row({ region: 'UK', valueType: 'RDA', value: 56, unit: 'g' })],
+      {}, { weightKg: 70 });
+    expect(bar.goal?.sources).toEqual(['DACH', 'EU', 'UK']);   // the three that were unusable before
+    expect(bar.goal?.value).toBe(56);                          // median of 58.1, 56, 56
+    expect(bar.weightBasis).toEqual({ kg: 70, source: 'measured' });
+  });
+
+  it('falls back to the reference weight and says that is what it used', () => {
+    const bar = resolveBar('Protein', [perKg('EU', 0.83)], {}, { referenceWeightKg: 70.1, referenceWeightNote: 'EFSA default' });
+    expect(bar.goal?.value).toBeCloseTo(58.18, 2);
+    expect(bar.weightBasis).toEqual({ kg: 70.1, source: 'reference', note: 'EFSA default' });
+  });
+
+  it('excludes a per-kg value rather than pooling 0.83 beside 56', () => {
+    const bar = resolveBar('Protein', [perKg('EU', 0.83), row({ region: 'UK', valueType: 'RDA', value: 56, unit: 'g' })]);
+    expect(bar.goal?.value).toBe(56);
+    expect(bar.goal?.sources).toEqual(['UK']);
+    expect(bar.excluded.some((e) => e.region === 'EU' && /per kg of body weight/.test(e.reason))).toBe(true);
+    expect(bar.weightBasis).toBeNull();
+  });
+
+  it('reports no weight basis when nothing per-kg was involved', () => {
+    const bar = resolveBar('Protein', [row({ region: 'UK', valueType: 'RDA', value: 56, unit: 'g' })], {}, { weightKg: 70 });
+    expect(bar.weightBasis).toBeNull();
+  });
+});
+
+describe('contaminant values', () => {
+  it('treats a tolerable intake as a ceiling, and keeps its averaging window', () => {
+    const bar = resolveBar('Cadmium', [
+      row({ region: 'EU', valueType: 'TWI', value: 2.5, unit: 'µg', perKgBodyWeight: true, averagingDays: 7 }),
+      row({ region: 'WHO_FAO', valueType: 'TWI', value: 1.75, unit: 'µg', perKgBodyWeight: true, averagingDays: 7 }),
+    ], {}, { weightKg: 70 });
+    expect(bar.limit).toMatchObject({ value: 148.75, unit: 'µg', averagingDays: 7 });
+    expect(bar.limit?.from).toEqual(['TWI']);
+  });
+
+  it('never pools a weekly limit with a daily one', () => {
+    const bar = resolveBar('Cadmium', [
+      row({ region: 'EU', valueType: 'TWI', value: 175, unit: 'µg', averagingDays: 7 }),
+      row({ region: 'WHO_FAO', valueType: 'TWI', value: 140, unit: 'µg', averagingDays: 7 }),
+      row({ region: 'USA_CANADA', valueType: 'RfD', value: 70, unit: 'µg', averagingDays: 1 }),
+    ]);
+    expect(bar.limit).toMatchObject({ value: 157.5, averagingDays: 7 });   // the two weekly bodies
+    expect(bar.excluded.some((e) => e.region === 'USA_CANADA' && /averaged over 1 days/.test(e.reason))).toBe(true);
+  });
+
+  it('never turns a benchmark dose into a limit — lead has no safe level', () => {
+    const bar = resolveBar('Lead', [
+      row({ region: 'EU', valueType: 'BMDL', value: 0.5, unit: 'µg', perKgBodyWeight: true }),
+    ], {}, { weightKg: 70 });
+    expect(bar.limit).toBeNull();
+    expect(bar.goal).toBeNull();
+    expect(bar.referencePoints[0]).toMatchObject({ value: 35, unit: 'µg', valueType: 'BMDL' });
+  });
+});

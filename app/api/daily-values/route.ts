@@ -237,6 +237,9 @@ export async function POST(request: NextRequest) {
             formLimits: row.formLimits,
             energyShare: row.energyShare,
             range: row.range,
+            averagingDays: row.averagingDays,
+            referencePoints: row.referencePoints,
+            weightBasis: row.weightBasis,
           };
         });
       } else {
