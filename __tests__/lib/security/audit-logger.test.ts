@@ -1,23 +1,26 @@
 // Test Suite: Audit Logging Infrastructure
 // Tests for lib/security/audit-logger.ts
-// Generated: 2025-11-10
 
+import { describe, test, expect, vi, beforeEach, type Mock } from 'vitest';
 import { logAudit, logAuditBatch, getRequestMetadata, AuditLogOptions, AuditAction } from '@/lib/security/audit-logger';
 import { db } from '@/db';
 import { auditLog } from '@/db/schema';
 
-// Mock dependencies
-jest.mock('@/db');
+// Explicit factory — see __tests__/lib/dal/profiles.test.ts for why a bare
+// vi.mock('@/db') triggers db/index.ts's real lazy-connecting getter.
+vi.mock('@/db', () => ({
+  db: { insert: vi.fn() },
+}));
 
 describe('Audit Logger - logAudit', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   test('should log audit entry successfully', async () => {
     // Arrange: Mock successful insert
-    const mockInsert = jest.fn().mockResolvedValue(undefined);
-    (db.insert as jest.Mock) = jest.fn(() => ({
+    const mockInsert = vi.fn().mockResolvedValue(undefined);
+    (db.insert as Mock) = vi.fn(() => ({
       values: mockInsert
     }));
 
@@ -42,7 +45,10 @@ describe('Audit Logger - logAudit', () => {
       resourceType: 'user_session',
       resourceId: 'session-456',
       metadata: { ip: '192.168.1.1' },
-      ipAddress: '192.168.1.1',
+      // logAudit anonymizes at the write boundary (zeroes the host octet) — the
+      // metadata field above is arbitrary caller content and passes through
+      // unchanged, but the actual ipAddress column never stores the full IP.
+      ipAddress: '192.168.1.0',
       userAgent: 'Mozilla/5.0',
       createdAt: expect.any(Date)
     });
@@ -50,8 +56,8 @@ describe('Audit Logger - logAudit', () => {
 
   test('should handle null userId for anonymous events', async () => {
     // Arrange
-    const mockInsert = jest.fn().mockResolvedValue(undefined);
-    (db.insert as jest.Mock) = jest.fn(() => ({
+    const mockInsert = vi.fn().mockResolvedValue(undefined);
+    (db.insert as Mock) = vi.fn(() => ({
       values: mockInsert
     }));
 
@@ -75,8 +81,8 @@ describe('Audit Logger - logAudit', () => {
 
   test('should throw error on audit log failure (fail-closed)', async () => {
     // Arrange: Mock database error
-    const mockInsert = jest.fn().mockRejectedValue(new Error('Database connection failed'));
-    (db.insert as jest.Mock) = jest.fn(() => ({
+    const mockInsert = vi.fn().mockRejectedValue(new Error('Database connection failed'));
+    (db.insert as Mock) = vi.fn(() => ({
       values: mockInsert
     }));
 
@@ -92,8 +98,8 @@ describe('Audit Logger - logAudit', () => {
 
   test('should handle optional fields gracefully', async () => {
     // Arrange
-    const mockInsert = jest.fn().mockResolvedValue(undefined);
-    (db.insert as jest.Mock) = jest.fn(() => ({
+    const mockInsert = vi.fn().mockResolvedValue(undefined);
+    (db.insert as Mock) = vi.fn(() => ({
       values: mockInsert
     }));
 
@@ -122,8 +128,8 @@ describe('Audit Logger - logAudit', () => {
 
   test('should log all audit action types', async () => {
     // Arrange
-    const mockInsert = jest.fn().mockResolvedValue(undefined);
-    (db.insert as jest.Mock) = jest.fn(() => ({
+    const mockInsert = vi.fn().mockResolvedValue(undefined);
+    (db.insert as Mock) = vi.fn(() => ({
       values: mockInsert
     }));
 
@@ -217,13 +223,13 @@ describe('Audit Logger - getRequestMetadata', () => {
 
 describe('Audit Logger - logAuditBatch', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   test('should log multiple audit entries in batch', async () => {
     // Arrange
-    const mockInsert = jest.fn().mockResolvedValue(undefined);
-    (db.insert as jest.Mock) = jest.fn(() => ({
+    const mockInsert = vi.fn().mockResolvedValue(undefined);
+    (db.insert as Mock) = vi.fn(() => ({
       values: mockInsert
     }));
 
@@ -277,8 +283,8 @@ describe('Audit Logger - logAuditBatch', () => {
 
   test('should throw error on batch failure (fail-closed)', async () => {
     // Arrange
-    const mockInsert = jest.fn().mockRejectedValue(new Error('Database error'));
-    (db.insert as jest.Mock) = jest.fn(() => ({
+    const mockInsert = vi.fn().mockRejectedValue(new Error('Database error'));
+    (db.insert as Mock) = vi.fn(() => ({
       values: mockInsert
     }));
 
@@ -297,8 +303,8 @@ describe('Audit Logger - logAuditBatch', () => {
 
   test('should handle empty batch gracefully', async () => {
     // Arrange
-    const mockInsert = jest.fn().mockResolvedValue(undefined);
-    (db.insert as jest.Mock) = jest.fn(() => ({
+    const mockInsert = vi.fn().mockResolvedValue(undefined);
+    (db.insert as Mock) = vi.fn(() => ({
       values: mockInsert
     }));
 
@@ -311,8 +317,8 @@ describe('Audit Logger - logAuditBatch', () => {
 
   test('should handle batch with mixed metadata', async () => {
     // Arrange
-    const mockInsert = jest.fn().mockResolvedValue(undefined);
-    (db.insert as jest.Mock) = jest.fn(() => ({
+    const mockInsert = vi.fn().mockResolvedValue(undefined);
+    (db.insert as Mock) = vi.fn(() => ({
       values: mockInsert
     }));
 
@@ -339,7 +345,7 @@ describe('Audit Logger - logAuditBatch', () => {
     expect(mockInsert).toHaveBeenCalledWith([
       expect.objectContaining({
         metadata: { calories: 500 },
-        ipAddress: '192.168.1.1'
+        ipAddress: '192.168.1.0' // anonymizeIP zeroes the host octet at the write boundary
       }),
       expect.objectContaining({
         metadata: {},
