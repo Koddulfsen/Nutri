@@ -53,8 +53,8 @@ exist to keep them out. This project is built to repel them.
 | Food data | **13 of 17 sources loaded — 3.2M staging rows, 34,754 foods.** 71 foods merged and verified against reference values (2026-09-08). DUKE + FOODB held back; PHENOL unmapped |
 | Tracking / user data | Schema exists; **20 meal_logs, 2 user_profiles** — the app has been used |
 | **Authentication** | ✅ **WORKS.** Supabase Auth is live — `auth` schema present, 1 confirmed user, `/auth/v1/settings` 200, sign-in/sign-up/OAuth/reset all wired in `app/(auth)/actions.ts` |
-| Authorization | ⚠️ Admin routes and pages ARE gated. But the app connects as the table owner, so RLS does not apply to its own queries — every user-scoped query depends on a hand-written `userId` filter, and nobody has checked them all |
-| Privacy compliance | Erasure and export return an honest 501. Article 9 columns are unencrypted; consent has no UI and 0 rows |
+| Authorization | ✅ **AUDITED 2026-09-23.** Admin routes/pages gated; the app still connects as the table owner so RLS doesn't cover its own queries, but all 27 files touching user-scoped tables were checked and every one filters by the authenticated `userId` — no exploitable ownership gaps found |
+| Privacy compliance | Erasure and export both work for real (2.8 done 2026-09-23) — immediate deletion, synchronous JSON download, verified end-to-end. `life_stage` (Article 9) is encrypted at rest with its key in a separate table (2.5 done); consent has a real UI (`ConsentManager.tsx`) with 7 flags including dedicated Article 9 consents (`sensitiveHealthData`, `aiProcessing`), auto-created for every new user. DPIA and privacy policy (5.1, 5.2) still not written — see `docs/DATA-SCOPE-DECISIONS.md` |
 | Tests | Vitest works (`lib/food-health` passes). The 13 legacy Jest files still fail; 4 assert nothing |
 | Deployment | Repo `Koddulfsen/Nutri`; `origin/main` synced 2026-09-17 (`04a5c05`). No `basePath` — the app is served at the root (verified 2026-09-14: `/` 200, `/nutri` 404) |
 
@@ -108,6 +108,9 @@ Ask what the code actually *reads*, not what seems useful. `birth_date` was stor
 years while `calculateAgeGroup()` only ever read year and month — a full DOB is a strong
 quasi-identifier that, with `biological_sex` and `life_stage`, re-identifies most people
 and discloses a pregnancy. Collect the coarsest value that satisfies the actual read.
+Check `docs/DATA-SCOPE-DECISIONS.md` first — it records which fields were deliberately
+kept or dropped for alpha and why; don't re-derive or reverse those calls without knowing
+they were intentional.
 
 ### 🚪 Before you touch user data
 Ask: is it Article 9? (symptoms, pregnancy/life stage, birth date, free text — yes.) If it
@@ -192,17 +195,44 @@ Checkboxes are the timeline. Update them as work lands.
 - [x] **2.1** ~~DECIDE: auth replacement~~ — **settled by the 2026-08-22 move to hosted
       Supabase**, which restored `auth`. Verified 2026-09-08: schema present, confirmed user,
       login endpoint answers. No decision outstanding
-- [ ] **2.2** Restore authorization at the data layer. Identity works; the gap is that Drizzle
-      connects as the table owner, so RLS never applies and every user-scoped query is trusted
-      to filter by `userId` on its own. **Nobody has audited them all** — that audit is the
-      next real task
+- [x] **2.2** Restore authorization at the data layer *(audited 2026-09-23)* — all 27 files
+      touching user-scoped tables (meals, symptoms, profiles, api-keys, MFA, dashboard, auth
+      callbacks) verified: every query filters by the server-derived authenticated `userId`,
+      no client-suppliable id can read/write another user's row. Two dead-code DAL files
+      (`lib/dal/api-keys.ts`, `lib/dal/consent.ts` were the exceptions — safe but unreferenced,
+      candidates for Phase 3 cleanup) and one privilege inconsistency in
+      `daily-value-service.ts` (~line 471, reads public reference data via an unnecessary
+      service-role client) were found; neither is an authorization gap
 - [x] **2.2a** Least-privilege DB role — app runs as `nutri_app` (no DDL, no BYPASSRLS, not superuser); migrations use `MIGRATION_DATABASE_URL` (owner). Default privileges cover future migration tables. **Remaining:** run `ALTER ROLE nutri NOSUPERUSER;` as a superuser (see below)
 - [x] **2.3** `withAuth(handler, { role, schema })` wrapper + CI check *(built)* — `lib/auth/with-auth.ts`, `withPublic()` for explicit public routes, lint at `scripts/check-route-auth.ts` (`npm run check:auth`). Report-only until the last 30 routes are migrated, then flip `STRICT=1` in CI
 - [x] **2.4** `getSession()` → `getUser()` *(B2)* — 36 files rewritten; zero `getSession()` left outside `middleware.ts` (deferred to 2.2, since `getUser()` adds a network call per request)
-- [ ] **2.5** Apply the DEK to Article 9 columns; move the key out from under the data *(P4, P5)*
+- [x] **2.5** Apply the DEK to Article 9 columns; move the key out from under the data *(P4, P5)*
+      *(done 2026-09-23)* — `data_encryption_key` moved off `user_profiles` into its own table
+      (`user_encryption_keys`), so a profile read can never also return the key that decrypts
+      it. `user_profiles.life_stage` (pregnancy/lactation — Article 9) is now AES-256-GCM
+      ciphertext (`life_stage_encrypted`), encrypted/decrypted only in
+      `lib/services/daily-value-service.ts`. `rotateDEK` — previously a silent no-op that would
+      have orphaned encrypted data the moment it was called — now throws until it's actually
+      implemented. Verified: `psql` raw read of the column returns ciphertext, not plaintext;
+      integration test round-trips through the real read/write path
+      (`lib/services/daily-value-service.life-stage-encryption.test.ts`). See
+      `docs/DATA-SCOPE-DECISIONS.md` for why `life_stage` was kept instead of dropped
 - [x] **2.6** Fail-open trio *(A7, A8)* — Postgres rate limiter (`lib/rate-limit/`), fails **closed** on auth; MFA verify now 401 + 5/15min lockout. Session-version (A10) still open, belongs with 2.2
 - [x] **2.7** `anonymizeIP` fixed (IPv6 expansion, IPv4-mapped, 10 cases pass) and wired into **all three** audit write paths. `parseUserAgent` still open
-- [ ] **2.8** Real erasure + export jobs; add the 5 missing FKs *(P1, P2, P3)*
+- [x] **2.8** Real erasure + export jobs; add the 5 missing FKs *(P1, P2, P3)* *(done
+      2026-09-23)* — `delete-account` now performs immediate, synchronous, real deletion
+      (no grace period, per `docs/DATA-SCOPE-DECISIONS.md`): explicitly deletes
+      `user_consent`/`api_keys`/`user_encryption_keys` (none had a FK to cascade from, per
+      P2's finding — fixed via explicit deletes in the erasure transaction, not new FKs),
+      deletes `user_profiles` (cascades to meals/symptoms/custom DVs per the existing FKs),
+      then deletes the Supabase Auth user via the service-role admin API. `export` now
+      returns a real synchronous JSON download (profile, decrypted demographics, consent,
+      meals, API key metadata, custom DVs) instead of a promised email link. Both verified
+      end-to-end against a real throwaway Supabase account: created, populated (including a
+      PREGNANT `life_stage`), confirmed present, ran the exact deletion sequence, confirmed
+      every row gone including cascaded meal items, then deleted the auth user. The old
+      `deletion_requests`/`export_requests` tables (P2's other two "missing FK" rows) are
+      now unused — nothing writes to them; a future cleanup pass can drop them (§3)
 - [ ] **2.9** Per-user spend budget on `/api/ai/log-food` *(B3)*
 
 ### Phase 3 — Refurbish (serves Phase 2; not cosmetics)
@@ -211,7 +241,10 @@ Checkboxes are the timeline. Update them as work lands.
 - [ ] **3.3** Delete `lib/data/compounds.ts` — 26,508 stale lines *(S3)*
 - [ ] **3.4** **DECIDE:** ship the BullMQ worker or return 501 — imports currently vanish *(S4)*
 - [ ] **3.5** Archive ~310 one-off scripts to `scripts/archive/` *(S10)*
-- [ ] **3.6** Delete Circadian + Sandalwood docs; fix the `--bg` drift *(S9)*
+- [x] **3.6** Delete Circadian + Sandalwood docs; fix the `--bg` drift *(S9)* *(done 2026-09-24)*
+      — `CIRCADIAN_DESIGN_SYSTEM.md` and `sandalwood-design-system.md` deleted, zero code
+      references confirmed first. The `--bg` drift was already resolved in `app/globals.css`
+      (`#000000`, verified) — no CSS change needed, only this doc's own stale mention
 - [ ] **3.7** Rewrite `DATABASE_SETUP.md` — it predates the local-Postgres move
 - [ ] **3.8** Split `AnalysisClient.tsx` — free extraction first *(S8)*
 - [ ] Structure verdict: **cleanup in place. Do NOT start a new folder** *(S7)*
@@ -226,8 +259,18 @@ Checkboxes are the timeline. Update them as work lands.
       (`scripts/fix-source-unit-labels.ts`). Checker now reports 0 real flags
 
 ### Phase 5 — Alpha
-- [ ] **5.1** DPIA — **mandatory before processing begins**, not after *(P7)*
-- [ ] **5.2** Privacy policy, ToS, consent UI; Anthropic DPA *(P6, P7)*
+- [~] **5.1** DPIA — **mandatory before processing begins**, not after *(P7)* — **drafted
+      2026-09-23**, `docs/DPIA-2026-09-23.md`, researched against EDPB WP248 and Datatilsynet's
+      published guidance. Concludes residual risk is low-to-medium given mitigations already
+      shipped (2.2, 2.5, 2.8). Still needs Jens's review/sign-off and reissue if scope or scale
+      changes — not yet a final adopted document
+- [~] **5.2** Privacy policy, ToS, consent UI; Anthropic DPA *(P6, P7)* — consent UI done (2.3,
+      2.5). Privacy policy **drafted** 2026-09-23, `docs/PRIVACY-POLICY-DRAFT.md`, covers the
+      Art. 13/14 mandatory disclosure list — needs a real contact email, legal review, and
+      publishing before launch. ToS not drafted (payment/acceptable-use terms are a separate
+      document). Anthropic DPA: standard terms confirmed to exist and cover this via SCCs, but
+      **activation on this specific API account is unverified** — action item for Jens, noted
+      in both the DPIA and the privacy policy draft
 - [ ] **5.3** Stop sending user free text to the 17 external food APIs — send tokens only *(P6)*
 - [ ] **5.4** Payments (Stripe keys exist; integration unverified)
 - [ ] **5.5** Load food data — **Duke and FooDB last** (the two parent/child sources)
@@ -269,10 +312,11 @@ What is actually true, as of 2026-08-11. **Add to this rather than trusting comm
 | Matvaretabellen contribution | ✅ FIXED — 3 compounds -> 50 after the join fix and re-import |
 | Conversion checker false positives | ✅ FIXED — was 246 flags / ~25 real. Now **0 real flags**; 25 qualifier-only notes, 314 missing-unit, both counted separately |
 | Chatbot pipeline | ✅ VERIFIED to Anthropic — blocked only on account credits |
-| Encryption applied to health data | ❌ FALSE — `encryptPHI` has zero callers |
-| User deletion works | ❌ FALSE — nothing consumes `deletion_requests` |
-| Data export works | ❌ FALSE — all TODO comments |
+| Encryption applied to health data | ✅ FIXED 2026-09-23 — `life_stage` (Article 9) is AES-256-GCM ciphertext via `encryptPHI`/`decryptPHI`, key moved to `user_encryption_keys` (separate from the data it protects). Verified by raw `psql` read (ciphertext, not plaintext) and an integration test round-tripping the real read/write path. `biological_sex`/`birth_year`/`birth_month` remain unencrypted — noted as quasi-identifiers in `docs/DATA-SCOPE-DECISIONS.md`, not yet encrypted |
+| User deletion works | ✅ FIXED 2026-09-23 — immediate real deletion, verified end-to-end against a live throwaway account (profile, consent, api keys, encryption key, meals, meal items, custom DVs all confirmed gone; auth user deleted via admin API) |
+| Data export works | ✅ FIXED 2026-09-23 — synchronous JSON download of profile/demographics/consent/meals/api-key-metadata/custom-DVs, verified against a live account |
 | RLS protects user data | ✅ ENFORCED on the public API (Supabase/PostgREST) — 10 policies; verified by planting a real `user_profiles` row and confirming an anonymous caller gets `[]`. **Not** a boundary for the app's own queries: Drizzle connects as the table owner and bypasses RLS, so application-level `userId` filtering is still the boundary there |
+| Application-level userId filtering (the actual boundary) | ✅ AUDITED 2026-09-23 — all 27 files touching meals/symptoms/profiles/api-keys/MFA/dashboard checked individually; every query filters by the server-derived `userId`, zero exploitable gaps found. Full audit is the source for CLAUDE.md task 2.2 |
 | Rate limiting protects login | ✅ VERIFIED — Postgres-backed, fails closed; 5/20 parallel hits allowed (atomic) |
 | Full IPs stored in audit log | ✅ FIXED — truncated at all 3 write boundaries (pseudonymised, still personal data) |
 | Full date of birth stored | ✅ REMOVED — year+month only; API rejects a day. Age bands identical across 809 cases |
@@ -294,7 +338,7 @@ What is actually true, as of 2026-08-11. **Add to this rather than trusting comm
 | Route auth is enforceable | ✅ `npm run check:auth` — 30 routes still to migrate, all reference-data reads |
 | Admin APIs require admin | ✅ VERIFIED — non-admin gets 403 JSON on all 18 |
 | Admin pages require admin | ✅ VERIFIED — non-admin redirected to /analysis |
-| Erasure/export endpoints | ✅ HONEST — now 501; they no longer claim to work |
+| Erasure/export endpoints | ✅ WORK — real, verified end-to-end 2026-09-23 (see 2.8). No longer 501 |
 | Middleware `basePath` matching | ⚪ MOOT 2026-09-14 — `basePath` removed from `next.config.js`; app now served at root |
 | Production build | ✅ VERIFIED passing — was broken (3 TS errors); fixed 2026-08-11 |
 | Middleware runs in dev | ✅ VERIFIED — short-circuit removed; headers now present in dev |
@@ -603,7 +647,9 @@ means an earlier compound claimed a wrong external ID.
 - All 9 columns in the `ON CONFLICT` clause
 
 ### Design system — Charcoal × Cyan/Magenta
-**Source of truth: `app/globals.css`.** Circadian and Sandalwood are retired — delete on sight.
+**Source of truth: `app/globals.css`.** Circadian and Sandalwood were earlier retired design
+systems — their docs are deleted (§3.6); if either name resurfaces anywhere, that's a
+regression, not a reference to restore.
 
 | Token | Value | Role |
 |---|---|---|
@@ -683,6 +729,9 @@ on. See §1 for what is actually current.
 | Doc | Purpose |
 |---|---|
 | `docs/AUDIT-2026-08-11.md` | **Full security/privacy findings. Read before security work** |
+| `docs/DATA-SCOPE-DECISIONS.md` | **Deliberate data-minimization/retention/age/jurisdiction calls for alpha. Read before adding a field, changing retention, or touching consent** |
+| `docs/DPIA-2026-09-23.md` | Data Protection Impact Assessment draft — pending Jens's review. Reissue if scope/scale changes |
+| `docs/PRIVACY-POLICY-DRAFT.md` | Privacy policy draft — needs contact email, legal review, publishing before launch |
 | `docs/NUTRI_OVERVIEW.md` | Platform vision |
 | `docs/DATA_SOURCES.md` | The 18 food sources |
 | `docs/architecture/core-compounds-hierarchy.md` | ~213 Core compounds |
