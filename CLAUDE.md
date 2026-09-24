@@ -326,24 +326,8 @@ Checkboxes are the timeline. Update them as work lands.
       document). Anthropic DPA: standard terms confirmed to exist and cover this via SCCs, but
       **activation on this specific API account is unverified** — action item for Jens, noted
       in both the DPIA and the privacy policy draft
-- [ ] **5.3** Stop sending user free text to the 17 external food APIs — send tokens only *(P6)*
-- [ ] **5.4** Payments (Stripe keys exist; integration unverified)
+- [ ] **5.4** Payments (Stripe keys exist; integration unverified) — deferred, do later
 - [ ] **5.5** Load food data — **Duke and FooDB last** (the two parent/child sources)
-- [ ] **5.6** Restyle landing + `/analysis` — low-poly banana in `bilder/`. Note: the assets
-      are light pink; the live system is charcoal + teal. Decide deliberately
-- [ ] **5.7** Instant-feedback layer — perceived latency between action and response
-      - [ ] **5.7a** Client data cache. **This is where the latency actually is**: 59 raw
-            `fetch()` calls across 19 files, no cache layer, so every date/tab switch
-            refetches from scratch. Route prefetch is already handled by `<Link>`.
-      - [ ] **5.7b** `router.prefetch()` for the 3 `useRouter` files (imperative pushes are
-            not prefetched); convert the 1 raw `<a href="/">` to `<Link>`
-      - [ ] **5.7c** Web Audio sound layer — shared `AudioContext`, `decodeAudioData` at
-            load, `AudioBufferSourceNode.start()` per trigger, resumed on first gesture.
-            **Do after 3.8** so triggers land inside the extracted hooks rather than being
-            bolted into a 2,406-line component and moved later
-      - [ ] **5.7d** Sound must be opt-out and default-quiet — a "meal logged" chime in
-            public discloses that someone is tracking health data. Ties to the anonymity
-            work, not just preference
 
 ---
 
