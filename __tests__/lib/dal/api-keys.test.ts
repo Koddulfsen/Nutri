@@ -1,7 +1,7 @@
 // Test Suite: API Keys Data Access Layer
 // Tests for lib/dal/api-keys.ts
-// Generated: 2025-11-10
 
+import { describe, test, expect, vi, beforeEach, type Mock } from 'vitest';
 import {
   generateApiKey,
   listApiKeys,
@@ -10,44 +10,56 @@ import {
   updateKeyLastUsed,
   setKeyExpiration,
   ApiKey,
-  ApiKeyWithPlaintext
 } from '@/lib/dal/api-keys';
 import { db } from '@/db';
-import { apiKeys } from '@/db/schema';
 import { createClient } from '@/lib/supabase/server';
 import { logAudit } from '@/lib/security/audit-logger';
 import bcrypt from 'bcryptjs';
 
-// Mock dependencies
-jest.mock('@/db');
-jest.mock('@/lib/supabase/server');
-jest.mock('@/lib/security/audit-logger');
-jest.mock('bcryptjs');
+// Explicit factory — see profiles.test.ts for why a bare vi.mock('@/db')
+// triggers db/index.ts's real lazy-connecting getter.
+vi.mock('@/db', () => ({
+  db: {
+    query: { apiKeys: { findMany: vi.fn(), findFirst: vi.fn() } },
+    insert: vi.fn(),
+    update: vi.fn(),
+  },
+}));
+vi.mock('@/lib/supabase/server');
+vi.mock('@/lib/security/audit-logger');
+vi.mock('bcryptjs');
+
+// lib/dal/api-keys.ts's requireAuth() calls supabase.auth.getUser(), not
+// getSession() — mocking getSession() (as the original Jest file did) leaves
+// every "authenticated" test actually hitting the Unauthorized path.
+function mockAuthedUser(userId: string | null) {
+  (createClient as unknown as Mock).mockResolvedValue({
+    auth: {
+      getUser: vi.fn().mockResolvedValue({
+        data: { user: userId ? { id: userId } : null },
+        error: null,
+      }),
+    },
+  });
+}
 
 describe('API Keys DAL - generateApiKey', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   test('should generate API key successfully', async () => {
     // Arrange
-    (createClient as jest.Mock).mockResolvedValue({
-      auth: {
-        getSession: jest.fn().mockResolvedValue({
-          data: { session: { user: { id: 'user-123' } } },
-          error: null
-        })
-      }
-    });
+    mockAuthedUser('user-123');
 
     // Mock: User has 2 active keys (under limit of 5)
-    (db.query.apiKeys.findMany as jest.Mock) = jest.fn().mockResolvedValue([
+    (db.query.apiKeys.findMany as Mock) = vi.fn().mockResolvedValue([
       { id: 'key-1', isRevoked: false },
       { id: 'key-2', isRevoked: false }
     ]);
 
     const mockHash = '$2b$10$mockhashedkey';
-    (bcrypt.hash as jest.Mock) = jest.fn().mockResolvedValue(mockHash);
+    (bcrypt.hash as Mock) = vi.fn().mockResolvedValue(mockHash);
 
     const mockCreatedKey: ApiKey = {
       id: 'key-new',
@@ -62,12 +74,12 @@ describe('API Keys DAL - generateApiKey', () => {
       createdAt: new Date()
     };
 
-    (db.insert as jest.Mock) = jest.fn(() => ({
-      values: jest.fn(() => ({
-        returning: jest.fn().mockResolvedValue([mockCreatedKey])
+    (db.insert as Mock) = vi.fn(() => ({
+      values: vi.fn(() => ({
+        returning: vi.fn().mockResolvedValue([mockCreatedKey])
       }))
     }));
-    (logAudit as jest.Mock) = jest.fn().mockResolvedValue(undefined);
+    (logAudit as Mock).mockResolvedValue(undefined);
 
     // Act
     const result = await generateApiKey('user-123', 'Production API');
@@ -90,17 +102,10 @@ describe('API Keys DAL - generateApiKey', () => {
 
   test('should throw error if limit exceeded (5 keys max)', async () => {
     // Arrange
-    (createClient as jest.Mock).mockResolvedValue({
-      auth: {
-        getSession: jest.fn().mockResolvedValue({
-          data: { session: { user: { id: 'user-123' } } },
-          error: null
-        })
-      }
-    });
+    mockAuthedUser('user-123');
 
     // Mock: User has 5 active keys (at limit)
-    (db.query.apiKeys.findMany as jest.Mock) = jest.fn().mockResolvedValue([
+    (db.query.apiKeys.findMany as Mock) = vi.fn().mockResolvedValue([
       { id: 'key-1', isRevoked: false },
       { id: 'key-2', isRevoked: false },
       { id: 'key-3', isRevoked: false },
@@ -116,14 +121,7 @@ describe('API Keys DAL - generateApiKey', () => {
 
   test('should throw error if unauthorized', async () => {
     // Arrange
-    (createClient as jest.Mock).mockResolvedValue({
-      auth: {
-        getSession: jest.fn().mockResolvedValue({
-          data: { session: { user: { id: 'user-123' } } },
-          error: null
-        })
-      }
-    });
+    mockAuthedUser('user-123');
 
     // Act & Assert
     await expect(generateApiKey('user-456', 'Test Key')).rejects.toThrow(
@@ -133,14 +131,7 @@ describe('API Keys DAL - generateApiKey', () => {
 
   test('should throw error if not authenticated', async () => {
     // Arrange
-    (createClient as jest.Mock).mockResolvedValue({
-      auth: {
-        getSession: jest.fn().mockResolvedValue({
-          data: { session: null },
-          error: null
-        })
-      }
-    });
+    mockAuthedUser(null);
 
     // Act & Assert
     await expect(generateApiKey('user-123', 'Test Key')).rejects.toThrow(
@@ -150,17 +141,10 @@ describe('API Keys DAL - generateApiKey', () => {
 
   test('should allow revoked keys to not count toward limit', async () => {
     // Arrange
-    (createClient as jest.Mock).mockResolvedValue({
-      auth: {
-        getSession: jest.fn().mockResolvedValue({
-          data: { session: { user: { id: 'user-123' } } },
-          error: null
-        })
-      }
-    });
+    mockAuthedUser('user-123');
 
     // Mock: User has 4 active keys + 3 revoked (only active count)
-    (db.query.apiKeys.findMany as jest.Mock) = jest.fn().mockResolvedValue([
+    (db.query.apiKeys.findMany as Mock) = vi.fn().mockResolvedValue([
       { id: 'key-1', isRevoked: false },
       { id: 'key-2', isRevoked: false },
       { id: 'key-3', isRevoked: false },
@@ -168,10 +152,10 @@ describe('API Keys DAL - generateApiKey', () => {
       // Revoked keys filtered by query
     ]);
 
-    (bcrypt.hash as jest.Mock) = jest.fn().mockResolvedValue('$2b$10$hash');
-    (db.insert as jest.Mock) = jest.fn(() => ({
-      values: jest.fn(() => ({
-        returning: jest.fn().mockResolvedValue([{
+    (bcrypt.hash as Mock) = vi.fn().mockResolvedValue('$2b$10$hash');
+    (db.insert as Mock) = vi.fn(() => ({
+      values: vi.fn(() => ({
+        returning: vi.fn().mockResolvedValue([{
           id: 'key-new',
           userId: 'user-123',
           keyPrefix: 'nutri_live_test1234',
@@ -185,7 +169,7 @@ describe('API Keys DAL - generateApiKey', () => {
         }])
       }))
     }));
-    (logAudit as jest.Mock) = jest.fn().mockResolvedValue(undefined);
+    (logAudit as Mock).mockResolvedValue(undefined);
 
     // Act
     const result = await generateApiKey('user-123', 'Test');
@@ -197,19 +181,12 @@ describe('API Keys DAL - generateApiKey', () => {
 
 describe('API Keys DAL - listApiKeys', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   test('should list all API keys for user', async () => {
     // Arrange
-    (createClient as jest.Mock).mockResolvedValue({
-      auth: {
-        getSession: jest.fn().mockResolvedValue({
-          data: { session: { user: { id: 'user-123' } } },
-          error: null
-        })
-      }
-    });
+    mockAuthedUser('user-123');
 
     const mockKeys: ApiKey[] = [
       {
@@ -238,8 +215,8 @@ describe('API Keys DAL - listApiKeys', () => {
       }
     ];
 
-    (db.query.apiKeys.findMany as jest.Mock) = jest.fn().mockResolvedValue(mockKeys);
-    (logAudit as jest.Mock) = jest.fn().mockResolvedValue(undefined);
+    (db.query.apiKeys.findMany as Mock) = vi.fn().mockResolvedValue(mockKeys);
+    (logAudit as Mock).mockResolvedValue(undefined);
 
     // Act
     const result = await listApiKeys('user-123');
@@ -257,14 +234,7 @@ describe('API Keys DAL - listApiKeys', () => {
 
   test('should throw error if unauthorized', async () => {
     // Arrange
-    (createClient as jest.Mock).mockResolvedValue({
-      auth: {
-        getSession: jest.fn().mockResolvedValue({
-          data: { session: { user: { id: 'user-123' } } },
-          error: null
-        })
-      }
-    });
+    mockAuthedUser('user-123');
 
     // Act & Assert
     await expect(listApiKeys('user-456')).rejects.toThrow(
@@ -275,19 +245,12 @@ describe('API Keys DAL - listApiKeys', () => {
 
 describe('API Keys DAL - revokeApiKey', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   test('should revoke API key successfully', async () => {
     // Arrange
-    (createClient as jest.Mock).mockResolvedValue({
-      auth: {
-        getSession: jest.fn().mockResolvedValue({
-          data: { session: { user: { id: 'user-123' } } },
-          error: null
-        })
-      }
-    });
+    mockAuthedUser('user-123');
 
     const mockKey: ApiKey = {
       id: 'key-1',
@@ -302,13 +265,13 @@ describe('API Keys DAL - revokeApiKey', () => {
       createdAt: new Date()
     };
 
-    (db.query.apiKeys.findFirst as jest.Mock) = jest.fn().mockResolvedValue(mockKey);
-    (db.update as jest.Mock) = jest.fn(() => ({
-      set: jest.fn(() => ({
-        where: jest.fn().mockResolvedValue(undefined)
+    (db.query.apiKeys.findFirst as Mock) = vi.fn().mockResolvedValue(mockKey);
+    (db.update as Mock) = vi.fn(() => ({
+      set: vi.fn(() => ({
+        where: vi.fn().mockResolvedValue(undefined)
       }))
     }));
-    (logAudit as jest.Mock) = jest.fn().mockResolvedValue(undefined);
+    (logAudit as Mock).mockResolvedValue(undefined);
 
     // Act
     await revokeApiKey('user-123', 'key-1');
@@ -330,16 +293,9 @@ describe('API Keys DAL - revokeApiKey', () => {
 
   test('should throw error if key not found', async () => {
     // Arrange
-    (createClient as jest.Mock).mockResolvedValue({
-      auth: {
-        getSession: jest.fn().mockResolvedValue({
-          data: { session: { user: { id: 'user-123' } } },
-          error: null
-        })
-      }
-    });
+    mockAuthedUser('user-123');
 
-    (db.query.apiKeys.findFirst as jest.Mock) = jest.fn().mockResolvedValue(null);
+    (db.query.apiKeys.findFirst as Mock) = vi.fn().mockResolvedValue(null);
 
     // Act & Assert
     await expect(revokeApiKey('user-123', 'key-nonexistent')).rejects.toThrow(
@@ -349,14 +305,7 @@ describe('API Keys DAL - revokeApiKey', () => {
 
   test('should throw error if unauthorized', async () => {
     // Arrange
-    (createClient as jest.Mock).mockResolvedValue({
-      auth: {
-        getSession: jest.fn().mockResolvedValue({
-          data: { session: { user: { id: 'user-123' } } },
-          error: null
-        })
-      }
-    });
+    mockAuthedUser('user-123');
 
     // Act & Assert
     await expect(revokeApiKey('user-456', 'key-1')).rejects.toThrow(
@@ -367,7 +316,7 @@ describe('API Keys DAL - revokeApiKey', () => {
 
 describe('API Keys DAL - validateApiKey', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   test('should validate correct API key', async () => {
@@ -385,8 +334,8 @@ describe('API Keys DAL - validateApiKey', () => {
       createdAt: new Date()
     };
 
-    (db.query.apiKeys.findMany as jest.Mock) = jest.fn().mockResolvedValue([mockKey]);
-    (bcrypt.compare as jest.Mock) = jest.fn().mockResolvedValue(true);
+    (db.query.apiKeys.findMany as Mock) = vi.fn().mockResolvedValue([mockKey]);
+    (bcrypt.compare as Mock) = vi.fn().mockResolvedValue(true);
 
     // Act
     const result = await validateApiKey('nutri_live_abcd1234', 'nutri_live_abcd1234567890123456789012');
@@ -410,8 +359,8 @@ describe('API Keys DAL - validateApiKey', () => {
       createdAt: new Date()
     };
 
-    (db.query.apiKeys.findMany as jest.Mock) = jest.fn().mockResolvedValue([mockKey]);
-    (bcrypt.compare as jest.Mock) = jest.fn().mockResolvedValue(false);
+    (db.query.apiKeys.findMany as Mock) = vi.fn().mockResolvedValue([mockKey]);
+    (bcrypt.compare as Mock) = vi.fn().mockResolvedValue(false);
 
     // Act
     const result = await validateApiKey('nutri_live_abcd1234', 'wrong-key');
@@ -422,7 +371,7 @@ describe('API Keys DAL - validateApiKey', () => {
 
   test('should return null for revoked key', async () => {
     // Arrange: findMany filters by isRevoked = false
-    (db.query.apiKeys.findMany as jest.Mock) = jest.fn().mockResolvedValue([]);
+    (db.query.apiKeys.findMany as Mock) = vi.fn().mockResolvedValue([]);
 
     // Act
     const result = await validateApiKey('nutri_live_abcd1234', 'any-key');
@@ -446,8 +395,8 @@ describe('API Keys DAL - validateApiKey', () => {
       createdAt: new Date()
     };
 
-    (db.query.apiKeys.findMany as jest.Mock) = jest.fn().mockResolvedValue([expiredKey]);
-    (bcrypt.compare as jest.Mock) = jest.fn().mockResolvedValue(true);
+    (db.query.apiKeys.findMany as Mock) = vi.fn().mockResolvedValue([expiredKey]);
+    (bcrypt.compare as Mock) = vi.fn().mockResolvedValue(true);
 
     // Act
     const result = await validateApiKey('nutri_live_abcd1234', 'nutri_live_abcd1234567890123456789012');
@@ -458,7 +407,7 @@ describe('API Keys DAL - validateApiKey', () => {
 
   test('should return null for non-existent prefix', async () => {
     // Arrange
-    (db.query.apiKeys.findMany as jest.Mock) = jest.fn().mockResolvedValue([]);
+    (db.query.apiKeys.findMany as Mock) = vi.fn().mockResolvedValue([]);
 
     // Act
     const result = await validateApiKey('nutri_live_nonexist', 'any-key');
@@ -470,14 +419,14 @@ describe('API Keys DAL - validateApiKey', () => {
 
 describe('API Keys DAL - updateKeyLastUsed', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   test('should update last_used_at timestamp', async () => {
     // Arrange
-    (db.update as jest.Mock) = jest.fn(() => ({
-      set: jest.fn(() => ({
-        where: jest.fn().mockResolvedValue(undefined)
+    (db.update as Mock) = vi.fn(() => ({
+      set: vi.fn(() => ({
+        where: vi.fn().mockResolvedValue(undefined)
       }))
     }));
 
@@ -491,19 +440,12 @@ describe('API Keys DAL - updateKeyLastUsed', () => {
 
 describe('API Keys DAL - setKeyExpiration', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   test('should set expiration date for API key', async () => {
     // Arrange
-    (createClient as jest.Mock).mockResolvedValue({
-      auth: {
-        getSession: jest.fn().mockResolvedValue({
-          data: { session: { user: { id: 'user-123' } } },
-          error: null
-        })
-      }
-    });
+    mockAuthedUser('user-123');
 
     const mockKey: ApiKey = {
       id: 'key-1',
@@ -518,13 +460,13 @@ describe('API Keys DAL - setKeyExpiration', () => {
       createdAt: new Date()
     };
 
-    (db.query.apiKeys.findFirst as jest.Mock) = jest.fn().mockResolvedValue(mockKey);
-    (db.update as jest.Mock) = jest.fn(() => ({
-      set: jest.fn(() => ({
-        where: jest.fn().mockResolvedValue(undefined)
+    (db.query.apiKeys.findFirst as Mock) = vi.fn().mockResolvedValue(mockKey);
+    (db.update as Mock) = vi.fn(() => ({
+      set: vi.fn(() => ({
+        where: vi.fn().mockResolvedValue(undefined)
       }))
     }));
-    (logAudit as jest.Mock) = jest.fn().mockResolvedValue(undefined);
+    (logAudit as Mock).mockResolvedValue(undefined);
 
     const expirationDate = new Date('2025-12-31');
 
@@ -548,14 +490,7 @@ describe('API Keys DAL - setKeyExpiration', () => {
 
   test('should remove expiration by setting null', async () => {
     // Arrange
-    (createClient as jest.Mock).mockResolvedValue({
-      auth: {
-        getSession: jest.fn().mockResolvedValue({
-          data: { session: { user: { id: 'user-123' } } },
-          error: null
-        })
-      }
-    });
+    mockAuthedUser('user-123');
 
     const mockKey: ApiKey = {
       id: 'key-1',
@@ -570,13 +505,13 @@ describe('API Keys DAL - setKeyExpiration', () => {
       createdAt: new Date()
     };
 
-    (db.query.apiKeys.findFirst as jest.Mock) = jest.fn().mockResolvedValue(mockKey);
-    (db.update as jest.Mock) = jest.fn(() => ({
-      set: jest.fn(() => ({
-        where: jest.fn().mockResolvedValue(undefined)
+    (db.query.apiKeys.findFirst as Mock) = vi.fn().mockResolvedValue(mockKey);
+    (db.update as Mock) = vi.fn(() => ({
+      set: vi.fn(() => ({
+        where: vi.fn().mockResolvedValue(undefined)
       }))
     }));
-    (logAudit as jest.Mock) = jest.fn().mockResolvedValue(undefined);
+    (logAudit as Mock).mockResolvedValue(undefined);
 
     // Act
     await setKeyExpiration('user-123', 'key-1', null);
@@ -593,14 +528,7 @@ describe('API Keys DAL - setKeyExpiration', () => {
 
   test('should throw error if unauthorized', async () => {
     // Arrange
-    (createClient as jest.Mock).mockResolvedValue({
-      auth: {
-        getSession: jest.fn().mockResolvedValue({
-          data: { session: { user: { id: 'user-123' } } },
-          error: null
-        })
-      }
-    });
+    mockAuthedUser('user-123');
 
     // Act & Assert
     await expect(setKeyExpiration('user-456', 'key-1', new Date())).rejects.toThrow(
