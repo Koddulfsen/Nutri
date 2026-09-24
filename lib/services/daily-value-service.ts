@@ -28,6 +28,7 @@ import { redis } from './redis';
 import { encryptPHI, decryptPHI } from '@/lib/security/encryption';
 import { resolveBar, toUnit, type DvRow } from '@/lib/dv/resolve';
 import { formLinksOf } from '@/lib/dv/compound-links';
+import { referenceWeightKg } from '@/lib/dv/reference-weights';
 
 // ═══════════════════════════════════════════════════════════════
 // Types
@@ -676,6 +677,11 @@ export async function getDailyValuesBatchByDemographics(
   // landing on year-boundaries is consistent with the source bracketing convention.
   const ageMonths = Math.max(0, Math.floor(ageYears * 12));
 
+  // A value published per kilogram needs a weight before it is an amount. The user's own is used when
+  // they have given one; otherwise the published reference weight for their age and sex, which the
+  // resolver records as an assumption so the bar can say it assumed (lib/dv/reference-weights.ts).
+  const reference = weightKg == null ? referenceWeightKg(ageMonths, sex) : null;
+
   // Compound names, because the resolver keys its rules (shared judgements, form links) on them.
   const compoundRows = await db
     .select({ id: compounds.id, name: compounds.name })
@@ -754,7 +760,11 @@ export async function getDailyValuesBatchByDemographics(
     }
     const formRows: Record<string, DvRow[]> = {};
     for (const link of formLinksOf(name)) formRows[link.form] = byCompoundName.get(link.form) ?? [];
-    const bar = resolveBar(name, own, formRows, { weightKg });
+    const bar = resolveBar(name, own, formRows, {
+      weightKg,
+      referenceWeightKg: reference?.kg ?? null,
+      referenceWeightNote: reference?.note,
+    });
 
     // Only surface a limit the caller can compare with the target: a % -of-energy ceiling cannot be read against a
     // target in grams, and a form limit counts a different thing (preformed vitamin A, not total). Those are carried

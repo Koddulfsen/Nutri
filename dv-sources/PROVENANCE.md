@@ -636,3 +636,45 @@ Two options once dependencies are known:
 
 Recommendation: collapse for identical values, keep `adapted` at full weight (a re-derivation for a different
 body size or iron bioavailability is real information). Decide with Jens once the table exists.
+
+## Reference body weights (2026-09-24)
+
+A weight is now a value in this system, because a daily value published per kilogram needs one before it is
+an amount — and eight sources publish at least one value that way (`DV-ACCURACY-TASKS.md` §G). A weight the
+user has not given is an assumption about them, so it is sourced and attributed like everything else here.
+
+**Chosen: the IOM DRI "Reference Heights and Weights" table.** Read from Health Canada's reproduction of the
+DRI tables (`dri_tables-eng.pdf`, *Abbreviations and Reference Heights and Weights*), which carries both
+footnotes verbatim: *"Calculated from median height and median body mass index for ages 4 through 19 years
+from CDC/NCHS growth charts"* and *"Since there is no evidence that weight should change with ageing if
+activity is maintained, the reference weights for adults 19-30 years of age apply to all adult age groups."*
+
+| Band | Male (kg) | Female (kg) |
+|---|---|---|
+| 2–6 mo | 6 | 6 |
+| 7–12 mo | 9 | 9 |
+| 1–3 y | 12 | 12 |
+| 4–8 y | 20 | 20 |
+| 9–13 y | 36 | 37 |
+| 14–18 y | 61 | 54 |
+| 19–30 y (all adults) | 70 | 57 |
+
+**Rejected: EFSA's defaults** (*Guidance on selected default values*, EFSA Journal 2012;10(3):2579) — 70 kg
+adult, 12 kg for 1–3 y, 5 kg for infants. Three numbers, no split by sex, no adolescent bands. Fine for a
+risk assessment that wants one conservative figure; too coarse for a per-person target.
+
+**Why the IOM table specifically, and how it is verified.** The DRI macronutrient table publishes protein
+twice — g/kg/day and g/day — and its footnote 30 says the second is the first *"multiplied by the reference
+weight"*. That makes the printed g/day column a published answer key for this table, so `reference-weights.test.ts`
+reproduces it rather than asserting the numbers were typed in correctly. **Nine of ten bands reproduce
+exactly.** One does not: girls 9–13 y are printed at 0.95 g/kg and 34 g/day, but 0.95 × 37 kg = 35.2. That
+deviation is asserted in the test as a known one, so if it ever changes someone re-reads the source instead
+of finding a silently wrong band.
+
+Below 2 months there is no reference weight — the DRI table starts at 2–6 months, and inventing one to fill
+the gap would be the kind of unverified number §0 of CLAUDE.md is about. `referenceWeightKg` returns null and
+the value is excluded with that reason.
+
+**Still to do:** per-source reference weights (plan A3) where a source publishes its own — the Nordic council,
+WHO/FAO and the IOM each do — so a value converts with the weight its own committee used rather than a
+borrowed one.

@@ -35,7 +35,9 @@ between "your target" and "the target for a 70 kg adult".
 
 ## A. Reference weights *(prerequisite for C and D to display without a user weight)*
 
-**A1. Decide the global default and record it.**
+**A1. Decide the global default and record it.** ✅ **DONE 2026-09-24 — the IOM DRI table.**
+*(Recorded in `PROVENANCE.md`, not `DATA-SCOPE-DECISIONS.md` as this plan first said: a reference
+weight is a sourced value, not a decision about what we collect from users.)*
 EFSA's *Guidance on selected default values* (EFSA Journal 2012;10(3):2579) gives **70 kg** for adults,
 **12 kg** for 1–3 y and **5 kg** for infants 0–12 months — deliberately coarse, and it does not split
 by sex. IOM's DRI tables publish reference heights and weights per age band and sex, which is finer and
@@ -43,25 +45,33 @@ matches how our own age bands work.
 *Deliverable:* a decision recorded in `docs/DATA-SCOPE-DECISIONS.md` naming the chosen table and why.
 *Check:* the document and table are quoted with a locator, as every other value in this project is.
 
-**A2. Build `lib/dv/reference-weights.ts`.**
+**A2. Build `lib/dv/reference-weights.ts`.** ✅ **DONE** — `referenceWeightKg(ageMonths, sex)`, pure,
+with the source named in the returned note; 15 tests including band edges and the below-2-months null.
 `referenceWeightKg(ageMonths, sex)` returning `{ kg, note }`, where `note` names the source and table.
 Pure function, no database.
 *Check:* unit tests at the band edges (11/12 months, 3/4 years, 18/19 years) and for both sexes.
 
-**A3. Per-source reference weights where a source publishes its own.**
+**A3. The reproduction test.** ✅ **DONE for the IOM table** — 9 of its 10 protein bands reproduce the
+printed g/day exactly from the printed g/kg/day; the one that does not (girls 9–13) is asserted as a
+known deviation. **Still to do: per-source reference weights where a source publishes its own.**
 Nordic (NNR), IOM and WHO/FAO each do. Store them beside the source, not in the global table, so a
 value converts with the weight its own committee used.
 *Check:* for a compound where a source prints both per-kg and absolute (NNR fluoride, vitamin K), the
 per-kg value × that source's reference weight reproduces the printed absolute value. **If it does not,
 the reference weight is wrong — this is the test that proves the whole approach.**
 
-**A4. Wire it into the resolver call path.**
+**A4. Wire it into the resolver call path.** ✅ **DONE** — `getDailyValuesBatchByDemographics` passes the
+reference weight and its note when the user has given none. Demonstrated on a stand-in EFSA protein row:
+no weight → EU excluded, UK alone at 56 g; reference 70 kg → 57.05 g from EU+UK, marked `reference`;
+own weight 95 kg → 67.4 g, marked `measured`.
 `getDailyValuesBatchByDemographics` already accepts `weightKg`; add the reference fallback so it passes
 `referenceWeightKg` and `referenceWeightNote` when the user has none.
 *Check:* a per-kg row resolves to an absolute number with `weightBasis.source === 'reference'`, and to
 a different number once a user weight is supplied.
 
-**A5. Provenance entry.** Reference weights are values like any other and need their own entry in
+**A5. Provenance entry.** ✅ **DONE** — `PROVENANCE.md`, "Reference body weights (2026-09-24)", with the
+table, both source footnotes verbatim, why EFSA's defaults were rejected, and the one band that deviates.
+Original text: Reference weights are values like any other and need their own entry in
 `PROVENANCE.md` — which body, which table, which year.
 
 ---
