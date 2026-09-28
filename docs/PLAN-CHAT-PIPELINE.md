@@ -3,6 +3,20 @@
 Written 2026-09-28. Scope: the `/analysis` chat (`app/analysis/FoodLogChat.tsx` →
 `app/api/ai/log-food/route.ts`, Haiku 4.5 tool loop).
 
+> **Status 2026-09-28: steps 0–7 built** (commit `38a4a46`). Tracked in CLAUDE.md §3 Phase 2b.
+> Where it differs from the plan below:
+> - **1.2 not needed:** the other four AI routes are already admin-only (`requireAdmin`).
+> - **4.6:** no separate `draft` field. Each assistant turn carries its proposal and its
+>   status (`open`/`added`/`replaced`) in `history`, which covers corrections *and* "and a
+>   coffee" after adding.
+> - **5 decision point:** kept the loop, since with batched search a normal log is 2 rounds.
+>   Added a last-round nudge instead of the "ran out of steps" dead end, and temperature 0.
+> - **6 open question** still open: branded-product submission from the chat is paused.
+> - **New finding:** the database, not the chat, is now the main limit (107 public foods).
+>
+> Eval: food messages answered with a list 5 → 12–13 of 16; $0.0088 → ~$0.0045 per message,
+> and confirming costs nothing. `scripts/chat-eval/results/` has every run.
+
 ## Goal
 
 1. Asks fewer questions. Still a real conversation, but more to the point.
