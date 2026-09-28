@@ -101,6 +101,22 @@ export const referenceDailyValues = pgTable('reference_daily_values', {
   // anything, and must never be pooled with an absolute value unconverted.
   perKgBodyWeight: boolean('per_kg_body_weight').notNull().default(false),
 
+  // An absolute amount added on top of `value`, in the same unit.
+  //
+  // Every value of this kind is an affine function of body weight: amount = value × weight + plus_absolute
+  // when per_kg_body_weight is set, or simply value + plus_absolute when it is not. Until this column
+  // existed only the two degenerate cases could be stored — pure per-kg, or pure absolute — and the
+  // general case could not. That general case is where a source states a per-kg base and then an absolute
+  // increment on top of it: EFSA's protein PRI in the second trimester is "+9 g/d in addition to the PRI
+  // for protein of non-pregnant women", which is 0.83 g/kg. One row could not hold both, so those rows
+  // were dropped, and pregnancy — where protein requirements move most, +28 g/d by the third trimester —
+  // lost up to four of the ten independent bodies.
+  //
+  // This is NOT the general mechanism for increments. When the base is an absolute number, the extracts
+  // fold the increment in and store a total with a note saying so; 1,841 rows across 15 sources already
+  // do that and it works. Using both conventions for the same thing would be worse than either.
+  plusAbsolute: numeric('plus_absolute', { precision: 12, scale: 4 }).notNull().default('0'),
+
   // The period `value` is averaged over: 1 for a daily value, 7 for a weekly one (EFSA's TWIs),
   // 30 for JECFA's monthly cadmium PTMI. A weekly or monthly limit divided into a single day is not
   // what the committee set — one high day inside a compliant week is not an exceedance.

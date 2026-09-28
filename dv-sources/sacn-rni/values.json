@@ -16,6 +16,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "Printed as +550 over women 19-50 y; stored as total.",
   "from": "RNI minerals, Calcium, Lactation +550"
  },
@@ -36,6 +37,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Calcium, 0-3 months"
  },
@@ -56,6 +58,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Calcium, 4-6 months"
  },
@@ -76,6 +79,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Calcium, 7-9 months"
  },
@@ -96,6 +100,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Calcium, 10-12 months"
  },
@@ -116,6 +121,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Calcium, 1-3 years"
  },
@@ -136,6 +142,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Calcium, 4-6 years"
  },
@@ -156,6 +163,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Calcium, 7-10 years"
  },
@@ -176,6 +184,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Calcium, Females 11-14 years"
  },
@@ -196,6 +205,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Calcium, Females 15-18 years"
  },
@@ -216,6 +226,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Calcium, Females 19-50 years"
  },
@@ -236,6 +247,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Calcium, Females 50+ years"
  },
@@ -256,6 +268,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Calcium, 0-3 months"
  },
@@ -276,6 +289,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Calcium, 4-6 months"
  },
@@ -296,6 +310,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Calcium, 7-9 months"
  },
@@ -316,6 +331,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Calcium, 10-12 months"
  },
@@ -336,6 +352,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Calcium, 1-3 years"
  },
@@ -356,6 +373,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Calcium, 4-6 years"
  },
@@ -376,6 +394,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Calcium, 7-10 years"
  },
@@ -396,6 +415,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Calcium, Males 11-14 years"
  },
@@ -416,6 +436,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Calcium, Males 15-18 years"
  },
@@ -436,6 +457,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Calcium, Males 19-50 years"
  },
@@ -456,6 +478,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Calcium, Males 50+ years"
  },
@@ -476,6 +499,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "No increase over non-pregnant women 19-50 y.",
   "from": "RNI minerals, Calcium, Pregnancy *"
  },
@@ -496,6 +520,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "SACN 2015, population aged 2 years and above.",
   "from": "DRVs for carbohydrate and fat, Total carbohydrate"
  },
@@ -516,6 +541,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "SACN 2015, population aged 2 years and above.",
   "from": "DRVs for carbohydrate and fat, Total carbohydrate"
  },
@@ -536,6 +562,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "No increase over non-pregnant women 19-50 y.",
   "from": "RNI minerals, Chloride, Lactation *"
  },
@@ -556,6 +583,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Chloride, 0-3 months"
  },
@@ -576,6 +604,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Chloride, 4-6 months"
  },
@@ -596,6 +625,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Chloride, 7-9 months"
  },
@@ -616,6 +646,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Chloride, 10-12 months"
  },
@@ -636,6 +667,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Chloride, 1-3 years"
  },
@@ -656,6 +688,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Chloride, 4-6 years"
  },
@@ -676,6 +709,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Chloride, 7-10 years"
  },
@@ -696,6 +730,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Chloride, Females 11-14 years"
  },
@@ -716,6 +751,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Chloride, Females 15-18 years"
  },
@@ -736,6 +772,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Chloride, Females 19-50 years"
  },
@@ -756,6 +793,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Chloride, Females 50+ years"
  },
@@ -776,6 +814,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Chloride, 0-3 months"
  },
@@ -796,6 +835,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Chloride, 4-6 months"
  },
@@ -816,6 +856,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Chloride, 7-9 months"
  },
@@ -836,6 +877,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Chloride, 10-12 months"
  },
@@ -856,6 +898,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Chloride, 1-3 years"
  },
@@ -876,6 +919,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Chloride, 4-6 years"
  },
@@ -896,6 +940,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Chloride, 7-10 years"
  },
@@ -916,6 +961,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Chloride, Males 11-14 years"
  },
@@ -936,6 +982,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Chloride, Males 15-18 years"
  },
@@ -956,6 +1003,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Chloride, Males 19-50 years"
  },
@@ -976,6 +1024,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Chloride, Males 50+ years"
  },
@@ -996,6 +1045,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "No increase over non-pregnant women 19-50 y.",
   "from": "RNI minerals, Chloride, Pregnancy *"
  },
@@ -1016,6 +1066,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "Printed as +0.3 over women 19-50 y; stored as total.",
   "from": "RNI minerals, Copper, Lactation +0.3"
  },
@@ -1036,6 +1087,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Copper, 0-3 months"
  },
@@ -1056,6 +1108,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Copper, 4-6 months"
  },
@@ -1076,6 +1129,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Copper, 7-9 months"
  },
@@ -1096,6 +1150,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Copper, 10-12 months"
  },
@@ -1116,6 +1171,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Copper, 1-3 years"
  },
@@ -1136,6 +1192,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Copper, 4-6 years"
  },
@@ -1156,6 +1213,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Copper, 7-10 years"
  },
@@ -1176,6 +1234,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Copper, Females 11-14 years"
  },
@@ -1196,6 +1255,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Copper, Females 15-18 years"
  },
@@ -1216,6 +1276,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Copper, Females 19-50 years"
  },
@@ -1236,6 +1297,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Copper, Females 50+ years"
  },
@@ -1256,6 +1318,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Copper, 0-3 months"
  },
@@ -1276,6 +1339,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Copper, 4-6 months"
  },
@@ -1296,6 +1360,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Copper, 7-9 months"
  },
@@ -1316,6 +1381,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Copper, 10-12 months"
  },
@@ -1336,6 +1402,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Copper, 1-3 years"
  },
@@ -1356,6 +1423,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Copper, 4-6 years"
  },
@@ -1376,6 +1444,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Copper, 7-10 years"
  },
@@ -1396,6 +1465,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Copper, Males 11-14 years"
  },
@@ -1416,6 +1486,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Copper, Males 15-18 years"
  },
@@ -1436,6 +1507,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Copper, Males 19-50 years"
  },
@@ -1456,6 +1528,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Copper, Males 50+ years"
  },
@@ -1476,6 +1549,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "No increase over non-pregnant women 19-50 y.",
   "from": "RNI minerals, Copper, Pregnancy *"
  },
@@ -1496,6 +1570,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "SACN 2015 recommended intake.",
   "from": "Dietary fibre, 2-5 years"
  },
@@ -1516,6 +1591,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "SACN 2015 recommended intake.",
   "from": "Dietary fibre, 5-11 years"
  },
@@ -1536,6 +1612,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "SACN 2015 recommended intake.",
   "from": "Dietary fibre, 11-16 years"
  },
@@ -1556,6 +1633,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "SACN 2015 recommended intake.",
   "from": "Dietary fibre, 17 years and over"
  },
@@ -1576,6 +1654,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "SACN 2015 recommended intake.",
   "from": "Dietary fibre, 2-5 years"
  },
@@ -1596,6 +1675,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "SACN 2015 recommended intake.",
   "from": "Dietary fibre, 5-11 years"
  },
@@ -1616,6 +1696,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "SACN 2015 recommended intake.",
   "from": "Dietary fibre, 11-16 years"
  },
@@ -1636,6 +1717,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "SACN 2015 recommended intake.",
   "from": "Dietary fibre, 17 years and over"
  },
@@ -1656,6 +1738,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "Mixed feeding or unknown. Breastfed M 2.2 / F 2.0; formula-fed M 2.5 / F 2.3 MJ.",
   "from": "Energy EAR, 1-2 months, females"
  },
@@ -1676,6 +1759,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "Mixed feeding or unknown. Breastfed M 2.4 / F 2.2; formula-fed M 2.6 / F 2.5 MJ.",
   "from": "Energy EAR, 3-4 months, females"
  },
@@ -1696,6 +1780,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "Mixed feeding or unknown. Breastfed M 2.5 / F 2.3; formula-fed M 2.7 / F 2.6 MJ.",
   "from": "Energy EAR, 5-6 months, females"
  },
@@ -1716,6 +1801,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "Mixed feeding or unknown. Breastfed M 2.9 / F 2.7; formula-fed M 3.1 / F 2.8 MJ.",
   "from": "Energy EAR, 7-12 months, females"
  },
@@ -1736,6 +1822,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "Mixed feeding or unknown.",
   "from": "Energy EAR, 1 year, females"
  },
@@ -1756,6 +1843,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "Mixed feeding or unknown.",
   "from": "Energy EAR, 2 years, females"
  },
@@ -1776,6 +1864,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "Mixed feeding or unknown.",
   "from": "Energy EAR, 3 years, females"
  },
@@ -1796,6 +1885,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "Energy EAR, children 4 y, females"
  },
@@ -1816,6 +1906,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "Energy EAR, children 5 y, females"
  },
@@ -1836,6 +1927,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "Energy EAR, children 6 y, females"
  },
@@ -1856,6 +1948,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "Energy EAR, children 7 y, females"
  },
@@ -1876,6 +1969,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "Energy EAR, children 8 y, females"
  },
@@ -1896,6 +1990,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "Energy EAR, children 9 y, females"
  },
@@ -1916,6 +2011,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "Energy EAR, children 10 y, females"
  },
@@ -1936,6 +2032,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "Energy EAR, children 11 y, females"
  },
@@ -1956,6 +2053,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "Energy EAR, children 12 y, females"
  },
@@ -1976,6 +2074,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "Energy EAR, children 13 y, females"
  },
@@ -1996,6 +2095,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "Energy EAR, children 14 y, females"
  },
@@ -2016,6 +2116,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "Energy EAR, children 15 y, females"
  },
@@ -2036,6 +2137,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "Energy EAR, children 16 y, females"
  },
@@ -2056,6 +2158,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "Energy EAR, children 17 y, females"
  },
@@ -2076,6 +2179,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "Energy EAR, children 18 y, females"
  },
@@ -2096,6 +2200,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "Healthy weight, moderately active.",
   "from": "Energy EAR, adults 19-24, females"
  },
@@ -2116,6 +2221,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "Healthy weight, moderately active.",
   "from": "Energy EAR, adults 25-34, females"
  },
@@ -2136,6 +2242,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "Healthy weight, moderately active.",
   "from": "Energy EAR, adults 35-44, females"
  },
@@ -2156,6 +2263,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "Healthy weight, moderately active.",
   "from": "Energy EAR, adults 45-54, females"
  },
@@ -2176,6 +2284,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "Healthy weight, moderately active.",
   "from": "Energy EAR, adults 55-64, females"
  },
@@ -2196,6 +2305,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "Healthy weight, moderately active. BNF prints 7.7 MJ beside 1912 kcal; 1912 kcal = 8.0 MJ (SACN 2011), used here.",
   "from": "Energy EAR, adults 65-74, females"
  },
@@ -2216,6 +2326,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "Healthy weight, moderately active. BNF prints 8.7 MJ beside 1840 kcal; 1840 kcal = 7.7 MJ (SACN 2011), used here.",
   "from": "Energy EAR, adults 75+, females"
  },
@@ -2236,6 +2347,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "Mixed feeding or unknown. Breastfed M 2.2 / F 2.0; formula-fed M 2.5 / F 2.3 MJ.",
   "from": "Energy EAR, 1-2 months, males"
  },
@@ -2256,6 +2368,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "Mixed feeding or unknown. Breastfed M 2.4 / F 2.2; formula-fed M 2.6 / F 2.5 MJ.",
   "from": "Energy EAR, 3-4 months, males"
  },
@@ -2276,6 +2389,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "Mixed feeding or unknown. Breastfed M 2.5 / F 2.3; formula-fed M 2.7 / F 2.6 MJ.",
   "from": "Energy EAR, 5-6 months, males"
  },
@@ -2296,6 +2410,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "Mixed feeding or unknown. Breastfed M 2.9 / F 2.7; formula-fed M 3.1 / F 2.8 MJ.",
   "from": "Energy EAR, 7-12 months, males"
  },
@@ -2316,6 +2431,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "Mixed feeding or unknown.",
   "from": "Energy EAR, 1 year, males"
  },
@@ -2336,6 +2452,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "Mixed feeding or unknown.",
   "from": "Energy EAR, 2 years, males"
  },
@@ -2356,6 +2473,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "Mixed feeding or unknown.",
   "from": "Energy EAR, 3 years, males"
  },
@@ -2376,6 +2494,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "Energy EAR, children 4 y, males"
  },
@@ -2396,6 +2515,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "Energy EAR, children 5 y, males"
  },
@@ -2416,6 +2536,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "Energy EAR, children 6 y, males"
  },
@@ -2436,6 +2557,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "Energy EAR, children 7 y, males"
  },
@@ -2456,6 +2578,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "Energy EAR, children 8 y, males"
  },
@@ -2476,6 +2599,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "Energy EAR, children 9 y, males"
  },
@@ -2496,6 +2620,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "Energy EAR, children 10 y, males"
  },
@@ -2516,6 +2641,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "Energy EAR, children 11 y, males"
  },
@@ -2536,6 +2662,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "Energy EAR, children 12 y, males"
  },
@@ -2556,6 +2683,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "Energy EAR, children 13 y, males"
  },
@@ -2576,6 +2704,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "Energy EAR, children 14 y, males"
  },
@@ -2596,6 +2725,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "Energy EAR, children 15 y, males"
  },
@@ -2616,6 +2746,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "Energy EAR, children 16 y, males"
  },
@@ -2636,6 +2767,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "Energy EAR, children 17 y, males"
  },
@@ -2656,6 +2788,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "Energy EAR, children 18 y, males"
  },
@@ -2676,6 +2809,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "Healthy weight, moderately active.",
   "from": "Energy EAR, adults 19-24, males"
  },
@@ -2696,6 +2830,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "Healthy weight, moderately active.",
   "from": "Energy EAR, adults 25-34, males"
  },
@@ -2716,6 +2851,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "Healthy weight, moderately active.",
   "from": "Energy EAR, adults 35-44, males"
  },
@@ -2736,6 +2872,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "Healthy weight, moderately active.",
   "from": "Energy EAR, adults 45-54, males"
  },
@@ -2756,6 +2893,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "Healthy weight, moderately active.",
   "from": "Energy EAR, adults 55-64, males"
  },
@@ -2776,6 +2914,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "Healthy weight, moderately active.",
   "from": "Energy EAR, adults 65-74, males"
  },
@@ -2796,6 +2935,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "Healthy weight, moderately active.",
   "from": "Energy EAR, adults 75+, males"
  },
@@ -2816,6 +2956,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "Healthy weight, moderately active. Printed as +0.8 MJ in the final three months; stored as total.",
   "from": "Energy, pregnancy +0.8 over adults 19-24"
  },
@@ -2836,6 +2977,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "Healthy weight, moderately active. Printed as +0.8 MJ in the final three months; stored as total.",
   "from": "Energy, pregnancy +0.8 over adults 25-34"
  },
@@ -2856,6 +2998,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "Healthy weight, moderately active. Printed as +0.8 MJ in the final three months; stored as total.",
   "from": "Energy, pregnancy +0.8 over adults 35-44"
  },
@@ -2876,6 +3019,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "Healthy weight, moderately active. Printed as +0.8 MJ in the final three months; stored as total.",
   "from": "Energy, pregnancy +0.8 over adults 45-54"
  },
@@ -2896,6 +3040,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "Printed as +60 over women 19-50 y; stored as total.",
   "from": "RNI vitamins, Folate (Total), Lactation +60"
  },
@@ -2916,6 +3061,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI vitamins, Folate (Total), 0-3 months"
  },
@@ -2936,6 +3082,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI vitamins, Folate (Total), 4-6 months"
  },
@@ -2956,6 +3103,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI vitamins, Folate (Total), 7-9 months"
  },
@@ -2976,6 +3124,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI vitamins, Folate (Total), 10-12 months"
  },
@@ -2996,6 +3145,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI vitamins, Folate (Total), 1-3 years"
  },
@@ -3016,6 +3166,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI vitamins, Folate (Total), 4-6 years"
  },
@@ -3036,6 +3187,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI vitamins, Folate (Total), 7-10 years"
  },
@@ -3056,6 +3208,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI vitamins, Folate (Total), Females 11-14 years"
  },
@@ -3076,6 +3229,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI vitamins, Folate (Total), Females 15-18 years"
  },
@@ -3096,6 +3250,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI vitamins, Folate (Total), Females 19-50 years"
  },
@@ -3116,6 +3271,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI vitamins, Folate (Total), Females 50+ years"
  },
@@ -3136,6 +3292,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI vitamins, Folate (Total), 0-3 months"
  },
@@ -3156,6 +3313,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI vitamins, Folate (Total), 4-6 months"
  },
@@ -3176,6 +3334,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI vitamins, Folate (Total), 7-9 months"
  },
@@ -3196,6 +3355,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI vitamins, Folate (Total), 10-12 months"
  },
@@ -3216,6 +3376,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI vitamins, Folate (Total), 1-3 years"
  },
@@ -3236,6 +3397,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI vitamins, Folate (Total), 4-6 years"
  },
@@ -3256,6 +3418,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI vitamins, Folate (Total), 7-10 years"
  },
@@ -3276,6 +3439,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI vitamins, Folate (Total), Males 11-14 years"
  },
@@ -3296,6 +3460,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI vitamins, Folate (Total), Males 15-18 years"
  },
@@ -3316,6 +3481,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI vitamins, Folate (Total), Males 19-50 years"
  },
@@ -3336,6 +3502,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI vitamins, Folate (Total), Males 50+ years"
  },
@@ -3356,6 +3523,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "Printed as +100 over women 19-50 y; stored as total.",
   "from": "RNI vitamins, Folate (Total), Pregnancy +100"
  },
@@ -3376,6 +3544,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "Not more than 5% of energy (SACN 2015, aged 2 years and above).",
   "from": "DRVs for carbohydrate and fat, free sugars"
  },
@@ -3396,6 +3565,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "Not more than 5% of energy (SACN 2015, aged 2 years and above).",
   "from": "DRVs for carbohydrate and fat, free sugars"
  },
@@ -3416,6 +3586,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "No increase over non-pregnant women 19-50 y.",
   "from": "RNI minerals, Iodine, Lactation *"
  },
@@ -3436,6 +3607,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Iodine, 0-3 months"
  },
@@ -3456,6 +3628,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Iodine, 4-6 months"
  },
@@ -3476,6 +3649,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Iodine, 7-9 months"
  },
@@ -3496,6 +3670,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Iodine, 10-12 months"
  },
@@ -3516,6 +3691,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Iodine, 1-3 years"
  },
@@ -3536,6 +3712,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Iodine, 4-6 years"
  },
@@ -3556,6 +3733,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Iodine, 7-10 years"
  },
@@ -3576,6 +3754,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Iodine, Females 11-14 years"
  },
@@ -3596,6 +3775,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Iodine, Females 15-18 years"
  },
@@ -3616,6 +3796,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Iodine, Females 19-50 years"
  },
@@ -3636,6 +3817,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Iodine, Females 50+ years"
  },
@@ -3656,6 +3838,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Iodine, 0-3 months"
  },
@@ -3676,6 +3859,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Iodine, 4-6 months"
  },
@@ -3696,6 +3880,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Iodine, 7-9 months"
  },
@@ -3716,6 +3901,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Iodine, 10-12 months"
  },
@@ -3736,6 +3922,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Iodine, 1-3 years"
  },
@@ -3756,6 +3943,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Iodine, 4-6 years"
  },
@@ -3776,6 +3964,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Iodine, 7-10 years"
  },
@@ -3796,6 +3985,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Iodine, Males 11-14 years"
  },
@@ -3816,6 +4006,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Iodine, Males 15-18 years"
  },
@@ -3836,6 +4027,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Iodine, Males 19-50 years"
  },
@@ -3856,6 +4048,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Iodine, Males 50+ years"
  },
@@ -3876,6 +4069,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "No increase over non-pregnant women 19-50 y.",
   "from": "RNI minerals, Iodine, Pregnancy *"
  },
@@ -3896,6 +4090,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "No increase over non-pregnant women 19-50 y.",
   "from": "RNI minerals, Iron (Total), Lactation *"
  },
@@ -3916,6 +4111,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Iron (Total), 0-3 months"
  },
@@ -3936,6 +4132,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Iron (Total), 4-6 months"
  },
@@ -3956,6 +4153,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Iron (Total), 7-9 months"
  },
@@ -3976,6 +4174,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Iron (Total), 10-12 months"
  },
@@ -3996,6 +4195,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Iron (Total), 1-3 years"
  },
@@ -4016,6 +4216,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Iron (Total), 4-6 years"
  },
@@ -4036,6 +4237,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Iron (Total), 7-10 years"
  },
@@ -4056,6 +4258,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "Insufficient for women with high menstrual losses, for whom iron supplements are the most practical way to meet requirements.",
   "from": "RNI minerals, Iron (Total), Females 11-14 years"
  },
@@ -4076,6 +4279,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "Insufficient for women with high menstrual losses, for whom iron supplements are the most practical way to meet requirements.",
   "from": "RNI minerals, Iron (Total), Females 15-18 years"
  },
@@ -4096,6 +4300,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "Insufficient for women with high menstrual losses, for whom iron supplements are the most practical way to meet requirements.",
   "from": "RNI minerals, Iron (Total), Females 19-50 years"
  },
@@ -4116,6 +4321,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Iron (Total), Females 50+ years"
  },
@@ -4136,6 +4342,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Iron (Total), 0-3 months"
  },
@@ -4156,6 +4363,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Iron (Total), 4-6 months"
  },
@@ -4176,6 +4384,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Iron (Total), 7-9 months"
  },
@@ -4196,6 +4405,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Iron (Total), 10-12 months"
  },
@@ -4216,6 +4426,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Iron (Total), 1-3 years"
  },
@@ -4236,6 +4447,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Iron (Total), 4-6 years"
  },
@@ -4256,6 +4468,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Iron (Total), 7-10 years"
  },
@@ -4276,6 +4489,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Iron (Total), Males 11-14 years"
  },
@@ -4296,6 +4510,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Iron (Total), Males 15-18 years"
  },
@@ -4316,6 +4531,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Iron (Total), Males 19-50 years"
  },
@@ -4336,6 +4552,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Iron (Total), Males 50+ years"
  },
@@ -4356,6 +4573,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "No increase over non-pregnant women 19-50 y.",
   "from": "RNI minerals, Iron (Total), Pregnancy *"
  },
@@ -4376,6 +4594,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "Printed as +50 over women 19-50 y; stored as total.",
   "from": "RNI minerals, Magnesium, Lactation +50"
  },
@@ -4396,6 +4615,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Magnesium, 0-3 months"
  },
@@ -4416,6 +4636,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Magnesium, 4-6 months"
  },
@@ -4436,6 +4657,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Magnesium, 7-9 months"
  },
@@ -4456,6 +4678,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Magnesium, 10-12 months"
  },
@@ -4476,6 +4699,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Magnesium, 1-3 years"
  },
@@ -4496,6 +4720,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Magnesium, 4-6 years"
  },
@@ -4516,6 +4741,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Magnesium, 7-10 years"
  },
@@ -4536,6 +4762,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Magnesium, Females 11-14 years"
  },
@@ -4556,6 +4783,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Magnesium, Females 15-18 years"
  },
@@ -4576,6 +4804,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Magnesium, Females 19-50 years"
  },
@@ -4596,6 +4825,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Magnesium, Females 50+ years"
  },
@@ -4616,6 +4846,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Magnesium, 0-3 months"
  },
@@ -4636,6 +4867,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Magnesium, 4-6 months"
  },
@@ -4656,6 +4888,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Magnesium, 7-9 months"
  },
@@ -4676,6 +4909,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Magnesium, 10-12 months"
  },
@@ -4696,6 +4930,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Magnesium, 1-3 years"
  },
@@ -4716,6 +4951,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Magnesium, 4-6 years"
  },
@@ -4736,6 +4972,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Magnesium, 7-10 years"
  },
@@ -4756,6 +4993,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Magnesium, Males 11-14 years"
  },
@@ -4776,6 +5014,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Magnesium, Males 15-18 years"
  },
@@ -4796,6 +5035,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Magnesium, Males 19-50 years"
  },
@@ -4816,6 +5056,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Magnesium, Males 50+ years"
  },
@@ -4836,6 +5077,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "No increase over non-pregnant women 19-50 y.",
   "from": "RNI minerals, Magnesium, Pregnancy *"
  },
@@ -4856,6 +5098,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "Printed as +2 over women 19-50 y; stored as total.",
   "from": "RNI vitamins, Niacin (B3), Lactation +2"
  },
@@ -4876,6 +5119,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI vitamins, Niacin (B3), 0-3 months"
  },
@@ -4896,6 +5140,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI vitamins, Niacin (B3), 4-6 months"
  },
@@ -4916,6 +5161,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI vitamins, Niacin (B3), 7-9 months"
  },
@@ -4936,6 +5182,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI vitamins, Niacin (B3), 10-12 months"
  },
@@ -4956,6 +5203,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI vitamins, Niacin (B3), 1-3 years"
  },
@@ -4976,6 +5224,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI vitamins, Niacin (B3), 4-6 years"
  },
@@ -4996,6 +5245,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI vitamins, Niacin (B3), 7-10 years"
  },
@@ -5016,6 +5266,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI vitamins, Niacin (B3), Females 11-14 years"
  },
@@ -5036,6 +5287,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI vitamins, Niacin (B3), Females 15-18 years"
  },
@@ -5056,6 +5308,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI vitamins, Niacin (B3), Females 19-50 years"
  },
@@ -5076,6 +5329,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI vitamins, Niacin (B3), Females 50+ years"
  },
@@ -5096,6 +5350,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI vitamins, Niacin (B3), 0-3 months"
  },
@@ -5116,6 +5371,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI vitamins, Niacin (B3), 4-6 months"
  },
@@ -5136,6 +5392,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI vitamins, Niacin (B3), 7-9 months"
  },
@@ -5156,6 +5413,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI vitamins, Niacin (B3), 10-12 months"
  },
@@ -5176,6 +5434,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI vitamins, Niacin (B3), 1-3 years"
  },
@@ -5196,6 +5455,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI vitamins, Niacin (B3), 4-6 years"
  },
@@ -5216,6 +5476,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI vitamins, Niacin (B3), 7-10 years"
  },
@@ -5236,6 +5497,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI vitamins, Niacin (B3), Males 11-14 years"
  },
@@ -5256,6 +5518,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI vitamins, Niacin (B3), Males 15-18 years"
  },
@@ -5276,6 +5539,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI vitamins, Niacin (B3), Males 19-50 years"
  },
@@ -5296,6 +5560,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI vitamins, Niacin (B3), Males 50+ years"
  },
@@ -5316,6 +5581,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "No increase over non-pregnant women 19-50 y.",
   "from": "RNI vitamins, Niacin (B3), Pregnancy *"
  },
@@ -5336,6 +5602,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "Set equal to calcium in molar terms. Printed as +440 over women 19-50 y; stored as total.",
   "from": "RNI minerals, Phosphorus, Lactation +440"
  },
@@ -5356,6 +5623,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "Set equal to calcium in molar terms.",
   "from": "RNI minerals, Phosphorus, 0-3 months"
  },
@@ -5376,6 +5644,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "Set equal to calcium in molar terms.",
   "from": "RNI minerals, Phosphorus, 4-6 months"
  },
@@ -5396,6 +5665,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "Set equal to calcium in molar terms.",
   "from": "RNI minerals, Phosphorus, 7-9 months"
  },
@@ -5416,6 +5686,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "Set equal to calcium in molar terms.",
   "from": "RNI minerals, Phosphorus, 10-12 months"
  },
@@ -5436,6 +5707,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "Set equal to calcium in molar terms.",
   "from": "RNI minerals, Phosphorus, 1-3 years"
  },
@@ -5456,6 +5728,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "Set equal to calcium in molar terms.",
   "from": "RNI minerals, Phosphorus, 4-6 years"
  },
@@ -5476,6 +5749,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "Set equal to calcium in molar terms.",
   "from": "RNI minerals, Phosphorus, 7-10 years"
  },
@@ -5496,6 +5770,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "Set equal to calcium in molar terms.",
   "from": "RNI minerals, Phosphorus, Females 11-14 years"
  },
@@ -5516,6 +5791,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "Set equal to calcium in molar terms.",
   "from": "RNI minerals, Phosphorus, Females 15-18 years"
  },
@@ -5536,6 +5812,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "Set equal to calcium in molar terms.",
   "from": "RNI minerals, Phosphorus, Females 19-50 years"
  },
@@ -5556,6 +5833,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "Set equal to calcium in molar terms.",
   "from": "RNI minerals, Phosphorus, Females 50+ years"
  },
@@ -5576,6 +5854,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "Set equal to calcium in molar terms.",
   "from": "RNI minerals, Phosphorus, 0-3 months"
  },
@@ -5596,6 +5875,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "Set equal to calcium in molar terms.",
   "from": "RNI minerals, Phosphorus, 4-6 months"
  },
@@ -5616,6 +5896,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "Set equal to calcium in molar terms.",
   "from": "RNI minerals, Phosphorus, 7-9 months"
  },
@@ -5636,6 +5917,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "Set equal to calcium in molar terms.",
   "from": "RNI minerals, Phosphorus, 10-12 months"
  },
@@ -5656,6 +5938,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "Set equal to calcium in molar terms.",
   "from": "RNI minerals, Phosphorus, 1-3 years"
  },
@@ -5676,6 +5959,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "Set equal to calcium in molar terms.",
   "from": "RNI minerals, Phosphorus, 4-6 years"
  },
@@ -5696,6 +5980,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "Set equal to calcium in molar terms.",
   "from": "RNI minerals, Phosphorus, 7-10 years"
  },
@@ -5716,6 +6001,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "Set equal to calcium in molar terms.",
   "from": "RNI minerals, Phosphorus, Males 11-14 years"
  },
@@ -5736,6 +6022,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "Set equal to calcium in molar terms.",
   "from": "RNI minerals, Phosphorus, Males 15-18 years"
  },
@@ -5756,6 +6043,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "Set equal to calcium in molar terms.",
   "from": "RNI minerals, Phosphorus, Males 19-50 years"
  },
@@ -5776,6 +6064,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "Set equal to calcium in molar terms.",
   "from": "RNI minerals, Phosphorus, Males 50+ years"
  },
@@ -5796,6 +6085,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "Set equal to calcium in molar terms. No increase over non-pregnant women 19-50 y.",
   "from": "RNI minerals, Phosphorus, Pregnancy *"
  },
@@ -5816,6 +6106,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "No increase over non-pregnant women 19-50 y.",
   "from": "RNI minerals, Potassium, Lactation *"
  },
@@ -5836,6 +6127,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Potassium, 0-3 months"
  },
@@ -5856,6 +6148,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Potassium, 4-6 months"
  },
@@ -5876,6 +6169,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Potassium, 7-9 months"
  },
@@ -5896,6 +6190,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Potassium, 10-12 months"
  },
@@ -5916,6 +6211,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Potassium, 1-3 years"
  },
@@ -5936,6 +6232,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Potassium, 4-6 years"
  },
@@ -5956,6 +6253,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Potassium, 7-10 years"
  },
@@ -5976,6 +6274,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Potassium, Females 11-14 years"
  },
@@ -5996,6 +6295,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Potassium, Females 15-18 years"
  },
@@ -6016,6 +6316,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Potassium, Females 19-50 years"
  },
@@ -6036,6 +6337,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Potassium, Females 50+ years"
  },
@@ -6056,6 +6358,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Potassium, 0-3 months"
  },
@@ -6076,6 +6379,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Potassium, 4-6 months"
  },
@@ -6096,6 +6400,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Potassium, 7-9 months"
  },
@@ -6116,6 +6421,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Potassium, 10-12 months"
  },
@@ -6136,6 +6442,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Potassium, 1-3 years"
  },
@@ -6156,6 +6463,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Potassium, 4-6 years"
  },
@@ -6176,6 +6484,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Potassium, 7-10 years"
  },
@@ -6196,6 +6505,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Potassium, Males 11-14 years"
  },
@@ -6216,6 +6526,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Potassium, Males 15-18 years"
  },
@@ -6236,6 +6547,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Potassium, Males 19-50 years"
  },
@@ -6256,6 +6568,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Potassium, Males 50+ years"
  },
@@ -6276,6 +6589,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "No increase over non-pregnant women 19-50 y.",
   "from": "RNI minerals, Potassium, Pregnancy *"
  },
@@ -6283,6 +6597,48 @@
   "compound": "Protein",
   "valueType": "RDA",
   "sex": "FEMALE",
+  "lifeStage": "LACTATING_0_6M",
+  "ageMinMonths": 228,
+  "ageMaxMonths": null,
+  "activityLevel": null,
+  "dietaryContext": null,
+  "value": 0.75,
+  "valueMin": null,
+  "valueMax": null,
+  "unit": "g",
+  "isPercentOfEnergy": false,
+  "isProvisional": false,
+  "supplementalOnly": false,
+  "perKgBodyWeight": true,
+  "plusAbsolute": 11,
+  "note": "Per kg of body weight (0.75 g/kg adult RNI) plus the printed increment: \"Protein requirements increase in pregnancy (an additional 6 g/d) and lactation (an additional 11 g/d at 0-6 months and 8 g/d at 6+ months)\". The source does not state whether the per-kg base is taken at pre-pregnancy or current body weight; the weight on file is used.",
+  "from": "Protein RNI, adults 0.75 g/kg + 11 g/d, lactation 0-6 months"
+ },
+ {
+  "compound": "Protein",
+  "valueType": "RDA",
+  "sex": "FEMALE",
+  "lifeStage": "LACTATING_7_12M",
+  "ageMinMonths": 228,
+  "ageMaxMonths": null,
+  "activityLevel": null,
+  "dietaryContext": null,
+  "value": 0.75,
+  "valueMin": null,
+  "valueMax": null,
+  "unit": "g",
+  "isPercentOfEnergy": false,
+  "isProvisional": false,
+  "supplementalOnly": false,
+  "perKgBodyWeight": true,
+  "plusAbsolute": 8,
+  "note": "Per kg of body weight (0.75 g/kg adult RNI) plus the printed increment: \"Protein requirements increase in pregnancy (an additional 6 g/d) and lactation (an additional 11 g/d at 0-6 months and 8 g/d at 6+ months)\". The source does not state whether the per-kg base is taken at pre-pregnancy or current body weight; the weight on file is used.",
+  "from": "Protein RNI, adults 0.75 g/kg + 8 g/d, lactation 6+ months"
+ },
+ {
+  "compound": "Protein",
+  "valueType": "RDA",
+  "sex": "FEMALE",
   "lifeStage": "NONE",
   "ageMinMonths": 0,
   "ageMaxMonths": 2,
@@ -6296,6 +6652,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "Protein RNI, 0-3 months"
  },
@@ -6316,6 +6673,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "Protein RNI, 4-6 months"
  },
@@ -6336,6 +6694,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "Protein RNI, 7-9 months"
  },
@@ -6356,6 +6715,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "Protein RNI, 10-12 months"
  },
@@ -6376,6 +6736,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "Protein RNI, 1-3 years"
  },
@@ -6396,6 +6757,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "Protein RNI, 4-6 years"
  },
@@ -6416,6 +6778,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "Protein RNI, 7-10 years"
  },
@@ -6436,6 +6799,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": true,
+  "plusAbsolute": 0,
   "note": "Per kg of body weight: \"The Reference Nutrient Intake (RNI) is set at 0.75 g of protein per kilogram bodyweight per day in adults\" (worked examples: 60 kg = 45 g/d, 74 kg = 55.5 g/d).",
   "from": "Protein RNI, adults, 0.75 g/kg bodyweight"
  },
@@ -6456,6 +6820,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "Protein RNI, 0-3 months"
  },
@@ -6476,6 +6841,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "Protein RNI, 4-6 months"
  },
@@ -6496,6 +6862,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "Protein RNI, 7-9 months"
  },
@@ -6516,6 +6883,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "Protein RNI, 10-12 months"
  },
@@ -6536,6 +6904,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "Protein RNI, 1-3 years"
  },
@@ -6556,6 +6925,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "Protein RNI, 4-6 years"
  },
@@ -6576,6 +6946,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "Protein RNI, 7-10 years"
  },
@@ -6596,8 +6967,30 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": true,
+  "plusAbsolute": 0,
   "note": "Per kg of body weight: \"The Reference Nutrient Intake (RNI) is set at 0.75 g of protein per kilogram bodyweight per day in adults\" (worked examples: 60 kg = 45 g/d, 74 kg = 55.5 g/d).",
   "from": "Protein RNI, adults, 0.75 g/kg bodyweight"
+ },
+ {
+  "compound": "Protein",
+  "valueType": "RDA",
+  "sex": "FEMALE",
+  "lifeStage": "PREGNANT",
+  "ageMinMonths": 228,
+  "ageMaxMonths": null,
+  "activityLevel": null,
+  "dietaryContext": null,
+  "value": 0.75,
+  "valueMin": null,
+  "valueMax": null,
+  "unit": "g",
+  "isPercentOfEnergy": false,
+  "isProvisional": false,
+  "supplementalOnly": false,
+  "perKgBodyWeight": true,
+  "plusAbsolute": 6,
+  "note": "Per kg of body weight (0.75 g/kg adult RNI) plus the printed increment: \"Protein requirements increase in pregnancy (an additional 6 g/d) and lactation (an additional 11 g/d at 0-6 months and 8 g/d at 6+ months)\". The source does not state whether the per-kg base is taken at pre-pregnancy or current body weight; the weight on file is used.",
+  "from": "Protein RNI, adults 0.75 g/kg + 6 g/d, pregnancy"
  },
  {
   "compound": "Riboflavin (B2)",
@@ -6616,6 +7009,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "Printed as +0.5 over women 19-50 y; stored as total.",
   "from": "RNI vitamins, Riboflavin (B2), Lactation +0.5"
  },
@@ -6636,6 +7030,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI vitamins, Riboflavin (B2), 0-3 months"
  },
@@ -6656,6 +7051,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI vitamins, Riboflavin (B2), 4-6 months"
  },
@@ -6676,6 +7072,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI vitamins, Riboflavin (B2), 7-9 months"
  },
@@ -6696,6 +7093,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI vitamins, Riboflavin (B2), 10-12 months"
  },
@@ -6716,6 +7114,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI vitamins, Riboflavin (B2), 1-3 years"
  },
@@ -6736,6 +7135,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI vitamins, Riboflavin (B2), 4-6 years"
  },
@@ -6756,6 +7156,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI vitamins, Riboflavin (B2), 7-10 years"
  },
@@ -6776,6 +7177,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI vitamins, Riboflavin (B2), Females 11-14 years"
  },
@@ -6796,6 +7198,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI vitamins, Riboflavin (B2), Females 15-18 years"
  },
@@ -6816,6 +7219,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI vitamins, Riboflavin (B2), Females 19-50 years"
  },
@@ -6836,6 +7240,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI vitamins, Riboflavin (B2), Females 50+ years"
  },
@@ -6856,6 +7261,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI vitamins, Riboflavin (B2), 0-3 months"
  },
@@ -6876,6 +7282,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI vitamins, Riboflavin (B2), 4-6 months"
  },
@@ -6896,6 +7303,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI vitamins, Riboflavin (B2), 7-9 months"
  },
@@ -6916,6 +7324,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI vitamins, Riboflavin (B2), 10-12 months"
  },
@@ -6936,6 +7345,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI vitamins, Riboflavin (B2), 1-3 years"
  },
@@ -6956,6 +7366,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI vitamins, Riboflavin (B2), 4-6 years"
  },
@@ -6976,6 +7387,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI vitamins, Riboflavin (B2), 7-10 years"
  },
@@ -6996,6 +7408,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI vitamins, Riboflavin (B2), Males 11-14 years"
  },
@@ -7016,6 +7429,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI vitamins, Riboflavin (B2), Males 15-18 years"
  },
@@ -7036,6 +7450,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI vitamins, Riboflavin (B2), Males 19-50 years"
  },
@@ -7056,6 +7471,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI vitamins, Riboflavin (B2), Males 50+ years"
  },
@@ -7076,6 +7492,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "Printed as +0.3 over women 19-50 y; stored as total.",
   "from": "RNI vitamins, Riboflavin (B2), Pregnancy +0.3"
  },
@@ -7096,6 +7513,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "Not more than 11% of food energy (COMA 1991, aged 5 years and above).",
   "from": "DRVs for carbohydrate and fat, Saturated fat"
  },
@@ -7116,6 +7534,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "Not more than 11% of food energy (COMA 1991, aged 5 years and above).",
   "from": "DRVs for carbohydrate and fat, Saturated fat"
  },
@@ -7136,6 +7555,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "Printed as +15 over women 19-50 y; stored as total.",
   "from": "RNI minerals, Selenium, Lactation +15"
  },
@@ -7156,6 +7576,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Selenium, 0-3 months"
  },
@@ -7176,6 +7597,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Selenium, 4-6 months"
  },
@@ -7196,6 +7618,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Selenium, 7-9 months"
  },
@@ -7216,6 +7639,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Selenium, 10-12 months"
  },
@@ -7236,6 +7660,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Selenium, 1-3 years"
  },
@@ -7256,6 +7681,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Selenium, 4-6 years"
  },
@@ -7276,6 +7702,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Selenium, 7-10 years"
  },
@@ -7296,6 +7723,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Selenium, Females 11-14 years"
  },
@@ -7316,6 +7744,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Selenium, Females 15-18 years"
  },
@@ -7336,6 +7765,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Selenium, Females 19-50 years"
  },
@@ -7356,6 +7786,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Selenium, Females 50+ years"
  },
@@ -7376,6 +7807,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Selenium, 0-3 months"
  },
@@ -7396,6 +7828,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Selenium, 4-6 months"
  },
@@ -7416,6 +7849,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Selenium, 7-9 months"
  },
@@ -7436,6 +7870,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Selenium, 10-12 months"
  },
@@ -7456,6 +7891,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Selenium, 1-3 years"
  },
@@ -7476,6 +7912,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Selenium, 4-6 years"
  },
@@ -7496,6 +7933,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Selenium, 7-10 years"
  },
@@ -7516,6 +7954,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Selenium, Males 11-14 years"
  },
@@ -7536,6 +7975,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Selenium, Males 15-18 years"
  },
@@ -7556,6 +7996,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Selenium, Males 19-50 years"
  },
@@ -7576,6 +8017,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Selenium, Males 50+ years"
  },
@@ -7596,6 +8038,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "No increase over non-pregnant women 19-50 y.",
   "from": "RNI minerals, Selenium, Pregnancy *"
  },
@@ -7616,6 +8059,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "Maximum salt <1 g/day, as sodium (1 g sodium = 2.5 g salt). An achievable population goal, not an optimum.",
   "from": "Salt, 0-6 months"
  },
@@ -7636,6 +8080,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "Maximum salt 1 g/day, as sodium (1 g sodium = 2.5 g salt). An achievable population goal, not an optimum.",
   "from": "Salt, 6-12 months"
  },
@@ -7656,6 +8101,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "Maximum salt 2 g/day, as sodium (1 g sodium = 2.5 g salt). An achievable population goal, not an optimum.",
   "from": "Salt, 1-3 years"
  },
@@ -7676,6 +8122,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "Maximum salt 3 g/day, as sodium (1 g sodium = 2.5 g salt). An achievable population goal, not an optimum.",
   "from": "Salt, 4-6 years"
  },
@@ -7696,6 +8143,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "Maximum salt 5 g/day, as sodium (1 g sodium = 2.5 g salt). An achievable population goal, not an optimum.",
   "from": "Salt, 7-10 years"
  },
@@ -7716,6 +8164,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "Maximum salt 6 g/day, as sodium (1 g sodium = 2.5 g salt). An achievable population goal, not an optimum.",
   "from": "Salt, 11 years and above"
  },
@@ -7736,6 +8185,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "Maximum salt <1 g/day, as sodium (1 g sodium = 2.5 g salt). An achievable population goal, not an optimum.",
   "from": "Salt, 0-6 months"
  },
@@ -7756,6 +8206,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "Maximum salt 1 g/day, as sodium (1 g sodium = 2.5 g salt). An achievable population goal, not an optimum.",
   "from": "Salt, 6-12 months"
  },
@@ -7776,6 +8227,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "Maximum salt 2 g/day, as sodium (1 g sodium = 2.5 g salt). An achievable population goal, not an optimum.",
   "from": "Salt, 1-3 years"
  },
@@ -7796,6 +8248,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "Maximum salt 3 g/day, as sodium (1 g sodium = 2.5 g salt). An achievable population goal, not an optimum.",
   "from": "Salt, 4-6 years"
  },
@@ -7816,6 +8269,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "Maximum salt 5 g/day, as sodium (1 g sodium = 2.5 g salt). An achievable population goal, not an optimum.",
   "from": "Salt, 7-10 years"
  },
@@ -7836,6 +8290,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "Maximum salt 6 g/day, as sodium (1 g sodium = 2.5 g salt). An achievable population goal, not an optimum.",
   "from": "Salt, 11 years and above"
  },
@@ -7856,6 +8311,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "No increase over non-pregnant women 19-50 y.",
   "from": "RNI minerals, Sodium, Lactation *"
  },
@@ -7876,6 +8332,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Sodium, 0-3 months"
  },
@@ -7896,6 +8353,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Sodium, 4-6 months"
  },
@@ -7916,6 +8374,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Sodium, 7-9 months"
  },
@@ -7936,6 +8395,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Sodium, 10-12 months"
  },
@@ -7956,6 +8416,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Sodium, 1-3 years"
  },
@@ -7976,6 +8437,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Sodium, 4-6 years"
  },
@@ -7996,6 +8458,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Sodium, 7-10 years"
  },
@@ -8016,6 +8479,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Sodium, Females 11-14 years"
  },
@@ -8036,6 +8500,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Sodium, Females 15-18 years"
  },
@@ -8056,6 +8521,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Sodium, Females 19-50 years"
  },
@@ -8076,6 +8542,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Sodium, Females 50+ years"
  },
@@ -8096,6 +8563,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Sodium, 0-3 months"
  },
@@ -8116,6 +8584,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Sodium, 4-6 months"
  },
@@ -8136,6 +8605,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Sodium, 7-9 months"
  },
@@ -8156,6 +8626,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Sodium, 10-12 months"
  },
@@ -8176,6 +8647,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Sodium, 1-3 years"
  },
@@ -8196,6 +8668,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Sodium, 4-6 years"
  },
@@ -8216,6 +8689,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Sodium, 7-10 years"
  },
@@ -8236,6 +8710,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Sodium, Males 11-14 years"
  },
@@ -8256,6 +8731,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Sodium, Males 15-18 years"
  },
@@ -8276,6 +8752,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Sodium, Males 19-50 years"
  },
@@ -8296,6 +8773,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Sodium, Males 50+ years"
  },
@@ -8316,6 +8794,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "No increase over non-pregnant women 19-50 y.",
   "from": "RNI minerals, Sodium, Pregnancy *"
  },
@@ -8336,6 +8815,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "Printed as +0.2 over women 19-50 y; stored as total.",
   "from": "RNI vitamins, Thiamin (B1), Lactation +0.2"
  },
@@ -8356,6 +8836,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI vitamins, Thiamin (B1), 0-3 months"
  },
@@ -8376,6 +8857,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI vitamins, Thiamin (B1), 4-6 months"
  },
@@ -8396,6 +8878,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI vitamins, Thiamin (B1), 7-9 months"
  },
@@ -8416,6 +8899,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI vitamins, Thiamin (B1), 10-12 months"
  },
@@ -8436,6 +8920,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI vitamins, Thiamin (B1), 1-3 years"
  },
@@ -8456,6 +8941,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI vitamins, Thiamin (B1), 4-6 years"
  },
@@ -8476,6 +8962,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI vitamins, Thiamin (B1), 7-10 years"
  },
@@ -8496,6 +8983,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI vitamins, Thiamin (B1), Females 11-14 years"
  },
@@ -8516,6 +9004,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI vitamins, Thiamin (B1), Females 15-18 years"
  },
@@ -8536,6 +9025,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI vitamins, Thiamin (B1), Females 19-50 years"
  },
@@ -8556,6 +9046,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI vitamins, Thiamin (B1), Females 50+ years"
  },
@@ -8576,6 +9067,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI vitamins, Thiamin (B1), 0-3 months"
  },
@@ -8596,6 +9088,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI vitamins, Thiamin (B1), 4-6 months"
  },
@@ -8616,6 +9109,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI vitamins, Thiamin (B1), 7-9 months"
  },
@@ -8636,6 +9130,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI vitamins, Thiamin (B1), 10-12 months"
  },
@@ -8656,6 +9151,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI vitamins, Thiamin (B1), 1-3 years"
  },
@@ -8676,6 +9172,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI vitamins, Thiamin (B1), 4-6 years"
  },
@@ -8696,6 +9193,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI vitamins, Thiamin (B1), 7-10 years"
  },
@@ -8716,6 +9214,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI vitamins, Thiamin (B1), Males 11-14 years"
  },
@@ -8736,6 +9235,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI vitamins, Thiamin (B1), Males 15-18 years"
  },
@@ -8756,6 +9256,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI vitamins, Thiamin (B1), Males 19-50 years"
  },
@@ -8776,6 +9277,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI vitamins, Thiamin (B1), Males 50+ years"
  },
@@ -8796,6 +9298,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "Printed as +0.1 over women 19-50 y; stored as total. For the last trimester only.",
   "from": "RNI vitamins, Thiamin (B1), Pregnancy +0.1"
  },
@@ -8816,6 +9319,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "Not more than 35% of food energy (COMA 1991, aged 5 years and above).",
   "from": "DRVs for carbohydrate and fat, Total fat"
  },
@@ -8836,6 +9340,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "Not more than 35% of food energy (COMA 1991, aged 5 years and above).",
   "from": "DRVs for carbohydrate and fat, Total fat"
  },
@@ -8856,6 +9361,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "COMA 1991 vitamin A (retinol equivalents). Printed as +350 over women 19-50 y; stored as total.",
   "from": "RNI vitamins, Vitamin A (RE), Lactation +350"
  },
@@ -8876,6 +9382,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "COMA 1991 vitamin A (retinol equivalents).",
   "from": "RNI vitamins, Vitamin A (RE), 0-3 months"
  },
@@ -8896,6 +9403,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "COMA 1991 vitamin A (retinol equivalents).",
   "from": "RNI vitamins, Vitamin A (RE), 4-6 months"
  },
@@ -8916,6 +9424,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "COMA 1991 vitamin A (retinol equivalents).",
   "from": "RNI vitamins, Vitamin A (RE), 7-9 months"
  },
@@ -8936,6 +9445,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "COMA 1991 vitamin A (retinol equivalents).",
   "from": "RNI vitamins, Vitamin A (RE), 10-12 months"
  },
@@ -8956,6 +9466,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "COMA 1991 vitamin A (retinol equivalents).",
   "from": "RNI vitamins, Vitamin A (RE), 1-3 years"
  },
@@ -8976,6 +9487,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "COMA 1991 vitamin A (retinol equivalents).",
   "from": "RNI vitamins, Vitamin A (RE), 4-6 years"
  },
@@ -8996,6 +9508,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "COMA 1991 vitamin A (retinol equivalents).",
   "from": "RNI vitamins, Vitamin A (RE), 7-10 years"
  },
@@ -9016,6 +9529,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "COMA 1991 vitamin A (retinol equivalents).",
   "from": "RNI vitamins, Vitamin A (RE), Females 11-14 years"
  },
@@ -9036,6 +9550,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "COMA 1991 vitamin A (retinol equivalents).",
   "from": "RNI vitamins, Vitamin A (RE), Females 15-18 years"
  },
@@ -9056,6 +9571,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "COMA 1991 vitamin A (retinol equivalents).",
   "from": "RNI vitamins, Vitamin A (RE), Females 19-50 years"
  },
@@ -9076,6 +9592,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "COMA 1991 vitamin A (retinol equivalents).",
   "from": "RNI vitamins, Vitamin A (RE), Females 50+ years"
  },
@@ -9096,6 +9613,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "COMA 1991 vitamin A (retinol equivalents).",
   "from": "RNI vitamins, Vitamin A (RE), 0-3 months"
  },
@@ -9116,6 +9634,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "COMA 1991 vitamin A (retinol equivalents).",
   "from": "RNI vitamins, Vitamin A (RE), 4-6 months"
  },
@@ -9136,6 +9655,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "COMA 1991 vitamin A (retinol equivalents).",
   "from": "RNI vitamins, Vitamin A (RE), 7-9 months"
  },
@@ -9156,6 +9676,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "COMA 1991 vitamin A (retinol equivalents).",
   "from": "RNI vitamins, Vitamin A (RE), 10-12 months"
  },
@@ -9176,6 +9697,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "COMA 1991 vitamin A (retinol equivalents).",
   "from": "RNI vitamins, Vitamin A (RE), 1-3 years"
  },
@@ -9196,6 +9718,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "COMA 1991 vitamin A (retinol equivalents).",
   "from": "RNI vitamins, Vitamin A (RE), 4-6 years"
  },
@@ -9216,6 +9739,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "COMA 1991 vitamin A (retinol equivalents).",
   "from": "RNI vitamins, Vitamin A (RE), 7-10 years"
  },
@@ -9236,6 +9760,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "COMA 1991 vitamin A (retinol equivalents).",
   "from": "RNI vitamins, Vitamin A (RE), Males 11-14 years"
  },
@@ -9256,6 +9781,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "COMA 1991 vitamin A (retinol equivalents).",
   "from": "RNI vitamins, Vitamin A (RE), Males 15-18 years"
  },
@@ -9276,6 +9802,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "COMA 1991 vitamin A (retinol equivalents).",
   "from": "RNI vitamins, Vitamin A (RE), Males 19-50 years"
  },
@@ -9296,6 +9823,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "COMA 1991 vitamin A (retinol equivalents).",
   "from": "RNI vitamins, Vitamin A (RE), Males 50+ years"
  },
@@ -9316,6 +9844,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "COMA 1991 vitamin A (retinol equivalents). Printed as +100 over women 19-50 y; stored as total.",
   "from": "RNI vitamins, Vitamin A (RE), Pregnancy +100"
  },
@@ -9336,6 +9865,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "Printed as +0.5 over women 19-50 y; stored as total.",
   "from": "RNI vitamins, Vitamin B12 (Total), Lactation +0.5"
  },
@@ -9356,6 +9886,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI vitamins, Vitamin B12 (Total), 0-3 months"
  },
@@ -9376,6 +9907,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI vitamins, Vitamin B12 (Total), 4-6 months"
  },
@@ -9396,6 +9928,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI vitamins, Vitamin B12 (Total), 7-9 months"
  },
@@ -9416,6 +9949,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI vitamins, Vitamin B12 (Total), 10-12 months"
  },
@@ -9436,6 +9970,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI vitamins, Vitamin B12 (Total), 1-3 years"
  },
@@ -9456,6 +9991,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI vitamins, Vitamin B12 (Total), 4-6 years"
  },
@@ -9476,6 +10012,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI vitamins, Vitamin B12 (Total), 7-10 years"
  },
@@ -9496,6 +10033,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI vitamins, Vitamin B12 (Total), Females 11-14 years"
  },
@@ -9516,6 +10054,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI vitamins, Vitamin B12 (Total), Females 15-18 years"
  },
@@ -9536,6 +10075,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI vitamins, Vitamin B12 (Total), Females 19-50 years"
  },
@@ -9556,6 +10096,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI vitamins, Vitamin B12 (Total), Females 50+ years"
  },
@@ -9576,6 +10117,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI vitamins, Vitamin B12 (Total), 0-3 months"
  },
@@ -9596,6 +10138,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI vitamins, Vitamin B12 (Total), 4-6 months"
  },
@@ -9616,6 +10159,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI vitamins, Vitamin B12 (Total), 7-9 months"
  },
@@ -9636,6 +10180,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI vitamins, Vitamin B12 (Total), 10-12 months"
  },
@@ -9656,6 +10201,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI vitamins, Vitamin B12 (Total), 1-3 years"
  },
@@ -9676,6 +10222,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI vitamins, Vitamin B12 (Total), 4-6 years"
  },
@@ -9696,6 +10243,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI vitamins, Vitamin B12 (Total), 7-10 years"
  },
@@ -9716,6 +10264,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI vitamins, Vitamin B12 (Total), Males 11-14 years"
  },
@@ -9736,6 +10285,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI vitamins, Vitamin B12 (Total), Males 15-18 years"
  },
@@ -9756,6 +10306,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI vitamins, Vitamin B12 (Total), Males 19-50 years"
  },
@@ -9776,6 +10327,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI vitamins, Vitamin B12 (Total), Males 50+ years"
  },
@@ -9796,6 +10348,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "No increase over non-pregnant women 19-50 y.",
   "from": "RNI vitamins, Vitamin B12 (Total), Pregnancy *"
  },
@@ -9816,6 +10369,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "Based on protein providing 14.7% of the EAR for energy. No increase over non-pregnant women 19-50 y.",
   "from": "RNI vitamins, Vitamin B6, Lactation *"
  },
@@ -9836,6 +10390,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "Based on protein providing 14.7% of the EAR for energy.",
   "from": "RNI vitamins, Vitamin B6, 0-3 months"
  },
@@ -9856,6 +10411,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "Based on protein providing 14.7% of the EAR for energy.",
   "from": "RNI vitamins, Vitamin B6, 4-6 months"
  },
@@ -9876,6 +10432,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "Based on protein providing 14.7% of the EAR for energy.",
   "from": "RNI vitamins, Vitamin B6, 7-9 months"
  },
@@ -9896,6 +10453,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "Based on protein providing 14.7% of the EAR for energy.",
   "from": "RNI vitamins, Vitamin B6, 10-12 months"
  },
@@ -9916,6 +10474,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "Based on protein providing 14.7% of the EAR for energy.",
   "from": "RNI vitamins, Vitamin B6, 1-3 years"
  },
@@ -9936,6 +10495,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "Based on protein providing 14.7% of the EAR for energy.",
   "from": "RNI vitamins, Vitamin B6, 4-6 years"
  },
@@ -9956,6 +10516,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "Based on protein providing 14.7% of the EAR for energy.",
   "from": "RNI vitamins, Vitamin B6, 7-10 years"
  },
@@ -9976,6 +10537,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "Based on protein providing 14.7% of the EAR for energy.",
   "from": "RNI vitamins, Vitamin B6, Females 11-14 years"
  },
@@ -9996,6 +10558,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "Based on protein providing 14.7% of the EAR for energy.",
   "from": "RNI vitamins, Vitamin B6, Females 15-18 years"
  },
@@ -10016,6 +10579,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "Based on protein providing 14.7% of the EAR for energy.",
   "from": "RNI vitamins, Vitamin B6, Females 19-50 years"
  },
@@ -10036,6 +10600,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "Based on protein providing 14.7% of the EAR for energy.",
   "from": "RNI vitamins, Vitamin B6, Females 50+ years"
  },
@@ -10056,6 +10621,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "Based on protein providing 14.7% of the EAR for energy.",
   "from": "RNI vitamins, Vitamin B6, 0-3 months"
  },
@@ -10076,6 +10642,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "Based on protein providing 14.7% of the EAR for energy.",
   "from": "RNI vitamins, Vitamin B6, 4-6 months"
  },
@@ -10096,6 +10663,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "Based on protein providing 14.7% of the EAR for energy.",
   "from": "RNI vitamins, Vitamin B6, 7-9 months"
  },
@@ -10116,6 +10684,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "Based on protein providing 14.7% of the EAR for energy.",
   "from": "RNI vitamins, Vitamin B6, 10-12 months"
  },
@@ -10136,6 +10705,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "Based on protein providing 14.7% of the EAR for energy.",
   "from": "RNI vitamins, Vitamin B6, 1-3 years"
  },
@@ -10156,6 +10726,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "Based on protein providing 14.7% of the EAR for energy.",
   "from": "RNI vitamins, Vitamin B6, 4-6 years"
  },
@@ -10176,6 +10747,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "Based on protein providing 14.7% of the EAR for energy.",
   "from": "RNI vitamins, Vitamin B6, 7-10 years"
  },
@@ -10196,6 +10768,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "Based on protein providing 14.7% of the EAR for energy.",
   "from": "RNI vitamins, Vitamin B6, Males 11-14 years"
  },
@@ -10216,6 +10789,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "Based on protein providing 14.7% of the EAR for energy.",
   "from": "RNI vitamins, Vitamin B6, Males 15-18 years"
  },
@@ -10236,6 +10810,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "Based on protein providing 14.7% of the EAR for energy.",
   "from": "RNI vitamins, Vitamin B6, Males 19-50 years"
  },
@@ -10256,6 +10831,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "Based on protein providing 14.7% of the EAR for energy.",
   "from": "RNI vitamins, Vitamin B6, Males 50+ years"
  },
@@ -10276,6 +10852,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "Based on protein providing 14.7% of the EAR for energy. No increase over non-pregnant women 19-50 y.",
   "from": "RNI vitamins, Vitamin B6, Pregnancy *"
  },
@@ -10296,6 +10873,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "Printed as +30 over women 19-50 y; stored as total.",
   "from": "RNI vitamins, Vitamin C (Total), Lactation +30"
  },
@@ -10316,6 +10894,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI vitamins, Vitamin C (Total), 0-3 months"
  },
@@ -10336,6 +10915,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI vitamins, Vitamin C (Total), 4-6 months"
  },
@@ -10356,6 +10936,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI vitamins, Vitamin C (Total), 7-9 months"
  },
@@ -10376,6 +10957,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI vitamins, Vitamin C (Total), 10-12 months"
  },
@@ -10396,6 +10978,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI vitamins, Vitamin C (Total), 1-3 years"
  },
@@ -10416,6 +10999,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI vitamins, Vitamin C (Total), 4-6 years"
  },
@@ -10436,6 +11020,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI vitamins, Vitamin C (Total), 7-10 years"
  },
@@ -10456,6 +11041,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI vitamins, Vitamin C (Total), Females 11-14 years"
  },
@@ -10476,6 +11062,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI vitamins, Vitamin C (Total), Females 15-18 years"
  },
@@ -10496,6 +11083,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI vitamins, Vitamin C (Total), Females 19-50 years"
  },
@@ -10516,6 +11104,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI vitamins, Vitamin C (Total), Females 50+ years"
  },
@@ -10536,6 +11125,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI vitamins, Vitamin C (Total), 0-3 months"
  },
@@ -10556,6 +11146,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI vitamins, Vitamin C (Total), 4-6 months"
  },
@@ -10576,6 +11167,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI vitamins, Vitamin C (Total), 7-9 months"
  },
@@ -10596,6 +11188,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI vitamins, Vitamin C (Total), 10-12 months"
  },
@@ -10616,6 +11209,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI vitamins, Vitamin C (Total), 1-3 years"
  },
@@ -10636,6 +11230,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI vitamins, Vitamin C (Total), 4-6 years"
  },
@@ -10656,6 +11251,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI vitamins, Vitamin C (Total), 7-10 years"
  },
@@ -10676,6 +11272,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI vitamins, Vitamin C (Total), Males 11-14 years"
  },
@@ -10696,6 +11293,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI vitamins, Vitamin C (Total), Males 15-18 years"
  },
@@ -10716,6 +11314,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI vitamins, Vitamin C (Total), Males 19-50 years"
  },
@@ -10736,6 +11335,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI vitamins, Vitamin C (Total), Males 50+ years"
  },
@@ -10756,6 +11356,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "Printed as +10 over women 19-50 y; stored as total. For the last trimester only.",
   "from": "RNI vitamins, Vitamin C (Total), Pregnancy +10"
  },
@@ -10776,6 +11377,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "SACN 2016. Safe intake.",
   "from": "RNI vitamins, Vitamin D (Total), 0-3 months"
  },
@@ -10796,6 +11398,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "SACN 2016. Safe intake.",
   "from": "RNI vitamins, Vitamin D (Total), 4-6 months"
  },
@@ -10816,6 +11419,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "SACN 2016. Safe intake.",
   "from": "RNI vitamins, Vitamin D (Total), 7-9 months"
  },
@@ -10836,6 +11440,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "SACN 2016. Safe intake.",
   "from": "RNI vitamins, Vitamin D (Total), 10-12 months"
  },
@@ -10856,6 +11461,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "SACN 2016. Safe intake.",
   "from": "RNI vitamins, Vitamin D (Total), 0-3 months"
  },
@@ -10876,6 +11482,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "SACN 2016. Safe intake.",
   "from": "RNI vitamins, Vitamin D (Total), 4-6 months"
  },
@@ -10896,6 +11503,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "SACN 2016. Safe intake.",
   "from": "RNI vitamins, Vitamin D (Total), 7-9 months"
  },
@@ -10916,6 +11524,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "SACN 2016. Safe intake.",
   "from": "RNI vitamins, Vitamin D (Total), 10-12 months"
  },
@@ -10936,6 +11545,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "SACN 2016. Printed absolute.",
   "from": "RNI vitamins, Vitamin D (Total), Lactation 10"
  },
@@ -10956,6 +11566,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "SACN 2016.",
   "from": "RNI vitamins, Vitamin D (Total), 1-3 years"
  },
@@ -10976,6 +11587,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "SACN 2016.",
   "from": "RNI vitamins, Vitamin D (Total), 4-6 years"
  },
@@ -10996,6 +11608,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "SACN 2016.",
   "from": "RNI vitamins, Vitamin D (Total), 7-10 years"
  },
@@ -11016,6 +11629,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "SACN 2016.",
   "from": "RNI vitamins, Vitamin D (Total), Females 11-14 years"
  },
@@ -11036,6 +11650,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "SACN 2016.",
   "from": "RNI vitamins, Vitamin D (Total), Females 15-18 years"
  },
@@ -11056,6 +11671,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "SACN 2016.",
   "from": "RNI vitamins, Vitamin D (Total), Females 19-50 years"
  },
@@ -11076,6 +11692,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "SACN 2016.",
   "from": "RNI vitamins, Vitamin D (Total), Females 50+ years"
  },
@@ -11096,6 +11713,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "SACN 2016.",
   "from": "RNI vitamins, Vitamin D (Total), 1-3 years"
  },
@@ -11116,6 +11734,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "SACN 2016.",
   "from": "RNI vitamins, Vitamin D (Total), 4-6 years"
  },
@@ -11136,6 +11755,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "SACN 2016.",
   "from": "RNI vitamins, Vitamin D (Total), 7-10 years"
  },
@@ -11156,6 +11776,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "SACN 2016.",
   "from": "RNI vitamins, Vitamin D (Total), Males 11-14 years"
  },
@@ -11176,6 +11797,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "SACN 2016.",
   "from": "RNI vitamins, Vitamin D (Total), Males 15-18 years"
  },
@@ -11196,6 +11818,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "SACN 2016.",
   "from": "RNI vitamins, Vitamin D (Total), Males 19-50 years"
  },
@@ -11216,6 +11839,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "SACN 2016.",
   "from": "RNI vitamins, Vitamin D (Total), Males 50+ years"
  },
@@ -11236,6 +11860,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "SACN 2016. Printed absolute.",
   "from": "RNI vitamins, Vitamin D (Total), Pregnancy 10"
  },
@@ -11256,6 +11881,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "Printed as +6.0 over women 19-50 y; stored as total. 0-4 months; 4+ months: +2.5 mg.",
   "from": "RNI minerals, Zinc, Lactation +6.0"
  },
@@ -11276,6 +11902,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Zinc, 0-3 months"
  },
@@ -11296,6 +11923,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Zinc, 4-6 months"
  },
@@ -11316,6 +11944,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Zinc, 7-9 months"
  },
@@ -11336,6 +11965,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Zinc, 10-12 months"
  },
@@ -11356,6 +11986,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Zinc, 1-3 years"
  },
@@ -11376,6 +12007,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Zinc, 4-6 years"
  },
@@ -11396,6 +12028,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Zinc, 7-10 years"
  },
@@ -11416,6 +12049,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Zinc, Females 11-14 years"
  },
@@ -11436,6 +12070,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Zinc, Females 15-18 years"
  },
@@ -11456,6 +12091,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Zinc, Females 19-50 years"
  },
@@ -11476,6 +12112,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Zinc, Females 50+ years"
  },
@@ -11496,6 +12133,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Zinc, 0-3 months"
  },
@@ -11516,6 +12154,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Zinc, 4-6 months"
  },
@@ -11536,6 +12175,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Zinc, 7-9 months"
  },
@@ -11556,6 +12196,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Zinc, 10-12 months"
  },
@@ -11576,6 +12217,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Zinc, 1-3 years"
  },
@@ -11596,6 +12238,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Zinc, 4-6 years"
  },
@@ -11616,6 +12259,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Zinc, 7-10 years"
  },
@@ -11636,6 +12280,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Zinc, Males 11-14 years"
  },
@@ -11656,6 +12301,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Zinc, Males 15-18 years"
  },
@@ -11676,6 +12322,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Zinc, Males 19-50 years"
  },
@@ -11696,6 +12343,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": null,
   "from": "RNI minerals, Zinc, Males 50+ years"
  },
@@ -11716,6 +12364,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "plusAbsolute": 0,
   "note": "No increase over non-pregnant women 19-50 y.",
   "from": "RNI minerals, Zinc, Pregnancy *"
  }

@@ -15,7 +15,11 @@
 
 export type DvValueType =
   | 'RDA' | 'AI' | 'UL' | 'EAR' | 'EER' | 'AMDR'
-  | 'CDRR' | 'SDT' | 'NRV_R' | 'NRV_NCD' | 'DV' | 'RI';
+  | 'CDRR' | 'SDT' | 'NRV_R' | 'NRV_NCD' | 'DV' | 'RI'
+  // Contaminant limits from toxicology committees, added with migration 0057. TWI/TDI/PTMI/RfD are
+  // ceilings; BMDL is a reference point for a margin-of-exposure calculation and must never be treated
+  // as one (see lib/dv/resolve.ts).
+  | 'TWI' | 'TDI' | 'PTMI' | 'RfD' | 'BMDL';
 
 export type DvFamily =
   /** Covers ~97.5% of healthy people. The main target. */
@@ -33,7 +37,14 @@ export type DvFamily =
   /** Chronic-disease "stay below" (or "reach") marker. Not a target. */
   | 'CHRONIC_DISEASE'
   /** Flat food-label values. Not demographic; not used for personal targets. */
-  | 'LABEL';
+  | 'LABEL'
+  /**
+   * A dose you divide an exposure into to get a margin — NOT a ceiling. Lead and inorganic arsenic have
+   * one because JECFA and EFSA withdrew their tolerable intakes in 2010 after finding no threshold, so
+   * there is no intake that counts as "within the limit". Rendering one as a limit would invent a safe
+   * level the science declines to set.
+   */
+  | 'REFERENCE_POINT';
 
 export const DV_FAMILY: Record<DvValueType, DvFamily> = {
   RDA: 'TARGET',
@@ -48,6 +59,13 @@ export const DV_FAMILY: Record<DvValueType, DvFamily> = {
   NRV_R: 'LABEL',
   DV: 'LABEL',
   RI: 'LABEL',
+  // Contaminant limits: ceilings in the same sense as a UL, differing in who derived them and over what
+  // period (see averaging_days on reference_daily_values).
+  TWI: 'UPPER_LIMIT',
+  TDI: 'UPPER_LIMIT',
+  PTMI: 'UPPER_LIMIT',
+  RfD: 'UPPER_LIMIT',
+  BMDL: 'REFERENCE_POINT',
 };
 
 export interface SourceVocabulary {

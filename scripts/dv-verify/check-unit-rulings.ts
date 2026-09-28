@@ -34,7 +34,7 @@ async function main() {
 
   // compound -> qualifier -> regions that publish it
   const seen = new Map<string, Map<string, Set<string>>>();
-  for (const r of rows as Array<{ compound: string; region: string; unit: string }>) {
+  for (const r of rows as unknown as Array<{ compound: string; region: string; unit: string }>) {
     const q = parseUnit(r.unit).qualifier;
     const m = seen.get(r.compound) ?? new Map<string, Set<string>>();
     m.set(q, (m.get(q) ?? new Set()).add(r.region));

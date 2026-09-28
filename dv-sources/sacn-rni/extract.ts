@@ -19,9 +19,9 @@
  *
  * Source inconsistency: women 65-74 / 75+ energy MJ disagree with the printed kcal; kcal-consistent MJ used.
  *
- * Not stored: the protein pregnancy/lactation increments (+6 / +11 / +8 g/d on top of a per-kg base — one
- * row cannot hold both), and the food-labelling Reference Intakes (not demographic values).
- * The adult protein RNI of 0.75 g/kg IS stored, per kg, since 2026-09-28.
+ * Not stored: the food-labelling Reference Intakes (not demographic values). The adult protein RNI of
+ * 0.75 g/kg is stored per kg since 2026-09-28, with its pregnancy / lactation g/d increments carried on
+ * the same rows via plusAbsolute.
  *
  * Run: npx tsx dv-sources/sacn-rni/extract.ts
  */
@@ -36,7 +36,7 @@ const out: SourceValue[] = [];
 const BOTH: Sex[] = ['MALE', 'FEMALE'];
 const r4 = (x: number) => Number(x.toFixed(4));
 
-function add(p: { compound: string; type: DvValueType; sexes: Sex[]; stage?: LifeStage; age: Age; cell: Cell; unit: string; pct?: boolean; min?: number | null; max?: number | null; note?: string | null; from: string; perKg?: boolean }) {
+function add(p: { compound: string; type: DvValueType; sexes: Sex[]; stage?: LifeStage; age: Age; cell: Cell; unit: string; pct?: boolean; min?: number | null; max?: number | null; note?: string | null; from: string; perKg?: boolean; plus?: number }) {
   if (p.cell == null) return;
   const [value, vmin, vmax] = Array.isArray(p.cell) ? [r4((p.cell[0] + p.cell[1]) / 2), p.cell[0], p.cell[1]] : [p.cell, p.min ?? null, p.max ?? null];
   for (const sex of p.sexes) {
@@ -44,7 +44,7 @@ function add(p: { compound: string; type: DvValueType; sexes: Sex[]; stage?: Lif
       compound: p.compound, valueType: p.type, sex, lifeStage: p.stage ?? 'NONE', ageMinMonths: p.age[0], ageMaxMonths: p.age[1],
       activityLevel: null, dietaryContext: null, value, valueMin: vmin, valueMax: vmax, unit: p.unit,
       isPercentOfEnergy: p.pct ?? false, isProvisional: false, supplementalOnly: false,
-      perKgBodyWeight: p.perKg ?? false, note: p.note ?? null, from: p.from,
+      perKgBodyWeight: p.perKg ?? false, plusAbsolute: p.plus ?? 0, note: p.note ?? null, from: p.from,
     });
   }
 }
@@ -114,10 +114,18 @@ function add(p: { compound: string; type: DvValueType; sexes: Sex[]; stage?: Lif
     from: 'Protein RNI, adults, 0.75 g/kg bodyweight',
   });
 
-  // Pregnancy (+6 g/d) and lactation (+11 g/d at 0-6 months, +8 g/d at 6+ months) are absolute increments
-  // on top of that per-kg base. One row cannot hold "0.75 g/kg plus 6 g", and resolving the base at a
-  // reference weight in order to add them would bake a weight into stored data — the same wall EFSA's
-  // pregnancy increments hit. Needs an increment concept in the schema; until then, not stored.
+  // Pregnancy and lactation: absolute g/d increments on top of that per-kg base, carried on the same row
+  // via plusAbsolute. "Protein requirements increase in pregnancy (an additional 6 g/d) and lactation (an
+  // additional 11 g/d at 0-6 months and 8 g/d at 6+ months)". The increment is not scaled by weight.
+  const UK_SILENT = 'The source does not state whether the per-kg base is taken at pre-pregnancy or current body weight; the weight on file is used.';
+  const inc: Array<[LifeStage, number, string]> = [['PREGNANT', 6, 'pregnancy'], ['LACTATING_0_6M', 11, 'lactation 0-6 months'], ['LACTATING_7_12M', 8, 'lactation 6+ months']];
+  for (const [stage, plus, label] of inc) {
+    add({
+      compound: 'Protein', type: 'RDA', sexes: ['FEMALE'], stage, age: [228, null], cell: 0.75, plus, unit: 'g', perKg: true,
+      note: `Per kg of body weight (0.75 g/kg adult RNI) plus the printed increment: "Protein requirements increase in pregnancy (an additional 6 g/d) and lactation (an additional 11 g/d at 0-6 months and 8 g/d at 6+ months)". ${UK_SILENT}`,
+      from: `Protein RNI, adults 0.75 g/kg + ${plus} g/d, ${label}`,
+    });
+  }
 }
 
 // ───────────── RNI tables (p6-7) ─────────────

@@ -8,7 +8,6 @@
  * - Redis status (UP/DOWN, latency)
  * - Circuit breaker state (CLOSED/OPEN/HALF_OPEN)
  * - Rate limiter stats (tokens remaining, reset time)
- * - ETL queue metrics (waiting/active/completed/failed)
  * - Cache hit rates (L1/L2)
  * - Last 10 errors from logs
  * - Overall health status (HEALTHY/DEGRADED/UNHEALTHY)
@@ -19,7 +18,6 @@ import { createClient } from '@/lib/supabase/server';
 import { redis } from '@/lib/services/redis';
 import { getCircuitBreakerState } from '@/lib/services/circuit-breaker';
 import { getRateLimiterStatus } from '@/lib/services/rate-limiter';
-import { getQueueMetrics } from '@/lib/queue/food-import-queue';
 import { getRecentErrors } from '@/lib/logging/pino-config';
 import { logger, withRequestId } from '@/lib/logging/pino-config';
 import { requireAdmin } from '@/lib/auth/api-guard';
@@ -40,12 +38,6 @@ interface HealthDashboardResponse {
       tokensRemaining: number;
       resetAt: string;
       utilization: number; // percentage
-    };
-    etlQueue: {
-      waiting: number;
-      active: number;
-      completed: number;
-      failed: number;
     };
     cache: {
       l1HitRate: number;
@@ -102,9 +94,6 @@ export async function GET() {
       // 5. Check Rate Limiter status
       const rateLimiterHealth = await checkRateLimiterHealth();
 
-      // 6. Check ETL Queue metrics
-      const etlQueueHealth = await checkETLQueueHealth();
-
       // 7. Get cache hit rates (placeholder - implement when cache metrics tracking is added)
       const cacheHealth = {
         l1HitRate: 0.85, // 85% hit rate (placeholder)
@@ -122,13 +111,11 @@ export async function GET() {
       // 9. Determine overall health status
       const degradedMode =
         redisHealth.status === 'DOWN' ||
-        circuitBreakerHealth.state === 'OPEN' ||
-        etlQueueHealth.failed > 10;
+        circuitBreakerHealth.state === 'OPEN';
 
       const unhealthyConditions =
         (redisHealth.status === 'DOWN' ? 1 : 0) +
-        (circuitBreakerHealth.state === 'OPEN' ? 1 : 0) +
-        (etlQueueHealth.failed > 50 ? 1 : 0);
+        (circuitBreakerHealth.state === 'OPEN' ? 1 : 0);
 
       const overall: 'HEALTHY' | 'DEGRADED' | 'UNHEALTHY' =
         unhealthyConditions >= 2 ? 'UNHEALTHY'
@@ -141,7 +128,6 @@ export async function GET() {
           redis: redisHealth,
           circuitBreaker: circuitBreakerHealth,
           rateLimiter: rateLimiterHealth,
-          etlQueue: etlQueueHealth,
           cache: cacheHealth,
         },
         degradedMode,
@@ -262,31 +248,3 @@ async function checkRateLimiterHealth(): Promise<{
   }
 }
 
-/**
- * Check ETL Queue metrics (BullMQ)
- */
-async function checkETLQueueHealth(): Promise<{
-  waiting: number;
-  active: number;
-  completed: number;
-  failed: number;
-}> {
-  try {
-    const metrics = await getQueueMetrics();
-
-    return {
-      waiting: metrics.waiting ?? 0,
-      active: metrics.active ?? 0,
-      completed: metrics.completed ?? 0,
-      failed: metrics.failed ?? 0,
-    };
-  } catch (error) {
-    logger.error({ error }, 'ETL queue health check failed');
-    return {
-      waiting: -1,
-      active: -1,
-      completed: -1,
-      failed: -1,
-    };
-  }
-}

@@ -1,0 +1,8 @@
+{
+  "//2": "Scope is the DV pipeline only. Widening it to all of db/seed and scripts/ surfaces 12 pre-existing errors in files that import modules deleted in the Phase 3.1 cleanup (db/seed/generate-sql.ts references ./compounds-sql, ./categories-sql, ./users-sql; db/seed/compounds.ts imports @/lib/types/database) — real dead code, but removing it is a delete-door job with its own proof, not something to smuggle in here. A check that is red on day one gets ignored, so it starts green and covers what this work touches.",
+  "//": "The extracts, seed loaders and verify scripts are excluded from tsconfig.json because Next only compiles the app. That left 22 transcription scripts, the DV loader and every checker with no type checking at all — an invalid life_stage reached Postgres before anything complained, and a BMDL comparison in the consistency checker was dead code against a union that did not contain it. `npm run typecheck:scripts` closes that. ES2020 because several extracts use regex flags newer than the app's target.",
+  "extends": "./tsconfig.json",
+  "compilerOptions": { "target": "ES2020", "noEmit": true },
+  "include": ["dv-sources/**/*.ts", "db/seed/dv/**/*.ts", "scripts/dv-verify/**/*.ts", "lib/dv/**/*.ts", "lib/food-health/**/*.ts"],
+  "exclude": ["node_modules", "scripts/archive/**/*"]
+}

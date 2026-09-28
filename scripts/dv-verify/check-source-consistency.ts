@@ -79,6 +79,14 @@ for (const v of values) {
     if (v.isPercentOfEnergy) fail(`${v.from}: marked per kg of body weight AND a share of energy — it cannot be both`);
     if (v.value > 10) fail(`${v.from}: ${v.value} ${v.unit} per kg of body weight is implausible — is this an absolute value mislabelled?`);
   }
+  // plus_absolute exists for one shape only: a per-kg base with a stated absolute increment. When the base
+  // is absolute the extracts fold the increment in and store a total (1,841 rows do), and having two
+  // conventions for the same thing would be worse than either.
+  if (v.plusAbsolute) {
+    if (!v.perKgBodyWeight) fail(`${v.from}: plusAbsolute ${v.plusAbsolute} without a per-kg base — when the base is absolute, fold the increment into the total as every other source does`);
+    if (v.lifeStage === 'NONE') fail(`${v.from}: plusAbsolute on a non-pregnant, non-lactating row — increments of this shape are a life-stage thing; if this is real, say why in the note`);
+    if (!v.note) fail(`${v.from}: plusAbsolute needs a note quoting the source's wording for the increment`);
+  }
   if (v.averagingDays !== undefined && ![1, 7, 30].includes(v.averagingDays))
     fail(`${v.from}: averagingDays ${v.averagingDays} — only 1 (daily), 7 (weekly) and 30 (monthly) are stored`);
   // A benchmark dose is a reference point for a margin of exposure, not a limit. It must say what

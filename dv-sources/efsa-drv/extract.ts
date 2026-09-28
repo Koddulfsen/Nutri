@@ -8,8 +8,8 @@
  * read from the bold type on the rendered pages (the text layer does not carry it).
  *
  * Not stored, on purpose:
- *   - Protein pregnancy/lactation increments: printed as g/d on top of a per-kg base, and one row
- *     cannot hold "0.83 g/kg plus 9 g". The main Table 2 values ARE stored, per kg, since 2026-09-28.
+ *   (Protein Table 2 is stored since 2026-09-28: the per-kg values directly, and the pregnancy /
+ *   lactation g/d increments via plusAbsolute on top of the per-kg adult base.)
  *   - SFA, TFA: "as low as possible" — no number.
  *   - Safe levels of intake (UL Table 2: iron, manganese, fluoride ≥ 9 y): EFSA states they are
  *     not ULs; storing them as UL would mislabel them.
@@ -39,6 +39,8 @@ function add(p: {
   diet?: DietaryContext | null; note?: string | null; from: string; supplementalOnly?: boolean;
   /** The value is per kilogram of body weight, not an absolute amount. */
   perKg?: boolean;
+  /** An absolute amount added on top, in the same unit — a per-kg base plus a stated increment. */
+  plus?: number;
 }) {
   for (const sex of p.sexes ?? ['MALE', 'FEMALE']) {
     out.push({
@@ -46,7 +48,7 @@ function add(p: {
       ageMinMonths: p.age[0], ageMaxMonths: p.age[1], activityLevel: p.activity ?? null, dietaryContext: p.diet ?? null,
       value: Number(p.value.toFixed(4)), valueMin: p.min ?? null, valueMax: p.max ?? null, unit: p.unit,
       isPercentOfEnergy: p.pct ?? false, isProvisional: false, supplementalOnly: p.supplementalOnly ?? false,
-      perKgBodyWeight: p.perKg ?? false, note: p.note ?? null, from: p.from,
+      perKgBodyWeight: p.perKg ?? false, plusAbsolute: p.plus ?? 0, note: p.note ?? null, from: p.from,
     });
   }
 }
@@ -451,12 +453,38 @@ const LPI: Array<[DietaryContext, number]> = [['PHYTATE_LOW', 300], ['PHYTATE_ME
     add({ compound: 'Protein', type: 'RDA', sexes: F, age, value: priF, unit: 'g', perKg: true, note, from: `${from} PRI, protein, ${label}, F` });
   }
 
-  // Pregnancy and lactation are still NOT stored, and the reason is now a different one from before.
-  // The increments are absolute g/d on top of a per-kg base (+1 / +9 / +28 g/d for the trimesters,
-  // +19 / +13 g/d lactating). One row cannot hold "0.83 g/kg plus 9 g", and resolving the base at a
-  // reference weight in order to add the increment would bake a weight into stored data — the thing
-  // per_kg_body_weight exists to avoid. Expressing this needs an increment concept in the schema,
-  // which is its own decision; until then a pregnant user gets protein from the other bodies.
+  // Pregnancy and lactation: an absolute g/d increment on top of the per-kg adult base, which is what
+  // `plusAbsolute` exists for — the row carries both, and the resolver computes
+  // value × weight + plusAbsolute. The increment is not scaled by weight: "+9 g/d" is 9 grams for
+  // everyone. Footnotes (b) and (c) state the base explicitly: "in addition to the AR / PRI for protein
+  // of non-pregnant, non-lactating women", i.e. the 0.66 / 0.83 g/kg row above.
+  //
+  // Which weight the base should be taken at — pre-pregnancy or current — the table does not say. Nutri
+  // applies the weight on file; the note records that the source is silent.
+  {
+    const ADULT_AR = 0.66;
+    const ADULT_PRI = 0.83;
+    const SILENT = 'EFSA does not state whether the per-kg base is taken at pre-pregnancy or current body weight; the weight on file is used.';
+    const stages: Array<[LifeStage, number, number, string]> = [
+      ['PREGNANT_T1',     0.52,  1, '1st trimester'],
+      ['PREGNANT_T2',     7.2,   9, '2nd trimester'],
+      ['PREGNANT_T3',     23,   28, '3rd trimester'],
+      ['LACTATING_0_6M',  15,   19, '0-6 mo post partum'],
+      ['LACTATING_7_12M', 10,   13, '>6 mo post partum'],
+    ];
+    for (const [stage, arInc, priInc, label] of stages) {
+      add({
+        compound: 'Protein', type: 'EAR', sexes: F, stage, age: [216, 719], value: ADULT_AR, plus: arInc, unit: 'g', perKg: true,
+        note: `${PER_KG} Printed "+${arInc} g/d" (footnote b: "in addition to the AR for protein of non-pregnant, non-lactating women"), on top of the ${ADULT_AR} g/kg adult AR. ${SILENT}`,
+        from: `${from} AR, protein, ${label}`,
+      });
+      add({
+        compound: 'Protein', type: 'RDA', sexes: F, stage, age: [216, 719], value: ADULT_PRI, plus: priInc, unit: 'g', perKg: true,
+        note: `${PER_KG} Printed "+${priInc} g/d" (footnote c: "in addition to the PRI for protein of non-pregnant, non-lactating women"), on top of the ${ADULT_PRI} g/kg adult PRI. ${SILENT}`,
+        from: `${from} PRI, protein, ${label}`,
+      });
+    }
+  }
 }
 
 

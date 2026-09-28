@@ -37,6 +37,8 @@ export interface DvRow {
   perKgBodyWeight?: boolean;
   /** The period the value is averaged over: 1 daily, 7 weekly, 30 monthly. */
   averagingDays?: number;
+  /** An absolute amount on top of `value`, in the same unit — a per-kg base plus a stated increment. */
+  plusAbsolute?: number;
 }
 
 export type DvValueType =
@@ -289,14 +291,21 @@ export function resolveBar(
 
   const scaled: DvRow[] = [];
   for (const r of allRows) {
-    if (!r.perKgBodyWeight) { scaled.push(r); continue; }
+    const plus = r.plusAbsolute ?? 0;
+    if (!r.perKgBodyWeight) {
+      // An increment with no per-kg base is already a complete amount; adding it keeps one code path.
+      scaled.push(plus ? { ...r, value: r.value + plus, plusAbsolute: 0 } : r);
+      continue;
+    }
     if (!weight) {
       excluded.push({ region: r.region, valueType: r.valueType, unit: r.unit, reason: 'stated per kg of body weight, and no weight — measured or reference — was available' });
       continue;
     }
     weightUsed = true;
-    const x = (v: number | null | undefined) => (v == null ? v : v * weight.kg);
-    scaled.push({ ...r, value: r.value * weight.kg, valueMin: x(r.valueMin), valueMax: x(r.valueMax), perKgBodyWeight: false });
+    // amount = value × weight + plusAbsolute. The increment is NOT scaled: EFSA's "+9 g/d" is 9 grams for
+    // everyone, on top of a base that does depend on weight.
+    const x = (v: number | null | undefined) => (v == null ? v : v * weight.kg + plus);
+    scaled.push({ ...r, value: r.value * weight.kg + plus, valueMin: x(r.valueMin), valueMax: x(r.valueMax), perKgBodyWeight: false, plusAbsolute: 0 });
   }
 
   // Benchmark doses are separated before anything else: they are reference points for a margin-of-

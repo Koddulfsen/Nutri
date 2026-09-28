@@ -18,7 +18,8 @@
     "build:local": "DEV_AUTH_BYPASS=false NEXT_PUBLIC_DEV_AUTH_BYPASS=false next build",
     "check:auth": "tsx scripts/check-route-auth.ts",
     "check:auth:strict": "STRICT=1 tsx scripts/check-route-auth.ts",
-    "test:outliers": "tsx scripts/test-outliers.ts"
+    "test:outliers": "tsx scripts/test-outliers.ts",
+    "typecheck:scripts": "tsc --noEmit -p tsconfig.scripts.json"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.32.1",

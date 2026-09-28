@@ -1,0 +1,1 @@
+ALTER TABLE "reference_daily_values" ADD COLUMN "plus_absolute" numeric(12, 4) DEFAULT '0' NOT NULL;

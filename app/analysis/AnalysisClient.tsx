@@ -885,27 +885,10 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
     recalcLocally(mealsAfterAdd, selectedItemIdsRef.current);
     handleRemoveSelectedFood();
 
-    // Import USDA food if needed (if it's not already in database)
-    let foodId = foodBeingAdded.id;
+    const foodId = foodBeingAdded.id;
 
     try {
       setAddingFood(true);
-
-      // If food is from USDA (not imported), import it first
-      if (!foodBeingAdded.isImported) {
-        const importRes = await fetch(apiUrl('/api/foods/import'), {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ fdcId: foodBeingAdded.fdcId })
-        });
-
-        if (!importRes.ok) {
-          throw new Error('Failed to import food');
-        }
-
-        const importData = await importRes.json();
-        foodId = importData.food.id;
-      }
 
       // One request: adds the food and returns the updated meals + totals.
       // The meal id is read when the call runs (see syncDay), so it is never

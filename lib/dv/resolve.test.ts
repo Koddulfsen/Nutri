@@ -335,3 +335,38 @@ describe('contaminant values', () => {
     expect(bar.referencePoints[0]).toMatchObject({ value: 35, unit: 'µg', valueType: 'BMDL' });
   });
 });
+
+describe('a per-kg base with a stated absolute increment', () => {
+  it('computes value x weight + increment, and does not scale the increment', () => {
+    // EFSA 2nd trimester: 0.83 g/kg (the non-pregnant PRI) + 9 g/d.
+    const bar = resolveBar('Protein', [
+      row({ region: 'EU', valueType: 'RDA', value: 0.83, unit: 'g', perKgBodyWeight: true, plusAbsolute: 9 }),
+    ], {}, { weightKg: 70 });
+    expect(bar.goal?.value).toBe(67.1);          // 58.1 + 9, not (0.83 + 9) x 70
+  });
+
+  it('scales only the base when the weight changes', () => {
+    const at = (kg: number) => resolveBar('Protein', [
+      row({ region: 'EU', valueType: 'RDA', value: 0.83, unit: 'g', perKgBodyWeight: true, plusAbsolute: 9 }),
+    ], {}, { weightKg: kg }).goal!.value;
+    expect(at(60)).toBe(58.8);   // 49.8 + 9
+    expect(at(80)).toBe(75.4);   // 66.4 + 9
+    expect(at(80) - at(60)).toBeCloseTo(16.6, 4);   // 20 kg x 0.83 — the increment contributes nothing
+  });
+
+  it('treats an increment with no per-kg base as an amount already complete', () => {
+    const bar = resolveBar('Protein', [
+      row({ region: 'UK', valueType: 'RDA', value: 50, unit: 'g', plusAbsolute: 6 }),
+    ], {}, { weightKg: 70 });
+    expect(bar.goal?.value).toBe(56);
+    expect(bar.weightBasis).toBeNull();   // no per-kg value was involved
+  });
+
+  it('still excludes the row when no weight is available at all', () => {
+    const bar = resolveBar('Protein', [
+      row({ region: 'EU', valueType: 'RDA', value: 0.83, unit: 'g', perKgBodyWeight: true, plusAbsolute: 9 }),
+    ]);
+    expect(bar.goal).toBeNull();
+    expect(bar.excluded[0].reason).toMatch(/per kg of body weight/);
+  });
+});

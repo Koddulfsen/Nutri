@@ -41,6 +41,12 @@ export interface SourceValue {
   perKgBodyWeight?: boolean;
   /** Period the value is averaged over: 1 daily (the default), 7 weekly, 30 monthly. */
   averagingDays?: number;
+  /**
+   * An absolute amount added on top of `value`, in the same unit, so a row can hold a per-kg base AND an
+   * increment: EFSA's second-trimester protein PRI is "+9 g/d in addition to" a base of 0.83 g/kg.
+   * Only for a per-kg base — when the base is absolute, extracts fold the increment in and store a total.
+   */
+  plusAbsolute?: number;
   note: string | null;
   /** Where in the source document this value was read, e.g. "Table J-3, Iron, Females 19–30 y". */
   from: string;
