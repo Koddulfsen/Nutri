@@ -58,6 +58,44 @@ export interface SearchResponse {
   };
 }
 
+/** Escapes LIKE wildcards so a user's `%` or `_` matches literally. */
+function escapeLike(term: string): string {
+  return term.replace(/[\\%_]/g, (c) => `\\${c}`);
+}
+
+/**
+ * How well a name matches one term, lower is better:
+ * 0 the whole name · 1 its first word · 2 any whole word · 3 the start of the
+ * first word · 4 the start of any word · 5 anywhere.
+ * Words are split on anything that isn't a letter or digit, so for "egg":
+ * "Egg, whole, raw" → 1, "Scrambled egg" → 2, "Eggplant" → 3.
+ */
+function termRank(term: string) {
+  const t = escapeLike(term);
+  const words = sql`(' ' || regexp_replace(lower(${foods.name}), '[^[:alnum:]]+', ' ', 'g') || ' ')`;
+  return sql`CASE
+    WHEN lower(${foods.name}) = ${term} THEN 0
+    WHEN ${words} LIKE ${' ' + t + ' %'} THEN 1
+    WHEN ${words} LIKE ${'% ' + t + ' %'} THEN 2
+    WHEN ${words} LIKE ${' ' + t + '%'} THEN 3
+    WHEN ${words} LIKE ${'% ' + t + '%'} THEN 4
+    ELSE 5 END`;
+}
+
+/**
+ * Best match first: names matching more of the terms, then the closest
+ * match on any term, then shorter names (the plain food before its variants),
+ * then A–Z so ties are stable.
+ */
+function relevanceOrder(terms: string[]) {
+  const matched = sql.join(
+    terms.map((t) => sql`(CASE WHEN ${foods.name} ILIKE ${'%' + escapeLike(t) + '%'} THEN 1 ELSE 0 END)`),
+    sql` + `
+  );
+  const best = terms.length === 1 ? termRank(terms[0]) : sql`LEAST(${sql.join(terms.map(termRank), sql`, `)})`;
+  return [sql`(${matched}) DESC`, sql`${best} ASC`, sql`length(${foods.name}) ASC`, asc(foods.name)];
+}
+
 /**
  * Search Service
  */
@@ -100,11 +138,10 @@ export class SearchService {
     // Use database results only (removed CNF API fallback)
     const combinedResults = databaseResults;
 
-    // Step 4: Apply pagination
-    const { page = 1, limit = 20 } = options;
-    const startIndex = (page - 1) * limit;
-    const endIndex = startIndex + limit;
-    const paginatedResults = combinedResults.slice(startIndex, endIndex);
+    // Step 4: Pagination — already applied in SQL (LIMIT/OFFSET). Slicing
+    // again here would offset twice and return nothing past page 1.
+    const { limit = 20 } = options;
+    const paginatedResults = combinedResults;
 
     // Step 5: Calculate metadata
     const durationMs = Date.now() - startTime;
@@ -159,7 +196,7 @@ export class SearchService {
    */
   private async searchDatabase(options: SearchOptions): Promise<SearchResult[]> {
     try {
-      const { query, category, isEstimated, page = 1, limit = 20, userId } = options;
+      const { query, category, isEstimated, page = 1, limit = 20, userId, sortBy = 'relevance' } = options;
       const offset = (page - 1) * limit;
 
       const conditions = [
@@ -170,11 +207,11 @@ export class SearchService {
           : eq(foods.visibility, 'public'),
       ];
 
-      if (query && query.trim().length > 0) {
+      const searchTerms = query && query.trim().length > 0 ? query.trim().toLowerCase().split(/\s+/) : [];
+      if (searchTerms.length > 0) {
         // Match if the name contains any word of the query (same semantics
         // as the previous REST version: one ilike per term, OR'd together).
-        const searchTerms = query.trim().split(/\s+/);
-        conditions.push(or(...searchTerms.map((term) => ilike(foods.name, `%${term}%`))));
+        conditions.push(or(...searchTerms.map((term) => ilike(foods.name, `%${escapeLike(term)}%`))));
       }
 
       if (category) {
@@ -195,7 +232,7 @@ export class SearchService {
         })
         .from(foods)
         .where(and(...conditions))
-        .orderBy(asc(foods.name))
+        .orderBy(...(sortBy === 'name' || searchTerms.length === 0 ? [asc(foods.name)] : relevanceOrder(searchTerms)))
         .limit(limit)
         .offset(offset);
 

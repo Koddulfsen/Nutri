@@ -54,11 +54,55 @@ const BANDS: Band[] = [
   { minMonths: 228, maxMonths: null, male: 70, female: 57, label: '19–30 y (applies to all adults)' },
 ];
 
-export function referenceWeightKg(ageMonths: number, sex: 'MALE' | 'FEMALE'): ReferenceWeight | null {
+/**
+ * A source's OWN reference weights, where it publishes them.
+ *
+ * This matters because a per-kg value and the absolute value a body prints beside it are tied together
+ * by that body's own weights. EFSA states it outright in the protein table's footnote (a): the per-kg
+ * figures are "to be multiplied by reference body weights to calculate values in g/day" — and EFSA's
+ * adult weights are 68.1 and 58.5 kg, not the IOM's 70 and 57. Converting EFSA's 0.83 g/kg at the IOM's
+ * weight produces 58.1 g, a number EFSA never published; at its own weight it produces 56.5 g, which is
+ * what EFSA means.
+ *
+ * A source with no published table falls back to the IOM's, and the note says so, because an unstated
+ * assumption is worse than a borrowed one that is named.
+ */
+const SOURCE_BANDS: Record<string, { label: string; bands: Band[] }> = {
+  // EFSA DRVs summary report, Table 17, "Reference body weights for children and adults used for
+  // scaling". Adults: "Derived from measured body heights of men and women aged 18-79 years in 13 EU
+  // Member States and assuming a body mass index of 22 kg/m2". Children: median weight-for-age at the
+  // age taken as reference (WHO Multicentre Growth Reference Study 2006; van Buuren et al. 2012).
+  EU: {
+    label: 'EFSA DRVs summary report, Table 17',
+    bands: [
+      { minMonths: 0, maxMonths: 6, male: 6.4, female: 5.8, label: '0–6 mo' },
+      { minMonths: 7, maxMonths: 11, male: 8.9, female: 8.2, label: '7–11 mo' },
+      { minMonths: 12, maxMonths: 47, male: 12.2, female: 11.5, label: '1–3 y' },
+      { minMonths: 48, maxMonths: 83, male: 19.2, female: 18.7, label: '4–6 y' },
+      { minMonths: 84, maxMonths: 131, male: 29.0, female: 28.4, label: '7–10 y' },
+      { minMonths: 132, maxMonths: 179, male: 44.0, female: 45.1, label: '11–14 y' },
+      { minMonths: 180, maxMonths: 215, male: 64.1, female: 56.4, label: '15–17 y' },
+      { minMonths: 216, maxMonths: null, male: 68.1, female: 58.5, label: '≥ 18 y' },
+    ],
+  },
+};
+
+/**
+ * The weight to resolve a per-kg value at.
+ *
+ * `region` picks that body's own table when it has one. Omit it for a general default.
+ */
+export function referenceWeightKg(ageMonths: number, sex: 'MALE' | 'FEMALE', region?: string): ReferenceWeight | null {
+  const own = region ? SOURCE_BANDS[region] : undefined;
+  if (own) {
+    const band = own.bands.find((b) => ageMonths >= b.minMonths && (b.maxMonths === null || ageMonths <= b.maxMonths));
+    if (band) return { kg: sex === 'MALE' ? band.male : band.female, note: `${own.label}, ${sex === 'MALE' ? 'males' : 'females'} ${band.label}` };
+  }
   const band = BANDS.find((b) => ageMonths >= b.minMonths && (b.maxMonths === null || ageMonths <= b.maxMonths));
   if (!band) return null;
   const kg = sex === 'MALE' ? band.male : band.female;
-  return { kg, note: `IOM DRI reference weight, ${sex === 'MALE' ? 'males' : 'females'} ${band.label}` };
+  const borrowed = region && !own ? ` (no reference weights published by ${region}; the IOM's are used)` : '';
+  return { kg, note: `IOM DRI reference weight, ${sex === 'MALE' ? 'males' : 'females'} ${band.label}${borrowed}` };
 }
 
 /** Exposed for the test that reproduces the DRI's own published values. */

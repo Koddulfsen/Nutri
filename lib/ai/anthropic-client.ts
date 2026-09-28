@@ -102,7 +102,20 @@ export async function chatWithTools(
   systemPrompt: string,
   messages: ChatMessage[],
   tools: ChatTool[],
-  options?: { maxTokens?: number; maxIterations?: number; model?: string; label?: string }
+  options?: {
+    maxTokens?: number;
+    maxIterations?: number;
+    model?: string;
+    label?: string;
+    /**
+     * Tools that end the turn: once one of these succeeds, return straight away
+     * with the text the model wrote alongside the call, instead of asking the
+     * model to write another message after it.
+     */
+    finishTools?: string[];
+    /** Called as each tool starts — for showing progress. */
+    onToolStart?: (name: string, input: Record<string, unknown>) => void;
+  }
 ): Promise<ChatWithToolsResult> {
   const anthropic = getClient();
   const maxIterations = options?.maxIterations ?? 6;
@@ -146,26 +159,35 @@ export async function chatWithTools(
 
     conversation.push({ role: 'assistant', content: response.content });
 
-    const toolUseBlocks = response.content.filter((b) => b.type === 'tool_use');
-    const toolResults: Anthropic.Messages.ToolResultBlockParam[] = [];
+    const toolUseBlocks = response.content.filter(
+      (b): b is Anthropic.Messages.ToolUseBlock => b.type === 'tool_use'
+    );
 
-    for (const block of toolUseBlocks) {
-      if (block.type !== 'tool_use') continue;
-      const tool = tools.find((t) => t.name === block.name);
-      const input = (block.input ?? {}) as Record<string, unknown>;
-      let output: string;
-      let isError = false;
-      if (!tool) {
-        output = `Tool "${block.name}" is not available.`;
-        isError = true;
-      } else {
-        try {
-          output = await tool.handler(input);
-        } catch (err) {
-          output = err instanceof Error ? err.message : String(err);
+    // Run this round's calls together; results go back in one message, in order.
+    const results = await Promise.all(
+      toolUseBlocks.map(async (block) => {
+        const tool = tools.find((t) => t.name === block.name);
+        const input = (block.input ?? {}) as Record<string, unknown>;
+        options?.onToolStart?.(block.name, input);
+        let output: string;
+        let isError = false;
+        if (!tool) {
+          output = `Tool "${block.name}" is not available.`;
           isError = true;
+        } else {
+          try {
+            output = await tool.handler(input);
+          } catch (err) {
+            output = err instanceof Error ? err.message : String(err);
+            isError = true;
+          }
         }
-      }
+        return { block, input, output, isError };
+      })
+    );
+
+    const toolResults: Anthropic.Messages.ToolResultBlockParam[] = [];
+    for (const { block, input, output, isError } of results) {
       toolCalls.push({ name: block.name, input, output });
       toolResults.push({
         type: 'tool_result',
@@ -173,6 +195,18 @@ export async function chatWithTools(
         content: output,
         is_error: isError,
       });
+    }
+
+    const finished = results.some(
+      (r) => options?.finishTools?.includes(r.block.name) && !r.isError && !r.output.includes('"error"')
+    );
+    if (finished) {
+      const text = response.content
+        .filter((b): b is Anthropic.Messages.TextBlock => b.type === 'text')
+        .map((b) => b.text)
+        .join('\n')
+        .trim();
+      return { response: text, toolCalls, usage };
     }
 
     conversation.push({ role: 'user', content: toolResults });

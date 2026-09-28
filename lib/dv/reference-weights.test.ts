@@ -79,3 +79,24 @@ describe('band edges', () => {
     expect(referenceWeightKg(300, 'FEMALE')?.note).toMatch(/IOM DRI reference weight/);
   });
 });
+
+describe('a source\'s own reference weights', () => {
+  it('uses EFSA\'s weights for EFSA\'s values, not the IOM\'s', () => {
+    expect(referenceWeightKg(360, 'MALE', 'EU')?.kg).toBe(68.1);
+    expect(referenceWeightKg(360, 'FEMALE', 'EU')?.kg).toBe(58.5);
+    expect(referenceWeightKg(360, 'MALE')?.kg).toBe(70);            // the general default
+  });
+
+  it('reproduces what EFSA publishes, which the IOM weight does not', () => {
+    // EFSA's protein PRI is 0.83 g/kg "to be multiplied by reference body weights" (Table 2, note a).
+    const efsa = referenceWeightKg(360, 'MALE', 'EU')!.kg;
+    expect(Number((0.83 * efsa).toFixed(1))).toBe(56.5);
+    expect(Number((0.83 * referenceWeightKg(360, 'MALE')!.kg).toFixed(1))).toBe(58.1);   // borrowed weight
+  });
+
+  it('falls back to the IOM and says whose weight it borrowed', () => {
+    const w = referenceWeightKg(360, 'MALE', 'UK')!;
+    expect(w.kg).toBe(70);
+    expect(w.note).toMatch(/no reference weights published by UK/);
+  });
+});

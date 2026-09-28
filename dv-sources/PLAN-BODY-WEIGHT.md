@@ -51,7 +51,16 @@ with the source named in the returned note; 15 tests including band edges and th
 Pure function, no database.
 *Check:* unit tests at the band edges (11/12 months, 3/4 years, 18/19 years) and for both sexes.
 
-**A3. The reproduction test.** ✅ **DONE for the IOM table** — 9 of its 10 protein bands reproduce the
+**A3. Per-source reference weights.** ✅ **DONE 2026-09-28.** EFSA publishes its own (DRVs summary
+report, Table 17): adults 68.1 kg and 58.5 kg against the IOM's 70 and 57, derived "from measured body
+heights of men and women aged 18–79 years in 13 EU Member States and assuming a body mass index of
+22 kg/m²". `resolveBar` now asks for a weight **per body**, because a per-kg value and the absolute
+value printed beside it are tied together by that body's own weights: EFSA's 0.83 g/kg at EFSA's 68.1 kg
+is 56.5 g, which is what EFSA means; at the IOM's 70 kg it is 58.1 g, a number EFSA never published. A
+body with no published table falls back to the IOM's and **the note says whose weight it borrowed**. The
+user's own weight, when given, applies to every body — it is the person's weight, not an assumption.
+*Effect on the live bar:* adult male protein 58.1 → 56.523 g; female 48.555 g.
+**Earlier, the reproduction test. ✅ DONE for the IOM table** — 9 of its 10 protein bands reproduce the
 printed g/day exactly from the printed g/kg/day; the one that does not (girls 9–13) is asserted as a
 known deviation. **Still to do: per-source reference weights where a source publishes its own.**
 Nordic (NNR), IOM and WHO/FAO each do. Store them beside the source, not in the global table, so a

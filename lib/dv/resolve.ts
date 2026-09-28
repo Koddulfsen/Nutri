@@ -111,9 +111,16 @@ export interface ResolvedBar {
 }
 
 export interface ResolveOptions {
-  /** The user's own weight, if they gave one. */
+  /** The user's own weight, if they gave one. It applies to every source: it is the person's weight. */
   weightKg?: number | null;
-  /** The published default for this age and sex, used when the user gave none. */
+  /**
+   * The weight to use for a given body's per-kg values when the user gave none. Each body is asked
+   * separately, because a per-kg value and the absolute value printed beside it are tied together by
+   * that body's own reference weights — EFSA's adults are 68.1 and 58.5 kg, the IOM's 70 and 57, and
+   * converting EFSA's 0.83 g/kg at the IOM's weight yields a number EFSA never published.
+   */
+  referenceWeightFor?: (region: string) => { kg: number; note?: string } | null;
+  /** Simpler form of the above: one weight for every body. */
   referenceWeightKg?: number | null;
   referenceWeightNote?: string;
 }
@@ -283,11 +290,16 @@ export function resolveBar(
   // never reach a pool unconverted — 0.83 g/kg of protein sitting beside the UK's 56 g would drag the
   // median to nothing. The user's own weight is used when they gave one; otherwise the published
   // reference weight for their age and sex, which the bar then has to declare as an assumption.
-  const weight: WeightBasis | null =
-    opts.weightKg != null ? { kg: opts.weightKg, source: 'measured' }
-    : opts.referenceWeightKg != null ? { kg: opts.referenceWeightKg, source: 'reference', note: opts.referenceWeightNote }
-    : null;
-  let weightUsed = false;
+  const weightFor = (region: string): WeightBasis | null => {
+    if (opts.weightKg != null) return { kg: opts.weightKg, source: 'measured' };
+    const own = opts.referenceWeightFor?.(region);
+    if (own) return { kg: own.kg, source: 'reference', note: own.note };
+    if (opts.referenceWeightKg != null) return { kg: opts.referenceWeightKg, source: 'reference', note: opts.referenceWeightNote };
+    return null;
+  };
+  // What the bar reports: the measured weight if there is one, otherwise the reference weight actually
+  // used — which may differ per body, so the note names the table rather than implying a single number.
+  let weightUsed: WeightBasis | null = null;
 
   const scaled: DvRow[] = [];
   for (const r of allRows) {
@@ -297,11 +309,14 @@ export function resolveBar(
       scaled.push(plus ? { ...r, value: r.value + plus, plusAbsolute: 0 } : r);
       continue;
     }
+    const weight = weightFor(r.region);
     if (!weight) {
       excluded.push({ region: r.region, valueType: r.valueType, unit: r.unit, reason: 'stated per kg of body weight, and no weight — measured or reference — was available' });
       continue;
     }
-    weightUsed = true;
+    weightUsed = weightUsed ?? weight;
+    if (weightUsed.source === 'reference' && weight.kg !== weightUsed.kg)
+      weightUsed = { ...weightUsed, note: 'each body\'s own published reference weights' };
     // amount = value × weight + plusAbsolute. The increment is NOT scaled: EFSA's "+9 g/d" is 9 grams for
     // everyone, on top of a base that does depend on weight.
     const x = (v: number | null | undefined) => (v == null ? v : v * weight.kg + plus);
@@ -429,6 +444,6 @@ export function resolveBar(
 
   return {
     compound, goal, diseaseFloor, limit, range, energyShare, supplementLimit: suppAgg, formLimits,
-    referencePoints, weightBasis: weightUsed ? weight : null, excluded,
+    referencePoints, weightBasis: weightUsed, excluded,
   };
 }
