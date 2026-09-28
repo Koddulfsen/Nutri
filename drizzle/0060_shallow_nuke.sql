@@ -1,0 +1,1 @@
+ALTER TABLE "user_consent" ADD COLUMN "body_measurements" boolean DEFAULT false NOT NULL;

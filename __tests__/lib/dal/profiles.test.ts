@@ -66,6 +66,7 @@ describe('Profiles DAL - getUserProfile', () => {
       birthMonth: null,
       biologicalSex: null,
       lifeStageEncrypted: null,
+      bodyWeightKgEncrypted: null,
       manualAgeGroup: null,
       dvSourcePreference: 'AVERAGE',
       dashboardWidgets: {
@@ -138,6 +139,7 @@ describe('Profiles DAL - updateUserProfile', () => {
       birthMonth: null,
       biologicalSex: null,
       lifeStageEncrypted: null,
+      bodyWeightKgEncrypted: null,
       manualAgeGroup: null,
       dvSourcePreference: 'AVERAGE',
       dashboardWidgets: { staple: [], custom: [] },
@@ -231,6 +233,7 @@ describe('Profiles DAL - incrementSessionVersion', () => {
       birthMonth: null,
       biologicalSex: null,
       lifeStageEncrypted: null,
+      bodyWeightKgEncrypted: null,
       manualAgeGroup: null,
       dvSourcePreference: 'AVERAGE',
       dashboardWidgets: { staple: [], custom: [] },
@@ -301,6 +304,7 @@ describe('Profiles DAL - getDashboardWidgets', () => {
       birthMonth: null,
       biologicalSex: null,
       lifeStageEncrypted: null,
+      bodyWeightKgEncrypted: null,
       manualAgeGroup: null,
       dvSourcePreference: 'AVERAGE',
       dashboardWidgets: {
@@ -351,6 +355,7 @@ describe('Profiles DAL - updateDashboardWidgets', () => {
       birthMonth: null,
       biologicalSex: null,
       lifeStageEncrypted: null,
+      bodyWeightKgEncrypted: null,
       manualAgeGroup: null,
       dvSourcePreference: 'AVERAGE',
       dashboardWidgets: {

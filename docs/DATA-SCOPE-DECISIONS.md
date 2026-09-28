@@ -98,7 +98,9 @@ Consent has to be specific about what it covers, and "used only for this purpose
 and narrow. Collecting body weight under that toggle would be processing beyond the consent given —
 the same shape of failure as an endpoint promising a deletion it does not perform.
 
-**So the field cannot ship until the consent is amended.** Two options, Jens's call:
+**RESOLVED 2026-09-28: a separate toggle, `bodyMeasurements` (migration 0060).** Jens asked whether a
+single checkbox at signup would be simpler. It would be less lawful, not less friction — see the note at
+the end of this section. The two options considered were:
 
 1. **Widen the existing toggle** to "Body measurements and life stage", with wording naming both. One
    toggle, but it bundles two disclosures — a user who wants per-kg targets must also disclose
@@ -110,9 +112,34 @@ the same shape of failure as an endpoint promising a deletion it does not perfor
 one more row in a consent table that already has seven flags. The nutrient-target purpose is identical,
 but the data subject's exposure is not.
 
-Whichever is chosen, `user_consent` needs the flag, `ConsentManager.tsx` the toggle, and the read path
-must refuse to use a stored weight when its consent is absent — a stored value whose consent was later
-withdrawn must stop being used, not merely stop being collected.
+**Built:** `user_consent.body_measurements`, a toggle in `ConsentManager.tsx`, a 403 from the
+demographics route when the flag is off, and — the part that actually matters — `getUserDemographics`
+refuses to return a stored weight whose consent is absent or withdrawn. Enforcing it on the way *out*
+means no call site can forget, because there is only one way to read a weight.
+
+Writing the test for withdrawal found a real bug: demographics are cached for five minutes, so a
+withdrawal went on being ignored for up to five minutes after the user made it. `/api/consent` now
+invalidates that cache. A withdrawal that takes five minutes to bite is the system not keeping a promise
+it makes in its own UI.
+
+### Why not one checkbox at signup
+
+Asked 2026-09-28. Three reasons it is the wrong shape, in order of how much they bite:
+
+1. **Consent cannot be a condition of the service** (Art. 7(4)) for processing that is not necessary to
+   deliver it. A tick-to-continue box at signup is presumptively not "freely given": the user has no
+   real choice, so the consent is invalid, and processing on an invalid consent is processing without a
+   lawful basis.
+2. **Bundling purposes invalidates all of them.** Consent must be specific. One box covering pregnancy
+   status, body weight and sending free text to Anthropic is not consent to any of the three — and this
+   file already records that reasoning for `sensitiveHealthData` vs `thirdParty`.
+3. **It collects what is not needed yet.** Asking at signup gathers data from users who will never use
+   the feature, which is the opposite of data minimisation.
+
+**Gating a *feature* behind its own consent is fine and is what we do.** Gating the *whole app* behind
+consent to optional health processing is what is not. The frictionless version is to ask at the moment
+the feature is used — the ask makes sense because the user just tried to do the thing — and to keep
+signup free of it entirely.
 
 **Rights.** Export returns it decrypted (`/api/user/export`); erasure deletes the row it lives on, with
 the row-level deletion covered by a test. The full end-to-end erasure re-run against a throwaway

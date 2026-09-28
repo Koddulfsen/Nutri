@@ -61,6 +61,7 @@ describe('Consent DAL - getUserConsent', () => {
       thirdParty: false,
       sensitiveHealthData: false,
       aiProcessing: false,
+      bodyMeasurements: false,
       createdAt: new Date(),
       updatedAt: new Date()
     };
@@ -127,6 +128,7 @@ describe('Consent DAL - updateUserConsent', () => {
       thirdParty: false,
       sensitiveHealthData: false,
       aiProcessing: false,
+      bodyMeasurements: false,
       createdAt: new Date(),
       updatedAt: new Date()
     };
@@ -203,6 +205,7 @@ describe('Consent DAL - updateUserConsent', () => {
       thirdParty: false,
       sensitiveHealthData: false,
       aiProcessing: false,
+      bodyMeasurements: false,
       createdAt: new Date(),
       updatedAt: new Date()
     };
@@ -258,6 +261,7 @@ describe('Consent DAL - checkConsent', () => {
       thirdParty: false,
       sensitiveHealthData: false,
       aiProcessing: false,
+      bodyMeasurements: false,
       createdAt: new Date(),
       updatedAt: new Date()
     };
@@ -286,6 +290,7 @@ describe('Consent DAL - checkConsent', () => {
       thirdParty: false,
       sensitiveHealthData: false,
       aiProcessing: false,
+      bodyMeasurements: false,
       createdAt: new Date(),
       updatedAt: new Date()
     };
@@ -320,6 +325,7 @@ describe('Consent DAL - grantAllConsents', () => {
       thirdParty: false,
       sensitiveHealthData: false,
       aiProcessing: false,
+      bodyMeasurements: false,
       createdAt: new Date(),
       updatedAt: new Date()
     };
@@ -333,6 +339,7 @@ describe('Consent DAL - grantAllConsents', () => {
       thirdParty: true,
       sensitiveHealthData: false,
       aiProcessing: false,
+      bodyMeasurements: false,
       updatedAt: new Date()
     };
 
@@ -377,6 +384,7 @@ describe('Consent DAL - revokeAllConsents', () => {
       thirdParty: true,
       sensitiveHealthData: false,
       aiProcessing: false,
+      bodyMeasurements: false,
       createdAt: new Date(),
       updatedAt: new Date()
     };
@@ -390,6 +398,7 @@ describe('Consent DAL - revokeAllConsents', () => {
       thirdParty: false,
       sensitiveHealthData: false,
       aiProcessing: false,
+      bodyMeasurements: false,
       updatedAt: new Date()
     };
 
@@ -432,6 +441,7 @@ describe('Consent DAL - createInitialConsent', () => {
       thirdParty: false,
       sensitiveHealthData: false,
       aiProcessing: false,
+      bodyMeasurements: false,
       createdAt: new Date(),
       updatedAt: new Date()
     };
@@ -478,6 +488,7 @@ describe('Consent DAL - createInitialConsent', () => {
       thirdParty: false,
       sensitiveHealthData: false,
       aiProcessing: false,
+      bodyMeasurements: false,
       createdAt: new Date(),
       updatedAt: new Date()
     };

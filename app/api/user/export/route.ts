@@ -100,6 +100,7 @@ export async function GET(request: NextRequest) {
             analytics: consent.analytics,
             thirdParty: consent.thirdParty,
             sensitiveHealthData: consent.sensitiveHealthData,
+            bodyMeasurements: consent.bodyMeasurements,
             aiProcessing: consent.aiProcessing,
             updatedAt: consent.updatedAt,
           }

@@ -12,10 +12,10 @@ import 'dotenv/config';
 import { describe, expect, it, afterEach } from 'vitest';
 import { randomUUID } from 'crypto';
 import { db } from '@/db';
-import { userProfiles, userEncryptionKeys } from '@/db/schema';
+import { userProfiles, userEncryptionKeys, userConsent } from '@/db/schema';
 import { eq, sql } from 'drizzle-orm';
 import { generateDEK, encryptPHI } from '@/lib/security/encryption';
-import { getUserDemographics, updateUserDemographics } from './daily-value-service';
+import { getUserDemographics, updateUserDemographics, invalidateDemographicsCache } from './daily-value-service';
 
 const rawWeight = async (userId: string) => {
   const raw = await db.execute<{ body_weight_kg_encrypted: string | null }>(
@@ -33,13 +33,16 @@ describe('body weight encryption round-trip', () => {
   afterEach(async () => {
     await db.delete(userProfiles).where(eq(userProfiles.userId, testUserId));
     await db.delete(userEncryptionKeys).where(eq(userEncryptionKeys.userId, testUserId));
+    await db.delete(userConsent).where(eq(userConsent.userId, testUserId));
   });
 
-  const seed = async () => {
+  /** A user who has consented to body measurements, unless `consented` says otherwise. */
+  const seed = async (consented = true) => {
     testUserId = randomUUID();
     const dek = await generateDEK();
     await db.insert(userEncryptionKeys).values({ userId: testUserId, dataEncryptionKey: dek });
     await db.insert(userProfiles).values({ userId: testUserId });
+    await db.insert(userConsent).values({ userId: testUserId, bodyMeasurements: consented });
     return dek;
   };
 
@@ -84,6 +87,29 @@ describe('body weight encryption round-trip', () => {
     // read path drops it instead of propagating it.
     await db.update(userProfiles)
       .set({ bodyWeightKgEncrypted: await encryptPHI('not a number', dek) })
+      .where(eq(userProfiles.userId, testUserId));
+    expect((await getUserDemographics(testUserId))?.bodyWeightKg).toBeNull();
+  });
+
+  it('stops using a stored weight once its consent is withdrawn', async () => {
+    await seed();
+    await updateUserDemographics(testUserId, { bodyWeightKg: 72 });
+    expect((await getUserDemographics(testUserId))?.bodyWeightKg).toBe(72);
+
+    // Withdrawal has to stop the value being USED, not merely stop new ones being collected. The
+    // ciphertext stays until the user clears or deletes it; the read path refuses to return it.
+    await db.update(userConsent).set({ bodyMeasurements: false }).where(eq(userConsent.userId, testUserId));
+    // What /api/consent does after any change, for exactly this reason: demographics are cached for
+    // five minutes, and a withdrawal that takes five minutes to bite is a promise not kept.
+    invalidateDemographicsCache(testUserId);
+    expect(await rawWeight(testUserId)).toBeTruthy();
+    expect((await getUserDemographics(testUserId))?.bodyWeightKg).toBeNull();
+  });
+
+  it('does not return a weight when consent was never given', async () => {
+    const dek = await seed(false);
+    await db.update(userProfiles)
+      .set({ bodyWeightKgEncrypted: await encryptPHI('80', dek) })
       .where(eq(userProfiles.userId, testUserId));
     expect((await getUserDemographics(testUserId))?.bodyWeightKg).toBeNull();
   });

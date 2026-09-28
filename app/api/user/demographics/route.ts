@@ -201,6 +201,23 @@ export async function PATCH(request: NextRequest) {
 
     const updates = validationResult.data;
 
+    // Body weight has its own consent, for the same reason life_stage does: the sensitiveHealthData
+    // flag is shown to users as "Pregnancy / Lactation Status ... used only for this purpose", so it
+    // cannot carry a second, different disclosure. Clearing the value (null) needs no consent — removing
+    // data is always allowed.
+    if (updates.bodyWeightKg !== undefined && updates.bodyWeightKg !== null) {
+      const hasConsent = await checkConsent(userId, 'bodyMeasurements');
+      if (!hasConsent) {
+        return NextResponse.json(
+          {
+            error: 'Consent required',
+            message: 'Enable "Body weight" in Settings > Privacy before setting this field.',
+          },
+          { status: 403 }
+        );
+      }
+    }
+
     // life_stage (pregnant/lactating) is Article 9 special-category health data.
     // Setting it to anything other than NONE requires its own explicit consent —
     // "NONE" is allowed without a consent check since it discloses nothing.

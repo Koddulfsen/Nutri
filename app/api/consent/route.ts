@@ -12,6 +12,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { getUserConsent, updateUserConsent } from '@/lib/dal/consent';
+import { invalidateDemographicsCache } from '@/lib/services/daily-value-service';
 import { createClient } from '@/lib/supabase/server';
 import { getRequestMetadata } from '@/lib/security/audit-logger';
 
@@ -44,6 +45,7 @@ export async function GET(request: NextRequest) {
       analytics: consent.analytics,
       thirdParty: consent.thirdParty,
       sensitiveHealthData: consent.sensitiveHealthData,
+      bodyMeasurements: consent.bodyMeasurements,
       aiProcessing: consent.aiProcessing,
       createdAt: consent.createdAt.toISOString(),
       updatedAt: consent.updatedAt.toISOString()
@@ -96,7 +98,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
 
     // Validate consent updates (only allow boolean values for known consent types)
-    const validKeys = ['newsletter', 'pushNotifications', 'research', 'analytics', 'thirdParty', 'sensitiveHealthData', 'aiProcessing'];
+    const validKeys = ['newsletter', 'pushNotifications', 'research', 'analytics', 'thirdParty', 'sensitiveHealthData', 'aiProcessing', 'bodyMeasurements'];
     const updates: Record<string, boolean> = {};
 
     for (const key of validKeys) {
@@ -115,6 +117,12 @@ export async function POST(request: NextRequest) {
     // Update consent via DAL (includes authorization check + audit logging)
     const updated = await updateUserConsent(user.id, updates);
 
+    // Demographics are cached for five minutes, and body weight is only returned while its consent
+    // stands — so a withdrawal has to reach the read path now, not eventually. Dropping the cache is
+    // best-effort by construction (it is a Map delete), and must never be able to fail the write that
+    // already landed.
+    invalidateDemographicsCache(user.id);
+
     // TODO: Trigger cleanup jobs for withdrawn consents
     // - If newsletter withdrawn: Remove from mailing list immediately
     // - If analytics withdrawn: Schedule 7-day cleanup job
@@ -130,6 +138,7 @@ export async function POST(request: NextRequest) {
         analytics: updated.analytics,
         thirdParty: updated.thirdParty,
         sensitiveHealthData: updated.sensitiveHealthData,
+        bodyMeasurements: updated.bodyMeasurements,
         aiProcessing: updated.aiProcessing,
         updatedAt: updated.updatedAt.toISOString()
       }

@@ -201,7 +201,7 @@ export async function updateUserConsent(
  */
 export async function checkConsent(
   userId: string,
-  consentType: 'newsletter' | 'pushNotifications' | 'research' | 'analytics' | 'thirdParty' | 'sensitiveHealthData' | 'aiProcessing'
+  consentType: 'newsletter' | 'pushNotifications' | 'research' | 'analytics' | 'thirdParty' | 'sensitiveHealthData' | 'aiProcessing' | 'bodyMeasurements'
 ): Promise<boolean> {
   const consent = await getUserConsent(userId);
   return consent[consentType] ?? false;
@@ -221,7 +221,7 @@ export async function checkConsent(
  * // All consent types now true
  */
 export async function grantAllConsents(userId: string): Promise<ConsentRecord> {
-  // Deliberately excludes sensitiveHealthData and aiProcessing: GDPR Article 9
+  // Deliberately excludes sensitiveHealthData, aiProcessing and bodyMeasurements: GDPR Article 9
   // consent must be specific and cannot be granted via a bundled "accept all"
   // action. Those two require their own explicit toggle in the UI.
   return updateUserConsent(userId, {
@@ -254,6 +254,7 @@ export async function revokeAllConsents(userId: string): Promise<ConsentRecord> 
     analytics: false,
     thirdParty: false,
     sensitiveHealthData: false,
+    bodyMeasurements: false,
     aiProcessing: false
   });
 }
@@ -296,6 +297,7 @@ export async function createInitialConsent(userId: string): Promise<ConsentRecor
       analytics: false,
       thirdParty: false,
       sensitiveHealthData: false,
+      bodyMeasurements: false,
       aiProcessing: false,
       createdAt: new Date(),
       updatedAt: new Date()

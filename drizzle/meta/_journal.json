@@ -421,6 +421,13 @@
       "when": 1790603789595,
       "tag": "0059_rapid_nightcrawler",
       "breakpoints": true
+    },
+    {
+      "idx": 60,
+      "version": "7",
+      "when": 1790605896095,
+      "tag": "0060_shallow_nuke",
+      "breakpoints": true
     }
   ]
 }

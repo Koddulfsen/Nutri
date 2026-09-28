@@ -19,6 +19,7 @@ import {
   userCustomDailyValues,
   userProfiles,
   userEncryptionKeys,
+  userConsent,
   compounds,
   compoundGroups,
 } from '@/db/schema';
@@ -137,6 +138,18 @@ const demographicsCache = new Map<string, { data: UserDemographics; timestamp: n
 const DEMOGRAPHICS_CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
 
 /**
+ * Drop a user's cached demographics.
+ *
+ * Call this whenever something OUTSIDE this service changes what a demographics read should return.
+ * Consent is the case that matters: body weight is only returned while its consent stands, so
+ * withdrawing consent has to take effect now — not in up to five minutes. A withdrawal that keeps
+ * being ignored for another five minutes is the system not keeping a promise it made in its own UI.
+ */
+export function invalidateDemographicsCache(userId: string): void {
+  demographicsCache.delete(userId);
+}
+
+/**
  * Get user demographics from profile
  * OPTIMIZED: Uses in-memory cache + Supabase client
  */
@@ -199,11 +212,23 @@ export async function getUserDemographics(userId: string): Promise<UserDemograph
           lifeStage = (await decryptPHI(profile.lifeStageEncrypted, keyRow.dataEncryptionKey)) as LifeStage;
         }
         if (profile.bodyWeightKgEncrypted) {
-          const kg = Number(await decryptPHI(profile.bodyWeightKgEncrypted, keyRow.dataEncryptionKey));
-          // A weight that will not parse is dropped rather than propagated: a NaN would silently make
-          // every per-kg value NaN, and a bar with no number is better than a bar with a wrong one.
-          if (Number.isFinite(kg) && kg > 0) bodyWeightKg = kg;
-          else logger.error({ service: 'daily-value-service', userId }, 'stored body weight did not decrypt to a positive number — ignoring it');
+          // Consent is checked on the way OUT, not only on the way in. Withdrawing consent has to stop
+          // the stored value being used, not merely stop new ones being collected — and enforcing it
+          // here means no call site can forget, because there is only one way to read a weight.
+          const [consentRow] = await db
+            .select({ bodyMeasurements: userConsent.bodyMeasurements })
+            .from(userConsent)
+            .where(eq(userConsent.userId, userId))
+            .limit(1);
+          if (!consentRow?.bodyMeasurements) {
+            logger.info({ service: 'daily-value-service', userId }, 'body weight is stored but its consent is absent or withdrawn — not used');
+          } else {
+            const kg = Number(await decryptPHI(profile.bodyWeightKgEncrypted, keyRow.dataEncryptionKey));
+            // A weight that will not parse is dropped rather than propagated: a NaN would silently make
+            // every per-kg value NaN, and a bar with no number is better than a bar with a wrong one.
+            if (Number.isFinite(kg) && kg > 0) bodyWeightKg = kg;
+            else logger.error({ service: 'daily-value-service', userId }, 'stored body weight did not decrypt to a positive number — ignoring it');
+          }
         }
       }
     }

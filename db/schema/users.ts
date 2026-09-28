@@ -139,6 +139,14 @@ export const userConsent = pgTable('user_consent', {
   // Consent to send the user's own free-text food/chat messages to the Anthropic
   // API for AI-assisted logging. Distinct from `thirdParty` for the same reason.
   aiProcessing: boolean('ai_processing').notNull().default(false),
+  // Consent to store and use body weight, for daily values that several authorities publish per
+  // kilogram of body weight (EFSA, DGE, the Nordic council and the UK for protein; WHO for every
+  // amino acid; every contaminant limit). Separate from `sensitiveHealthData` — which is presented to
+  // the user as "Pregnancy / Lactation Status ... used only for this purpose" — for the same reason
+  // that flag is separate from `thirdParty`: different disclosure, and pregnancy status must stay
+  // refusable on its own. Withdrawing it stops the stored value being USED, not merely collected;
+  // getUserDemographics enforces that, so no call site can forget.
+  bodyMeasurements: boolean('body_measurements').notNull().default(false),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
 }, (table) => ({

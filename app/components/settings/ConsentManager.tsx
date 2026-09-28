@@ -21,6 +21,7 @@ interface ConsentStatus {
   thirdParty: boolean;
   sensitiveHealthData: boolean;
   aiProcessing: boolean;
+  bodyMeasurements: boolean;
 }
 
 interface ConsentManagerProps {
@@ -35,7 +36,8 @@ export default function ConsentManager({ userId }: ConsentManagerProps) {
     analytics: false,
     thirdParty: false,
     sensitiveHealthData: false,
-    aiProcessing: false
+    aiProcessing: false,
+    bodyMeasurements: false
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -66,6 +68,7 @@ export default function ConsentManager({ userId }: ConsentManagerProps) {
         analytics: data.analytics,
         thirdParty: data.thirdParty,
         sensitiveHealthData: data.sensitiveHealthData,
+        bodyMeasurements: data.bodyMeasurements ?? false,
         aiProcessing: data.aiProcessing
       });
     } catch (err) {
@@ -238,6 +241,14 @@ export default function ConsentManager({ userId }: ConsentManagerProps) {
           icon="🩺"
           checked={consent.sensitiveHealthData}
           onChange={() => handleToggle('sensitiveHealthData')}
+          disabled={saving}
+        />
+        <ConsentToggle
+          label="Body Weight"
+          description="Store your body weight and use it for your daily targets. Several nutrition authorities set targets per kilogram of body weight — protein and amino acids especially — so this makes those targets yours rather than an average adult's. One current weight, in whole kilograms; no history is kept."
+          icon="⚖️"
+          checked={consent.bodyMeasurements}
+          onChange={() => handleToggle('bodyMeasurements')}
           disabled={saving}
         />
         <ConsentToggle
