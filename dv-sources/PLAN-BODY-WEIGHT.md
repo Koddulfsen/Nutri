@@ -143,8 +143,18 @@ The standard check for every one of these: `npx tsx scripts/dv-verify/check-sour
 (file = database) and `check-source-consistency.ts <REGION>` (0 failures), plus the new per-kg
 plausibility rule catching anything mislabelled.
 
-**C1. EFSA (EU) — protein.** AR and PRI from DRV Table 2, per kg, plus the pregnancy and lactation
-increments the header records as skipped.
+**C1. EFSA (EU) — protein.** ✅ **DONE 2026-09-28.** All 84 rows of DRV Table 2 (21 age bands × 2 sexes ×
+AR/PRI) stored per kg. EFSA's own footnote (a) states the contract: *"to be multiplied by reference body
+weights to calculate values in g/day"*. Protein went from **6 independent bodies to 7**.
+*Checks:* `check-source-consistency EU` 0 failures; `check-source-db EU` 1186 values in file = 1186 db
+rows; EU's stored 0.83 g/kg resolves to 47.31 g at 57 kg, 58.10 at 70, 78.85 at 95, and to 47.31 with
+`[reference 57kg — IOM DRI reference weight, females 19–30 y]` when no weight is given.
+*Correction to this plan's earlier claim:* the UK was never in the adult protein bar — its adult RNI is
+one of the per-kg values its extract dropped — so the count before C1 was 6, not 7.
+**Pregnancy/lactation still not stored**, for a new reason: the increments are absolute g/d on top of a
+per-kg base (+1/+9/+28 trimesters, +19/+13 lactating), and one row cannot hold "0.83 g/kg plus 9 g".
+Resolving the base at a reference weight to add them would bake a weight into stored data, which is what
+`per_kg_body_weight` exists to avoid. Needs an increment concept in the schema — its own decision.
 **C2. DACH — protein.** Currently skipped by an explicit `continue` in the loop at
 `dv-sources/dge-dach/extract.ts:125`; remove the skip and store per-kg.
 **C3. Nordic (NNR) — protein AR/RI, infant energy.** Also the case where per-kg × reference weight must

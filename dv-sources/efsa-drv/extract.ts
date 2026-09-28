@@ -8,8 +8,8 @@
  * read from the bold type on the rendered pages (the text layer does not carry it).
  *
  * Not stored, on purpose:
- *   - Protein AR/PRI (Table 2): published per kg body weight; pregnancy/lactation increments
- *     are g/d on top of that per-kg base.
+ *   - Protein pregnancy/lactation increments: printed as g/d on top of a per-kg base, and one row
+ *     cannot hold "0.83 g/kg plus 9 g". The main Table 2 values ARE stored, per kg, since 2026-09-28.
  *   - SFA, TFA: "as low as possible" — no number.
  *   - Safe levels of intake (UL Table 2: iron, manganese, fluoride ≥ 9 y): EFSA states they are
  *     not ULs; storing them as UL would mislabel them.
@@ -37,13 +37,16 @@ function add(p: {
   compound: string; type: DvValueType; sexes?: Sex[]; stage?: LifeStage; age: Age; value: number;
   min?: number | null; max?: number | null; unit: string; pct?: boolean; activity?: Activity | null;
   diet?: DietaryContext | null; note?: string | null; from: string; supplementalOnly?: boolean;
+  /** The value is per kilogram of body weight, not an absolute amount. */
+  perKg?: boolean;
 }) {
   for (const sex of p.sexes ?? ['MALE', 'FEMALE']) {
     out.push({
       compound: p.compound, valueType: p.type, sex, lifeStage: p.stage ?? 'NONE',
       ageMinMonths: p.age[0], ageMaxMonths: p.age[1], activityLevel: p.activity ?? null, dietaryContext: p.diet ?? null,
       value: Number(p.value.toFixed(4)), valueMin: p.min ?? null, valueMax: p.max ?? null, unit: p.unit,
-      isPercentOfEnergy: p.pct ?? false, isProvisional: false, supplementalOnly: p.supplementalOnly ?? false, note: p.note ?? null, from: p.from,
+      isPercentOfEnergy: p.pct ?? false, isProvisional: false, supplementalOnly: p.supplementalOnly ?? false,
+      perKgBodyWeight: p.perKg ?? false, note: p.note ?? null, from: p.from,
     });
   }
 }
@@ -395,6 +398,67 @@ const LPI: Array<[DietaryContext, number]> = [['PHYTATE_LOW', 300], ['PHYTATE_ME
     }
   }
 }
+
+// ───────────────────────── Table 2: AR / PRI for protein (g/kg bw per day) ─────────────────────────
+//
+// Stored per kg of body weight, which is how EFSA publishes it. Footnote (a) is explicit about what
+// that means: "to be multiplied by reference body weights to calculate values in g/day" — so the
+// resolver multiplies by the user's weight, or by the reference weight for their age and sex, and
+// says which it used (lib/dv/reference-weights.ts).
+//
+// This table was transcribed but NOT stored until 2026-09-28, because reference_daily_values had no
+// way to express a per-kg value; the column arrived with migration 0057. EFSA was consequently absent
+// from the protein bar entirely — not because it is silent on protein, but because it states it per kg.
+//
+// Age mapping (ours): the table prints single ages 0.5 y, 1 y, 1.5 y, then whole years 2 … 17, then
+// 18-59 y and ≥ 60 y. Each printed age is taken to cover the span up to the next printed one:
+// 0.5 y = months 6-11, 1 y = 12-17, 1.5 y = 18-23, 2 y = 24-35, 3 y = 36-47, and so on to
+// 17 y = 204-215; 18-59 y = 216-719; ≥ 60 y = 720+.
+{
+  const from = 'DRV Table 2';
+  const PER_KG = 'Published per kg body weight (Table 2 footnote a: "to be multiplied by reference body weights to calculate values in g/day").';
+
+  // [label, [minMonths, maxMonths], AR male, AR female, PRI male, PRI female]
+  const rows: Array<[string, Age, number, number, number, number]> = [
+    ['0.5 y',   [6, 11],      1.12, 1.12, 1.31, 1.31],
+    ['1 y',     [12, 17],     0.95, 0.95, 1.14, 1.14],
+    ['1.5 y',   [18, 23],     0.85, 0.85, 1.03, 1.03],
+    ['2 y',     [24, 35],     0.79, 0.79, 0.97, 0.97],
+    ['3 y',     [36, 47],     0.73, 0.73, 0.90, 0.90],
+    ['4 y',     [48, 59],     0.69, 0.69, 0.86, 0.86],
+    ['5 y',     [60, 71],     0.69, 0.69, 0.85, 0.85],
+    ['6 y',     [72, 83],     0.72, 0.72, 0.89, 0.89],
+    ['7 y',     [84, 95],     0.74, 0.74, 0.91, 0.91],
+    ['8 y',     [96, 107],    0.75, 0.75, 0.92, 0.92],
+    ['9 y',     [108, 119],   0.75, 0.75, 0.92, 0.92],
+    ['10 y',    [120, 131],   0.75, 0.75, 0.91, 0.91],
+    ['11 y',    [132, 143],   0.75, 0.73, 0.91, 0.90],
+    ['12 y',    [144, 155],   0.74, 0.72, 0.90, 0.89],
+    ['13 y',    [156, 167],   0.73, 0.71, 0.90, 0.88],
+    ['14 y',    [168, 179],   0.72, 0.70, 0.89, 0.87],
+    ['15 y',    [180, 191],   0.72, 0.69, 0.88, 0.85],
+    ['16 y',    [192, 203],   0.71, 0.68, 0.87, 0.84],
+    ['17 y',    [204, 215],   0.70, 0.67, 0.86, 0.83],
+    ['18-59 y', [216, 719],   0.66, 0.66, 0.83, 0.83],
+    ['≥ 60 y',  [720, null],  0.66, 0.66, 0.83, 0.83],
+  ];
+
+  for (const [label, age, arM, arF, priM, priF] of rows) {
+    const note = `${PER_KG} Printed for "${label}".`;
+    add({ compound: 'Protein', type: 'EAR', sexes: M, age, value: arM,  unit: 'g', perKg: true, note, from: `${from} AR, protein, ${label}, M` });
+    add({ compound: 'Protein', type: 'EAR', sexes: F, age, value: arF,  unit: 'g', perKg: true, note, from: `${from} AR, protein, ${label}, F` });
+    add({ compound: 'Protein', type: 'RDA', sexes: M, age, value: priM, unit: 'g', perKg: true, note, from: `${from} PRI, protein, ${label}, M` });
+    add({ compound: 'Protein', type: 'RDA', sexes: F, age, value: priF, unit: 'g', perKg: true, note, from: `${from} PRI, protein, ${label}, F` });
+  }
+
+  // Pregnancy and lactation are still NOT stored, and the reason is now a different one from before.
+  // The increments are absolute g/d on top of a per-kg base (+1 / +9 / +28 g/d for the trimesters,
+  // +19 / +13 g/d lactating). One row cannot hold "0.83 g/kg plus 9 g", and resolving the base at a
+  // reference weight in order to add the increment would bake a weight into stored data — the thing
+  // per_kg_body_weight exists to avoid. Expressing this needs an increment concept in the schema,
+  // which is its own decision; until then a pregnant user gets protein from the other bodies.
+}
+
 
 out.sort((a, b) => a.compound.localeCompare(b.compound) || a.valueType.localeCompare(b.valueType) || a.lifeStage.localeCompare(b.lifeStage) || a.sex.localeCompare(b.sex) || a.ageMinMonths - b.ageMinMonths || (a.activityLevel ?? '').localeCompare(b.activityLevel ?? '') || (a.dietaryContext ?? '').localeCompare(b.dietaryContext ?? ''));
 writeFileSync(path.join(process.cwd(), 'dv-sources', 'efsa-drv', 'values.json'), JSON.stringify(out, null, 1) + '\n');
