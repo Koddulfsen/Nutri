@@ -1,0 +1,378 @@
+{
+  "label": "v6-final",
+  "ranAt": "2026-09-28T14:10:33.271Z",
+  "results": [
+    {
+      "id": "eggs",
+      "message": "two eggs",
+      "expect": "foods",
+      "outcome": "proposed",
+      "foods": [
+        "Egg, whole, raw — 2 eggs, 100 g"
+      ],
+      "response": "Got it — two eggs coming up.",
+      "tools": [
+        "search_foods",
+        "propose_foods"
+      ],
+      "calls": 2,
+      "inputTokens": 2959,
+      "outputTokens": 164,
+      "cost": 0.003779,
+      "ms": 3352
+    },
+    {
+      "id": "banana",
+      "message": "a banana",
+      "expect": "foods",
+      "outcome": "proposed",
+      "foods": [
+        "Banana — 1 banana, 118 g (guess)"
+      ],
+      "response": "Got it — a medium banana coming up.",
+      "tools": [
+        "search_foods",
+        "propose_foods"
+      ],
+      "calls": 2,
+      "inputTokens": 2918,
+      "outputTokens": 167,
+      "cost": 0.0037530000000000003,
+      "ms": 3388
+    },
+    {
+      "id": "rice-100g",
+      "message": "100g of rice",
+      "expect": "foods",
+      "outcome": "proposed",
+      "foods": [
+        "Rice, white — 100g, 100 g"
+      ],
+      "response": "I'll add white rice as the most common choice — let me know if you meant brown.",
+      "tools": [
+        "search_foods",
+        "propose_foods"
+      ],
+      "calls": 2,
+      "inputTokens": 2960,
+      "outputTokens": 176,
+      "cost": 0.00384,
+      "ms": 5116
+    },
+    {
+      "id": "toast-pb-coffee",
+      "message": "toast with peanut butter and a coffee with milk",
+      "expect": "foods",
+      "outcome": "proposed",
+      "foods": [
+        "Bread, whole wheat — 1 slice, 30 g (guess)",
+        "Butter — 1 tbsp, 15 g (guess)",
+        "Coffee — 1 cup, 200 g (guess)",
+        "Milk, whole — splash, 50 g (guess)"
+      ],
+      "response": "I'll use butter as the closest match. Here's what you had:",
+      "tools": [
+        "search_foods",
+        "search_foods",
+        "propose_foods"
+      ],
+      "calls": 3,
+      "inputTokens": 4930,
+      "outputTokens": 434,
+      "cost": 0.0070999999999999995,
+      "ms": 5441
+    },
+    {
+      "id": "sandwich",
+      "message": "I had a sandwich for lunch",
+      "expect": "foods",
+      "outcome": "asked",
+      "foods": [],
+      "response": "What was in your sandwich?",
+      "tools": [
+        "search_foods",
+        "search_foods"
+      ],
+      "calls": 3,
+      "inputTokens": 5147,
+      "outputTokens": 152,
+      "cost": 0.005907,
+      "ms": 3584
+    },
+    {
+      "id": "tuna-sandwich",
+      "message": "tuna sandwich with avocado and a bit of butter",
+      "expect": "foods",
+      "outcome": "proposed",
+      "foods": [
+        "Bread, whole wheat — 2 slices, 50 g (guess)",
+        "Tuna, canned, drained — 1 can (drained), 100 g (guess)",
+        "Avocado — ½ avocado, 50 g (guess)",
+        "Butter — a bit, 10 g (guess)"
+      ],
+      "response": "Got it — I'm guessing whole wheat bread and typical portions for a sandwich.",
+      "tools": [
+        "search_foods",
+        "propose_foods"
+      ],
+      "calls": 2,
+      "inputTokens": 3118,
+      "outputTokens": 330,
+      "cost": 0.004768,
+      "ms": 3474
+    },
+    {
+      "id": "breakfast-multi",
+      "message": "breakfast was oatmeal with blueberries and honey, plus a glass of orange juice",
+      "expect": "foods",
+      "outcome": "proposed",
+      "foods": [
+        "Oats, rolled — 1 bowl, 40 g (guess)",
+        "Orange juice — 1 glass, 250 g (guess)"
+      ],
+      "response": "The database is limited, but I've got oats and orange juice. Let me propose what I can:",
+      "tools": [
+        "search_foods",
+        "search_foods",
+        "propose_foods"
+      ],
+      "calls": 3,
+      "inputTokens": 4883,
+      "outputTokens": 311,
+      "cost": 0.006438,
+      "ms": 4294
+    },
+    {
+      "id": "dinner-vague",
+      "message": "chicken and rice for dinner",
+      "expect": "foods",
+      "outcome": "proposed",
+      "foods": [
+        "Chicken, breast, raw — 150g chicken breast, 150 g (guess)",
+        "Rice, white — 150g rice, 150 g (guess)"
+      ],
+      "response": "I'll add typical portions of chicken breast and white rice for you.",
+      "tools": [
+        "search_foods",
+        "propose_foods"
+      ],
+      "calls": 2,
+      "inputTokens": 3002,
+      "outputTokens": 219,
+      "cost": 0.004097,
+      "ms": 2998
+    },
+    {
+      "id": "salad",
+      "message": "a salad",
+      "expect": "foods",
+      "outcome": "proposed",
+      "foods": [
+        "Lettuce — a handful, 100 g (guess)",
+        "Tomato — 1 medium tomato, 100 g (guess)",
+        "Olive oil — 1 tbsp, 15 g (guess)"
+      ],
+      "response": "Here's a basic salad with lettuce, tomato, and olive oil dressing:",
+      "tools": [
+        "search_foods",
+        "propose_foods"
+      ],
+      "calls": 2,
+      "inputTokens": 3289,
+      "outputTokens": 325,
+      "cost": 0.004914,
+      "ms": 3607
+    },
+    {
+      "id": "smoothie",
+      "message": "a smoothie",
+      "expect": "foods",
+      "outcome": "asked",
+      "foods": [],
+      "response": "What was in it? (e.g. banana, berries, yogurt, protein powder...)",
+      "tools": [
+        "search_foods"
+      ],
+      "calls": 2,
+      "inputTokens": 2968,
+      "outputTokens": 87,
+      "cost": 0.0034029999999999998,
+      "ms": 3214
+    },
+    {
+      "id": "my-smoothie",
+      "message": "my usual morning smoothie",
+      "expect": "either",
+      "outcome": "asked",
+      "foods": [],
+      "response": "I'd need to know what's in your usual smoothie to log it. What do you typically blend?",
+      "tools": [],
+      "calls": 1,
+      "inputTokens": 1407,
+      "outputTokens": 25,
+      "cost": 0.001532,
+      "ms": 915
+    },
+    {
+      "id": "pizza",
+      "message": "2 slices of pepperoni pizza",
+      "expect": "foods",
+      "outcome": "proposed",
+      "foods": [
+        "Bread, whole wheat — 2 slices, 150 g (guess)",
+        "Cheese, cheddar — 2 slices, 60 g (guess)",
+        "Tomato — 2 slices, 40 g (guess)"
+      ],
+      "response": "I'll use the closest matches I found for a typical pepperoni pizza:",
+      "tools": [
+        "search_foods",
+        "search_foods",
+        "search_foods",
+        "propose_foods"
+      ],
+      "calls": 4,
+      "inputTokens": 6822,
+      "outputTokens": 527,
+      "cost": 0.009457,
+      "ms": 6442
+    },
+    {
+      "id": "clif-bar",
+      "message": "a Clif bar, chocolate chip",
+      "expect": "foods",
+      "outcome": "answered",
+      "foods": [],
+      "response": "The database doesn't have Clif bars or energy bars yet, so I can't log this one accurately. You could manually add it if your app allows, or let me know if there's another food you'd like to log instead.",
+      "tools": [
+        "search_foods",
+        "search_foods",
+        "search_foods"
+      ],
+      "calls": 4,
+      "inputTokens": 6925,
+      "outputTokens": 284,
+      "cost": 0.008345,
+      "ms": 5549
+    },
+    {
+      "id": "handful-nuts",
+      "message": "a handful of almonds and an apple",
+      "expect": "foods",
+      "outcome": "proposed",
+      "foods": [
+        "Apple — 1 apple, 150 g (guess)"
+      ],
+      "response": "I don't have almonds in the database, but I've got the apple. Let me show you what I can add:",
+      "tools": [
+        "search_foods",
+        "propose_foods"
+      ],
+      "calls": 2,
+      "inputTokens": 3010,
+      "outputTokens": 186,
+      "cost": 0.00394,
+      "ms": 2635
+    },
+    {
+      "id": "beer",
+      "message": "had 2 beers last night",
+      "expect": "foods",
+      "outcome": "asked",
+      "foods": [],
+      "response": "Unfortunately beer isn't in the database yet. I can log it as a note, but I won't be able to track the nutritional info. Would you like me to add it anyway, or would you prefer to skip it?",
+      "tools": [
+        "search_foods"
+      ],
+      "calls": 2,
+      "inputTokens": 2896,
+      "outputTokens": 106,
+      "cost": 0.003426,
+      "ms": 2487
+    },
+    {
+      "id": "lots-of-pasta",
+      "message": "a big plate of spaghetti bolognese",
+      "expect": "foods",
+      "outcome": "proposed",
+      "foods": [
+        "Beef, ground — big plate of spaghetti bolognese, 150 g (guess)",
+        "Tomato — tomato sauce, 200 g (guess)",
+        "Olive oil — olive oil in sauce, 15 g (guess)"
+      ],
+      "response": "I'll propose the main components I found — spaghetti as pasta, ground beef, tomato, and olive oil. The database is limited, so I'm using the closest matches:",
+      "tools": [
+        "search_foods",
+        "search_foods",
+        "propose_foods"
+      ],
+      "calls": 3,
+      "inputTokens": 5590,
+      "outputTokens": 433,
+      "cost": 0.007755,
+      "ms": 5097
+    },
+    {
+      "id": "question-avocado",
+      "message": "is avocado high in fat?",
+      "expect": "answer",
+      "outcome": "answered",
+      "foods": [],
+      "response": "Yes, avocado is quite high in fat — about 15g of fat per 100g. But it's mostly the healthy kind: monounsaturated fat, which is good for your heart. It also has fiber and potassium, so it's a nutritious choice despite the fat content.",
+      "tools": [],
+      "calls": 1,
+      "inputTokens": 1410,
+      "outputTokens": 68,
+      "cost": 0.00175,
+      "ms": 1249
+    },
+    {
+      "id": "question-log",
+      "message": "what can you do?",
+      "expect": "answer",
+      "outcome": "asked",
+      "foods": [],
+      "response": "I help you log what you eat and drink. Just tell me what you had — \"I had eggs and toast for breakfast\" or \"I drank a coffee\" — and I'll look it up in the food database, show you a list with the amounts, and you can adjust anything before adding it to your log.\n\nI try to make it quick: I'll guess reasonable portions and common versions so you don't have to answer a bunch of questions. If something's unclear, I'll ask once.\n\nWhat did you eat or drink?",
+      "tools": [],
+      "calls": 1,
+      "inputTokens": 1407,
+      "outputTokens": 115,
+      "cost": 0.001982,
+      "ms": 1859
+    },
+    {
+      "id": "the-usual",
+      "message": "the usual",
+      "expect": "answer",
+      "outcome": "asked",
+      "foods": [],
+      "response": "I'd need a bit more to go on — what's your usual? 😊",
+      "tools": [],
+      "calls": 1,
+      "inputTokens": 1404,
+      "outputTokens": 21,
+      "cost": 0.001509,
+      "ms": 947
+    },
+    {
+      "id": "norwegian",
+      "message": "brødskive med brunost og et glass melk",
+      "expect": "foods",
+      "outcome": "proposed",
+      "foods": [
+        "Bread, whole wheat — 1 slice, 30 g (guess)",
+        "Cheese, Gouda — a slice, 20 g (guess)",
+        "Milk, whole — 1 glass, 240 g (guess)"
+      ],
+      "response": "Brunost didn't match, but I'll use Gouda as the closest cheese. Here's your slice of bread with cheese and milk:",
+      "tools": [
+        "search_foods",
+        "propose_foods"
+      ],
+      "calls": 2,
+      "inputTokens": 3134,
+      "outputTokens": 287,
+      "cost": 0.004569,
+      "ms": 3466
+    }
+  ]
+}

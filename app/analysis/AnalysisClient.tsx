@@ -7,7 +7,7 @@ import { apiUrl } from '@/lib/utils/base-path';
 import AnalysisHeader from '@/app/components/navigation/AnalysisHeader';
 import GuestAnalysisView from './GuestAnalysisView';
 import SmartAddFoodModal from '@/app/components/modals/SmartAddFoodModal';
-import FoodLogChat from './FoodLogChat';
+import FoodLogChat, { type ChatFoodToAdd } from './FoodLogChat';
 import DvSourceSelector from './components/DvSourceSelector';
 import SymptomDropdown from './components/SymptomDropdown';
 import { useDateNavigation } from '@/lib/hooks/useDateNavigation';
@@ -59,6 +59,7 @@ interface AnalysisClientProps {
 // One change POST /api/meals/sync can apply before returning the day's state.
 type SyncChange =
   | { type: 'add'; mealId: string | null; food: { foodId: string; portionSize: number; portionType: string } }
+  | { type: 'addMany'; mealId: string | null; foods: { foodId: string; portionSize: number; portionType: string }[] }
   | { type: 'remove'; mealItemId: string };
 
 export default function AnalysisClient({ user, initialDate, initialCompounds, initialCompoundGroups }: AnalysisClientProps) {
@@ -846,6 +847,39 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
     }
   };
 
+  // The chat's "Add foods": the same path as adding one food from search —
+  // optimistic, into the active meal (or a new "Today"), one sync call.
+  // Throws on failure so the chat can let the user try again.
+  const handleAddFoodsFromChat = async (items: ChatFoodToAdd[]) => {
+    setActionError(null);
+    const stamp = Date.now();
+    const optimisticItems = items.map((item, i) => ({
+      id: `optimistic-${stamp}-${i}`,
+      foodId: item.foodId,
+      food: { name: item.name },
+      portionSize: item.grams,
+      portionType: item.portion,
+    }));
+    const mealsNow = mealsRef.current;
+    const mealsAfterAdd =
+      mealsNow.length > 0
+        ? [{ ...mealsNow[0], items: [...(mealsNow[0].items || []), ...optimisticItems] }, ...mealsNow.slice(1)]
+        : [{ id: 'optimistic-meal', mealType: 'Today', items: optimisticItems }];
+    setMeals(mealsAfterAdd);
+    recalcLocally(mealsAfterAdd, selectedItemIdsRef.current);
+
+    try {
+      await syncDay(selectedDate, () => ({
+        type: 'addMany',
+        mealId: mealIdRef.current,
+        foods: items.map((item) => ({ foodId: item.foodId, portionSize: item.grams, portionType: item.portion })),
+      }));
+    } catch (error) {
+      fetchMealsForDate(selectedDate, true, { silent: true });
+      throw error;
+    }
+  };
+
   const handleAddFoodToMeal = async () => {
     if (!selectedFood) return;
     setActionError(null);
@@ -1277,9 +1311,7 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
                       <FoodLogChat
                         aside={foodListAside}
                         date={selectedDate}
-                        onMealLogged={() => {
-                          fetchMealsForDate(selectedDate, true, { silent: true });
-                        }}
+                        onAddFoods={handleAddFoodsFromChat}
                       />
                     ) : (
                       <div className="chat-box chat-box--split">

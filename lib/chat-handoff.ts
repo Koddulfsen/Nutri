@@ -20,26 +20,52 @@
  */
 
 import { apiUrl } from '@/lib/utils/base-path';
+import type { Proposal, ProposalItem } from '@/lib/ai/food-log-chat';
+
+export type { Proposal, ProposalItem };
 
 export interface ChatReply {
   response: string;
-  loggedAny?: boolean;
+  proposal?: Proposal;
+}
+
+/** A turn as the server wants it back: text, plus any list it proposed and what became of it. */
+export interface ChatTurn {
+  role: 'user' | 'assistant';
+  content: string;
+  proposal?: Proposal;
+  proposalStatus?: 'open' | 'added' | 'replaced';
+}
+
+/**
+ * The chat's real progress ("Looking up egg, bread"), as the server reports
+ * it. Keeps the latest label so a late subscriber — the chat mounting after
+ * the front-page handoff — starts from where the request actually is.
+ */
+export class ProgressFeed {
+  label = FIRST_STATUS;
+  private listeners = new Set<(label: string) => void>();
+
+  push = (label: string) => {
+    this.label = label;
+    this.listeners.forEach((l) => l(label));
+  };
+
+  subscribe(listener: (label: string) => void): () => void {
+    this.listeners.add(listener);
+    listener(this.label);
+    return () => this.listeners.delete(listener);
+  }
 }
 
 export interface Handoff {
   text: string;
   reply: Promise<ChatReply>;
+  progress: ProgressFeed;
 }
 
-/** Cycled in the working state, on the ghost and then in the real chat. */
-export const WORKING_STATUSES = [
-  'Reading your message',
-  'Looking up ingredients',
-  'Estimating portions',
-  'Matching foods',
-  'Crunching compounds',
-];
-export const STATUS_INTERVAL_MS = 1400;
+/** Shown until the server reports its first step. */
+export const FIRST_STATUS = 'Reading your message';
 
 /** Final chat box size, read from the same CSS vars the /analysis chat uses. */
 function chatSize() {
@@ -69,7 +95,7 @@ const ABANDON_MS = 20000;
 let handoff: Handoff | null = null;
 let ghost: HTMLDivElement | null = null;
 let curtain: HTMLDivElement | null = null;
-let statusTimer: ReturnType<typeof setInterval> | null = null;
+let unsubscribeStatus: (() => void) | null = null;
 let abandonTimer: ReturnType<typeof setTimeout> | null = null;
 
 // ── Message storage (guest path, where there is no chat to hand a request to)
@@ -94,17 +120,44 @@ export function takePendingChat(): string | null {
 
 // ── The request
 
-export async function postChat(message: string, history: unknown[], date: string): Promise<ChatReply> {
+/**
+ * Sends one message. Refusals (not signed in, rate limit, no consent) come
+ * back as a JSON error; otherwise the reply streams as one JSON event per
+ * line — progress labels, then `done` or `error` (see the route).
+ */
+export async function postChat(
+  message: string,
+  history: ChatTurn[],
+  onProgress?: (label: string) => void
+): Promise<ChatReply> {
   const res = await fetch(apiUrl('/api/ai/log-food'), {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ message, history, date }),
+    body: JSON.stringify({ message, history }),
   });
-  if (!res.ok) {
+  if (!res.ok || !res.body) {
     const data = await res.json().catch(() => ({}));
     throw new Error(data.message || data.error || `HTTP ${res.status}`);
   }
-  return res.json();
+
+  const reader = res.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = '';
+  for (;;) {
+    const { done, value } = await reader.read();
+    buffer += decoder.decode(value, { stream: !done });
+    const lines = buffer.split('\n');
+    buffer = done ? '' : lines.pop()!;
+    for (const line of lines) {
+      if (!line.trim()) continue;
+      const event = JSON.parse(line);
+      if (event.type === 'progress') onProgress?.(event.label);
+      else if (event.type === 'done') return { response: event.response, proposal: event.proposal };
+      else if (event.type === 'error') throw new Error(event.message);
+    }
+    if (done) break;
+  }
+  throw new Error('The reply was cut off — please try again.');
 }
 
 /** Takes the in-flight front-page request, once. */
@@ -121,9 +174,9 @@ function cleanup() {
   curtain?.remove();
   ghost = null;
   curtain = null;
-  if (statusTimer) clearInterval(statusTimer);
+  unsubscribeStatus?.();
   if (abandonTimer) clearTimeout(abandonTimer);
-  statusTimer = null;
+  unsubscribeStatus = null;
   abandonTimer = null;
 }
 
@@ -159,7 +212,7 @@ function el(className: string, text?: string) {
  * renders (globals.css "Chat"), so it cannot drift from either end state.
  * The wrapper starts sized so its input sits exactly over the front-page input.
  */
-function buildGhost(input: HTMLInputElement, text: string) {
+function buildGhost(input: HTMLInputElement, text: string, progress: ProgressFeed) {
   const rect = input.getBoundingClientRect();
   const pad = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--chat-pad')) || 16;
 
@@ -181,7 +234,7 @@ function buildGhost(input: HTMLInputElement, text: string) {
     m.appendChild(el(`chat-bubble ${extra}`.trim(), content));
     return m;
   };
-  const statusMsg = msg('assistant', `${WORKING_STATUSES[0]}…`, 'chat-typing');
+  const statusMsg = msg('assistant', `${progress.label}…`, 'chat-typing');
   const status = statusMsg.firstElementChild as HTMLElement;
   thread.append(msg('user', text), statusMsg);
 
@@ -226,14 +279,13 @@ function buildGhost(input: HTMLInputElement, text: string) {
   aside.append(el('chat-aside-empty', 'No foods logged'));
   box.append(main, aside);
 
-  let i = 0;
-  statusTimer = setInterval(() => {
-    i = (i + 1) % WORKING_STATUSES.length;
+  unsubscribeStatus = progress.subscribe((label) => {
+    if (status.textContent === `${label}…`) return;
     status.animate([{ opacity: 1 }, { opacity: 0 }, { opacity: 1 }], { duration: 360 });
     setTimeout(() => {
-      status.textContent = `${WORKING_STATUSES[i]}…`;
+      status.textContent = `${label}…`;
     }, 180);
-  }, STATUS_INTERVAL_MS);
+  });
 
   return { box, rect, pad, thread, typed, placeholder, field, fieldFrom, send, aside };
 }
@@ -242,12 +294,13 @@ function buildGhost(input: HTMLInputElement, text: string) {
  * Enter on the front page: fire the request, grow the input into a working
  * chat, fade the surroundings, navigate underneath.
  */
-export function leaveForChat(input: HTMLInputElement, date: string, navigate: () => void) {
+export function leaveForChat(input: HTMLInputElement, navigate: () => void) {
   cleanup();
   const text = input.value.trim();
-  const reply = postChat(text, [], date);
+  const progress = new ProgressFeed();
+  const reply = postChat(text, [], progress.push);
   reply.catch(() => {}); // handled by FoodLogChat; avoid an unhandled rejection
-  handoff = { text, reply };
+  handoff = { text, reply, progress };
 
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
     navigate();
@@ -264,7 +317,7 @@ export function leaveForChat(input: HTMLInputElement, date: string, navigate: ()
     pointerEvents: 'none',
   });
 
-  const { box, rect, pad, thread, typed, placeholder, field, fieldFrom, send, aside } = buildGhost(input, text);
+  const { box, rect, pad, thread, typed, placeholder, field, fieldFrom, send, aside } = buildGhost(input, text, progress);
   ghost = box;
   document.body.append(curtain, box);
   input.style.visibility = 'hidden';

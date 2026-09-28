@@ -23,9 +23,7 @@ export default function HeroSearch({ isAuthed = false }: HeroSearchProps) {
     setPendingChat(text);
     // Guests have no chat on /analysis, so there is nothing to morph into.
     if (isAuthed && inputRef.current) {
-      leaveForChat(inputRef.current, new Date().toISOString().split('T')[0], () =>
-        router.push('/analysis')
-      );
+      leaveForChat(inputRef.current, () => router.push('/analysis'));
     } else {
       router.push('/analysis');
     }

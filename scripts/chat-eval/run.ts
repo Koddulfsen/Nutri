@@ -49,9 +49,11 @@ export interface CaseResult {
 
 /** Foods from a structured proposal, or — for the old text-only chat — the "- " lines. */
 function proposedFoods(result: { response: string } & Record<string, unknown>): string[] {
-  const proposal = result.proposal as { items?: Array<{ name: string; amount: number; unit: string; guessed?: boolean }> } | undefined;
+  const proposal = result.proposal as
+    | { items?: Array<{ name: string; grams: number; portion: string; guessed?: boolean }> }
+    | undefined;
   if (proposal?.items?.length) {
-    return proposal.items.map((i) => `${i.name} — ${i.amount} ${i.unit}${i.guessed ? ' (guess)' : ''}`);
+    return proposal.items.map((i) => `${i.name} — ${i.portion}, ${i.grams} g${i.guessed ? ' (guess)' : ''}`);
   }
   return result.response
     .split('\n')
@@ -60,10 +62,10 @@ function proposedFoods(result: { response: string } & Record<string, unknown>): 
     .map((l) => l.replace(/^[-•*]\s+/, ''));
 }
 
-async function runCase(c: Case, date: string): Promise<CaseResult> {
+async function runCase(c: Case): Promise<CaseResult> {
   const started = Date.now();
   try {
-    const result = await runFoodLogChat({ userId: EVAL_USER, history: [], message: c.message, date, dryRun: true });
+    const result = await runFoodLogChat({ userId: EVAL_USER, history: [], message: c.message, dryRun: true });
     const foods = proposedFoods(result as unknown as { response: string } & Record<string, unknown>);
     const outcome = foods.length > 0 ? 'proposed' : result.response.includes('?') ? 'asked' : 'answered';
     return {
@@ -105,7 +107,6 @@ async function main() {
     process.exit(1);
   }
   const cases: Case[] = JSON.parse(readFileSync(path.join(here, 'messages.json'), 'utf8'));
-  const date = new Date().toISOString().slice(0, 10);
 
   // A few at a time — fast, without tripping API rate limits.
   const results: CaseResult[] = [];
@@ -113,7 +114,7 @@ async function main() {
   await Promise.all(
     Array.from({ length: 4 }, async () => {
       for (let c = queue.shift(); c; c = queue.shift()) {
-        const r = await runCase(c, date);
+        const r = await runCase(c);
         results.push(r);
         process.stderr.write(`  ${r.outcome.padEnd(9)} ${r.id}\n`);
       }

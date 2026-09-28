@@ -140,7 +140,7 @@ export class SearchService {
 
     // Step 4: Pagination — already applied in SQL (LIMIT/OFFSET). Slicing
     // again here would offset twice and return nothing past page 1.
-    const { limit = 20 } = options;
+    const { page = 1, limit = 20 } = options;
     const paginatedResults = combinedResults;
 
     // Step 5: Calculate metadata

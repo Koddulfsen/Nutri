@@ -107,6 +107,7 @@ export async function chatWithTools(
     maxIterations?: number;
     model?: string;
     label?: string;
+    temperature?: number;
     /**
      * Tools that end the turn: once one of these succeeds, return straight away
      * with the text the model wrote alongside the call, instead of asking the
@@ -115,6 +116,13 @@ export async function chatWithTools(
     finishTools?: string[];
     /** Called as each tool starts — for showing progress. */
     onToolStart?: (name: string, input: Record<string, unknown>) => void;
+    /**
+     * Added to the tool results before the last round, so the model finishes
+     * with what it has instead of running out of rounds mid-search.
+     */
+    lastRoundNote?: string;
+    /** Reply when the rounds run out anyway. */
+    outOfRoundsReply?: string;
   }
 ): Promise<ChatWithToolsResult> {
   const anthropic = getClient();
@@ -139,6 +147,7 @@ export async function chatWithTools(
     const response = await anthropic.messages.create({
       model,
       max_tokens: options?.maxTokens ?? 1024,
+      ...(options?.temperature !== undefined ? { temperature: options.temperature } : {}),
       system: systemPrompt,
       tools: sdkTools,
       messages: conversation,
@@ -209,11 +218,18 @@ export async function chatWithTools(
       return { response: text, toolCalls, usage };
     }
 
-    conversation.push({ role: 'user', content: toolResults });
+    const nextIsLast = i === maxIterations - 2;
+    conversation.push({
+      role: 'user',
+      content:
+        nextIsLast && options?.lastRoundNote
+          ? [...toolResults, { type: 'text', text: options.lastRoundNote }]
+          : toolResults,
+    });
   }
 
   return {
-    response: 'I ran out of steps before finishing — could you try rephrasing?',
+    response: options?.outOfRoundsReply ?? 'I ran out of steps before finishing — could you try rephrasing?',
     toolCalls,
     usage,
   };

@@ -233,7 +233,32 @@ Checkboxes are the timeline. Update them as work lands.
       every row gone including cascaded meal items, then deleted the auth user. The old
       `deletion_requests`/`export_requests` tables (P2's other two "missing FK" rows) are
       now unused — nothing writes to them; a future cleanup pass can drop them (§3)
-- [ ] **2.9** Per-user spend budget on `/api/ai/log-food` *(B3)*
+- [~] **2.9** Per-user spend budget on `/api/ai/log-food` *(B3)* — **message cap done 2026-09-28**:
+      `checkAiRateLimit()` (30/hour/user, fails closed) had existed in `lib/rate-limit/` but
+      nothing called it; now wired into the chat route, verified by integration test (429 +
+      readable message, no AI call made). Still open: a budget in money/tokens, not messages
+
+### Phase 2b — Food-logging chat *(plan: `docs/PLAN-CHAT-PIPELINE.md`, built 2026-09-28)*
+- [x] **C.0** Eval harness — `scripts/chat-eval/` (20 synthetic messages, dry run, records
+      outcome/calls/tokens/cost). Baseline → final: lists straight away 5 → 12–13 of 16 food
+      messages (varies a case or two with prompt wording; the misses are mostly foods not in
+      the DB); $0.0088 → ~$0.0045 per message, and confirming now costs no AI call at all.
+      Results per run in `scripts/chat-eval/results/`. Two-turn check: `followup-check.ts`
+- [x] **C.1** Rate limit (see 2.9) + route moved onto `withAuth()`
+- [x] **C.2** Search ranks by best match (was A–Z) — whole word › prefix › anywhere, shorter
+      names first; LIKE wildcards escaped. Also fixed: page 2+ of any search was always empty
+      (paginated in SQL, then sliced again)
+- [x] **C.3** Prompt rewritten: short, "guess, show, let them fix", ~15 lines instead of ~87
+- [x] **C.4** The AI can only **propose** (`propose_foods`); it has no writing tool. The card's
+      **Add foods** saves exactly what's shown via `POST /api/meals/sync` `addMany`, into the
+      active meal like the search bar. Saved in grams, with the portion as the label
+- [x] **C.5** Real progress (NDJSON stream of the actual steps), 4 rounds max with a
+      last-round nudge, temperature 0
+- [x] **C.6** "Save as recipe" button → `POST /api/foods/recipes` (private). The AI's
+      `create_composite` tool is gone. **Open (Jens):** submitting *branded* products to the
+      public review queue from the chat is paused — bring back as a button, or leave out?
+- [ ] **C.8** Food coverage is now the limit, not the chat: 107 public foods. Beer, almonds,
+      peanut butter, pasta, blueberries, honey, Clif bars are all missing
 
 ### Phase 3 — Refurbish (serves Phase 2; not cosmetics)
 - [x] **3.1** Delete the dead Supabase-HTTP cluster — 5,555 lines *(S1)* *(done 2026-09-24)* —
@@ -366,6 +391,9 @@ What is actually true, as of 2026-08-11. **Add to this rather than trusting comm
 | Upstash Redis | ✅ DISABLED in .env — 12 files used it; each call burned a 420ms timeout against a dead host |
 | getUserDemographics privilege | ✅ FIXED — was building a raw service-role Supabase client inline; now Drizzle |
 | Import queue processes jobs | ❌ FALSE — nothing consumes the queue |
+| AI routes are rate limited | ✅ FIXED 2026-09-28 — `checkAiRateLimit()` claimed "AI endpoints: 30 requests per user per hour" but **no route called it**. Now enforced on `/api/ai/log-food` (the only non-admin AI route; the other four are `requireAdmin`). Integration test: `__tests__/integration/chat-add-foods.test.ts` |
+| The chat saves what the user saw | ✅ VERIFIED 2026-09-28 — the model has no write tool; the button posts the exact items. Integration test asserts the saved rows equal the sent list (ids, grams, labels) |
+| A user can log someone else's private food | ✅ FIXED 2026-09-28 — `meals/sync` `add`/`addMany` and recipe creation only accept public foods or the caller's own private ones (was: any id that passed the FK). Test covers all three paths |
 | CIQUAL staging values | ✅ FIXED 2026-08-22 — importer bound columns by POSITION; 69/74 were wrong (158,267 of 174,570 values). Now matched by column title+unit, aborts if any fails. Verified against the raw spreadsheet: 8/8 nutrients exact |
 | Impossible staging values | ✅ NONE — bounds guard (`db/seed/_shared/bounds.mjs`) rejects gram proximates >110 g/100 g. Threshold is 110 not 100 because CoFID carbohydrate-as-monosaccharide legitimately reaches 105 |
 | Staging data loaded | ✅ 13/17 sources, **3,213,257 rows**, 34,754 foods (2026-08-22). Loaders live in `db/seed/<source>/import-<source>.mjs`, **not** `scripts/`. Each TRUNCATEs its own tables, so all are re-runnable |

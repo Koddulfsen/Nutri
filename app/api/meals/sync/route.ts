@@ -15,10 +15,10 @@
 
 import { NextResponse, after } from 'next/server';
 import { z } from 'zod';
-import { and, eq } from 'drizzle-orm';
+import { and, eq, inArray, or } from 'drizzle-orm';
 import { withAuth } from '@/lib/auth/with-auth';
 import { db } from '@/db';
-import { mealItems, mealLogs } from '@/db/schema';
+import { foods, mealItems, mealLogs } from '@/db/schema';
 import { createMeal } from '@/lib/services/meal-service';
 import { ensureUserProfile } from '@/lib/services/user-service';
 import { invalidateDailyTotals } from '@/lib/services/daily-totals-service';
@@ -51,6 +51,12 @@ const SyncSchema = z.object({
         food: FoodSchema,
       }),
       z.object({
+        // Several foods at once, in one transaction — the chat's "Add foods".
+        type: z.literal('addMany'),
+        mealId: z.string().uuid().nullish(),
+        foods: z.array(FoodSchema).min(1).max(25),
+      }),
+      z.object({
         type: z.literal('remove'),
         mealItemId: z.string().uuid(),
       }),
@@ -58,14 +64,34 @@ const SyncSchema = z.object({
     .optional(),
 });
 
+/** True when every id is a food this user may log: public, or their own private one. */
+async function allFoodsVisible(userId: string, foodIds: string[]): Promise<boolean> {
+  const ids = [...new Set(foodIds)];
+  const rows = await db
+    .select({ id: foods.id })
+    .from(foods)
+    .where(
+      and(
+        inArray(foods.id, ids),
+        or(eq(foods.visibility, 'public'), and(eq(foods.visibility, 'private'), eq(foods.createdBy, userId)))
+      )
+    );
+  return rows.length === ids.length;
+}
+
 export const POST = withAuth(
   async ({ user, input }) => {
     const userId = user.id;
     const { date, age, sex, change, knownFoodIds, withSymptoms } = input;
     const skipTotals = !change && input.skipTotals === true;
 
-    if (change?.type === 'add') {
-      const { food, mealId } = change;
+    if (change?.type === 'add' || change?.type === 'addMany') {
+      const { mealId } = change;
+      const toAdd = change.type === 'add' ? [change.food] : change.foods;
+
+      if (!(await allFoodsVisible(userId, toAdd.map((f) => f.foodId)))) {
+        return NextResponse.json({ error: 'Food not found' }, { status: 404 });
+      }
 
       if (mealId) {
         const [meal] = await db
@@ -81,18 +107,20 @@ export const POST = withAuth(
           return NextResponse.json({ error: 'Meal is not on the requested date' }, { status: 400 });
         }
 
-        await db.insert(mealItems).values({
-          mealLogId: mealId,
-          foodId: food.foodId,
-          portionSize: food.portionSize.toString(),
-          portionType: food.portionType,
-        });
+        await db.insert(mealItems).values(
+          toAdd.map((food) => ({
+            mealLogId: mealId,
+            foodId: food.foodId,
+            portionSize: food.portionSize.toString(),
+            portionType: food.portionType,
+          }))
+        );
       } else {
         await ensureUserProfile(userId, {
           fullName: user.user_metadata?.full_name || user.user_metadata?.name,
           avatarUrl: user.user_metadata?.avatar_url,
         });
-        await createMeal(userId, date, 'Today', [food]);
+        await createMeal(userId, date, 'Today', toAdd);
       }
     } else if (change?.type === 'remove') {
       // One query proves both that the item exists and that it is the caller's.
