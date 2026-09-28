@@ -232,7 +232,14 @@ function aggregate(compound: string, all: Entry[], excluded: ResolvedBar['exclud
   const perRegion = new Map<string, number[]>();
   for (const k of kept) perRegion.set(k.region, [...(perRegion.get(k.region) ?? []), k.value]);
   const values = [...perRegion.values()].map(median);
-  return { value: median(values), unit, averagingDays, sources: [...perRegion.keys()].sort(), spread: [Math.min(...values), Math.max(...values)] as [number, number] };
+  // Multiplying a per-kg value by a weight produces binary-float noise (0.83 × 70 = 58.099999999999994).
+  // Four decimals is the precision reference_daily_values itself stores, so rounding there is faithful to
+  // the data rather than a cosmetic trim.
+  const r4 = (x: number) => Math.round(x * 1e4) / 1e4;
+  return {
+    value: r4(median(values)), unit, averagingDays, sources: [...perRegion.keys()].sort(),
+    spread: [r4(Math.min(...values)), r4(Math.max(...values))] as [number, number],
+  };
 }
 
 /**

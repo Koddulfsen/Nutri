@@ -26,7 +26,8 @@
  *     fat < 1 % of energy (ag) -> CDRR; free sugars max. 10 % of energy (ai) -> CDRR.
  *   - Vitamin A µg RAE; folate µg folate equivalents (DFE); niacin mg NE; vitamin E mg RRR-α-tocopherol.
  *
- * Not stored: protein (g/kg body weight), alcohol (no amount is safe), supplementation advice without a reference
+ * Not stored: alcohol (no amount is safe), supplementation advice without a reference
+ * (protein IS stored since 2026-09-28, per kg of body weight — see the Protein block)
  * value, smokers' vitamin C (noted), fluoride and vitamin K prophylaxis doses for infants (noted).
  *
  * Run: npx tsx dv-sources/dge-dach/extract.ts
@@ -105,11 +106,12 @@ const PHYTATE: Record<string, [DietaryContext, string]> = {
 const ENERGY_PAL: Record<string, Activity> = { '1,4': 'SEDENTARY', '1,6': 'MODERATE', '1,8': 'ACTIVE' };
 const shortFn = (k: string) => FN[k] ? `(${k}) ${FN[k]}` : null;
 
-function push(p: { compound: string; type: DvValueType; sex: Sex; stage: LifeStage; age: Age; value: number; min?: number | null; max?: number | null; unit: string; pct?: boolean; activity?: Activity | null; diet?: DietaryContext | null; supp?: boolean; note?: string | null; from: string }) {
+function push(p: { compound: string; type: DvValueType; sex: Sex; stage: LifeStage; age: Age; value: number; min?: number | null; max?: number | null; unit: string; pct?: boolean; activity?: Activity | null; diet?: DietaryContext | null; supp?: boolean; note?: string | null; from: string; perKg?: boolean }) {
   out.push({
     compound: p.compound, valueType: p.type, sex: p.sex, lifeStage: p.stage, ageMinMonths: p.age[0], ageMaxMonths: p.age[1],
     activityLevel: p.activity ?? null, dietaryContext: p.diet ?? null, value: p.value, valueMin: p.min ?? null, valueMax: p.max ?? null,
-    unit: p.unit, isPercentOfEnergy: p.pct ?? false, isProvisional: false, supplementalOnly: p.supp ?? false, note: p.note ?? null, from: p.from,
+    unit: p.unit, isPercentOfEnergy: p.pct ?? false, isProvisional: false, supplementalOnly: p.supp ?? false,
+    perKgBodyWeight: p.perKg ?? false, note: p.note ?? null, from: p.from,
   });
 }
 const num = (s: string) => { const v = Number(s.replace(',', '.')); if (Number.isNaN(v)) throw new Error(`number "${s}"`); return v; };
@@ -122,7 +124,9 @@ for (const t of tables) {
   const sexes: Sex[] = [...(t.male ? ['MALE' as Sex] : []), ...(t.female ? ['FEMALE' as Sex] : [])];
   for (const r of t.rows) {
     const from = (sex: Sex) => `DGE Referenzwerte-Tool, ${t.group}, ${sex === 'MALE' ? 'Männlich' : 'Weiblich'}, ${r.name}`;
-    if (r.name === 'Alkohol' || r.name.startsWith('Protein')) continue; // no safe amount / per kg body weight
+    // Alcohol has no safe amount and no reference value. Protein is handled in its own pass below,
+    // because it is the one row published per kg of body weight and the infant cell holds three values.
+    if (r.name === 'Alkohol' || r.name.startsWith('Protein')) continue;
     let base = r.name; let activity: Activity | null = null; let diet: DietaryContext | null = null; let dietNote: string | null = null;
     const e = /^Energie bei PAL (\d,\d)$/.exec(r.name);
     if (e) { base = 'Energie'; activity = ENERGY_PAL[e[1]]; if (!activity) throw new Error(`PAL ${e[1]}`); }
@@ -237,6 +241,58 @@ for (let i = out.length - 1; i >= 0; i--) {
       { ...v, ageMinMonths: 132, value: 100, note: `${v.note} Group 10 to <13 y split at 11 y: 100 µg from 11 y.` });
   }
 }
+
+// ───────────────────────── Protein (g/kg body weight per day) ─────────────────────────
+//
+// DGE prints protein in "g/kg KG/Tag" — per kilogram of body weight — which reference_daily_values had
+// no way to store until migration 0057, so this row was skipped entirely and DACH was absent from the
+// protein bar. It is stored per kg now; the resolver multiplies by the user's weight, or by the
+// reference weight for their age and sex (lib/dv/reference-weights.ts).
+//
+// Three things this table does that the generic loop above cannot handle:
+//   1. The category varies by row — adults to 65 y are "Empfohlene Zufuhr" (RDA) while 65+ is a
+//      "Schätzwert" (AI), so the type is read per row rather than assumed.
+//   2. The 0 to <4 months cell holds three values, "2,5 / 1,8 / 1,4", which footnote (b) splits as
+//      "0–1/ 1–2/ 2–4 Monate".
+//   3. Pregnancy and lactation are themselves per kg (0,8 / 0,9 / 1,0 / 1,2), NOT increments on top of
+//      a base — unlike EFSA's, so they store cleanly.
+//
+// Footnote (a), verbatim, is carried on every row: "KG = Körpergewicht; Die Angaben beziehen sich auf
+// Normalgewicht; bei Übergewicht (BMI > 25 kg/m2 bei Erwachsenen) sollte das Normalgewicht für die
+// Berechnung zugrunde gelegt werden." — the values are meant to be multiplied by NORMAL weight, and for
+// someone with a BMI over 25 the DGE intends the normal weight to be used instead of the actual one.
+// Nutri cannot compute a normal weight: that needs height, which is deliberately not collected
+// (docs/DATA-SCOPE-DECISIONS.md). So for an overweight user this value resolves higher than the DGE
+// intends. The caveat travels with the value instead of being silently dropped.
+{
+  const INFANT_SPLIT: Array<[Age, number]> = [[[0, 0], 0], [[1, 1], 1], [[2, 3], 2]];
+  for (const t of tables) {
+    const g = GROUPS[t.group];
+    const sexes: Sex[] = [...(t.male ? ['MALE' as Sex] : []), ...(t.female ? ['FEMALE' as Sex] : [])];
+    for (const r of t.rows) {
+      if (!r.name.startsWith('Protein')) continue;
+      if (r.unit !== 'g/kg KG/Tag') throw new Error(`Protein unit changed: "${r.unit}" — re-read the source before storing`);
+      const type: DvValueType = r.category === 'Empfohlene Zufuhr' ? 'RDA' : r.category === 'Schätzwert' ? 'AI' : (() => { throw new Error(`Protein category "${r.category}"`); })();
+      const note = `Per kg of body weight. (a) ${FN.a}`;
+
+      sexes.forEach((sex, i) => {
+        const cell = r.cells[i];
+        const from = `DGE Referenzwerte-Tool, ${t.group}, ${sex === 'MALE' ? 'Männlich' : 'Weiblich'}, Protein`;
+        if (cell.includes('/')) {
+          const parts = cell.split('/').map((x) => x.trim());
+          if (parts.length !== 3) throw new Error(`Protein infant cell "${cell}" is not three values`);
+          for (const [age, idx] of INFANT_SPLIT)
+            push({ compound: 'Protein', type, sex, stage: g.stage, age, value: num(parts[idx]), unit: 'g', perKg: true,
+              note: `${note} (b) ${FN.b} — this is the ${['first', 'second', 'third'][idx]} of the three printed values.`,
+              from: `${from}, ${FN.b.split('/')[idx].trim()}` });
+          return;
+        }
+        push({ compound: 'Protein', type, sex, stage: g.stage, age: g.age, value: num(cell), unit: 'g', perKg: true, note, from });
+      });
+    }
+  }
+}
+
 
 out.sort((a, b) => a.compound.localeCompare(b.compound) || a.valueType.localeCompare(b.valueType) || a.lifeStage.localeCompare(b.lifeStage) || a.sex.localeCompare(b.sex) || a.ageMinMonths - b.ageMinMonths || (a.activityLevel ?? '').localeCompare(b.activityLevel ?? '') || (a.dietaryContext ?? '').localeCompare(b.dietaryContext ?? ''));
 writeFileSync(path.join(DIR, 'values.json'), JSON.stringify(out, null, 1) + '\n');

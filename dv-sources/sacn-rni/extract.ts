@@ -19,8 +19,9 @@
  *
  * Source inconsistency: women 65-74 / 75+ energy MJ disagree with the printed kcal; kcal-consistent MJ used.
  *
- * Not stored: adult protein RNI (0.75 g/kg body weight) and its pregnancy/lactation increments, and the
- * food-labelling Reference Intakes (not demographic values).
+ * Not stored: the protein pregnancy/lactation increments (+6 / +11 / +8 g/d on top of a per-kg base — one
+ * row cannot hold both), and the food-labelling Reference Intakes (not demographic values).
+ * The adult protein RNI of 0.75 g/kg IS stored, per kg, since 2026-09-28.
  *
  * Run: npx tsx dv-sources/sacn-rni/extract.ts
  */
@@ -35,14 +36,15 @@ const out: SourceValue[] = [];
 const BOTH: Sex[] = ['MALE', 'FEMALE'];
 const r4 = (x: number) => Number(x.toFixed(4));
 
-function add(p: { compound: string; type: DvValueType; sexes: Sex[]; stage?: LifeStage; age: Age; cell: Cell; unit: string; pct?: boolean; min?: number | null; max?: number | null; note?: string | null; from: string }) {
+function add(p: { compound: string; type: DvValueType; sexes: Sex[]; stage?: LifeStage; age: Age; cell: Cell; unit: string; pct?: boolean; min?: number | null; max?: number | null; note?: string | null; from: string; perKg?: boolean }) {
   if (p.cell == null) return;
   const [value, vmin, vmax] = Array.isArray(p.cell) ? [r4((p.cell[0] + p.cell[1]) / 2), p.cell[0], p.cell[1]] : [p.cell, p.min ?? null, p.max ?? null];
   for (const sex of p.sexes) {
     out.push({
       compound: p.compound, valueType: p.type, sex, lifeStage: p.stage ?? 'NONE', ageMinMonths: p.age[0], ageMaxMonths: p.age[1],
       activityLevel: null, dietaryContext: null, value, valueMin: vmin, valueMax: vmax, unit: p.unit,
-      isPercentOfEnergy: p.pct ?? false, isProvisional: false, supplementalOnly: false, note: p.note ?? null, from: p.from,
+      isPercentOfEnergy: p.pct ?? false, isProvisional: false, supplementalOnly: false,
+      perKgBodyWeight: p.perKg ?? false, note: p.note ?? null, from: p.from,
     });
   }
 }
@@ -97,6 +99,25 @@ function add(p: { compound: string; type: DvValueType; sexes: Sex[]; stage?: Lif
   }
   const protein: Array<[string, Age, number]> = [['0-3 months', [0, 2], 12.5], ['4-6 months', [3, 5], 12.7], ['7-9 months', [6, 8], 13.7], ['10-12 months', [9, 11], 14.9], ['1-3 years', [12, 47], 14.5], ['4-6 years', [48, 83], 19.7], ['7-10 years', [84, 131], 28.3]];
   for (const [label, age, v] of protein) add({ compound: 'Protein', type: 'RDA', sexes: BOTH, age, cell: v, unit: 'g', from: `Protein RNI, ${label}` });
+
+  // Adults: "The Reference Nutrient Intake (RNI) is set at 0.75 g of protein per kilogram bodyweight per
+  // day in adults", worked through in the source as 60 kg -> 45 g and 74 kg -> 55.5 g. Not storable until
+  // migration 0057 added per_kg_body_weight, which is why the UK was absent from the adult protein bar.
+  //
+  // Age band: the children's table stops at 7-10 years and the adult sentence names no age, so this is
+  // stored from 19 y — the age at which this document's own vitamin and mineral tables start their adult
+  // bands ("19-50 years"). 11-18 y therefore has no UK protein value; COMA 1991 sets one, but the
+  // snapshot held here does not reproduce it, and a band nobody has read is not a band to invent.
+  add({
+    compound: 'Protein', type: 'RDA', sexes: BOTH, age: [228, null], cell: 0.75, unit: 'g', perKg: true,
+    note: 'Per kg of body weight: "The Reference Nutrient Intake (RNI) is set at 0.75 g of protein per kilogram bodyweight per day in adults" (worked examples: 60 kg = 45 g/d, 74 kg = 55.5 g/d).',
+    from: 'Protein RNI, adults, 0.75 g/kg bodyweight',
+  });
+
+  // Pregnancy (+6 g/d) and lactation (+11 g/d at 0-6 months, +8 g/d at 6+ months) are absolute increments
+  // on top of that per-kg base. One row cannot hold "0.75 g/kg plus 6 g", and resolving the base at a
+  // reference weight in order to add them would bake a weight into stored data — the same wall EFSA's
+  // pregnancy increments hit. Needs an increment concept in the schema; until then, not stored.
 }
 
 // ───────────── RNI tables (p6-7) ─────────────

@@ -155,11 +155,25 @@ one of the per-kg values its extract dropped — so the count before C1 was 6, n
 per-kg base (+1/+9/+28 trimesters, +19/+13 lactating), and one row cannot hold "0.83 g/kg plus 9 g".
 Resolving the base at a reference weight to add them would bake a weight into stored data, which is what
 `per_kg_body_weight` exists to avoid. Needs an increment concept in the schema — its own decision.
-**C2. DACH — protein.** Currently skipped by an explicit `continue` in the loop at
-`dv-sources/dge-dach/extract.ts:125`; remove the skip and store per-kg.
+**C2. DACH — protein.** ✅ **DONE 2026-09-28.** 32 rows, per kg. Not a matter of deleting the `continue`:
+the row needed its own pass, because the category varies (adults to 65 y are *Empfohlene Zufuhr* → RDA,
+65+ is a *Schätzwert* → AI), the 0–4 month cell holds three values that footnote (b) splits as
+"0–1/ 1–2/ 2–4 Monate", and — unlike EFSA — DGE's pregnancy and lactation values are themselves per kg
+(0,8 / 0,9 / 1,0 / 1,2), so they store cleanly.
+⚠️ **Caveat carried on every row**, footnote (a) verbatim: the values are meant to be multiplied by
+*normal* weight, and for a BMI over 25 the DGE says to use normal weight rather than actual. Nutri cannot
+compute that — it needs height, which is deliberately not collected — so for an overweight user this
+value resolves higher than the DGE intends. The caveat travels in the note instead of being dropped.
+*Checks:* `check-source-consistency DACH` 0 failures; `check-source-db DACH` 1268 = 1268.
 **C3. Nordic (NNR) — protein AR/RI, infant energy.** Also the case where per-kg × reference weight must
 reproduce the printed absolute (A3's test).
-**C4. UK (SACN) — adult protein RNI 0.75 g/kg** and its pregnancy/lactation increments.
+**C4. UK (SACN) — adult protein.** ✅ **DONE 2026-09-28.** The 0.75 g/kg adult RNI, stored per kg, quoted
+verbatim with the source's own worked examples (60 kg → 45 g/d, 74 kg → 55.5 g/d).
+*Age band:* stored from 19 y, the age this document's own vitamin and mineral tables start their adult
+bands at. The children's table stops at 7–10 y, so **11–18 y has no UK protein value** — COMA 1991 sets
+one, but the snapshot held here does not reproduce it, and a band nobody has read is not a band to invent.
+*Pregnancy/lactation not stored:* +6 / +11 / +8 g/d are absolute increments on a per-kg base, the same
+wall EFSA hit. *Checks:* consistency 0 failures; `check-source-db UK` 586 = 586.
 **C5. WHO/FAO — adult energy (ch. 5, per kg × PAL)**, infant iodine, DHA 6–24 months.
 Energy also carries an activity dimension, which the schema already has.
 **C6. Taiwan — infant energy (kcal/kg) and protein (g/kg).**
@@ -168,8 +182,9 @@ Energy also carries an activity dimension, which the schema already has.
 Vietnam is not one of the ten independent bodies, but this is the second amino-acid source in the
 database and a cross-check on Korea's numbers.
 
-**C9. Confirm the payoff.**
-*Check:* protein resolves from **7 bodies to 10**; amino acids from 1 body to 2 (3 with WHO in D);
+**C9. Confirm the payoff.** Protein is at **9 of 10** after C1/C2/C4 (WHO/FAO is C5). Measured against
+the real service: male 30 resolves to 56 g at 55 kg, 58.1 g at the 70 kg reference, 65 g at 95 kg.
+*Check:* protein resolves from **6 bodies to 10**; amino acids from 1 body to 2 (3 with WHO in D);
 `check-source-db` reports file = database for all eight sources.
 
 ---
