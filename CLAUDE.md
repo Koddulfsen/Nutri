@@ -254,9 +254,10 @@ Checkboxes are the timeline. Update them as work lands.
       active meal like the search bar. Saved in grams, with the portion as the label
 - [x] **C.5** Real progress (NDJSON stream of the actual steps), 4 rounds max with a
       last-round nudge, temperature 0
-- [x] **C.6** "Save as recipe" button → `POST /api/foods/recipes` (private). The AI's
-      `create_composite` tool is gone. **Open (Jens):** submitting *branded* products to the
-      public review queue from the chat is paused — bring back as a button, or leave out?
+- [x] **C.6** The AI's `create_composite` tool is gone. "Save as recipe" is built and tested
+      (`POST /api/foods/recipes`, private) but **switched off for alpha**
+      (`RECIPES_ENABLED` in `FoodLogChat.tsx`). **Decided (Jens, 2026-09-28):** recipes and
+      branded products are post-alpha; branded comes with barcode scanning
 - [ ] **C.8** Food coverage is now the limit, not the chat: 107 public foods. Beer, almonds,
       peanut butter, pasta, blueberries, honey, Clif bars are all missing
 

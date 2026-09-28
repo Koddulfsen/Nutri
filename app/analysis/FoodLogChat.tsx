@@ -27,6 +27,12 @@ export interface ChatFoodToAdd {
 
 type CardStatus = 'open' | 'adding' | 'added' | 'replaced';
 
+/**
+ * "Save as recipe" on the card. Built and tested (POST /api/foods/recipes),
+ * but recipes are a post-alpha feature — off until then.
+ */
+const RECIPES_ENABLED = false;
+
 interface Message {
   role: 'user' | 'assistant';
   content: string;
@@ -360,7 +366,7 @@ function FoodCard({ items, status, recipeName, error, onChangeItems, onAdd, onSa
             {status === 'adding' ? 'Adding…' : items.length === 1 ? 'Add food' : `Add ${items.length} foods`}
           </button>
         )}
-        {recipeName ? (
+        {!RECIPES_ENABLED ? null : recipeName ? (
           <span className="chat-card-done">Saved as “{recipeName}”</span>
         ) : naming ? (
           <RecipeNameForm onCancel={() => setNaming(false)} onSave={onSaveRecipe} />
