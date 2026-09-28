@@ -57,6 +57,13 @@ const UpdateDemographicsSchema = z.object({
     .optional(),
   biologicalSex: z.enum(biologicalSexes).nullable().optional(),
   lifeStage: z.enum(lifeStages).optional(),
+  // Whole kilograms only. Values published per kg of body weight — protein, amino acids, every
+  // contaminant limit — are resolved against this when it is given, and against a published reference
+  // weight when it is not. Integers because at 0.83 g/kg a single kilogram moves a protein target by
+  // 0.8 g, so anything finer buys no accuracy and only sharpens a quasi-identifier. Bounds are a
+  // sanity check on input, not a medical judgement: outside 20-400 kg the value is far likelier to be
+  // a typo or a pounds figure than a person.
+  bodyWeightKg: z.number().int().min(20).max(400).nullable().optional(),
   manualAgeGroup: z.enum(ageGroups).nullable().optional(),
   dvSourcePreference: z.enum(sourcePreferences).optional(),
 });
@@ -96,6 +103,7 @@ export async function GET(request: NextRequest) {
         birthYearMonth: null,
         biologicalSex: null,
         lifeStage: 'NONE',
+        bodyWeightKg: null,
         manualAgeGroup: null,
         dvSourcePreference: 'AVERAGE',
         effectiveAgeGroup: null,
@@ -124,6 +132,7 @@ export async function GET(request: NextRequest) {
           : null,
       biologicalSex: demographics.biologicalSex,
       lifeStage: demographics.lifeStage,
+      bodyWeightKg: demographics.bodyWeightKg,
       manualAgeGroup: demographics.manualAgeGroup,
       dvSourcePreference: demographics.dvSourcePreference,
       effectiveAgeGroup,

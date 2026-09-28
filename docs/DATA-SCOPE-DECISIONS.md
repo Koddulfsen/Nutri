@@ -57,6 +57,67 @@ actual implementation lives up to this.
 No separate US/UK compliance regime considered for alpha; data already lives in
 Supabase eu-west-1, consistent with this.
 
+## Body weight: collected, optional, one value, no history — PENDING SIGN-OFF
+
+**Status: the storage path is built (migration 0059, encrypted, tested end to end) but no UI field
+exists yet, so nothing is being collected. That is deliberate. Collecting begins only when Jens signs
+off on this entry and the DPIA amendment below.**
+
+**Why it is collected.** Eight of the sources publish values per kilogram of body weight: EFSA, DGE,
+the Nordic council and the UK all state protein that way, WHO states every indispensable amino acid
+that way, and every contaminant limit is per kg. Without a weight those values resolve only against a
+published reference weight — the IOM's 70 kg for an adult man — which is an assumption about the
+person, not a fact about them. With it, a 95 kg man's protein target is 65 g rather than 56.5 g. The
+field does not enable a new feature; it makes an existing number true for the individual.
+
+**What is collected:** one current body weight, in **whole kilograms**, optional, encrypted at rest with
+AES-256-GCM, key in `user_encryption_keys` (the same treatment as `life_stage`).
+
+**What is deliberately refused, and must not be added without reopening this decision:**
+
+| Refused | Why |
+|---|---|
+| **History / a weight series** | A weight *trend* is a categorically more sensitive dataset: it can evidence an eating disorder, a pregnancy, a cancer, a relapse. Nothing in the read path needs it — a per-kg value needs today's weight, not last year's. |
+| **Decimals** | At 0.83 g/kg one kilogram moves a protein target by 0.8 g. Finer precision buys no accuracy and sharpens a quasi-identifier. |
+| **Height, BMI** | Nothing reads them. Note this has a cost we accept: DGE's protein footnote directs that *normal* weight be used above a BMI of 25, which we cannot compute, so DACH-derived protein resolves higher than the DGE intends for an overweight user. The caveat is carried in the value note rather than the field being added. |
+
+**Classification.** Body weight alone is personal data and arguably not Article 9 on its own. In this
+system it is health data in substance: it is collected for a health purpose, stored beside
+`life_stage`, `biological_sex` and birth year/month, and used to compute health targets. It is
+therefore treated as Article 9 throughout — encrypted, exportable, erasable — rather than argued down
+to Article 6. Treating it as the more sensitive category costs nothing here and is the safer error.
+
+**Lawful basis — and a blocker found while writing this.** The intended basis is the explicit consent
+(Art. 9(2)(a)) already collected via the `sensitiveHealthData` flag. **That flag does not cover body
+weight.** Checked in `app/components/settings/ConsentManager.tsx`: it is presented to the user as
+
+> **Pregnancy / Lactation Status** — "Use your life-stage status to personalize your daily nutrient
+> targets. Special-category health data under GDPR — used only for this purpose."
+
+Consent has to be specific about what it covers, and "used only for this purpose" makes that explicit
+and narrow. Collecting body weight under that toggle would be processing beyond the consent given —
+the same shape of failure as an endpoint promising a deletion it does not perform.
+
+**So the field cannot ship until the consent is amended.** Two options, Jens's call:
+
+1. **Widen the existing toggle** to "Body measurements and life stage", with wording naming both. One
+   toggle, but it bundles two disclosures — a user who wants per-kg targets must also disclose
+   pregnancy status, and vice versa.
+2. **A separate toggle** for body weight. Granular, which the GDPR prefers where purposes differ, and
+   it keeps pregnancy status — the more sensitive of the two — independently refusable.
+
+**Recommendation: (2).** They are different disclosures with different sensitivities, and the cost is
+one more row in a consent table that already has seven flags. The nutrient-target purpose is identical,
+but the data subject's exposure is not.
+
+Whichever is chosen, `user_consent` needs the flag, `ConsentManager.tsx` the toggle, and the read path
+must refuse to use a stored weight when its consent is absent — a stored value whose consent was later
+withdrawn must stop being used, not merely stop being collected.
+
+**Rights.** Export returns it decrypted (`/api/user/export`); erasure deletes the row it lives on, with
+the row-level deletion covered by a test. The full end-to-end erasure re-run against a throwaway
+account (as CLAUDE.md 2.8 did) is still outstanding.
+
 ## What this unlocked / what it still requires
 
 Because `life_stage` was kept, alpha cannot ship without:

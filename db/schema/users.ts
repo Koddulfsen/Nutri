@@ -47,6 +47,26 @@ export const userProfiles = pgTable('user_profiles', {
   // through lib/services/daily-value-service.ts (getUserDemographics /
   // updateUserDemographics) — those functions do the encrypt/decrypt round trip.
   lifeStageEncrypted: text('life_stage_encrypted'),
+  // Body weight in whole kilograms, AES-256-GCM ciphertext, same treatment as life_stage above and read
+  // or written only through lib/services/daily-value-service.ts. Health data: on its own it is a
+  // measurement of the person's body, and beside biological_sex and birth year/month it sharpens an
+  // already-identifying set.
+  //
+  // WHY IT IS COLLECTED AT ALL: eight of the sources publish values per kilogram of body weight — EFSA,
+  // DGE, the Nordic council and the UK all state protein that way, WHO states every amino acid that
+  // way, and every contaminant limit is per kg. Without a weight those values can only be resolved at a
+  // published reference weight, which is an assumption about the person rather than a fact about them.
+  //
+  // WHAT IS DELIBERATELY NOT STORED, and must stay that way without a fresh decision:
+  //   - No history. One current value. A weight TREND is a categorically more sensitive dataset — it can
+  //     evidence an eating disorder, a pregnancy or an illness — and nothing in the read path needs it.
+  //   - No decimals. At 0.83 g/kg one kilogram moves a protein target by 0.8 g, so precision below a
+  //     kilogram buys nothing and sharpens a quasi-identifier.
+  //   - No height and no BMI. Nothing reads them. (DGE's protein footnote does ask for "normal weight"
+  //     rather than actual weight above a BMI of 25, which we therefore cannot honour — that caveat
+  //     travels in the value note instead. See dv-sources/dge-dach/extract.ts.)
+  // docs/DATA-SCOPE-DECISIONS.md records this; changing it reopens the DPIA.
+  bodyWeightKgEncrypted: text('body_weight_kg_encrypted'),
   manualAgeGroup: ageGroupEnum('manual_age_group'),                       // Optional override for age calculation
   dvSourcePreference: dvSourcePreferenceEnum('dv_source_preference').notNull().default('AVERAGE'), // Preferred RDA source
 

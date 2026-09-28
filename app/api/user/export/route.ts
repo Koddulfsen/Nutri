@@ -85,6 +85,9 @@ export async function GET(request: NextRequest) {
                 : null,
             biologicalSex: demographics.biologicalSex,
             lifeStage: demographics.lifeStage,
+            // Decrypted, like lifeStage: an export that returned ciphertext would satisfy nobody's
+            // Article 15 right of access.
+            bodyWeightKg: demographics.bodyWeightKg,
             manualAgeGroup: demographics.manualAgeGroup,
             dvSourcePreference: demographics.dvSourcePreference,
           }

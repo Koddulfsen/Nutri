@@ -56,6 +56,12 @@ export interface UserDemographics {
   birthMonth: number | null;
   biologicalSex: BiologicalSex | null;
   lifeStage: LifeStage;
+  /**
+   * Whole kilograms, or null when the person has not given one. Health data, encrypted at rest exactly
+   * as `lifeStage` is. Used to resolve values published per kilogram — protein, amino acids, every
+   * contaminant limit — against the person rather than against a published reference weight.
+   */
+  bodyWeightKg: number | null;
   manualAgeGroup: AgeGroup | null;
   dvSourcePreference: SourcePreference;
 }
@@ -160,6 +166,7 @@ export async function getUserDemographics(userId: string): Promise<UserDemograph
         birthMonth: userProfiles.birthMonth,
         biologicalSex: userProfiles.biologicalSex,
         lifeStageEncrypted: userProfiles.lifeStageEncrypted,
+        bodyWeightKgEncrypted: userProfiles.bodyWeightKgEncrypted,
         manualAgeGroup: userProfiles.manualAgeGroup,
         dvSourcePreference: userProfiles.dvSourcePreference,
       })
@@ -175,18 +182,29 @@ export async function getUserDemographics(userId: string): Promise<UserDemograph
     // life_stage is Article 9 health data — stored as AES-256-GCM ciphertext.
     // NULL means NONE (never encrypted, since NONE discloses nothing). Any other
     // value requires decrypting with the user's own DEK from user_encryption_keys.
+    // Both encrypted columns need the same key, so it is fetched once for whichever of them is set.
     let lifeStage: LifeStage = 'NONE';
-    if (profile.lifeStageEncrypted) {
+    let bodyWeightKg: number | null = null;
+    if (profile.lifeStageEncrypted || profile.bodyWeightKgEncrypted) {
       const keyRow = await db.query.userEncryptionKeys.findFirst({
         where: eq(userEncryptionKeys.userId, userId),
       });
       if (!keyRow) {
         logger.error(
           { service: 'daily-value-service', userId },
-          'life_stage is encrypted but no encryption key exists for this user — falling back to NONE'
+          'encrypted demographics exist but no encryption key does for this user — falling back to defaults'
         );
       } else {
-        lifeStage = (await decryptPHI(profile.lifeStageEncrypted, keyRow.dataEncryptionKey)) as LifeStage;
+        if (profile.lifeStageEncrypted) {
+          lifeStage = (await decryptPHI(profile.lifeStageEncrypted, keyRow.dataEncryptionKey)) as LifeStage;
+        }
+        if (profile.bodyWeightKgEncrypted) {
+          const kg = Number(await decryptPHI(profile.bodyWeightKgEncrypted, keyRow.dataEncryptionKey));
+          // A weight that will not parse is dropped rather than propagated: a NaN would silently make
+          // every per-kg value NaN, and a bar with no number is better than a bar with a wrong one.
+          if (Number.isFinite(kg) && kg > 0) bodyWeightKg = kg;
+          else logger.error({ service: 'daily-value-service', userId }, 'stored body weight did not decrypt to a positive number — ignoring it');
+        }
       }
     }
 
@@ -195,6 +213,7 @@ export async function getUserDemographics(userId: string): Promise<UserDemograph
       birthMonth: profile.birthMonth ?? null,
       biologicalSex: profile.biologicalSex as BiologicalSex | null,
       lifeStage,
+      bodyWeightKg,
       manualAgeGroup: profile.manualAgeGroup as AgeGroup | null,
       dvSourcePreference: (profile.dvSourcePreference as SourcePreference) || 'AVERAGE',
     };
@@ -238,6 +257,22 @@ export async function updateUserDemographics(
       }
     }
 
+    // Body weight: same encryption as life_stage. null clears it; undefined leaves it untouched.
+    let bodyWeightKgEncrypted: string | null | undefined = undefined;
+    if (data.bodyWeightKg !== undefined) {
+      if (data.bodyWeightKg === null) {
+        bodyWeightKgEncrypted = null;
+      } else {
+        const keyRow = await db.query.userEncryptionKeys.findFirst({
+          where: eq(userEncryptionKeys.userId, userId),
+        });
+        if (!keyRow) {
+          throw new Error(`Cannot set body weight: no encryption key exists for user ${userId}`);
+        }
+        bodyWeightKgEncrypted = await encryptPHI(String(Math.round(data.bodyWeightKg)), keyRow.dataEncryptionKey);
+      }
+    }
+
     await db
       .update(userProfiles)
       .set({
@@ -245,6 +280,7 @@ export async function updateUserDemographics(
         birthMonth: data.birthMonth ?? undefined,
         biologicalSex: data.biologicalSex,
         lifeStageEncrypted,
+        bodyWeightKgEncrypted,
         manualAgeGroup: data.manualAgeGroup,
         dvSourcePreference: data.dvSourcePreference,
         updatedAt: new Date(),

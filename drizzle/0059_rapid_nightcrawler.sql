@@ -1,0 +1,1 @@
+ALTER TABLE "user_profiles" ADD COLUMN "body_weight_kg_encrypted" text;

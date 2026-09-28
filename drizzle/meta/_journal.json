@@ -414,6 +414,13 @@
       "when": 1790600465198,
       "tag": "0058_opposite_patriot",
       "breakpoints": true
+    },
+    {
+      "idx": 59,
+      "version": "7",
+      "when": 1790603789595,
+      "tag": "0059_rapid_nightcrawler",
+      "breakpoints": true
     }
   ]
 }
