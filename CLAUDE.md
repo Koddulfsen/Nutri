@@ -49,7 +49,7 @@ exist to keep them out. This project is built to repel them.
 
 | Layer | State |
 |---|---|
-| Compound reference data | 280 compounds, 1,753 mappings. **DV: 19,526 rows / 15 authorities, each re-transcribed from its source document and verified 2026-09-16** (`scripts/dv-verify/`). Gaps and sources still to add: `dv-sources/AUDIT-2026-09-16.md` |
+| Compound reference data | 280 compounds, 1,753 mappings. **DV: 28,973 rows / 22 authorities**, each re-transcribed from its source document (`scripts/dv-verify/`). Only **10 of the 22 derive their own values** and count toward a target — `dv-sources/PROVENANCE.md`. **307 rows across 5 sources are per kg of body weight** and 23 carry an increment on top (migrations 0057–0059); the resolver in `lib/dv/resolve.ts` is the single place that turns all of it into a number. Run state: `dv-sources/DV-ACCURACY-TASKS.md`, plan: `dv-sources/PLAN-BODY-WEIGHT.md` |
 | Food data | **13 of 17 sources loaded — 3.2M staging rows, 34,754 foods.** 71 foods merged and verified against reference values (2026-09-08). DUKE + FOODB held back; PHENOL unmapped |
 | Tracking / user data | Schema exists; **20 meal_logs, 2 user_profiles** — the app has been used |
 | **Authentication** | ✅ **WORKS.** Supabase Auth is live — `auth` schema present, 1 confirmed user, `/auth/v1/settings` 200, sign-in/sign-up/OAuth/reset all wired in `app/(auth)/actions.ts` |
@@ -337,7 +337,11 @@ What is actually true, as of 2026-08-11. **Add to this rather than trusting comm
 
 | Claim | Status |
 |---|---|
-| Schema matches DB | ✅ VERIFIED — 749/749 columns, zero drift |
+| Schema matches DB | ✅ VERIFIED 2026-09-28 — 766/766 columns, zero drift both directions, after migrations 0057/0058/0059 |
+| DV targets count each body once | ✅ VERIFIED 2026-09-24 — the old lookup averaged all 22 sources, counting copies as votes and using a mean. `lib/dv/resolve.ts` now keeps one vote per body, takes the median, converts units rather than matching them as text, and keeps supplement-only and form-specific limits out of the food limit. 59 tests |
+| Per-kg daily values are stored and resolved | ✅ WORKS 2026-09-28 — `per_kg_body_weight` + `plus_absolute` (migrations 0057/0058). Protein went from 6 independent bodies to 9, amino acids from 1 to 2. Each body's values resolve at **that body's own** published reference weights (EFSA's adults are 68.1/58.5 kg, the IOM's 70/57), falling back to the IOM's with the loan named |
+| Body weight is collected | ❌ NOT YET, on purpose — storage path built and tested (migration 0059, encrypted like `life_stage`), but **no UI field exists and the `sensitiveHealthData` consent says "Pregnancy / Lactation Status ... used only for this purpose", which does not cover it.** Blocked on Jens: consent wording + DPIA amendment (both drafted) |
+| The extracts and seed scripts are type-checked | ✅ SINCE 2026-09-28 — `npm run typecheck:scripts`. `dv-sources/`, `db/seed/` and `scripts/` are all excluded from `tsconfig.json`, so 22 transcription extracts, the DV loader and every checker had never been checked; an invalid `life_stage` reached Postgres before anything complained. Scope is the DV pipeline: widening it surfaces 12 pre-existing errors in files importing modules deleted in 3.1 |
 | `db:migrate` idempotent | ✅ VERIFIED — runs clean twice |
 | Food importers work | ✅ VERIFIED — aseanfoods loaded 517 foods / 8,510 rows |
 | Compound + DV data intact | ✅ VERIFIED — 280 / 1,807 / 16,832 |
