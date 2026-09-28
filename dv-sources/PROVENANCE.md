@@ -707,3 +707,40 @@ weight gained, on top of an increment that already accounts for the pregnancy.
 **NNR's own reference weights** are published (Table 10 for 1–17 y, with adult weights in Appendix 4 per
 "Scaling of all nutrients uses NNR2023 reference weights"). They are the right weights to use for NNR's
 per-kg values, and are the first concrete case for plan step A3 — per-source reference weights.
+
+## EFSA's protein table is WHO's (2026-09-28)
+
+Found while preparing to add WHO TRS 935 as protein's tenth independent body. It is not one — it is the
+source the ninth was adapted from.
+
+WHO TRS 935 (2007) Table 33a and EFSA's DRV Table 2 carry the same numbers, digit for digit:
+
+| Age | WHO 33a (AR / safe level) | EFSA Table 2 (AR / PRI) |
+|---|---|---|
+| 0.5 y | 1.12 / 1.31 | 1.12 / 1.31 |
+| 1 y | 0.95 / 1.14 | 0.95 / 1.14 |
+| 1.5 y | 0.85 / 1.03 | 0.85 / 1.03 |
+| 2 y | 0.79 / 0.97 | 0.79 / 0.97 |
+| 3 y | 0.73 / 0.90 | 0.73 / 0.90 |
+| 4 y | 0.69 / 0.86 | 0.69 / 0.86 |
+| adults | 0.66 / 0.83 | 0.66 / 0.83 |
+
+NNR2023's Table 11 then says "Adapted from EFSA (2012a)" and carries the same values again. So the chain
+is **WHO/FAO 2007 → EFSA 2012 → NNR 2023**, one judgement wearing three names, and storing WHO's protein
+alongside EFSA's would have put it into the median twice.
+
+**Decision: WHO's protein tables are not stored.** EU carries that judgement, with the attribution here.
+Storing the same numbers under a second region and then writing a collapse rule to cancel them out would
+be more moving parts for the same result — and the rule would have to be right forever.
+
+**Amino acids are the opposite case, and are stored.** Dividing each KDRI amino acid value by WHO's
+matching mg/kg figure implies body weights from 55 to 116 kg — there is no single reference weight behind
+them, so Korea's values are not WHO's rescaled. Amino acids genuinely have two independent bodies now.
+
+**A defect in TRS 935 itself, recorded not corrected.** Table 33b prints the safe level of protein for
+girls aged 12 and 13 as 1.89 and 1.88 g/kg, against average requirements of 0.72 and 0.71 in the same
+rows. The column is defined as the average requirement + 1.96SD, which is about +24 %, so those figures
+are roughly 2.6× what the definition allows, and the neighbouring rows (11 y → 0.90, 14 y → 0.87) show
+the intended values. Verified on the rendered page, not just the text layer: **the document really does
+print 1.89 and 1.88.** Since WHO's protein is not stored at all, nothing hangs on it here — but if that
+decision is ever reversed, those two cells must not be transcribed as printed.

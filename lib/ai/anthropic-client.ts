@@ -85,9 +85,17 @@ export interface ToolCallRecord {
   output: string;
 }
 
+export interface ChatUsage {
+  /** Model requests made (one per loop round). */
+  calls: number;
+  inputTokens: number;
+  outputTokens: number;
+}
+
 export interface ChatWithToolsResult {
   response: string;
   toolCalls: ToolCallRecord[];
+  usage: ChatUsage;
 }
 
 export async function chatWithTools(
@@ -112,6 +120,7 @@ export async function chatWithTools(
   }));
 
   const toolCalls: ToolCallRecord[] = [];
+  const usage: ChatUsage = { calls: 0, inputTokens: 0, outputTokens: 0 };
 
   for (let i = 0; i < maxIterations; i++) {
     const response = await anthropic.messages.create({
@@ -122,12 +131,16 @@ export async function chatWithTools(
       messages: conversation,
     });
     logUsage(`${options?.label ?? 'chatWithTools'}:iter${i}`, response.model, response.usage);
+    usage.calls += 1;
+    usage.inputTokens += response.usage.input_tokens;
+    usage.outputTokens += response.usage.output_tokens;
 
     if (response.stop_reason !== 'tool_use') {
       const textBlock = response.content.find((b) => b.type === 'text');
       return {
         response: textBlock && textBlock.type === 'text' ? textBlock.text : '',
         toolCalls,
+        usage,
       };
     }
 
@@ -168,5 +181,6 @@ export async function chatWithTools(
   return {
     response: 'I ran out of steps before finishing — could you try rephrasing?',
     toolCalls,
+    usage,
   };
 }

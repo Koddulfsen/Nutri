@@ -1,0 +1,22 @@
+[
+  { "id": "eggs", "message": "two eggs", "expect": "foods" },
+  { "id": "banana", "message": "a banana", "expect": "foods" },
+  { "id": "rice-100g", "message": "100g of rice", "expect": "foods" },
+  { "id": "toast-pb-coffee", "message": "toast with peanut butter and a coffee with milk", "expect": "foods" },
+  { "id": "sandwich", "message": "I had a sandwich for lunch", "expect": "foods" },
+  { "id": "tuna-sandwich", "message": "tuna sandwich with avocado and a bit of butter", "expect": "foods" },
+  { "id": "breakfast-multi", "message": "breakfast was oatmeal with blueberries and honey, plus a glass of orange juice", "expect": "foods" },
+  { "id": "dinner-vague", "message": "chicken and rice for dinner", "expect": "foods" },
+  { "id": "salad", "message": "a salad", "expect": "foods" },
+  { "id": "smoothie", "message": "a smoothie", "expect": "foods" },
+  { "id": "my-smoothie", "message": "my usual morning smoothie", "expect": "either" },
+  { "id": "pizza", "message": "2 slices of pepperoni pizza", "expect": "foods" },
+  { "id": "clif-bar", "message": "a Clif bar, chocolate chip", "expect": "foods" },
+  { "id": "handful-nuts", "message": "a handful of almonds and an apple", "expect": "foods" },
+  { "id": "beer", "message": "had 2 beers last night", "expect": "foods" },
+  { "id": "lots-of-pasta", "message": "a big plate of spaghetti bolognese", "expect": "foods" },
+  { "id": "question-avocado", "message": "is avocado high in fat?", "expect": "answer" },
+  { "id": "question-log", "message": "what can you do?", "expect": "answer" },
+  { "id": "the-usual", "message": "the usual", "expect": "answer" },
+  { "id": "norwegian", "message": "brødskive med brunost og et glass melk", "expect": "foods" }
+]

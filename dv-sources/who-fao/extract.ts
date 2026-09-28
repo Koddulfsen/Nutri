@@ -42,14 +42,15 @@ const out: SourceValue[] = [];
 const BOTH: Sex[] = ['MALE', 'FEMALE'];
 const PREG: Age = [216, null];
 
-function add(p: { compound: string; type: DvValueType; sexes: Sex[]; stage?: LifeStage; age: Age; cell: Cell; unit: string; note?: string | null; from: string }) {
+function add(p: { compound: string; type: DvValueType; sexes: Sex[]; stage?: LifeStage; age: Age; cell: Cell; unit: string; note?: string | null; from: string; perKg?: boolean }) {
   if (p.cell == null) return;
   const [value, vmin, vmax] = Array.isArray(p.cell) ? [Number(((p.cell[0] + p.cell[1]) / 2).toFixed(4)), p.cell[0], p.cell[1]] : [p.cell, null, null];
   for (const sex of p.sexes) {
     out.push({
       compound: p.compound, valueType: p.type, sex, lifeStage: p.stage ?? 'NONE', ageMinMonths: p.age[0], ageMaxMonths: p.age[1],
       activityLevel: null, dietaryContext: null, value, valueMin: vmin, valueMax: vmax, unit: p.unit,
-      isPercentOfEnergy: false, isProvisional: false, supplementalOnly: false, note: p.note ?? null, from: p.from,
+      isPercentOfEnergy: false, isProvisional: false, supplementalOnly: false,
+      perKgBodyWeight: p.perKg ?? false, note: p.note ?? null, from: p.from,
     });
   }
 }
@@ -283,6 +284,71 @@ function add(p: { compound: string; type: DvValueType; sexes: Sex[]; stage?: Lif
   put('EPA + DHA', 'AI', [72, 119], 200, 250, 'mg', `${T22}, EPA+DHA 6-10 yr AI 200-250 mg`, 'To the adult value assigned at age 10 years.');
   put('Trans Fat', 'UL', [24, 215], null, 1, '%', `${T22}, TFA 2-18 yr UL <1%E`, 'Total TFA from ruminant and industrially-produced sources.');
 }
+
+// ───────────── WHO TRS 935 (2007): indispensable amino acid requirements ─────────────
+//
+// "Protein and amino acid requirements in human nutrition", Joint FAO/WHO/UNU Expert Consultation,
+// WHO Technical Report Series 935 (2007). Free from WHO IRIS; snapshot of the relevant pages in
+// source/who-trs935-2007-protein-aminoacids.txt.
+//
+// Table 36, "Amino acid requirements of infants, children and adolescents (males and females
+// combined)", mg/kg per day. Its >18 y row is identical to Table 23's adult summary
+// (10 / 20 / 39 / 30 / 15 / 25 / 15 / 4.0 / 26), which cross-checks the text layer against a second
+// printing of the same numbers.
+//
+// WHY ONLY AMINO ACIDS, when this report also carries protein requirements (Tables 33a/33b):
+// EFSA's protein table is this table. Every value matches digit for digit — AR 1.12 / safe 1.31 at
+// 0.5 y through 0.66 / 0.83 in adults — because EFSA adapted it, and NNR2023 then adapted EFSA
+// ("Adapted from EFSA (2012a)"). Storing WHO's protein as well would put one judgement into the
+// median three times under three names, which is the exact failure the provenance audit exists to
+// stop. EU carries that judgement, with the attribution recorded in PROVENANCE.md.
+//
+// Korea's amino acid values, by contrast, are NOT this table rescaled: dividing each KDRI value by
+// the matching WHO figure implies body weights from 55 to 116 kg, so there is no single reference
+// weight behind them. They are an independent derivation, and amino acids genuinely gain a second
+// body here.
+{
+  const T = 'WHO TRS 935 (2007), Table 36';
+  const PER_KG = 'Per kg of body weight, as published (mg/kg per day).';
+  // Column order in Table 36: His Ile Leu Lys SAA AAA Thr Trp Val.
+  const COMPOUNDS = ['Histidine', 'Isoleucine', 'Leucine', 'Lysine', 'Methionine + Cysteine', 'Phenylalanine + Tyrosine', 'Threonine', 'Tryptophan', 'Valine'];
+  const rows: Array<[string, Age, number[]]> = [
+    ['0.5 y',    [6, 11],     [22, 36, 73, 64, 31, 59, 34, 9.5, 49]],
+    ['1-2 y',    [12, 35],    [15, 27, 54, 45, 22, 40, 23, 6.4, 36]],
+    ['3-10 y',   [36, 131],   [12, 23, 44, 35, 18, 30, 18, 4.8, 29]],
+    ['11-14 y',  [132, 179],  [12, 22, 44, 35, 17, 30, 18, 4.8, 29]],
+    ['15-18 y',  [180, 227],  [11, 21, 42, 33, 16, 28, 17, 4.5, 28]],
+    ['>18 y',    [228, null], [10, 20, 39, 30, 15, 25, 15, 4.0, 26]],
+  ];
+
+  for (const [label, age, cells] of rows) {
+    if (cells.length !== COMPOUNDS.length) throw new Error(`Table 36 ${label}: ${cells.length} cells for ${COMPOUNDS.length} amino acids`);
+    cells.forEach((v, i) => {
+      add({ compound: COMPOUNDS[i], type: 'EAR', sexes: BOTH, age, cell: v, unit: 'mg', perKg: true,
+        note: `${PER_KG} Table 36 is printed for males and females combined. SAA is the sulfur amino acids (methionine + cysteine) and AAA the aromatic (phenylalanine + tyrosine), as the table's own column headings define them.`,
+        from: `${T}, ${COMPOUNDS[i]}, ${label}` });
+
+      // Safe level of intake. Section 8.4: "There is no information on the variability of requirements
+      // for individual amino acids. Therefore, approximate values were calculated on the assumption
+      // that the inter-individual coefficient of variation of the requirements for amino acids is the
+      // same as that for total protein, i.e. 12%. On this basis, the safe levels of intake for the
+      // indispensable amino acids are 24% higher than the values for average requirement shown in the
+      // first column of Table 23."
+      //
+      // Table 23 is the ADULT summary, so this rule is applied only to the >18 y row. Extending it to
+      // children would be our arithmetic, not the report's: for younger ages the report works through a
+      // scoring pattern instead, and it does not restate the 24 % there. Children therefore carry an
+      // average requirement and no target, which the resolver already handles — an EAR never becomes a
+      // goal.
+      if (age[0] === 228) {
+        add({ compound: COMPOUNDS[i], type: 'RDA', sexes: BOTH, age, cell: Number((v * 1.24).toFixed(4)), unit: 'mg', perKg: true,
+          note: `${PER_KG} Derived as the average requirement + 24 %, per section 8.4: "the safe levels of intake for the indispensable amino acids are 24 % higher than the values for average requirement shown in the first column of Table 23", the coefficient of variation being taken as 12 % — the same as for total protein. The report states the rule but does not print the resulting numbers.`,
+          from: `${T}, ${COMPOUNDS[i]}, ${label}, safe level per section 8.4 (+24 %)` });
+      }
+    });
+  }
+}
+
 
 out.sort((a, b) => a.compound.localeCompare(b.compound) || a.valueType.localeCompare(b.valueType) || a.lifeStage.localeCompare(b.lifeStage) || a.sex.localeCompare(b.sex) || a.ageMinMonths - b.ageMinMonths);
 writeFileSync(path.join(process.cwd(), 'dv-sources', 'who-fao', 'values.json'), JSON.stringify(out, null, 1) + '\n');

@@ -18,7 +18,7 @@
  */
 import { readSourceValues, type SourceValue } from '../../lib/dv/source-values';
 import { SOURCES } from '../../db/seed/dv/sources';
-import { conversionBetween } from '../../lib/food-health/units';
+import { conversionBetween, parseUnit } from '../../lib/food-health/units';
 
 const region = process.argv[2];
 const meta = SOURCES[region];
@@ -77,7 +77,17 @@ for (const v of values) {
   // 2.5 µg/kg), and nothing per-kg is a share of energy.
   if (v.perKgBodyWeight) {
     if (v.isPercentOfEnergy) fail(`${v.from}: marked per kg of body weight AND a share of energy — it cannot be both`);
-    if (v.value > 10) fail(`${v.from}: ${v.value} ${v.unit} per kg of body weight is implausible — is this an absolute value mislabelled?`);
+    // The bound has to be per magnitude. The first version of this rule used a flat 10 and was written
+    // while thinking in grams (protein is 0.83 g/kg); it then failed all 110 of WHO's amino acid values,
+    // which are legitimately tens of mg/kg — leucine is 73. The error actually being guarded against is
+    // an ABSOLUTE value mislabelled as per-kg, so each bound sits above the largest real per-kg value in
+    // that unit and below the smallest plausible absolute one: protein peaks at 2.5 g/kg in infants
+    // while absolute protein is 45-70 g; amino acids peak at 73 mg/kg while absolute mg values run to
+    // hundreds; per-kg µg values are single digits while absolute µg values are in the hundreds.
+    const PER_KG_MAX: Record<string, number> = { g: 10, mg: 200, ug: 50 };
+    const max = PER_KG_MAX[parseUnit(v.unit).magnitude];
+    if (max !== undefined && v.value > max)
+      fail(`${v.from}: ${v.value} ${v.unit} per kg of body weight is implausible (over ${max}) — is this an absolute value mislabelled as per-kg?`);
   }
   // plus_absolute exists for one shape only: a per-kg base with a stated absolute increment. When the base
   // is absolute the extracts fold the increment in and store a total (1,841 rows do), and having two
