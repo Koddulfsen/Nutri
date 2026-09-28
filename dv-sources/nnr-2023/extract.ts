@@ -16,8 +16,8 @@
  *   - Pregnancy/lactation rows print no ages; stored from 18 y with no upper bound.
  *   - Zinc and iron RI/AR assume ~600 mg/d phytate (footnote); stored without a dietary context.
  *
- * Not stored: protein AR/RI (per kg body weight), infant energy (per kg body weight), and
- * "if menstruating" alternatives other than as notes.
+ * Not stored: infant energy (per kg body weight) and "if menstruating" alternatives other than as notes.
+ * Protein AR/RI IS stored since 2026-09-28, per kg, with its pregnancy/lactation g/d increments.
  *
  * Run: npx tsx dv-sources/nnr-2023/extract.ts
  */
@@ -62,6 +62,7 @@ type Cell = number | [number, number] | null;
 function add(p: {
   compound: string; type: DvValueType; sexes: Sex[]; stage: LifeStage; age: Age; cell: Cell; unit: string; pct?: boolean;
   activity?: Activity | null; provisional?: boolean; supplementalOnly?: boolean; note?: string | null; from: string; min?: number | null; max?: number | null;
+  perKg?: boolean; plus?: number;
 }) {
   if (p.cell == null) return;
   const [value, vmin, vmax] = Array.isArray(p.cell) ? [r4((p.cell[0] + p.cell[1]) / 2), p.cell[0], p.cell[1]] : [p.cell, p.min ?? null, p.max ?? null];
@@ -70,6 +71,7 @@ function add(p: {
       compound: p.compound, valueType: p.type, sex, lifeStage: p.stage, ageMinMonths: p.age[0], ageMaxMonths: p.age[1],
       activityLevel: p.activity ?? null, dietaryContext: null, value, valueMin: vmin, valueMax: vmax, unit: p.unit,
       isPercentOfEnergy: p.pct ?? false, isProvisional: p.provisional ?? false, supplementalOnly: p.supplementalOnly ?? false,
+      perKgBodyWeight: p.perKg ?? false, plusAbsolute: p.plus ?? 0,
       note: p.note ?? null, from: p.from,
     });
   }
@@ -270,6 +272,67 @@ const _ = null;
     add({ compound: 'DHA (Docosahexaenoic Acid)', type: 'AI', sexes: ['FEMALE'], stage, age: PREG_AGE, cell: 200, unit: 'mg', note: 'Of the n-3 fatty acids, 200 mg/d should be DHA (Box 5).', from: `Box 5, DHA, ${stage}` });
   }
 }
+
+// ───────────────────────── Table 11: protein (g/kg body weight) ─────────────────────────
+//
+// Per kg of body weight, so unstorable until migration 0057; the pregnancy and lactation increments are
+// absolute g/d on top of that base, which needed 0058's plus_absolute. Both are here now.
+//
+// PROVENANCE, and it matters more than the values: Table 11 is captioned "Adapted from EFSA (2012a)",
+// and the numbers are EFSA's exactly — 0.66 AR and 0.83 RI for adults, +1/+9/+28 g/d by trimester,
+// +13/+19 lactating. NNR is not one of the ten independent bodies (dv-sources/PROVENANCE.md), so this
+// changes no bar today; if it is ever admitted, protein must collapse onto EU rather than count twice.
+//
+// NNR also answers a question EFSA and the BNF leave open. Its footnote 6 to the fluoride table says of
+// per-kg values: "For pregnant and lactating women, this refers to pre-pregnancy weight." EFSA's protein
+// table says only "in addition to the PRI for protein of non-pregnant, non-lactating women".
+{
+  const T = 'Table 11';
+  const PER_KG = 'Per kg of body weight. Table 11 is captioned "Adapted from EFSA (2012a)" and the values match EFSA\'s.';
+  const PRE_PREG = 'NNR2023 footnote 6 (fluoride table) states that for pregnant and lactating women a per-kg value "refers to pre-pregnancy weight".';
+
+  // [label, sexes, age, AR, RI]
+  const rows: Array<[string, Sex[], Age, number, number]> = [
+    ['7-11 mo',         ['MALE', 'FEMALE'], [6, 11],     1.04, 1.23],
+    ['1-3 y',           ['MALE', 'FEMALE'], [12, 47],    0.82, 1.05],
+    ['4-6 y',           ['MALE', 'FEMALE'], [48, 83],    0.70, 0.86],
+    ['7-10 y',          ['MALE', 'FEMALE'], [84, 131],   0.75, 0.91],
+    ['Females 11-14 y', ['FEMALE'],         [132, 179],  0.72, 0.88],
+    ['Females 15-17 y', ['FEMALE'],         [180, 215],  0.68, 0.84],
+    ['Females 18-24 y', ['FEMALE'],         [216, 299],  0.66, 0.83],
+    ['Females 25-50 y', ['FEMALE'],         [300, 611],  0.66, 0.83],
+    ['Females 51-70 y', ['FEMALE'],         [612, 851],  0.66, 0.83],
+    ['Females >70 y',   ['FEMALE'],         [852, null], 0.66, 0.83],
+    ['Males 11-14 y',   ['MALE'],           [132, 179],  0.74, 0.90],
+    ['Males 15-17 y',   ['MALE'],           [180, 215],  0.71, 0.87],
+    ['Males 18-24 y',   ['MALE'],           [216, 299],  0.66, 0.83],
+    ['Males 25-50 y',   ['MALE'],           [300, 611],  0.66, 0.83],
+    ['Males 51-70 y',   ['MALE'],           [612, 851],  0.66, 0.83],
+    ['Males >70 y',     ['MALE'],           [852, null], 0.66, 0.83],
+  ];
+  for (const [label, sexes, age, ar, ri] of rows) {
+    add({ compound: 'Protein', type: 'EAR', sexes, stage: 'NONE', age, cell: ar, unit: 'g', perKg: true, note: PER_KG, from: `${T}, protein AR, ${label}` });
+    add({ compound: 'Protein', type: 'RDA', sexes, stage: 'NONE', age, cell: ri, unit: 'g', perKg: true, note: PER_KG, from: `${T}, protein RI, ${label}` });
+  }
+
+  // "Pregnant: add 0.5/7.2/23 g/d¹ ... add 1/9/28 g/d¹" (¹ per trimester) and
+  // "Lactating: add 10/15 g/d² ... add 13/19 g/d²" (² 0-6 months and >6 months postpartum),
+  // on the 0.66 / 0.83 g/kg adult base.
+  const inc: Array<[LifeStage, number, number, string]> = [
+    ['PREGNANT_T1',     0.5,  1,  '1st trimester'],
+    ['PREGNANT_T2',     7.2,  9,  '2nd trimester'],
+    ['PREGNANT_T3',     23,   28, '3rd trimester'],
+    ['LACTATING_0_6M',  10,   13, '0-6 months postpartum'],
+    ['LACTATING_7_12M', 15,   19, '>6 months postpartum'],
+  ];
+  for (const [stage, arInc, riInc, label] of inc) {
+    add({ compound: 'Protein', type: 'EAR', sexes: ['FEMALE'], stage, age: PREG_AGE, cell: 0.66, plus: arInc, unit: 'g', perKg: true,
+      note: `${PER_KG} Printed "add ${arInc} g/d" on the 0.66 g/kg adult AR. ${PRE_PREG}`, from: `${T}, protein AR, ${label}` });
+    add({ compound: 'Protein', type: 'RDA', sexes: ['FEMALE'], stage, age: PREG_AGE, cell: 0.83, plus: riInc, unit: 'g', perKg: true,
+      note: `${PER_KG} Printed "add ${riInc} g/d" on the 0.83 g/kg adult RI. ${PRE_PREG}`, from: `${T}, protein RI, ${label}` });
+  }
+}
+
 
 out.sort((a, b) => a.compound.localeCompare(b.compound) || a.valueType.localeCompare(b.valueType) || a.lifeStage.localeCompare(b.lifeStage) || a.sex.localeCompare(b.sex) || a.ageMinMonths - b.ageMinMonths || (a.activityLevel ?? '').localeCompare(b.activityLevel ?? ''));
 writeFileSync(path.join(process.cwd(), 'dv-sources', 'nnr-2023', 'values.json'), JSON.stringify(out, null, 1) + '\n');

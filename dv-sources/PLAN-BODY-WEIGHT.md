@@ -165,8 +165,17 @@ the row needed its own pass, because the category varies (adults to 65 y are *Em
 compute that — it needs height, which is deliberately not collected — so for an overweight user this
 value resolves higher than the DGE intends. The caveat travels in the note instead of being dropped.
 *Checks:* `check-source-consistency DACH` 0 failures; `check-source-db DACH` 1268 = 1268.
-**C3. Nordic (NNR) — protein AR/RI, infant energy.** Also the case where per-kg × reference weight must
-reproduce the printed absolute (A3's test).
+**C3. Nordic (NNR) — protein.** ✅ **DONE 2026-09-28.** Table 11 stored per kg (32 rows) with its
+pregnancy and lactation increments via `plusAbsolute` (10 more). **Infant energy per kg is still not
+stored** — a separate table, left for its own pass.
+Two findings recorded in `PROVENANCE.md`, both worth more than the rows: Table 11 is captioned *"Adapted
+from EFSA (2012a)"* and the numbers are EFSA's exactly, so **if NORDIC ever joins the alpha set, protein
+must collapse onto EU**; and NNR's footnote 6 is the only document here that says which weight a per-kg
+value means in pregnancy — *"this refers to pre-pregnancy weight"* — which EFSA and the BNF both leave
+open. NNR's own reference weights (Table 10, plus Appendix 4 for adults) are the first concrete case for
+A3's per-source weights.
+*Checks:* consistency 0 failures; `check-source-db NORDIC` 1512 = 1512; `check-provenance` 22 of 22
+sources, 0 pending, 0 failures.
 **C4. UK (SACN) — adult protein.** ✅ **DONE 2026-09-28.** The 0.75 g/kg adult RNI, stored per kg, quoted
 verbatim with the source's own worked examples (60 kg → 45 g/d, 74 kg → 55.5 g/d).
 *Age band:* stored from 19 y, the age this document's own vitamin and mineral tables start their adult

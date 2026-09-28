@@ -678,3 +678,32 @@ the value is excluded with that reason.
 **Still to do:** per-source reference weights (plan A3) where a source publishes its own — the Nordic council,
 WHO/FAO and the IOM each do — so a value converts with the weight its own committee used rather than a
 borrowed one.
+
+## Two findings from NNR2023's protein table (2026-09-28)
+
+**1. NNR's protein values are EFSA's.** Table 11 is captioned *"Adapted from EFSA (2012a)"*, and the
+numbers match exactly: AR 0.66 and RI 0.83 g/kg for adults, +1 / +9 / +28 g/d by trimester, +13 / +19
+lactating. NNR is not among the ten independent bodies, so this changes no bar today — but it is
+recorded here because **if NORDIC is ever admitted to the alpha set, protein must collapse onto EU
+rather than count as a second vote.** No `NUTRIENT_COLLAPSES` entry has been added, because that
+mechanism only runs on regions already in the alpha set and a dead rule is a rule nobody checks; the
+entry belongs in the same change that admits NORDIC.
+
+**2. NNR answers a question EFSA and the BNF leave open.** When a per-kg value is applied to a pregnant
+or lactating woman, whose weight is meant — her current weight or her pre-pregnancy weight? EFSA's
+protein table says only *"in addition to the PRI for protein of non-pregnant, non-lactating women"*, and
+the BNF summary says nothing. NNR2023 is explicit, in footnote 6 to its fluoride table: *"Based on an
+adequate intake of 0.05 mg/kg bodyweight, using population reference weights. For pregnant and lactating
+women, this refers to pre-pregnancy weight."*
+
+That is NNR speaking about NNR's values, so it does not settle EFSA's. But it is the only direct answer
+any of these documents gives, and it points the right way: **a per-kg target in pregnancy is meant to
+scale with pre-pregnancy body weight, not with weight gained during the pregnancy.** Nutri stores one
+current weight and no history (`docs/DATA-SCOPE-DECISIONS.md`), so it cannot distinguish them, and the
+value notes record that. If pregnancy targets are ever shown as a first-class feature, this is the
+question to settle first — using current weight inflates a pregnancy protein target by roughly the
+weight gained, on top of an increment that already accounts for the pregnancy.
+
+**NNR's own reference weights** are published (Table 10 for 1–17 y, with adult weights in Appendix 4 per
+"Scaling of all nutrients uses NNR2023 reference weights"). They are the right weights to use for NNR's
+per-kg values, and are the first concrete case for plan step A3 — per-source reference weights.
