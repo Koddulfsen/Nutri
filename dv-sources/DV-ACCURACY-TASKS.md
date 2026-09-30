@@ -339,3 +339,40 @@ Each step is a unit of work with its own check. Nothing here is "and then verify
 4. **G4** (metals) — JECFA and EFSA first, each from its own document; EPA IRIS third and flagged as
    dated (its cadmium assessment is from 1989 and sits ~3x from EFSA's).
 5. Codex maximum levels, if ever — a limit on the food, not on the person. Separate feature.
+
+
+---
+
+## H. Is the number right? (2026-09-30)
+
+Every other check proves the pipeline agrees with itself. `check-source-db` proves the database matches
+the file; `check-source-consistency` proves an RDA is not below its own EAR; `check-provenance` proves
+each claim carries a quote. **None of them would notice a whole column read one position to the left.**
+The pipeline would be perfectly self-consistent and the answer would be wrong — the same failure as the
+conversion factors in CLAUDE.md §6.
+
+`lib/dv/golden-targets.test.ts` closes that, in two layers:
+
+**Layer 1 — against the printed source.** Eleven nutrients' US values, read from the DRI tables as
+Health Canada reproduces them (`dri_tables-eng.pdf`, "Reference Values for Vitamins" and "Reference
+Values for Elements", the 19–30 y rows), **not** from our own `values.json`. An independent path: if an
+extract read the wrong column, these would not match. All eleven match today — calcium 1000/1000,
+iron 8/18, magnesium 400/310, zinc 11/8, selenium 55, iodine 150, vitamin C 90/75, vitamin A 900/700,
+vitamin D 15, B12 2.4, folate 400 µg DFE.
+
+**Layer 2 — the resolved target.** What a user actually sees, for an adult man and an adult woman,
+frozen with the number of bodies behind each. These are *not* independently derived — they are the
+median of the ten — so the assertion is that the number does not **move** without someone deciding it
+should. When one fails, the question is not "how do I make it pass" but "which source changed, and is
+the new number better?"
+
+**Both layers were negative-tested**, not just run: changing an expected resolved value to 999 fails
+layer 2 ("expected 975 to be close to 999"), and changing a printed value to 140 fails layer 1 ("stored
+value differs from the printed DRI table"). A golden file that cannot fail is worse than none.
+
+**What it still does not cover** — the honest limit:
+- Only the USA is checked against its printed table. The other nine bodies are checked by
+  `check-source-db` (file = database) and by transcription care, not against their own publications.
+- Nothing yet asserts the **food → target → percentage** chain end to end. Eating 200 g of X should show
+  Y % of a target, and no test computes that independently.
+- Only two demographics are frozen. Children, the elderly and pregnancy have one assertion each.
