@@ -1,0 +1,2059 @@
+{
+  "label": "pilot-7",
+  "ranAt": "2026-09-30T18:57:43.275Z",
+  "results": [
+    {
+      "query": "Almonds",
+      "status": "accepted",
+      "canonicalName": "Almonds",
+      "kept": [
+        {
+          "source": "CNF",
+          "name": "Nuts, almonds, dried, unblanched, unroasted",
+          "values": 132,
+          "flags": 10
+        },
+        {
+          "source": "FDC",
+          "name": "Nuts, almonds, whole, raw",
+          "values": 54,
+          "flags": 2
+        },
+        {
+          "source": "UK_COFID",
+          "name": "Almonds, whole kernels",
+          "values": 63,
+          "flags": 2
+        },
+        {
+          "source": "NEVO",
+          "name": "Almonds w skin unsalted",
+          "values": 42,
+          "flags": 6
+        },
+        {
+          "source": "MATVARETABELLEN",
+          "name": "Almonds",
+          "values": 32,
+          "flags": 4
+        },
+        {
+          "source": "FOODFILES",
+          "name": "Nut, almonds, kernel, dried, whole, raw, unblanched, composite",
+          "values": 159,
+          "flags": 8
+        },
+        {
+          "source": "MEXT",
+          "name": "Almonds, raw",
+          "values": 76,
+          "flags": 5
+        }
+      ],
+      "dropped": [],
+      "unmatched": [
+        "CIQUAL",
+        "BLS"
+      ],
+      "flaggedCompounds": 31,
+      "totalCompounds": 285,
+      "core": {
+        "Ethanol": "0 g",
+        "Water": "5.3 g",
+        "Protein": "21.5 g",
+        "Carbohydrates": "15.5 g",
+        "Total Fat": "51.7 g",
+        "Energy": "587.8 kcal"
+      },
+      "portions": [
+        {
+          "description": "1 oz",
+          "gramWeight": 28,
+          "isDefault": true
+        },
+        {
+          "description": "1 handful",
+          "gramWeight": 23,
+          "isDefault": false
+        },
+        {
+          "description": "1 cup",
+          "gramWeight": 143,
+          "isDefault": false
+        },
+        {
+          "description": "1 g",
+          "gramWeight": 1,
+          "isDefault": false
+        }
+      ],
+      "body": {
+        "name": "Almonds",
+        "commonNames": [],
+        "metadata": {
+          "foodFamily": "Almond",
+          "variety": null,
+          "part": null,
+          "preparation": null,
+          "qualifiers": [],
+          "originType": "plant",
+          "isComposite": false,
+          "scientificName": "Prunus dulcis"
+        },
+        "categoryPath": "Plant > Nuts & Seeds > Tree Nuts",
+        "sources": [
+          {
+            "apiSource": "CNF",
+            "apiFoodId": "2534",
+            "apiFoodName": "Nuts, almonds, dried, unblanched, unroasted"
+          },
+          {
+            "apiSource": "FDC",
+            "apiFoodId": "2346393",
+            "apiFoodName": "Nuts, almonds, whole, raw"
+          },
+          {
+            "apiSource": "UK_COFID",
+            "apiFoodId": "14-896",
+            "apiFoodName": "Almonds, whole kernels"
+          },
+          {
+            "apiSource": "NEVO",
+            "apiFoodId": "5049",
+            "apiFoodName": "Almonds w skin unsalted"
+          },
+          {
+            "apiSource": "MATVARETABELLEN",
+            "apiFoodId": "06.107",
+            "apiFoodName": "Almonds"
+          },
+          {
+            "apiSource": "FOODFILES",
+            "apiFoodId": "Q1025",
+            "apiFoodName": "Nut, almonds, kernel, dried, whole, raw, unblanched, composite"
+          },
+          {
+            "apiSource": "MEXT",
+            "apiFoodId": "05001",
+            "apiFoodName": "Almonds, raw"
+          }
+        ],
+        "portions": [
+          {
+            "description": "1 oz",
+            "gramWeight": 28,
+            "isDefault": true
+          },
+          {
+            "description": "1 handful",
+            "gramWeight": 23,
+            "isDefault": false
+          },
+          {
+            "description": "1 cup",
+            "gramWeight": 143,
+            "isDefault": false
+          },
+          {
+            "description": "1 g",
+            "gramWeight": 1,
+            "isDefault": false
+          }
+        ]
+      },
+      "ms": 17237
+    },
+    {
+      "query": "Peanut butter",
+      "status": "accepted",
+      "canonicalName": "Peanut butter",
+      "kept": [
+        {
+          "source": "CNF",
+          "name": "Peanut butter, smooth type, fat and sugar added",
+          "values": 128,
+          "flags": 11
+        },
+        {
+          "source": "FDC",
+          "name": "Peanut butter, creamy",
+          "values": 69,
+          "flags": 6
+        },
+        {
+          "source": "AFCD",
+          "name": "Peanut butter, smooth & crunchy, added sugar & salt",
+          "values": 100,
+          "flags": 10
+        },
+        {
+          "source": "UK_COFID",
+          "name": "Peanut butter, smooth",
+          "values": 62,
+          "flags": 4
+        },
+        {
+          "source": "CIQUAL",
+          "name": "Peanut butter or peanut paste",
+          "values": 46,
+          "flags": 1
+        },
+        {
+          "source": "BLS",
+          "name": "Peanut butter",
+          "values": 81,
+          "flags": 9
+        },
+        {
+          "source": "FRIDA",
+          "name": "Peanut butter",
+          "values": 83,
+          "flags": 1
+        },
+        {
+          "source": "NEVO",
+          "name": "Peanut butter",
+          "values": 47,
+          "flags": 7
+        },
+        {
+          "source": "FOODFILES",
+          "name": "Peanut butter, smooth & crunchy, salt & sugar added, composite",
+          "values": 138,
+          "flags": 10
+        },
+        {
+          "source": "MEXT",
+          "name": "Peanuts, peanut butter",
+          "values": 87,
+          "flags": 2
+        },
+        {
+          "source": "KFCT",
+          "name": "Peanut butter",
+          "values": 35,
+          "flags": 6
+        }
+      ],
+      "dropped": [
+        {
+          "source": "FINELI",
+          "name": "PEANUT BUTTER WITH ADDED SALT AND SUGAR",
+          "why": "grossly off on Water 7.2 vs 1.2"
+        },
+        {
+          "source": "MATVARETABELLEN",
+          "name": "Peanut butter",
+          "why": "grossly off on Water 7.0 vs 1.2"
+        }
+      ],
+      "unmatched": [
+        "INDB"
+      ],
+      "flaggedCompounds": 47,
+      "totalCompounds": 357,
+      "core": {
+        "Protein": "22.5 g",
+        "Carbohydrates": "20.7 g",
+        "Total Fat": "51.3 g",
+        "Energy": "616.5 kcal",
+        "Ethanol": "0 g",
+        "Water": "1.1 g"
+      },
+      "portions": [
+        {
+          "description": "1 tbsp",
+          "gramWeight": 16,
+          "isDefault": true
+        },
+        {
+          "description": "1 tsp",
+          "gramWeight": 5,
+          "isDefault": false
+        },
+        {
+          "description": "1 oz",
+          "gramWeight": 28,
+          "isDefault": false
+        },
+        {
+          "description": "1 g",
+          "gramWeight": 1,
+          "isDefault": false
+        }
+      ],
+      "body": {
+        "name": "Peanut butter",
+        "commonNames": [
+          "groundnut butter"
+        ],
+        "metadata": {
+          "foodFamily": "Peanut butter",
+          "variety": null,
+          "part": null,
+          "preparation": null,
+          "qualifiers": [],
+          "originType": "plant",
+          "isComposite": true,
+          "scientificName": "Arachis hypogaea"
+        },
+        "categoryPath": "Plant > Legumes & Pulses > Peanuts",
+        "sources": [
+          {
+            "apiSource": "CNF",
+            "apiFoodId": "3414",
+            "apiFoodName": "Peanut butter, smooth type, fat and sugar added"
+          },
+          {
+            "apiSource": "FDC",
+            "apiFoodId": "2262072",
+            "apiFoodName": "Peanut butter, creamy"
+          },
+          {
+            "apiSource": "AFCD",
+            "apiFoodId": "F006577",
+            "apiFoodName": "Peanut butter, smooth & crunchy, added sugar & salt"
+          },
+          {
+            "apiSource": "UK_COFID",
+            "apiFoodId": "14-892",
+            "apiFoodName": "Peanut butter, smooth"
+          },
+          {
+            "apiSource": "CIQUAL",
+            "apiFoodId": "15202",
+            "apiFoodName": "Peanut butter or peanut paste"
+          },
+          {
+            "apiSource": "BLS",
+            "apiFoodId": "H880200",
+            "apiFoodName": "Peanut butter"
+          },
+          {
+            "apiSource": "FRIDA",
+            "apiFoodId": "1162",
+            "apiFoodName": "Peanut butter"
+          },
+          {
+            "apiSource": "NEVO",
+            "apiFoodId": "455",
+            "apiFoodName": "Peanut butter"
+          },
+          {
+            "apiSource": "FOODFILES",
+            "apiFoodId": "Q1021",
+            "apiFoodName": "Peanut butter, smooth & crunchy, salt & sugar added, composite"
+          },
+          {
+            "apiSource": "MEXT",
+            "apiFoodId": "05037",
+            "apiFoodName": "Peanuts, peanut butter"
+          },
+          {
+            "apiSource": "KFCT",
+            "apiFoodId": "N0050000009a",
+            "apiFoodName": "Peanut butter"
+          }
+        ],
+        "portions": [
+          {
+            "description": "1 tbsp",
+            "gramWeight": 16,
+            "isDefault": true
+          },
+          {
+            "description": "1 tsp",
+            "gramWeight": 5,
+            "isDefault": false
+          },
+          {
+            "description": "1 oz",
+            "gramWeight": 28,
+            "isDefault": false
+          },
+          {
+            "description": "1 g",
+            "gramWeight": 1,
+            "isDefault": false
+          }
+        ]
+      },
+      "ms": 36540
+    },
+    {
+      "query": "Pasta, cooked",
+      "status": "accepted",
+      "canonicalName": "Pasta, cooked",
+      "kept": [
+        {
+          "source": "FDC",
+          "name": "Pasta, cooked, enriched, without added salt",
+          "values": 131,
+          "flags": 28
+        },
+        {
+          "source": "AFCD",
+          "name": "Pasta, white wheat flour, boiled from dry, no added salt",
+          "values": 75,
+          "flags": 15
+        },
+        {
+          "source": "UK_COFID",
+          "name": "Pasta, white, dried, boiled in unsalted water",
+          "values": 56,
+          "flags": 8
+        },
+        {
+          "source": "CIQUAL",
+          "name": "Pasta, dry, regular, cooked, no added salt",
+          "values": 41,
+          "flags": 5
+        },
+        {
+          "source": "BLS",
+          "name": "Pasta egg-free, boiled",
+          "values": 79,
+          "flags": 10
+        },
+        {
+          "source": "FRIDA",
+          "name": "Pasta, boiled",
+          "values": 79,
+          "flags": 9
+        },
+        {
+          "source": "FINELI",
+          "name": "PASTA, SPAGHETTI, BOILED WITHOUT SALT",
+          "values": 56,
+          "flags": 19
+        },
+        {
+          "source": "NEVO",
+          "name": "Pasta white av boiled",
+          "values": 31,
+          "flags": 3
+        },
+        {
+          "source": "MATVARETABELLEN",
+          "name": "Pasta, plain, cooked",
+          "values": 44,
+          "flags": 17
+        },
+        {
+          "source": "FOODFILES",
+          "name": "Pasta, white wheat flour, assorted shapes, regular, boiled, drained, no salt added",
+          "values": 152,
+          "flags": 5
+        },
+        {
+          "source": "MEXT",
+          "name": "Durum wheat, macaroni and spaghetti, dry pasta, boiled",
+          "values": 82,
+          "flags": 9
+        },
+        {
+          "source": "KFCT",
+          "name": "Pasta, Spaghetti, Dry noodle, Boiled",
+          "values": 13,
+          "flags": 3
+        }
+      ],
+      "dropped": [],
+      "unmatched": [
+        "CNF",
+        "INDB"
+      ],
+      "flaggedCompounds": 72,
+      "totalCompounds": 354,
+      "core": {
+        "Water": "62.4 g",
+        "Energy": "147.2 kcal",
+        "Protein": "5.2 g",
+        "Total Fat": "0.8 g",
+        "Carbohydrates": "28.8 g",
+        "Ethanol": "0 g"
+      },
+      "portions": [
+        {
+          "description": "1 cup",
+          "gramWeight": 157,
+          "isDefault": true
+        },
+        {
+          "description": "1 bowl",
+          "gramWeight": 250,
+          "isDefault": false
+        },
+        {
+          "description": "1 oz",
+          "gramWeight": 28,
+          "isDefault": false
+        },
+        {
+          "description": "1 g",
+          "gramWeight": 1,
+          "isDefault": false
+        }
+      ],
+      "body": {
+        "name": "Pasta, cooked",
+        "commonNames": [
+          "noodles"
+        ],
+        "metadata": {
+          "foodFamily": "Pasta",
+          "variety": null,
+          "part": null,
+          "preparation": "cooked",
+          "qualifiers": [],
+          "originType": "composite",
+          "isComposite": true,
+          "scientificName": null
+        },
+        "categoryPath": "Composite > Pasta & Noodles",
+        "sources": [
+          {
+            "apiSource": "FDC",
+            "apiFoodId": "169737",
+            "apiFoodName": "Pasta, cooked, enriched, without added salt"
+          },
+          {
+            "apiSource": "AFCD",
+            "apiFoodId": "F006456",
+            "apiFoodName": "Pasta, white wheat flour, boiled from dry, no added salt"
+          },
+          {
+            "apiSource": "UK_COFID",
+            "apiFoodId": "11-1129",
+            "apiFoodName": "Pasta, white, dried, boiled in unsalted water"
+          },
+          {
+            "apiSource": "CIQUAL",
+            "apiFoodId": "9811",
+            "apiFoodName": "Pasta, dry, regular, cooked, no added salt"
+          },
+          {
+            "apiSource": "BLS",
+            "apiFoodId": "E401032",
+            "apiFoodName": "Pasta egg-free, boiled"
+          },
+          {
+            "apiSource": "FRIDA",
+            "apiFoodId": "1296",
+            "apiFoodName": "Pasta, boiled"
+          },
+          {
+            "apiSource": "FINELI",
+            "apiFoodId": "30357",
+            "apiFoodName": "PASTA, SPAGHETTI, BOILED WITHOUT SALT"
+          },
+          {
+            "apiSource": "NEVO",
+            "apiFoodId": "659",
+            "apiFoodName": "Pasta white av boiled"
+          },
+          {
+            "apiSource": "MATVARETABELLEN",
+            "apiFoodId": "05.130",
+            "apiFoodName": "Pasta, plain, cooked"
+          },
+          {
+            "apiSource": "FOODFILES",
+            "apiFoodId": "E1064",
+            "apiFoodName": "Pasta, white wheat flour, assorted shapes, regular, boiled, drained, no salt added"
+          },
+          {
+            "apiSource": "MEXT",
+            "apiFoodId": "01064",
+            "apiFoodName": "Durum wheat, macaroni and spaghetti, dry pasta, boiled"
+          },
+          {
+            "apiSource": "KFCT",
+            "apiFoodId": "A0240020001b",
+            "apiFoodName": "Pasta, Spaghetti, Dry noodle, Boiled"
+          }
+        ],
+        "portions": [
+          {
+            "description": "1 cup",
+            "gramWeight": 157,
+            "isDefault": true
+          },
+          {
+            "description": "1 bowl",
+            "gramWeight": 250,
+            "isDefault": false
+          },
+          {
+            "description": "1 oz",
+            "gramWeight": 28,
+            "isDefault": false
+          },
+          {
+            "description": "1 g",
+            "gramWeight": 1,
+            "isDefault": false
+          }
+        ]
+      },
+      "ms": 39771
+    },
+    {
+      "query": "Blueberries, raw",
+      "status": "accepted",
+      "canonicalName": "Blueberries, raw",
+      "kept": [
+        {
+          "source": "CNF",
+          "name": "Blueberry, raw",
+          "values": 105,
+          "flags": 10
+        },
+        {
+          "source": "FDC",
+          "name": "Blueberries, raw",
+          "values": 30,
+          "flags": 2
+        },
+        {
+          "source": "AFCD",
+          "name": "Blueberry, raw",
+          "values": 36,
+          "flags": 4
+        },
+        {
+          "source": "CIQUAL",
+          "name": "Blueberry, raw",
+          "values": 46,
+          "flags": 6
+        },
+        {
+          "source": "BLS",
+          "name": "Blueberry raw",
+          "values": 87,
+          "flags": 17
+        },
+        {
+          "source": "FINELI",
+          "name": "BLUEBERRY, BILBERRY",
+          "values": 62,
+          "flags": 11
+        },
+        {
+          "source": "FOODFILES",
+          "name": "Blueberry, raw, composite",
+          "values": 117,
+          "flags": 13
+        }
+      ],
+      "dropped": [],
+      "unmatched": [],
+      "flaggedCompounds": 42,
+      "totalCompounds": 225,
+      "core": {
+        "Total Fat": "0.5 g",
+        "Protein": "0.7 g",
+        "Carbohydrates": "13.5 g",
+        "Energy": "54.1 kcal",
+        "Water": "84.7 g",
+        "Ethanol": "0 g"
+      },
+      "portions": [
+        {
+          "description": "1 cup",
+          "gramWeight": 148,
+          "isDefault": true
+        },
+        {
+          "description": "1 handful",
+          "gramWeight": 75,
+          "isDefault": false
+        },
+        {
+          "description": "1 oz",
+          "gramWeight": 28,
+          "isDefault": false
+        },
+        {
+          "description": "1 g",
+          "gramWeight": 1,
+          "isDefault": false
+        }
+      ],
+      "body": {
+        "name": "Blueberries, raw",
+        "commonNames": [
+          "bilberry",
+          "whortleberry"
+        ],
+        "metadata": {
+          "foodFamily": "Blueberry",
+          "variety": null,
+          "part": null,
+          "preparation": "raw",
+          "qualifiers": [],
+          "originType": "plant",
+          "isComposite": false,
+          "scientificName": "Vaccinium corymbosum"
+        },
+        "categoryPath": "Plant > Fruits > Berries",
+        "sources": [
+          {
+            "apiSource": "CNF",
+            "apiFoodId": "1705",
+            "apiFoodName": "Blueberry, raw"
+          },
+          {
+            "apiSource": "FDC",
+            "apiFoodId": "2346411",
+            "apiFoodName": "Blueberries, raw"
+          },
+          {
+            "apiSource": "AFCD",
+            "apiFoodId": "F001290",
+            "apiFoodName": "Blueberry, raw"
+          },
+          {
+            "apiSource": "CIQUAL",
+            "apiFoodId": "13028",
+            "apiFoodName": "Blueberry, raw"
+          },
+          {
+            "apiSource": "BLS",
+            "apiFoodId": "F304100",
+            "apiFoodName": "Blueberry raw"
+          },
+          {
+            "apiSource": "FINELI",
+            "apiFoodId": "442",
+            "apiFoodName": "BLUEBERRY, BILBERRY"
+          },
+          {
+            "apiSource": "FOODFILES",
+            "apiFoodId": "L1050",
+            "apiFoodName": "Blueberry, raw, composite"
+          }
+        ],
+        "portions": [
+          {
+            "description": "1 cup",
+            "gramWeight": 148,
+            "isDefault": true
+          },
+          {
+            "description": "1 handful",
+            "gramWeight": 75,
+            "isDefault": false
+          },
+          {
+            "description": "1 oz",
+            "gramWeight": 28,
+            "isDefault": false
+          },
+          {
+            "description": "1 g",
+            "gramWeight": 1,
+            "isDefault": false
+          }
+        ]
+      },
+      "ms": 22670
+    },
+    {
+      "query": "Honey",
+      "status": "accepted",
+      "canonicalName": "Honey",
+      "kept": [
+        {
+          "source": "CNF",
+          "name": "Sweets, honey, strained or extracted",
+          "values": 136,
+          "flags": 7
+        },
+        {
+          "source": "FDC",
+          "name": "Honey",
+          "values": 102,
+          "flags": 4
+        },
+        {
+          "source": "AFCD",
+          "name": "Honey",
+          "values": 29,
+          "flags": 2
+        },
+        {
+          "source": "UK_COFID",
+          "name": "Honey",
+          "values": 25,
+          "flags": 3
+        },
+        {
+          "source": "CIQUAL",
+          "name": "Honey",
+          "values": 33,
+          "flags": 3
+        },
+        {
+          "source": "BLS",
+          "name": "Honey",
+          "values": 36,
+          "flags": 8
+        },
+        {
+          "source": "FRIDA",
+          "name": "Honey",
+          "values": 52,
+          "flags": 5
+        },
+        {
+          "source": "FINELI",
+          "name": "HONEY",
+          "values": 33,
+          "flags": 5
+        },
+        {
+          "source": "NEVO",
+          "name": "Honey",
+          "values": 13,
+          "flags": 1
+        },
+        {
+          "source": "MATVARETABELLEN",
+          "name": "Honey",
+          "values": 20,
+          "flags": 1
+        },
+        {
+          "source": "FOODFILES",
+          "name": "Honey, multifloral, semi-solid, composite",
+          "values": 107,
+          "flags": 5
+        },
+        {
+          "source": "MEXT",
+          "name": "Honey",
+          "values": 51,
+          "flags": 6
+        },
+        {
+          "source": "KFCT",
+          "name": "Honey",
+          "values": 20,
+          "flags": 7
+        }
+      ],
+      "dropped": [],
+      "unmatched": [
+        "INDB"
+      ],
+      "flaggedCompounds": 31,
+      "totalCompounds": 284,
+      "core": {
+        "Total Fat": "0.1 g",
+        "Ethanol": "0 g",
+        "Protein": "0.4 g",
+        "Water": "17.7 g",
+        "Carbohydrates": "80.9 g",
+        "Energy": "311.2 kcal"
+      },
+      "portions": [
+        {
+          "description": "1 tbsp",
+          "gramWeight": 21,
+          "isDefault": true
+        },
+        {
+          "description": "1 tsp",
+          "gramWeight": 7,
+          "isDefault": false
+        },
+        {
+          "description": "1 cup",
+          "gramWeight": 339,
+          "isDefault": false
+        },
+        {
+          "description": "1 g",
+          "gramWeight": 1,
+          "isDefault": false
+        }
+      ],
+      "body": {
+        "name": "Honey",
+        "commonNames": [],
+        "metadata": {
+          "foodFamily": "Honey",
+          "variety": null,
+          "part": null,
+          "preparation": null,
+          "qualifiers": [],
+          "originType": "composite",
+          "isComposite": false,
+          "scientificName": null
+        },
+        "categoryPath": "Plant > Plant Sweeteners",
+        "sources": [
+          {
+            "apiSource": "CNF",
+            "apiFoodId": "4294",
+            "apiFoodName": "Sweets, honey, strained or extracted"
+          },
+          {
+            "apiSource": "FDC",
+            "apiFoodId": "169640",
+            "apiFoodName": "Honey"
+          },
+          {
+            "apiSource": "AFCD",
+            "apiFoodId": "F004380",
+            "apiFoodName": "Honey"
+          },
+          {
+            "apiSource": "UK_COFID",
+            "apiFoodId": "17-050",
+            "apiFoodName": "Honey"
+          },
+          {
+            "apiSource": "CIQUAL",
+            "apiFoodId": "31008",
+            "apiFoodName": "Honey"
+          },
+          {
+            "apiSource": "BLS",
+            "apiFoodId": "S120000",
+            "apiFoodName": "Honey"
+          },
+          {
+            "apiSource": "FRIDA",
+            "apiFoodId": "1176",
+            "apiFoodName": "Honey"
+          },
+          {
+            "apiSource": "FINELI",
+            "apiFoodId": "4",
+            "apiFoodName": "HONEY"
+          },
+          {
+            "apiSource": "NEVO",
+            "apiFoodId": "443",
+            "apiFoodName": "Honey"
+          },
+          {
+            "apiSource": "MATVARETABELLEN",
+            "apiFoodId": "09.003",
+            "apiFoodName": "Honey"
+          },
+          {
+            "apiSource": "FOODFILES",
+            "apiFoodId": "W1019",
+            "apiFoodName": "Honey, multifloral, semi-solid, composite"
+          },
+          {
+            "apiSource": "MEXT",
+            "apiFoodId": "03022",
+            "apiFoodName": "Honey"
+          },
+          {
+            "apiSource": "KFCT",
+            "apiFoodId": "C0030000009a",
+            "apiFoodName": "Honey"
+          }
+        ],
+        "portions": [
+          {
+            "description": "1 tbsp",
+            "gramWeight": 21,
+            "isDefault": true
+          },
+          {
+            "description": "1 tsp",
+            "gramWeight": 7,
+            "isDefault": false
+          },
+          {
+            "description": "1 cup",
+            "gramWeight": 339,
+            "isDefault": false
+          },
+          {
+            "description": "1 g",
+            "gramWeight": 1,
+            "isDefault": false
+          }
+        ]
+      },
+      "ms": 27222
+    },
+    {
+      "query": "Beer, regular",
+      "status": "accepted",
+      "canonicalName": "Beer, regular",
+      "kept": [
+        {
+          "source": "CNF",
+          "name": "Alcohol, beer, regular, (5% alcohol by volume)",
+          "values": 144,
+          "flags": 16
+        },
+        {
+          "source": "FDC",
+          "name": "Alcoholic beverage, beer, regular, all",
+          "values": 108,
+          "flags": 15
+        },
+        {
+          "source": "AFCD",
+          "name": "Beer, full strength (alcohol 4-4.9% v/v)",
+          "values": 32,
+          "flags": 2
+        },
+        {
+          "source": "UK_COFID",
+          "name": "Lager, standard",
+          "values": 24,
+          "flags": 1
+        },
+        {
+          "source": "CIQUAL",
+          "name": "Beer, regular (4-5° alcohol)",
+          "values": 31,
+          "flags": 2
+        },
+        {
+          "source": "FRIDA",
+          "name": "Beer, lager, alc. 4-5 % by vol.",
+          "values": 52,
+          "flags": 11
+        },
+        {
+          "source": "FINELI",
+          "name": "BEER, LAGER, MEDIUM STRENGTH, 4.5% VOLUME",
+          "values": 36,
+          "flags": 6
+        },
+        {
+          "source": "NEVO",
+          "name": "Beer pilsner",
+          "values": 17,
+          "flags": 3
+        },
+        {
+          "source": "MATVARETABELLEN",
+          "name": "Beer, 4,7 vol-% alcohol, Pilsner",
+          "values": 17,
+          "flags": 3
+        },
+        {
+          "source": "FOODFILES",
+          "name": "Beer, full-strength, 5% alcohol by volume, composite",
+          "values": 49,
+          "flags": 3
+        },
+        {
+          "source": "MEXT",
+          "name": "Fermented alcoholic beverage, beer, pale",
+          "values": 47,
+          "flags": 2
+        }
+      ],
+      "dropped": [],
+      "unmatched": [
+        "BLS",
+        "KFCT"
+      ],
+      "flaggedCompounds": 32,
+      "totalCompounds": 242,
+      "core": {
+        "Total Fat": "0 g",
+        "Protein": "0.4 g",
+        "Carbohydrates": "3.2 g",
+        "Ethanol": "3.6 g/100g",
+        "Energy": "36.8 kcal",
+        "Water": "92.6 g"
+      },
+      "portions": [
+        {
+          "description": "1 can (12 fl oz)",
+          "gramWeight": 355,
+          "isDefault": true
+        },
+        {
+          "description": "1 bottle (12 fl oz)",
+          "gramWeight": 355,
+          "isDefault": false
+        },
+        {
+          "description": "1 pint (16 fl oz)",
+          "gramWeight": 473,
+          "isDefault": false
+        },
+        {
+          "description": "1 cup",
+          "gramWeight": 237,
+          "isDefault": false
+        },
+        {
+          "description": "1 g",
+          "gramWeight": 1,
+          "isDefault": false
+        }
+      ],
+      "body": {
+        "name": "Beer, regular",
+        "commonNames": [
+          "lager",
+          "ale",
+          "pilsner"
+        ],
+        "metadata": {
+          "foodFamily": "Beer",
+          "variety": null,
+          "part": null,
+          "preparation": null,
+          "qualifiers": [
+            "regular strength"
+          ],
+          "originType": "composite",
+          "isComposite": true,
+          "scientificName": null
+        },
+        "categoryPath": "Composite > Beverages & Drinks",
+        "sources": [
+          {
+            "apiSource": "CNF",
+            "apiFoodId": "2943",
+            "apiFoodName": "Alcohol, beer, regular, (5% alcohol by volume)"
+          },
+          {
+            "apiSource": "FDC",
+            "apiFoodId": "168746",
+            "apiFoodName": "Alcoholic beverage, beer, regular, all"
+          },
+          {
+            "apiSource": "AFCD",
+            "apiFoodId": "F000994",
+            "apiFoodName": "Beer, full strength (alcohol 4-4.9% v/v)"
+          },
+          {
+            "apiSource": "UK_COFID",
+            "apiFoodId": "17-749",
+            "apiFoodName": "Lager, standard"
+          },
+          {
+            "apiSource": "CIQUAL",
+            "apiFoodId": "5001",
+            "apiFoodName": "Beer, regular (4-5° alcohol)"
+          },
+          {
+            "apiSource": "FRIDA",
+            "apiFoodId": "1905",
+            "apiFoodName": "Beer, lager, alc. 4-5 % by vol."
+          },
+          {
+            "apiSource": "FINELI",
+            "apiFoodId": "902",
+            "apiFoodName": "BEER, LAGER, MEDIUM STRENGTH, 4.5% VOLUME"
+          },
+          {
+            "apiSource": "NEVO",
+            "apiFoodId": "390",
+            "apiFoodName": "Beer pilsner"
+          },
+          {
+            "apiSource": "MATVARETABELLEN",
+            "apiFoodId": "13.024",
+            "apiFoodName": "Beer, 4,7 vol-% alcohol, Pilsner"
+          },
+          {
+            "apiSource": "FOODFILES",
+            "apiFoodId": "B1016",
+            "apiFoodName": "Beer, full-strength, 5% alcohol by volume, composite"
+          },
+          {
+            "apiSource": "MEXT",
+            "apiFoodId": "16006",
+            "apiFoodName": "Fermented alcoholic beverage, beer, pale"
+          }
+        ],
+        "portions": [
+          {
+            "description": "1 can (12 fl oz)",
+            "gramWeight": 355,
+            "isDefault": true
+          },
+          {
+            "description": "1 bottle (12 fl oz)",
+            "gramWeight": 355,
+            "isDefault": false
+          },
+          {
+            "description": "1 pint (16 fl oz)",
+            "gramWeight": 473,
+            "isDefault": false
+          },
+          {
+            "description": "1 cup",
+            "gramWeight": 237,
+            "isDefault": false
+          },
+          {
+            "description": "1 g",
+            "gramWeight": 1,
+            "isDefault": false
+          }
+        ]
+      },
+      "ms": 24965
+    },
+    {
+      "query": "Walnuts",
+      "status": "accepted",
+      "canonicalName": "Walnuts",
+      "kept": [
+        {
+          "source": "CNF",
+          "name": "Nuts, walnuts, English or Persian, dried",
+          "values": 123,
+          "flags": 6
+        },
+        {
+          "source": "FDC",
+          "name": "Nuts, walnuts, english",
+          "values": 120,
+          "flags": 4
+        },
+        {
+          "source": "UK_COFID",
+          "name": "Walnuts, kernel only",
+          "values": 64,
+          "flags": 11
+        },
+        {
+          "source": "FRIDA",
+          "name": "Walnuts, dried",
+          "values": 96,
+          "flags": 3
+        },
+        {
+          "source": "NEVO",
+          "name": "Walnuts unsalted",
+          "values": 53,
+          "flags": 11
+        },
+        {
+          "source": "MATVARETABELLEN",
+          "name": "Walnuts",
+          "values": 34,
+          "flags": 7
+        },
+        {
+          "source": "MEXT",
+          "name": "Walnuts, roasted",
+          "values": 75,
+          "flags": 2
+        }
+      ],
+      "dropped": [],
+      "unmatched": [
+        "CIQUAL"
+      ],
+      "flaggedCompounds": 25,
+      "totalCompounds": 226,
+      "core": {
+        "Ethanol": "0 g",
+        "Water": "4.3 g",
+        "Carbohydrates": "10.4 g",
+        "Protein": "14.6 g",
+        "Total Fat": "67.3 g",
+        "Energy": "687.3 kcal"
+      },
+      "portions": [
+        {
+          "description": "1 oz",
+          "gramWeight": 28,
+          "isDefault": true
+        },
+        {
+          "description": "1 handful",
+          "gramWeight": 23,
+          "isDefault": false
+        },
+        {
+          "description": "1 cup",
+          "gramWeight": 120,
+          "isDefault": false
+        },
+        {
+          "description": "1 g",
+          "gramWeight": 1,
+          "isDefault": false
+        }
+      ],
+      "body": {
+        "name": "Walnuts",
+        "commonNames": [],
+        "metadata": {
+          "foodFamily": "Walnut",
+          "variety": null,
+          "part": null,
+          "preparation": null,
+          "qualifiers": [],
+          "originType": "plant",
+          "isComposite": false,
+          "scientificName": "Juglans regia"
+        },
+        "categoryPath": "Plant > Nuts & Seeds > Tree Nuts",
+        "sources": [
+          {
+            "apiSource": "CNF",
+            "apiFoodId": "2590",
+            "apiFoodName": "Nuts, walnuts, English or Persian, dried"
+          },
+          {
+            "apiSource": "FDC",
+            "apiFoodId": "170187",
+            "apiFoodName": "Nuts, walnuts, english"
+          },
+          {
+            "apiSource": "UK_COFID",
+            "apiFoodId": "14-879",
+            "apiFoodName": "Walnuts, kernel only"
+          },
+          {
+            "apiSource": "FRIDA",
+            "apiFoodId": "647",
+            "apiFoodName": "Walnuts, dried"
+          },
+          {
+            "apiSource": "NEVO",
+            "apiFoodId": "206",
+            "apiFoodName": "Walnuts unsalted"
+          },
+          {
+            "apiSource": "MATVARETABELLEN",
+            "apiFoodId": "06.560",
+            "apiFoodName": "Walnuts"
+          },
+          {
+            "apiSource": "MEXT",
+            "apiFoodId": "05014",
+            "apiFoodName": "Walnuts, roasted"
+          }
+        ],
+        "portions": [
+          {
+            "description": "1 oz",
+            "gramWeight": 28,
+            "isDefault": true
+          },
+          {
+            "description": "1 handful",
+            "gramWeight": 23,
+            "isDefault": false
+          },
+          {
+            "description": "1 cup",
+            "gramWeight": 120,
+            "isDefault": false
+          },
+          {
+            "description": "1 g",
+            "gramWeight": 1,
+            "isDefault": false
+          }
+        ]
+      },
+      "ms": 11615
+    },
+    {
+      "query": "Cucumber, raw",
+      "status": "accepted",
+      "canonicalName": "Cucumber, raw",
+      "kept": [
+        {
+          "source": "CNF",
+          "name": "Cucumber, raw",
+          "values": 119,
+          "flags": 8
+        },
+        {
+          "source": "FDC",
+          "name": "Cucumber, with peel, raw",
+          "values": 26,
+          "flags": 3
+        },
+        {
+          "source": "AFCD",
+          "name": "Cucumber, common, unpeeled, raw",
+          "values": 48,
+          "flags": 7
+        },
+        {
+          "source": "UK_COFID",
+          "name": "Cucumber, raw, flesh and skin",
+          "values": 45,
+          "flags": 5
+        },
+        {
+          "source": "CIQUAL",
+          "name": "Cucumber, flesh and skin, raw",
+          "values": 51,
+          "flags": 2
+        },
+        {
+          "source": "BLS",
+          "name": "Cucumber raw",
+          "values": 78,
+          "flags": 13
+        },
+        {
+          "source": "FRIDA",
+          "name": "Cucumber, raw",
+          "values": 96,
+          "flags": 13
+        },
+        {
+          "source": "FINELI",
+          "name": "CUCUMBER",
+          "values": 59,
+          "flags": 10
+        },
+        {
+          "source": "NEVO",
+          "name": "Cucumber w skin raw",
+          "values": 25,
+          "flags": 3
+        },
+        {
+          "source": "MATVARETABELLEN",
+          "name": "Cucumber, Norwegian, raw",
+          "values": 23,
+          "flags": 6
+        },
+        {
+          "source": "FOODFILES",
+          "name": "Cucumber, fruit vegetable, fruit, unpeeled, raw, telegraph",
+          "values": 59,
+          "flags": 8
+        },
+        {
+          "source": "MEXT",
+          "name": "Cucumber, fruit, raw",
+          "values": 73,
+          "flags": 27
+        },
+        {
+          "source": "KFCT",
+          "name": "Cucumber(Cucumis sativus L.), Improved, Raw",
+          "values": 24,
+          "flags": 4
+        }
+      ],
+      "dropped": [],
+      "unmatched": [
+        "INDB",
+        "ASEANFOODS"
+      ],
+      "flaggedCompounds": 58,
+      "totalCompounds": 263,
+      "core": {
+        "Ethanol": "0 g",
+        "Total Fat": "0.2 g",
+        "Protein": "0.8 g",
+        "Carbohydrates": "2.7 g",
+        "Energy": "13.5 kcal",
+        "Water": "96 g"
+      },
+      "portions": [
+        {
+          "description": "1 medium cucumber",
+          "gramWeight": 301,
+          "isDefault": true
+        },
+        {
+          "description": "1 large cucumber",
+          "gramWeight": 405,
+          "isDefault": false
+        },
+        {
+          "description": "1 small cucumber",
+          "gramWeight": 150,
+          "isDefault": false
+        },
+        {
+          "description": "1 slice (¼ inch)",
+          "gramWeight": 30,
+          "isDefault": false
+        },
+        {
+          "description": "1 g",
+          "gramWeight": 1,
+          "isDefault": false
+        }
+      ],
+      "body": {
+        "name": "Cucumber, raw",
+        "commonNames": [],
+        "metadata": {
+          "foodFamily": "Cucumber",
+          "variety": null,
+          "part": null,
+          "preparation": "raw",
+          "qualifiers": [],
+          "originType": "plant",
+          "isComposite": false,
+          "scientificName": "Cucumis sativus"
+        },
+        "categoryPath": "Plant > Vegetables > Squash & Gourds",
+        "sources": [
+          {
+            "apiSource": "CNF",
+            "apiFoodId": "2363",
+            "apiFoodName": "Cucumber, raw"
+          },
+          {
+            "apiSource": "FDC",
+            "apiFoodId": "2346406",
+            "apiFoodName": "Cucumber, with peel, raw"
+          },
+          {
+            "apiSource": "AFCD",
+            "apiFoodId": "F003320",
+            "apiFoodName": "Cucumber, common, unpeeled, raw"
+          },
+          {
+            "apiSource": "UK_COFID",
+            "apiFoodId": "13-523",
+            "apiFoodName": "Cucumber, raw, flesh and skin"
+          },
+          {
+            "apiSource": "CIQUAL",
+            "apiFoodId": "20019",
+            "apiFoodName": "Cucumber, flesh and skin, raw"
+          },
+          {
+            "apiSource": "BLS",
+            "apiFoodId": "G520100",
+            "apiFoodName": "Cucumber raw"
+          },
+          {
+            "apiSource": "FRIDA",
+            "apiFoodId": "388",
+            "apiFoodName": "Cucumber, raw"
+          },
+          {
+            "apiSource": "FINELI",
+            "apiFoodId": "346",
+            "apiFoodName": "CUCUMBER"
+          },
+          {
+            "apiSource": "NEVO",
+            "apiFoodId": "2739",
+            "apiFoodName": "Cucumber w skin raw"
+          },
+          {
+            "apiSource": "MATVARETABELLEN",
+            "apiFoodId": "06.010",
+            "apiFoodName": "Cucumber, Norwegian, raw"
+          },
+          {
+            "apiSource": "FOODFILES",
+            "apiFoodId": "X1052",
+            "apiFoodName": "Cucumber, fruit vegetable, fruit, unpeeled, raw, telegraph"
+          },
+          {
+            "apiSource": "MEXT",
+            "apiFoodId": "06065",
+            "apiFoodName": "Cucumber, fruit, raw"
+          },
+          {
+            "apiSource": "KFCT",
+            "apiFoodId": "F1480020000a",
+            "apiFoodName": "Cucumber(Cucumis sativus L.), Improved, Raw"
+          }
+        ],
+        "portions": [
+          {
+            "description": "1 medium cucumber",
+            "gramWeight": 301,
+            "isDefault": true
+          },
+          {
+            "description": "1 large cucumber",
+            "gramWeight": 405,
+            "isDefault": false
+          },
+          {
+            "description": "1 small cucumber",
+            "gramWeight": 150,
+            "isDefault": false
+          },
+          {
+            "description": "1 slice (¼ inch)",
+            "gramWeight": 30,
+            "isDefault": false
+          },
+          {
+            "description": "1 g",
+            "gramWeight": 1,
+            "isDefault": false
+          }
+        ]
+      },
+      "ms": 23237
+    },
+    {
+      "query": "Bread, white",
+      "status": "accepted",
+      "canonicalName": "Bread, white",
+      "kept": [
+        {
+          "source": "CNF",
+          "name": "Bread, white, commercial",
+          "values": 116,
+          "flags": 34
+        },
+        {
+          "source": "FDC",
+          "name": "Bread, white, commercial",
+          "values": 19,
+          "flags": 5
+        },
+        {
+          "source": "AFCD",
+          "name": "Bread, from white flour",
+          "values": 80,
+          "flags": 7
+        },
+        {
+          "source": "UK_COFID",
+          "name": "Bread, white, average",
+          "values": 34,
+          "flags": 3
+        },
+        {
+          "source": "CIQUAL",
+          "name": "Bread (average)",
+          "values": 61,
+          "flags": 8
+        },
+        {
+          "source": "BLS",
+          "name": "White bread/wheat bread",
+          "values": 88,
+          "flags": 4
+        },
+        {
+          "source": "FRIDA",
+          "name": "Bread, white",
+          "values": 83,
+          "flags": 7
+        },
+        {
+          "source": "FINELI",
+          "name": "WHITE BREAD, WHEAT BREAD, FRENCH BREAD, INDUSTRIAL",
+          "values": 58,
+          "flags": 17
+        },
+        {
+          "source": "NEVO",
+          "name": "Wheat bread white water based",
+          "values": 31,
+          "flags": 8
+        },
+        {
+          "source": "MATVARETABELLEN",
+          "name": "Bread, white (0-25 %), industrially made",
+          "values": 47,
+          "flags": 9
+        },
+        {
+          "source": "FOODFILES",
+          "name": "Bread, from white wheat flour, sliced, prepacked, as purchased, commercial, composite",
+          "values": 163,
+          "flags": 8
+        },
+        {
+          "source": "MEXT",
+          "name": "Common wheat, bread, white",
+          "values": 94,
+          "flags": 12
+        },
+        {
+          "source": "KFCT",
+          "name": "Loaf bread",
+          "values": 20,
+          "flags": 3
+        }
+      ],
+      "dropped": [],
+      "unmatched": [
+        "INDB"
+      ],
+      "flaggedCompounds": 66,
+      "totalCompounds": 372,
+      "core": {
+        "Ethanol": "0 g",
+        "Total Fat": "2.5 g",
+        "Protein": "8.7 g",
+        "Water": "35.9 g",
+        "Carbohydrates": "50.4 g",
+        "Energy": "257.6 kcal"
+      },
+      "portions": [
+        {
+          "description": "1 slice",
+          "gramWeight": 28,
+          "isDefault": true
+        },
+        {
+          "description": "1 oz",
+          "gramWeight": 28,
+          "isDefault": false
+        },
+        {
+          "description": "1 small loaf",
+          "gramWeight": 340,
+          "isDefault": false
+        },
+        {
+          "description": "1 g",
+          "gramWeight": 1,
+          "isDefault": false
+        }
+      ],
+      "body": {
+        "name": "Bread, white",
+        "commonNames": [
+          "white loaf",
+          "sandwich bread"
+        ],
+        "metadata": {
+          "foodFamily": "Bread",
+          "variety": "white",
+          "part": null,
+          "preparation": null,
+          "qualifiers": [],
+          "originType": "composite",
+          "isComposite": true,
+          "scientificName": null
+        },
+        "categoryPath": "Composite > Baked Goods",
+        "sources": [
+          {
+            "apiSource": "CNF",
+            "apiFoodId": "4066",
+            "apiFoodName": "Bread, white, commercial"
+          },
+          {
+            "apiSource": "FDC",
+            "apiFoodId": "2758993",
+            "apiFoodName": "Bread, white, commercial"
+          },
+          {
+            "apiSource": "AFCD",
+            "apiFoodId": "F001463",
+            "apiFoodName": "Bread, from white flour"
+          },
+          {
+            "apiSource": "UK_COFID",
+            "apiFoodId": "11-1145",
+            "apiFoodName": "Bread, white, average"
+          },
+          {
+            "apiSource": "CIQUAL",
+            "apiFoodId": "7000",
+            "apiFoodName": "Bread (average)"
+          },
+          {
+            "apiSource": "BLS",
+            "apiFoodId": "B311000",
+            "apiFoodName": "White bread/wheat bread"
+          },
+          {
+            "apiSource": "FRIDA",
+            "apiFoodId": "676",
+            "apiFoodName": "Bread, white"
+          },
+          {
+            "apiSource": "FINELI",
+            "apiFoodId": "1309",
+            "apiFoodName": "WHITE BREAD, WHEAT BREAD, FRENCH BREAD, INDUSTRIAL"
+          },
+          {
+            "apiSource": "NEVO",
+            "apiFoodId": "248",
+            "apiFoodName": "Wheat bread white water based"
+          },
+          {
+            "apiSource": "MATVARETABELLEN",
+            "apiFoodId": "05.060",
+            "apiFoodName": "Bread, white (0-25 %), industrially made"
+          },
+          {
+            "apiSource": "FOODFILES",
+            "apiFoodId": "A1161",
+            "apiFoodName": "Bread, from white wheat flour, sliced, prepacked, as purchased, commercial, composite"
+          },
+          {
+            "apiSource": "MEXT",
+            "apiFoodId": "01026",
+            "apiFoodName": "Common wheat, bread, white"
+          },
+          {
+            "apiSource": "KFCT",
+            "apiFoodId": "A0210120009a",
+            "apiFoodName": "Loaf bread"
+          }
+        ],
+        "portions": [
+          {
+            "description": "1 slice",
+            "gramWeight": 28,
+            "isDefault": true
+          },
+          {
+            "description": "1 oz",
+            "gramWeight": 28,
+            "isDefault": false
+          },
+          {
+            "description": "1 small loaf",
+            "gramWeight": 340,
+            "isDefault": false
+          },
+          {
+            "description": "1 g",
+            "gramWeight": 1,
+            "isDefault": false
+          }
+        ]
+      },
+      "ms": 33063
+    },
+    {
+      "query": "Milk, semi-skimmed",
+      "status": "accepted",
+      "canonicalName": "Milk, semi-skimmed",
+      "kept": [
+        {
+          "source": "CNF",
+          "name": "Milk, fluid, partly skimmed, 2% M.F.",
+          "values": 123,
+          "flags": 11
+        },
+        {
+          "source": "FDC",
+          "name": "Milk, reduced fat, fluid, 2% milkfat, without added vitamin A and vitamin D",
+          "values": 135,
+          "flags": 10
+        },
+        {
+          "source": "AFCD",
+          "name": "Milk, cow, fluid, reduced fat (~1.5%), added omega 3 polyunsaturates",
+          "values": 99,
+          "flags": 27
+        },
+        {
+          "source": "UK_COFID",
+          "name": "Milk, semi-skimmed, pasteurised, average",
+          "values": 74,
+          "flags": 4
+        },
+        {
+          "source": "CIQUAL",
+          "name": "Milk, semi-skimmed (average)",
+          "values": 59,
+          "flags": 6
+        },
+        {
+          "source": "BLS",
+          "name": "Milk low-fat, fresh, 1.5 % fat, pasteurised",
+          "values": 95,
+          "flags": 8
+        },
+        {
+          "source": "FRIDA",
+          "name": "Milk, partly skimmed, konventional (not organic), 1.5 % fat",
+          "values": 115,
+          "flags": 2
+        },
+        {
+          "source": "FINELI",
+          "name": "MILK, 1.5% FAT, 1 UG ADDED VITAMIN D",
+          "values": 56,
+          "flags": 4
+        },
+        {
+          "source": "NEVO",
+          "name": "Milk semi-skimmed",
+          "values": 29,
+          "flags": 2
+        },
+        {
+          "source": "MATVARETABELLEN",
+          "name": "Milk, semi-skimmed, unspecified",
+          "values": 36,
+          "flags": 6
+        },
+        {
+          "source": "FOODFILES",
+          "name": "Milk, cow, lite (1.5% fat), fluid, fresh, composite",
+          "values": 192,
+          "flags": 4
+        },
+        {
+          "source": "MEXT",
+          "name": "Liquid milk, containing recombined milk, low fat",
+          "values": 92,
+          "flags": 11
+        }
+      ],
+      "dropped": [],
+      "unmatched": [
+        "KFCT",
+        "INDB",
+        "ASEANFOODS"
+      ],
+      "flaggedCompounds": 53,
+      "totalCompounds": 462,
+      "core": {
+        "Ethanol": "0 g",
+        "Total Fat": "1.4 g",
+        "Protein": "3.4 g",
+        "Carbohydrates": "4.9 g",
+        "Energy": "46.5 kcal",
+        "Water": "89.3 g"
+      },
+      "portions": [
+        {
+          "description": "1 cup",
+          "gramWeight": 242,
+          "isDefault": true
+        },
+        {
+          "description": "1 mL",
+          "gramWeight": 1,
+          "isDefault": false
+        },
+        {
+          "description": "1 tbsp",
+          "gramWeight": 15,
+          "isDefault": false
+        },
+        {
+          "description": "1 g",
+          "gramWeight": 1,
+          "isDefault": false
+        }
+      ],
+      "body": {
+        "name": "Milk, semi-skimmed",
+        "commonNames": [
+          "semi-skimmed milk",
+          "2% milk",
+          "reduced-fat milk"
+        ],
+        "metadata": {
+          "foodFamily": "Milk",
+          "variety": null,
+          "part": null,
+          "preparation": null,
+          "qualifiers": [
+            "semi-skimmed"
+          ],
+          "originType": "animal",
+          "isComposite": false,
+          "scientificName": null
+        },
+        "categoryPath": "Animal > Dairy > Milk",
+        "sources": [
+          {
+            "apiSource": "CNF",
+            "apiFoodId": "61",
+            "apiFoodName": "Milk, fluid, partly skimmed, 2% M.F."
+          },
+          {
+            "apiSource": "FDC",
+            "apiFoodId": "172205",
+            "apiFoodName": "Milk, reduced fat, fluid, 2% milkfat, without added vitamin A and vitamin D"
+          },
+          {
+            "apiSource": "AFCD",
+            "apiFoodId": "F005621",
+            "apiFoodName": "Milk, cow, fluid, reduced fat (~1.5%), added omega 3 polyunsaturates"
+          },
+          {
+            "apiSource": "UK_COFID",
+            "apiFoodId": "12-313",
+            "apiFoodName": "Milk, semi-skimmed, pasteurised, average"
+          },
+          {
+            "apiSource": "CIQUAL",
+            "apiFoodId": "19033",
+            "apiFoodName": "Milk, semi-skimmed (average)"
+          },
+          {
+            "apiSource": "BLS",
+            "apiFoodId": "M111200",
+            "apiFoodName": "Milk low-fat, fresh, 1.5 % fat, pasteurised"
+          },
+          {
+            "apiSource": "FRIDA",
+            "apiFoodId": "33",
+            "apiFoodName": "Milk, partly skimmed, konventional (not organic), 1.5 % fat"
+          },
+          {
+            "apiSource": "FINELI",
+            "apiFoodId": "684",
+            "apiFoodName": "MILK, 1.5% FAT, 1 UG ADDED VITAMIN D"
+          },
+          {
+            "apiSource": "NEVO",
+            "apiFoodId": "286",
+            "apiFoodName": "Milk semi-skimmed"
+          },
+          {
+            "apiSource": "MATVARETABELLEN",
+            "apiFoodId": "01.292",
+            "apiFoodName": "Milk, semi-skimmed, unspecified"
+          },
+          {
+            "apiSource": "FOODFILES",
+            "apiFoodId": "F1111",
+            "apiFoodName": "Milk, cow, lite (1.5% fat), fluid, fresh, composite"
+          },
+          {
+            "apiSource": "MEXT",
+            "apiFoodId": "13005",
+            "apiFoodName": "Liquid milk, containing recombined milk, low fat"
+          }
+        ],
+        "portions": [
+          {
+            "description": "1 cup",
+            "gramWeight": 242,
+            "isDefault": true
+          },
+          {
+            "description": "1 mL",
+            "gramWeight": 1,
+            "isDefault": false
+          },
+          {
+            "description": "1 tbsp",
+            "gramWeight": 15,
+            "isDefault": false
+          },
+          {
+            "description": "1 g",
+            "gramWeight": 1,
+            "isDefault": false
+          }
+        ]
+      },
+      "ms": 38620
+    }
+  ]
+}

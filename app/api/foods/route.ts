@@ -21,8 +21,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { db } from '@/db';
-import { foods, foodSources, mergedNutrients, nutrientSourceValues, foodApprovals, foodPortions, foodCategories } from '@/db/schema';
-import { eq, and } from 'drizzle-orm';
+import { foods, foodSources, mergedNutrients, nutrientSourceValues, foodApprovals, foodPortions, foodCategories, compounds } from '@/db/schema';
+import { eq, and, inArray } from 'drizzle-orm';
 import { cnfClient } from '@/lib/services/cnf-client';
 import { usdaClient } from '@/lib/services/usda-client';
 import { foodbStagingClient } from '@/lib/services/foodb-client';
@@ -47,6 +47,9 @@ import { withRetry } from '@/lib/services/http-retry';
 import { analyzeCompound, type CompoundAnalysis } from '@/lib/food-health/outliers';
 import { mergeCompoundValues, type Excluded } from '@/lib/food-health/merge';
 import { requireAdmin } from '@/lib/auth/api-guard';
+
+/** Proximates that identify what a food is. See `coreFindings` in the dry-run preview. */
+const CORE_COMPOUNDS = new Set(['Energy', 'Water', 'Protein', 'Total Fat', 'Carbohydrates', 'Ethanol']);
 
 /**
  * Request body schema
@@ -177,6 +180,10 @@ interface ProgressEvent {
     flaggedCompounds: number;
     totalCompounds: number;
     findings: CompoundAnalysis[];
+    /** Findings on the proximates that identify a food, labelled by compound name, never truncated. */
+    coreFindings: CompoundAnalysis[];
+    /** The merged per-100 g value of each of those proximates. */
+    coreValues: Array<{ compound: string; value: number; unit: string | null }>;
     /**
      * Values the merge refused to average, with the reason. Shown in review so a
      * held-out value is a visible decision rather than a silent omission.
@@ -1092,6 +1099,19 @@ export async function POST(request: NextRequest): Promise<Response> {
           );
 
         const flagged = analyses.filter((a) => a.flags.length > 0);
+
+        // Merged rows keep the source's label ("Energy (kcal)", "Alcohol"), so find
+        // the core compounds by id, not by name.
+        const coreRows = await db
+          .select({ id: compounds.id, name: compounds.name })
+          .from(compounds)
+          .where(inArray(compounds.name, [...CORE_COMPOUNDS]));
+        const coreNameById = new Map(coreRows.map((c) => [c.id, c.name]));
+        const coreByLabel = new Map(
+          mergedNutrientsData
+            .filter((m) => m.compoundId && coreNameById.has(m.compoundId))
+            .map((m) => [m.nutrientName, coreNameById.get(m.compoundId!)!])
+        );
         const severityRank = { high: 0, medium: 1, low: 2 } as const;
         flagged.sort(
           (a, b) =>
@@ -1151,6 +1171,18 @@ export async function POST(request: NextRequest): Promise<Response> {
               flaggedCompounds: flagged.length,
               totalCompounds: mergedNutrientsData.length,
               findings: flagged.slice(0, 60),
+              // The basics, never cut off by the 60 above: a source that disagrees on
+              // these is matched to a different food (dry vs cooked, a dish vs an
+              // ingredient), whereas micronutrient disagreement is often real
+              // (fortification, soil, season). The bulk importer drops on these.
+              coreFindings: flagged
+                .filter((a) => coreByLabel.has(a.compound))
+                .map((a) => ({ ...a, compound: coreByLabel.get(a.compound)! })),
+              // What the food would store for those basics, per 100 g — to check
+              // against a reference before anything is written.
+              coreValues: mergedNutrientsData
+                .filter((m) => coreByLabel.has(m.nutrientName))
+                .map((m) => ({ compound: coreByLabel.get(m.nutrientName)!, value: m.averageValue, unit: m.unit })),
               excludedValues: mergeExclusions.flatMap((e) =>
                 e.excluded.map((x) => ({
                   nutrientName: e.nutrientName,
