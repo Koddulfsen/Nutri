@@ -3,13 +3,28 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { apiUrl } from '@/lib/utils/base-path';
 import type { CompoundBreakdown, FoodBreakdown } from '@/lib/services/compound-breakdown-service';
+import type { DvValue } from '@/lib/nutrition/totals';
 
 interface CompoundTooltipProps {
   compoundId: string;
   compoundName: string;
   mealIds: string[];
+  /**
+   * The resolved daily value, so the tooltip can say where the target came from.
+   *
+   * Everything below the bar answers "what did I eat"; this answers "says who". The distinction is the
+   * point of the whole source audit (dv-sources/PROVENANCE.md): a target that ten national authorities
+   * agree on and a target one book asserts are different claims, and they should not look identical.
+   */
+  dailyValue?: DvValue | null;
   children: React.ReactNode;
 }
+
+/** How a body's region code is written for a person rather than for the database. */
+const BODY_NAMES: Record<string, string> = {
+  USA_CANADA: 'US/Canada', EU: 'EFSA', WHO_FAO: 'WHO/FAO', JAPAN: 'Japan', CHINA: 'China',
+  KOREA: 'Korea', UK: 'UK', DACH: 'Germany/Austria/Switzerland', RUSSIA: 'Russia', INDIA: 'India',
+};
 
 // Confidence tier badge component
 function ConfidenceBadge({ tier, confidence }: { tier: 1 | 2 | 3; confidence: number }) {
@@ -36,6 +51,7 @@ export default function CompoundTooltip({
   compoundId,
   compoundName,
   mealIds,
+  dailyValue,
   children,
 }: CompoundTooltipProps) {
   const [isVisible, setIsVisible] = useState(false);
@@ -160,6 +176,58 @@ export default function CompoundTooltip({
             <div className="tooltip-empty">Not in selected meals</div>
           )}
 
+          {dailyValue && (
+            <div className="tooltip-dv">
+              <div className="dv-target">
+                <span className="dv-label">Target</span>
+                <span className="dv-value">
+                  {formatValue(dailyValue.value, dailyValue.unit)}
+                  {dailyValue.sourceCount ? (
+                    <span className="dv-bodies">
+                      {' '}· median of {dailyValue.sourceCount}{' '}
+                      {dailyValue.sourceCount === 1 ? 'authority' : 'authorities'}
+                    </span>
+                  ) : null}
+                </span>
+              </div>
+
+              {/* One body is not a consensus, and the bar should not imply it is. */}
+              {dailyValue.sourceCount === 1 && dailyValue.sources?.[0] && (
+                <div className="dv-caution">
+                  Only {BODY_NAMES[dailyValue.sources[0]] ?? dailyValue.sources[0]} publishes a value for this.
+                </div>
+              )}
+
+              {dailyValue.spread && dailyValue.spread[0] !== dailyValue.spread[1] && (
+                <div className="dv-spread">
+                  They range from {formatValue(dailyValue.spread[0], dailyValue.unit)} to{' '}
+                  {formatValue(dailyValue.spread[1], dailyValue.unit)}
+                </div>
+              )}
+
+              {dailyValue.sources && dailyValue.sources.length > 0 && (
+                <div className="dv-sources">
+                  {dailyValue.sources.map((r) => BODY_NAMES[r] ?? r).join(' · ')}
+                </div>
+              )}
+
+              {dailyValue.upperLimit != null && (
+                <div className="dv-limit">
+                  Upper limit {formatValue(dailyValue.upperLimit, dailyValue.upperLimitUnit ?? dailyValue.unit)}
+                </div>
+              )}
+
+              {/* Stated apart, and never as a limit on food: several bodies set this one only for
+                  supplements and fortified foods, and showing it against a meal would be wrong. */}
+              {dailyValue.supplementLimit && (
+                <div className="dv-limit dv-limit--supplement">
+                  {formatValue(dailyValue.supplementLimit.value, dailyValue.supplementLimit.unit)} limit applies to
+                  supplements and fortified foods only — not to food
+                </div>
+              )}
+            </div>
+          )}
+
           {breakdown && breakdown.foods.length > 0 && (
             <div className="tooltip-content">
               {/* Total row */}
@@ -204,6 +272,50 @@ export default function CompoundTooltip({
           )}
 
           <style jsx>{`
+            .tooltip-dv {
+              padding: 8px 10px;
+              border-bottom: 1px solid rgba(46, 26, 14, 0.12);
+              display: flex;
+              flex-direction: column;
+              gap: 3px;
+            }
+            .dv-target {
+              display: flex;
+              justify-content: space-between;
+              align-items: baseline;
+              gap: 10px;
+            }
+            .dv-label {
+              font-size: 11px;
+              text-transform: uppercase;
+              letter-spacing: 0.04em;
+              opacity: 0.6;
+            }
+            .dv-value {
+              font-size: 13px;
+              font-weight: 500;
+            }
+            .dv-bodies {
+              font-weight: 400;
+              opacity: 0.65;
+            }
+            .dv-spread,
+            .dv-sources,
+            .dv-limit,
+            .dv-caution {
+              font-size: 11px;
+              line-height: 1.35;
+              opacity: 0.7;
+            }
+            .dv-sources {
+              opacity: 0.5;
+            }
+            .dv-caution {
+              opacity: 0.85;
+            }
+            .dv-limit--supplement {
+              opacity: 0.85;
+            }
             .compound-tooltip {
               background: #fff7f4;
               color: #2e1a0e;

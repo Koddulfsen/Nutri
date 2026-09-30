@@ -271,7 +271,12 @@ export function AnalysisCard({
           </span>
           <span className="ac-bar">
             {row.compound && (
-              <CompoundTooltip compoundId={row.compound.id} compoundName={row.compound.name} mealIds={selectedMealIds}>
+              <CompoundTooltip
+                compoundId={row.compound.id}
+                compoundName={row.compound.name}
+                mealIds={selectedMealIds}
+                dailyValue={data?.dailyValue ?? null}
+              >
                 <DvBar rdaPercent={data?.rdaPercent ?? null} dailyValue={data?.dailyValue ?? null} />
               </CompoundTooltip>
             )}
