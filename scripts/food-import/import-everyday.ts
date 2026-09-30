@@ -215,6 +215,9 @@ async function importOne(query: string, existing: Set<string>): Promise<FoodResu
   // Clarify sometimes asks ("raw or roasted?"). The names in the list already
   // say what's meant, so take its canonical name and go on.
   const clarify = await postJson('/api/ai/clarify', { query });
+  // clarify hides an AI failure (no credits, outage) behind a fallback. Every
+  // later step needs the AI too, so stop the run rather than error each food.
+  if (clarify.fallback) throw new Error('AI unavailable: clarify fell back');
   const name: string = clarify.canonicalName || query;
   if (existing.has(name.toLowerCase())) return done({ status: 'exists', canonicalName: name });
 
@@ -364,9 +367,9 @@ async function runLists() {
           const reason = err instanceof Error ? err.message : String(err);
           // The server went away: stop rather than mark every remaining food
           // as an error. A rerun resumes from here.
-          if (/fetch failed|terminated|ECONNREFUSED/.test(reason)) {
+          if (/fetch failed|terminated|ECONNREFUSED|AI unavailable/.test(reason)) {
             serverDown = true;
-            process.stderr.write(`  server unreachable (${reason}) — stopping; rerun to resume\n`);
+            process.stderr.write(`  stopping: ${reason} — rerun to resume\n`);
             break;
           }
           r = { query: q, status: 'error', reason, ms: 0 };
