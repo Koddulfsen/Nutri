@@ -10,6 +10,7 @@ import SmartAddFoodModal from '@/app/components/modals/SmartAddFoodModal';
 import FoodLogChat, { type ChatFoodToAdd } from './FoodLogChat';
 import DvSourceSelector from './components/DvSourceSelector';
 import SymptomDropdown from './components/SymptomDropdown';
+import BodyProfile from './components/BodyProfile';
 import { useDateNavigation } from '@/lib/hooks/useDateNavigation';
 import { useDebouncedValue } from '@/lib/hooks/useDebouncedValue';
 import { WeekStrip } from '@/app/components/calendar/WeekStrip';
@@ -1551,6 +1552,12 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
                         <option value="VERY_ACTIVE">Very Active</option>
                       </select>
                     </div>
+                    </div>
+                    {/* Body weight and life stage. Unlike the age/sex/activity controls above, which are
+                        local what-if state, these persist to the profile — they are the user's own, and
+                        several targets are published per kilogram of body weight. */}
+                    <div className="picker-profile">
+                      <BodyProfile onChange={() => fetchDailyTotals(selectedDate)} />
                     </div>
                   </div>
                 </div>
