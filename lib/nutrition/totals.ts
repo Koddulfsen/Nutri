@@ -88,7 +88,31 @@ export function aggregateTotals(
         };
         byCompound.set(row.compoundId, total);
       }
-      total.amount += row.value * multiplier;
+      const contribution = row.value * multiplier;
+
+      // Foods do not agree on units. `merged_nutrients` stores each compound in whatever unit that
+      // food's own sources used, and 15 compounds are currently stored in more than one across foods —
+      // biotin in both `g` and `µg`, B12 in both. Adding those numbers together treats a gram as a
+      // microgram, and taking the label from whichever row arrived first can multiply a whole day's
+      // intake by a million on the way to the bar.
+      if (row.unit !== total.unit) {
+        // Nothing real has been added yet, so there is no quantity to preserve and the incoming unit is
+        // the better label. This is the common case: a food with no data for a compound stores 0 in `g`,
+        // and that zero should not decide how the foods that DO have data are read.
+        if (total.amount === 0) {
+          total.unit = row.unit;
+          total.amount = contribution;
+          continue;
+        }
+        const converted = convertToUnit(contribution, row.unit, total.unit);
+        // Two units that cannot be converted are not the same quantity — µg of folate and µg DFE of
+        // folate count different things — so the contribution is left out rather than silently added to
+        // something it does not belong with. It is the lesser of two wrongs, not a good outcome.
+        if (converted == null) continue;
+        total.amount += converted;
+        continue;
+      }
+      total.amount += contribution;
     }
   }
   return [...byCompound.values()];

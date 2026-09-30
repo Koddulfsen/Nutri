@@ -376,3 +376,37 @@ value differs from the printed DRI table"). A golden file that cannot fail is wo
 - Nothing yet asserts the **food → target → percentage** chain end to end. Eating 200 g of X should show
   Y % of a target, and no test computes that independently.
 - Only two demographics are frozen. Children, the elderly and pregnancy have one assertion each.
+
+
+## I. The food → percentage chain (2026-09-30)
+
+`lib/nutrition/intake-to-percent.test.ts` walks the whole path a user sees: a food's value per 100 g, a
+portion in grams, a target, and the number on the bar. Every piece had tests; the chain did not.
+
+**It found a live bug on the first run.** `merged_nutrients` stores each compound in whatever unit that
+food's own sources used, and **15 compounds are stored in more than one unit across foods** — biotin in
+`g` and `µg`, B12 in `g` and `µg`, folate in `g` and `µg DFE`. `aggregateTotals` summed those numbers
+raw and labelled the total with whichever row it saw first, sorting by (foodId, grams).
+
+Two failures, both demonstrated by the test before the fix:
+
+- **A gram added to a microgram.** 2 µg from one food plus 3 µg from another (stored as 0.000003 g) came
+  to `2.000003` instead of `5`.
+- **A zero relabelling a real total.** Foods with no data for a compound store `0` in `g`. Olive oil's
+  zero-in-grams arriving before beef liver's 5.5 µg made the total read **5 500 000 µg** — on a 2.4 µg
+  B12 target, a bar at 229 million per cent.
+
+Today it happens to come out right, because the lowest food UUID carries a µg row. That is luck, and
+the sort is over the foods a *user ate*, so one meal could flip it.
+
+**Fixed** in `aggregateTotals`: a contribution in a different unit is converted before it is added; when
+nothing real has been accumulated yet the incoming unit wins, since a zero carries no unit information
+and should not decide how the foods that do have data are read. Two units that cannot be converted are
+**not** merged — µg of folate and µg DFE of folate count different things — so that contribution is left
+out rather than added to something it does not belong with. That is the lesser of two wrongs and is
+marked as such in the code.
+
+**Still open, deliberately:** a contribution dropped for an unconvertible unit is silent. The type has
+nowhere to report it, and making it visible means changing `AggregatedRow` and its consumers. The
+deeper fix is at the merge step — `merged_nutrients.unit` should be consistent per compound, which is a
+data pass, not a runtime guard.
