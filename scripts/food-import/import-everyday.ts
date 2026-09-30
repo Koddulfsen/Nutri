@@ -23,7 +23,7 @@
  * Haiku calls (clarify, one ranking per source, verify, portions).
  */
 import 'dotenv/config';
-import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
+import { existsSync, readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import postgres from 'postgres';
@@ -341,20 +341,35 @@ async function runLists() {
   });
 
   const existing = await existingNames();
-  const results: FoodResult[] = [];
   const out = path.join(here, 'results', `${label}.json`);
   mkdirSync(path.dirname(out), { recursive: true });
 
+  // Resume: keep every finished food from an earlier run of this label, and
+  // redo only the ones that errored or never ran.
+  const previous: FoodResult[] = existsSync(out) ? JSON.parse(readFileSync(out, 'utf8')).results : [];
+  const results: FoodResult[] = previous.filter((r) => r.status !== 'error' && queries.includes(r.query));
+  const finished = new Set(results.map((r) => r.query));
+  if (results.length) process.stderr.write(`  resuming: ${results.length} done, ${queries.length - results.length} to go\n`);
+
   // Two at a time: each search fans out to every source already.
-  const queue = [...queries];
+  const queue = queries.filter((q) => !finished.has(q));
+  let serverDown = false;
   await Promise.all(
     Array.from({ length: 2 }, async () => {
-      for (let q = queue.shift(); q; q = queue.shift()) {
+      for (let q = queue.shift(); q && !serverDown; q = queue.shift()) {
         let r: FoodResult;
         try {
           r = await importOne(q, existing);
         } catch (err) {
-          r = { query: q, status: 'error', reason: err instanceof Error ? err.message : String(err), ms: 0 };
+          const reason = err instanceof Error ? err.message : String(err);
+          // The server went away: stop rather than mark every remaining food
+          // as an error. A rerun resumes from here.
+          if (/fetch failed|terminated|ECONNREFUSED/.test(reason)) {
+            serverDown = true;
+            process.stderr.write(`  server unreachable (${reason}) — stopping; rerun to resume\n`);
+            break;
+          }
+          r = { query: q, status: 'error', reason, ms: 0 };
         }
         results.push(r);
         if (r.status === 'accepted' && r.canonicalName) existing.add(r.canonicalName.toLowerCase());
