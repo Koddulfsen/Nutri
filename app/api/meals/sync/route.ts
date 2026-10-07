@@ -20,6 +20,7 @@ import { withAuth } from '@/lib/auth/with-auth';
 import { db } from '@/db';
 import { mealItems, mealLogs } from '@/db/schema';
 import { allFoodsVisible } from '@/lib/services/food-visibility';
+import { markSavedMealUsed } from '@/lib/services/saved-meals';
 import { createMeal } from '@/lib/services/meal-service';
 import { ensureUserProfile } from '@/lib/services/user-service';
 import { invalidateDailyTotals } from '@/lib/services/daily-totals-service';
@@ -56,6 +57,8 @@ const SyncSchema = z.object({
         type: z.literal('addMany'),
         mealId: z.string().uuid().nullish(),
         foods: z.array(FoodSchema).min(1).max(25),
+        // Set when these foods are a saved meal being logged: counts one use of it.
+        savedMealId: z.string().uuid().optional(),
       }),
       z.object({
         type: z.literal('remove'),
@@ -107,6 +110,10 @@ export const POST = withAuth(
           avatarUrl: user.user_metadata?.avatar_url,
         });
         await createMeal(userId, date, 'Today', toAdd);
+      }
+      if (change.type === 'addMany' && change.savedMealId) {
+        // Only the caller's own meal is counted; any other id is a no-op.
+        await markSavedMealUsed(userId, change.savedMealId);
       }
     } else if (change?.type === 'remove') {
       // One query proves both that the item exists and that it is the caller's.
