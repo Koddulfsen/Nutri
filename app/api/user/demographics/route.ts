@@ -64,6 +64,10 @@ const UpdateDemographicsSchema = z.object({
   // sanity check on input, not a medical judgement: outside 20-400 kg the value is far likelier to be
   // a typo or a pounds figure than a person.
   bodyWeightKg: z.number().int().min(20).max(400).nullable().optional(),
+  // Habitual activity. No consent gate: unlike weight or life stage this says nothing about a person's
+  // health that their own energy target does not already imply, and it was previously collected and
+  // discarded on every page load rather than stored.
+  activityLevel: z.enum(['SEDENTARY', 'MODERATE', 'ACTIVE', 'VERY_ACTIVE']).nullable().optional(),
   manualAgeGroup: z.enum(ageGroups).nullable().optional(),
   dvSourcePreference: z.enum(sourcePreferences).optional(),
 });
@@ -104,6 +108,7 @@ export async function GET(request: NextRequest) {
         biologicalSex: null,
         lifeStage: 'NONE',
         bodyWeightKg: null,
+        activityLevel: null,
         manualAgeGroup: null,
         dvSourcePreference: 'AVERAGE',
         effectiveAgeGroup: null,
@@ -133,6 +138,7 @@ export async function GET(request: NextRequest) {
       biologicalSex: demographics.biologicalSex,
       lifeStage: demographics.lifeStage,
       bodyWeightKg: demographics.bodyWeightKg,
+      activityLevel: demographics.activityLevel,
       manualAgeGroup: demographics.manualAgeGroup,
       dvSourcePreference: demographics.dvSourcePreference,
       effectiveAgeGroup,

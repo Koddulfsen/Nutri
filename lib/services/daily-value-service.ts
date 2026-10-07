@@ -48,6 +48,9 @@ export type AgeGroup =
   | 'ADULT_71_PLUS';
 
 export type BiologicalSex = 'MALE' | 'FEMALE';
+
+/** Mirrors activity_level_enum. Several bodies publish per activity level; Russia publishes four. */
+export type ActivityLevel = 'SEDENTARY' | 'MODERATE' | 'ACTIVE' | 'VERY_ACTIVE';
 export type LifeStage = 'NONE' | 'PREGNANT' | 'LACTATING';
 export type SourceRegion = 'USA_CANADA' | 'EU' | 'UK' | 'JAPAN' | 'CHINA' | 'AU_NZ';
 export type SourcePreference = 'AVERAGE' | SourceRegion;
@@ -63,6 +66,8 @@ export interface UserDemographics {
    * contaminant limit — against the person rather than against a published reference weight.
    */
   bodyWeightKg: number | null;
+  /** Habitual activity, for the values that depend on it (energy above all). Not health data. */
+  activityLevel: ActivityLevel | null;
   manualAgeGroup: AgeGroup | null;
   dvSourcePreference: SourcePreference;
 }
@@ -180,6 +185,7 @@ export async function getUserDemographics(userId: string): Promise<UserDemograph
         biologicalSex: userProfiles.biologicalSex,
         lifeStageEncrypted: userProfiles.lifeStageEncrypted,
         bodyWeightKgEncrypted: userProfiles.bodyWeightKgEncrypted,
+        activityLevel: userProfiles.activityLevel,
         manualAgeGroup: userProfiles.manualAgeGroup,
         dvSourcePreference: userProfiles.dvSourcePreference,
       })
@@ -239,6 +245,7 @@ export async function getUserDemographics(userId: string): Promise<UserDemograph
       biologicalSex: profile.biologicalSex as BiologicalSex | null,
       lifeStage,
       bodyWeightKg,
+      activityLevel: (profile.activityLevel as ActivityLevel | null) ?? null,
       manualAgeGroup: profile.manualAgeGroup as AgeGroup | null,
       dvSourcePreference: (profile.dvSourcePreference as SourcePreference) || 'AVERAGE',
     };
@@ -306,6 +313,7 @@ export async function updateUserDemographics(
         biologicalSex: data.biologicalSex,
         lifeStageEncrypted,
         bodyWeightKgEncrypted,
+        activityLevel: data.activityLevel,
         manualAgeGroup: data.manualAgeGroup,
         dvSourcePreference: data.dvSourcePreference,
         updatedAt: new Date(),

@@ -247,6 +247,11 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
   // "3" and then "34".
   const debouncedAge = useDebouncedValue(profileAge, 350);
   const [activityLevel, setActivityLevel] = useState<'SEDENTARY' | 'MODERATE' | 'ACTIVE' | 'VERY_ACTIVE'>('MODERATE');
+  // The picker used to be pure local state: age, sex and activity were asked for on every visit and
+  // thrown away on refresh, while user_profiles sat there holding birth year, sex and (since 0061)
+  // activity. `profileLoaded` keeps the save effect below from writing the defaults back over a real
+  // profile during the first render, before the fetch has answered.
+  const [profileLoaded, setProfileLoaded] = useState(false);
 
   // Close search dropdown when clicking outside
   useEffect(() => {
@@ -275,7 +280,7 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
 
   }, [initialCompounds, initialCompoundGroups]);
 
-  // Fetch user demographics on mount (for DV source preference)
+  // Load the profile into the picker: source preference, and the demographics the picker itself sets.
   useEffect(() => {
     async function fetchDemographics() {
       try {
@@ -285,13 +290,52 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
           if (data.dvSourcePreference) {
             setDvSourcePreference(data.dvSourcePreference as SourcePreference);
           }
+          if (data.biologicalSex === 'MALE' || data.biologicalSex === 'FEMALE') {
+            setSex(data.biologicalSex === 'MALE' ? 'male' : 'female');
+          }
+          // Stored as year and month, never a full date of birth (CLAUDE.md §2); the picker wants years.
+          if (typeof data.birthYearMonth === 'string') {
+            const [y, m] = data.birthYearMonth.split('-').map(Number);
+            if (y) {
+              const now = new Date();
+              let age = now.getFullYear() - y;
+              if (now.getMonth() + 1 < m) age -= 1;
+              if (age >= 1 && age <= 120) setProfileAge(age);
+            }
+          }
+          if (data.activityLevel) setActivityLevel(data.activityLevel);
         }
       } catch (error) {
         console.error('Failed to fetch user demographics:', error);
+      } finally {
+        setProfileLoaded(true);
       }
     }
     fetchDemographics();
   }, []);
+
+  // Save the picker back to the profile. Debounced age, so typing "34" writes once rather than twice,
+  // and only after the load has answered — otherwise the defaults would overwrite a real profile.
+  useEffect(() => {
+    if (!profileLoaded) return;
+    const birthYear = new Date().getFullYear() - debouncedAge;
+    const body = {
+      biologicalSex: sex === 'male' ? 'MALE' : 'FEMALE',
+      // Month is unknown from an age in years; January keeps the stored value stable rather than
+      // drifting by a month every time the picker is touched.
+      birthYearMonth: `${birthYear}-01`,
+      activityLevel,
+    };
+    fetch(apiUrl('/api/user/demographics'), {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    }).catch((error) => {
+      // A profile that fails to save should not interrupt someone logging food; the picker still
+      // governs this session's numbers either way.
+      console.error('Failed to save demographics:', error);
+    });
+  }, [profileLoaded, sex, debouncedAge, activityLevel]);
 
   // Fetch DVs for all compounds, refetch when picker age/sex changes
   // Daily values for the picker's age and sex. Remembered per combination, so

@@ -1,6 +1,6 @@
 import { pgTable, uuid, text, integer, smallint, jsonb, timestamp, boolean, uniqueIndex, index } from 'drizzle-orm/pg-core';
 import { sql } from 'drizzle-orm';
-import { biologicalSexEnum, ageGroupEnum, dvSourcePreferenceEnum } from './daily_values_enums';
+import { biologicalSexEnum, ageGroupEnum, dvSourcePreferenceEnum, activityLevelEnum } from './daily_values_enums';
 
 /**
  * User Profiles Table
@@ -67,6 +67,13 @@ export const userProfiles = pgTable('user_profiles', {
   //     travels in the value note instead. See dv-sources/dge-dach/extract.ts.)
   // docs/DATA-SCOPE-DECISIONS.md records this; changing it reopens the DPIA.
   bodyWeightKgEncrypted: text('body_weight_kg_encrypted'),
+  // Habitual physical activity, for the daily values that depend on it. Energy is the obvious one —
+  // Russia publishes four separate figures per person for exactly this reason, and WHO's adult energy is
+  // stated per kg at a given PAL — but it is the only demographic input the app collected and then threw
+  // away: it lived as useState in the analysis page and died on refresh, so a user set it every visit and
+  // the profile never knew. Not special-category data on its own, and not encrypted: it says nothing
+  // about a person's health that their own target does not already imply.
+  activityLevel: activityLevelEnum('activity_level'),
   manualAgeGroup: ageGroupEnum('manual_age_group'),                       // Optional override for age calculation
   dvSourcePreference: dvSourcePreferenceEnum('dv_source_preference').notNull().default('AVERAGE'), // Preferred RDA source
 
