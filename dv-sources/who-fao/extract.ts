@@ -363,12 +363,48 @@ function add(p: { compound: string; type: DvValueType; sexes: Sex[]; stage?: Lif
 //   A percentage bar would require inventing a limit the science declines to set, so these two show
 //   "No DV" like any other compound without one (Jens, 2026-10-07).
 //
-//   Mercury has two JECFA values and neither can be applied to what we store. The 72nd meeting report is
-//   explicit that the inorganic PTWI "was considered applicable to dietary exposure to total mercury from
-//   foods other than fish and shellfish. For dietary exposure to mercury from these foods the previously
-//   established PTWI for methyl mercury should be applied." We hold ONE total-mercury figure per food
-//   across all food types, so the inorganic value would understate fish and the methylmercury value would
-//   overstate everything else. Splitting it is a food-data change, not a DV one.
+//   Mercury is stored, as the METHYLMERCURY limit, and that choice needs stating. JECFA splits the
+//   element: the 72nd meeting report says the inorganic PTWI "was considered applicable to dietary
+//   exposure to total mercury from foods other than fish and shellfish. For dietary exposure to mercury
+//   from these foods the previously established PTWI for methyl mercury should be applied." We hold ONE
+//   total-mercury figure per food, so neither limit is a clean fit and an earlier pass stored neither.
+//
+//   What breaks the tie is that the two errors are not symmetric. Methylmercury is a SUBSET of total
+//   mercury, so a food's total-Hg figure is an upper bound on its methylmercury content — always, by
+//   definition, not as an empirical claim about our data. Reading the methylmercury limit against total
+//   mercury therefore over-states exposure and can never under-state it. The inorganic limit (4 µg/kg bw
+//   per week) has no such guarantee: it is the looser of the two and would under-state fish, which is
+//   where nearly all dietary mercury is. Jens asked for strict over averaged on heavy metals
+//   (2026-10-07), so the methylmercury value is the one stored, and the bar reads as a ceiling that is
+//   correct for fish and conservative for everything else.
+//
+//   Also note what JECFA no longer has: the 72nd meeting WITHDREW the total-mercury PTWI of 5 µg/kg bw.
+//   There is no tolerable intake for the quantity we actually measure, from anybody, so a form limit is
+//   the only thing that can be stored at all.
+{
+  add({
+    compound: 'Mercury',
+    type: 'TWI',
+    sexes: BOTH,
+    age: [0, null],
+    cell: 1.6,
+    unit: 'µg',
+    perKg: true,
+    averagingDays: 7,
+    note:
+      'Provisional tolerable weekly intake for METHYLMERCURY, per kg of body weight, expressed as mercury. ' +
+      'JECFA confirmed "the existing PTWI of 1.6 \u00b5g/kg bw, based on the most sensitive toxicological ' +
+      'end-point (developmental neurotoxicity) in the most susceptible species (humans)" — established at the ' +
+      '61st meeting (2003), which withdrew the earlier 3.3 \u00b5g/kg bw, and confirmed at the 67th (2007). ' +
+      'Stored against total mercury on purpose: methylmercury is a subset of total mercury, so a food\'s total ' +
+      'figure is an upper bound on its methylmercury content and this comparison can only over-state exposure. ' +
+      'JECFA\'s separate inorganic-mercury PTWI of 4 \u00b5g/kg bw (72nd meeting) is NOT stored — it is looser ' +
+      'and the committee restricts it to foods other than fish and shellfish. The total-mercury PTWI of ' +
+      '5 \u00b5g/kg bw was withdrawn at the 72nd meeting, so no limit exists for the quantity we measure.',
+    from: 'JECFA 67th meeting (2007), TRS 940-JECFA 67/57, methylmercury PTWI (established 61st meeting, 2003, TRS 922-JECFA 61/132)',
+  });
+}
+
 {
   const from = 'JECFA 73rd meeting (2010), WHO Food Additives Series 64, cadmium evaluation section 10';
   add({

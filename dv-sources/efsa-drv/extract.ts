@@ -505,9 +505,12 @@ const LPI: Array<[DietaryContext, number]> = [['PHYTATE_LOW', 300], ['PHYTATE_ME
 //   Inorganic arsenic — same shape. EFSA's 2024 update uses a BMDL05 of 0.06 µg/kg bw per day for skin
 //   cancer as a reference point for a margin of exposure, not a tolerable intake.
 //
-//   Mercury — EFSA sets a TWI of 1.3 µg/kg bw for methylmercury and 4 µg/kg bw for inorganic mercury,
-//   which runs into the same wall as JECFA's: merged_nutrients holds one TOTAL mercury figure per food,
-//   and the two limits apply to different foods. See dv-sources/jecfa-contaminants/NOTES.md.
+//   Mercury — now stored, as the METHYLMERCURY TWI of 1.3 µg/kg bw per week. EFSA splits the element the
+//   same way JECFA does (1.3 for methylmercury, 4 for inorganic, both expressed as mercury) and we hold one
+//   TOTAL mercury figure per food. The tie-break is that methylmercury is a subset of total mercury, so a
+//   total-Hg figure is an upper bound on methylmercury content and reading this limit against it can only
+//   over-state exposure, never under-state it. The inorganic value carries no such guarantee and is the
+//   looser of the two. Full reasoning in dv-sources/who-fao/extract.ts and jecfa-contaminants/NOTES.md.
 //
 // Where EFSA and JECFA differ on cadmium — 2.5 µg/kg per week against 25 µg/kg per month, which is about
 // 10.7 per week — that disagreement is the point of having two bodies, and `lib/dv/resolve.ts` keeps
@@ -530,6 +533,30 @@ const LPI: Array<[DietaryContext, number]> = [['PHYTATE_LOW', 300], ['PHYTATE_ME
       'the 2009 opinion (EFSA Journal 2009;7(3):980) and maintained by the 2011 statement (EFSA Journal ' +
       '2011;9(2):1975). Applies to the whole population; the per-kg basis is what makes it age-appropriate.',
     from: 'EFSA CONTAM Panel, cadmium TWI (2009, maintained 2011)',
+  });
+}
+
+
+{
+  add({
+    compound: 'Mercury',
+    type: 'TWI',
+    sexes: [...M, ...F],
+    age: [0, null],
+    value: 1.3,
+    unit: 'µg',
+    perKg: true,
+    averagingDays: 7,
+    note:
+      'Tolerable weekly intake for METHYLMERCURY, per kg of body weight, expressed as mercury. EFSA: "a TWI '
+      + 'for methylmercury of 1.3 µg/kg bw, which is lower than JECFA\'s 1.6 µg/kg bw" (CONTAM Panel '
+      + 'opinion on mercury and methylmercury in food, EFSA Journal 2012;10(12):2985, announced 2012-12-20). '
+      + 'Stored against total mercury on purpose: methylmercury is a subset of total mercury, so a food\'s '
+      + 'total figure is an upper bound on its methylmercury content and this comparison can only over-state '
+      + 'exposure. EFSA\'s separate inorganic-mercury TWI of 4 µg/kg bw is NOT stored — it is the looser of '
+      + 'the two and applies to foods other than fish and shellfish, which is where almost no dietary mercury '
+      + 'comes from. Applies to the whole population; the per-kg basis is what makes it age-appropriate.',
+    from: 'EFSA CONTAM Panel, methylmercury TWI (2012 opinion, EFSA Journal 2012;10(12):2985)',
   });
 }
 

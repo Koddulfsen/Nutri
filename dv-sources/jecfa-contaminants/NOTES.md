@@ -100,3 +100,41 @@ stricter limit, but by sort order rather than by judgement.
 
 Option 2 is the smallest honest change and would survive a third body arriving with a daily RfD — which
 EPA has, so this will come up again.
+
+## Mercury — resolved 2026-10-07: the methylmercury limit is stored
+
+The earlier pass stored neither of JECFA's two mercury limits, because the committee splits the
+element by food category and `merged_nutrients` holds one total-mercury figure per food. That
+reasoning was sound but it stopped one step short.
+
+**What each body publishes** (both expressed as mercury):
+
+| Body | Methylmercury | Inorganic mercury | Total mercury |
+|---|---|---|---|
+| JECFA | PTWI 1.6 µg/kg bw/week (61st 2003, confirmed 67th 2007) | PTWI 4 µg/kg bw/week (72nd 2010) | **withdrawn** (was 5 µg/kg bw, 72nd 2010) |
+| EFSA CONTAM | TWI 1.3 µg/kg bw/week (2012, EFSA Journal 2012;10(12):2985) | TWI 4 µg/kg bw/week | — |
+
+**Two facts decide it.**
+
+1. *Nobody publishes a limit for what we measure.* JECFA withdrew the total-mercury PTWI outright.
+   So the choice is not "a form limit or the right limit" — it is "a form limit or nothing".
+
+2. *The two errors are not symmetric.* Methylmercury is a **subset** of total mercury, so a food's
+   total-Hg figure is an upper bound on its methylmercury content — by definition, not as a claim
+   about our particular data. Reading the methylmercury limit against total mercury therefore
+   over-states exposure and can never under-state it. The inorganic limit has no such guarantee: it
+   is the looser of the two, and the 72nd meeting report restricts it to "foods other than fish and
+   shellfish", which is where almost no dietary mercury comes from.
+
+So the methylmercury limit is stored, strictest-first like every other contaminant ceiling (EFSA's
+1.3 wins over JECFA's 1.6). The bar is the correct ceiling for fish and a conservative one elsewhere.
+
+**What this is not.** It is not a claim that we know a food's methylmercury content. If the food data
+ever splits methyl from total, this becomes a real form limit — `FORM_LINKS` in
+`lib/dv/compound-links.ts` is the mechanism, and `countsParentTotal` would then be the honest switch.
+
+**Scale check against the 9 foods that carry a mercury figure** (µg/100 g): tuna canned 13.85,
+oyster 4.0, salmon wild 3.0, salmon farmed 1.7, butter 0.9, strawberry 0.6, cheddar 0.5, shrimp 0.4,
+whole-wheat bread 0.2. The limit at 70 kg is 91 µg/week. Six of the nine are seafood, where total ≈
+methyl; the four non-seafood figures are under 1 µg/100 g and cannot move the bar meaningfully, so
+the over-statement the subset argument allows is bounded as well as safe in direction.
