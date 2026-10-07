@@ -8,6 +8,7 @@ import AnalysisHeader from '@/app/components/navigation/AnalysisHeader';
 import GuestAnalysisView from './GuestAnalysisView';
 import SmartAddFoodModal from '@/app/components/modals/SmartAddFoodModal';
 import FoodLogChat, { type ChatFoodToAdd } from './FoodLogChat';
+import { FoodSuggestions, MyMealsButton, SaveAsMeal, useQuickAdd } from './quick-add/QuickAdd';
 import DvSourceSelector from './components/DvSourceSelector';
 import SymptomDropdown from './components/SymptomDropdown';
 import BodyProfile from './components/BodyProfile';
@@ -60,7 +61,7 @@ interface AnalysisClientProps {
 // One change POST /api/meals/sync can apply before returning the day's state.
 type SyncChange =
   | { type: 'add'; mealId: string | null; food: { foodId: string; portionSize: number; portionType: string } }
-  | { type: 'addMany'; mealId: string | null; foods: { foodId: string; portionSize: number; portionType: string }[] }
+  | { type: 'addMany'; mealId: string | null; foods: { foodId: string; portionSize: number; portionType: string }[]; savedMealId?: string }
   | { type: 'remove'; mealItemId: string };
 
 export default function AnalysisClient({ user, initialDate, initialCompounds, initialCompoundGroups }: AnalysisClientProps) {
@@ -895,7 +896,7 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
   // The chat's "Add foods": the same path as adding one food from search —
   // optimistic, into the active meal (or a new "Today"), one sync call.
   // Throws on failure so the chat can let the user try again.
-  const handleAddFoodsFromChat = async (items: ChatFoodToAdd[]) => {
+  const handleAddFoodsFromChat = async (items: ChatFoodToAdd[], options?: { savedMealId?: string }) => {
     setActionError(null);
     const stamp = Date.now();
     const optimisticItems = items.map((item, i) => ({
@@ -918,12 +919,23 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
         type: 'addMany',
         mealId: mealIdRef.current,
         foods: items.map((item) => ({ foodId: item.foodId, portionSize: item.grams, portionType: item.portion })),
+        ...(options?.savedMealId ? { savedMealId: options.savedMealId } : {}),
       }));
     } catch (error) {
+      setActionError(error instanceof Error ? error.message : 'Failed to add food');
       fetchMealsForDate(selectedDate, true, { silent: true });
       throw error;
     }
   };
+
+  // Suggestions + My meals for the food lists. Keyed on the day's items, so
+  // they follow every add and remove.
+  const quickAddLogKey = meals.flatMap((m: any) => (m.items || []).map((i: any) => i.id)).join(',');
+  const quickAdd = useQuickAdd(selectedDate, quickAddLogKey, !!user && !mealsLoading);
+  const selectedForMeal = meals
+    .flatMap((m: any) => m.items || [])
+    .filter((i: any) => selectedItemIds.includes(i.id))
+    .map((i: any) => ({ foodId: i.foodId, grams: Number(i.portionSize), portion: String(i.portionType) }));
 
   const handleAddFoodToMeal = async () => {
     if (!selectedFood) return;
@@ -1310,11 +1322,17 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
                     // squeezed bottom-of-chatbox version we used to have.
                     const foodListAside = (
                       <>
-                        <p className="chat-aside-title">Today</p>
+                        <div className="qa-head">
+                          <p className="chat-aside-title">Today</p>
+                          <MyMealsButton state={quickAdd} onAdd={handleAddFoodsFromChat} />
+                        </div>
                         {selectedItemIds.length > 0 && (
-                          <button type="button" className="food-select-clear" onClick={clearItemSelection}>
-                            Unselect all
-                          </button>
+                          <div className="qa-selection">
+                            <button type="button" className="food-select-clear" onClick={clearItemSelection}>
+                              Unselect all
+                            </button>
+                            <SaveAsMeal selected={selectedForMeal} onSaved={quickAdd.refresh} />
+                          </div>
                         )}
                         {mealsLoading ? (
                           <p className="chat-aside-empty">Loading…</p>
@@ -1349,6 +1367,7 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
                             </ul>
                           );
                         })()}
+                        {!mealsLoading && <FoodSuggestions state={quickAdd} onAdd={handleAddFoodsFromChat} />}
                       </>
                     );
 
@@ -1441,12 +1460,16 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
           <section className="an-panel an-panel--foods">
             <div className="an-foods-head">
               <p className="section-label">Today</p>
-              {selectedItemIds.length > 0 && (
+              <MyMealsButton state={quickAdd} onAdd={handleAddFoodsFromChat} />
+            </div>
+            {selectedItemIds.length > 0 && (
+              <div className="qa-selection">
                 <button type="button" className="food-select-clear" onClick={clearItemSelection}>
                   Unselect all
                 </button>
-              )}
-            </div>
+                <SaveAsMeal selected={selectedForMeal} onSaved={quickAdd.refresh} />
+              </div>
+            )}
             {(() => {
               if (mealsLoading) return <p className="lc-empty">Loading…</p>;
               const allItems = meals.flatMap(m => m.items || []);
@@ -1478,6 +1501,7 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
                 </ul>
               );
             })()}
+            {!mealsLoading && <FoodSuggestions state={quickAdd} onAdd={handleAddFoodsFromChat} />}
           </section>{/* end foods panel */}
 
           {/* ── PANEL — today's food list ── */}
