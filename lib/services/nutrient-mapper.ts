@@ -289,7 +289,7 @@ const UNIT_CONVERSIONS: Record<string, Record<string, number>> = {
  */
 export class NutrientMapper {
   // In-memory cache for compound_sources lookups (external_source:external_id -> compound_id)
-  private compoundIdCache: Map<string, string | null> = new Map();
+  private mappingCache: Map<string, { compoundId: string | null; sourceUnit: string | null }> = new Map();
 
   /**
    * Look up compound ID from compound_sources table
@@ -299,16 +299,30 @@ export class NutrientMapper {
    * @returns Compound UUID or null if not found
    */
   async lookupCompoundId(externalSource: 'CNF' | 'FDC', externalId: string): Promise<string | null> {
+    return (await this.lookupMapping(externalSource, externalId)).compoundId;
+  }
+
+  /**
+   * The compound a source's nutrient id maps to, AND the unit that source publishes it in.
+   *
+   * The unit matters because CNF's API sends values with no unit at all. Guessing was costing real
+   * accuracy: choline reached 96 foods stored as grams when the values were milligrams, so the bar
+   * read 1600 % for a carrot (see scripts/fix-merged-nutrient-units.ts). The unit was in the database
+   * the whole time — all 117 CNF mappings carry `source_unit`, choline's says `mg` — and nothing asked
+   * for it. Same query as before, so this costs nothing.
+   */
+  async lookupMapping(
+    externalSource: 'CNF' | 'FDC',
+    externalId: string
+  ): Promise<{ compoundId: string | null; sourceUnit: string | null }> {
     const cacheKey = `${externalSource}:${externalId}`;
 
-    // Check cache first
-    if (this.compoundIdCache.has(cacheKey)) {
-      return this.compoundIdCache.get(cacheKey)!;
-    }
+    const cached = this.mappingCache.get(cacheKey);
+    if (cached) return cached;
 
     try {
       const result = await db
-        .select({ compoundId: compoundSources.compoundId })
+        .select({ compoundId: compoundSources.compoundId, sourceUnit: compoundSources.sourceUnit })
         .from(compoundSources)
         .where(
           and(
@@ -318,19 +332,21 @@ export class NutrientMapper {
         )
         .limit(1);
 
-      const compoundId = result[0]?.compoundId || null;
+      const mapping = {
+        compoundId: result[0]?.compoundId || null,
+        sourceUnit: result[0]?.sourceUnit || null,
+      };
 
-      // Cache the result (including null)
-      this.compoundIdCache.set(cacheKey, compoundId);
+      this.mappingCache.set(cacheKey, mapping);
 
-      if (!compoundId) {
+      if (!mapping.compoundId) {
         logger.debug(
           { service: 'nutrient-mapper', externalSource, externalId },
           'No compound mapping found'
         );
       }
 
-      return compoundId;
+      return mapping;
     } catch (error) {
       logger.error(
         {
@@ -341,7 +357,7 @@ export class NutrientMapper {
         },
         'Failed to lookup compound ID'
       );
-      return null;
+      return { compoundId: null, sourceUnit: null };
     }
   }
 
@@ -359,15 +375,35 @@ export class NutrientMapper {
   ): Promise<StandardizedNutrient | null> {
     // Use mapped name if available, otherwise use original name
     const standardName = CNF_NUTRIENT_MAP[nutrientName] || nutrientName;
-    const standardUnit = STANDARD_UNITS[standardName] || unit || 'g';
 
-    // If no unit provided, assume CNF value is already in standard unit (no conversion needed)
-    const { convertedValue, conversionApplied } = unit
-      ? this.convertUnit(value, unit, standardUnit)
-      : { convertedValue: value, conversionApplied: false };
+    // CNF's API sends values with no unit, so the unit has to come from somewhere else. In order of
+    // trust: what the caller passed, then the unit this very mapping records CNF as publishing (all 117
+    // CNF mappings carry one), then our own dictionary.
+    //
+    // What it must NOT fall back to is grams. That was the old behaviour — `STANDARD_UNITS[name] ||
+    // unit || 'g'` against a dictionary of 52 entries for 280 compounds — and it silently labelled
+    // every unlisted micronutrient as grams. Choline went into 96 foods that way, milligram values
+    // under a gram label, and the bar read a thousand times high. A guess that is wrong by 10³ and
+    // looks plausible is worse than no value, so an unknown unit is now logged and the nutrient is
+    // skipped rather than invented.
+    const mapping = nutrientId
+      ? await this.lookupMapping('CNF', nutrientId)
+      : { compoundId: null, sourceUnit: null };
+    const compoundId = mapping.compoundId;
 
-    // Lookup compound ID from compound_sources
-    const compoundId = nutrientId ? await this.lookupCompoundId('CNF', nutrientId) : null;
+    const actualUnit = unit || mapping.sourceUnit || STANDARD_UNITS[standardName] || null;
+    if (!actualUnit) {
+      logger.warn(
+        { service: 'nutrient-mapper', sourceApi: 'CNF', nutrientName, standardName, nutrientId },
+        'No unit for this CNF nutrient — not in the mapping, not in STANDARD_UNITS, and none supplied. Skipping rather than assuming grams.'
+      );
+      return null;
+    }
+
+    // Store in our dictionary's unit where we have an opinion, otherwise in the unit the value is
+    // actually in. Either way the conversion is explicit rather than assumed.
+    const standardUnit = STANDARD_UNITS[standardName] || actualUnit;
+    const { convertedValue, conversionApplied } = this.convertUnit(value, actualUnit, standardUnit);
 
     return {
       compoundId,
