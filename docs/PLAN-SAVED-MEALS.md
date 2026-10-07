@@ -4,29 +4,41 @@ Written 2026-10-07. The chat on `/analysis` is the main way to log; this builds 
 
 ## What the user gets
 
-- **Quick-add row**: chips above the chat input, always visible, mixing saved meals and
-  the foods you log most, ranked by use. About 6 chips, then **More…** for the full list
-  (also where saved meals are renamed or deleted). **A tap adds straight to the log**,
-  at your usual amount, with an "Added Coffee · Undo" line in the chat.
-- **Saved meals**: a named group of foods with amounts. Saved two ways:
-  - in the chat: "save this as my usual breakfast" → a card with a **Save meal** button;
-  - by hand: select foods in the Today list → **Save as meal** link (next to the existing
-    "Unselect all") → name it.
-- **Learned favorites**: no star button. Nutri works out what you log most and your usual
-  amount of each, straight from your log.
-- **A smarter chat**: it knows your usual foods, amounts and saved meals, so "milk" means
-  your semi-skimmed at your 200 g, and "the usual" / "my breakfast" brings up the meal.
+Everything about *what you ate* lives in the food list next to the chat; the chat stays the
+main way to type it in.
 
-New UI in total: the chip row, the More… list, a **Save meal** card button, and one link.
+```
+┌──────────────────────────────┐
+│ TODAY              My meals ▸│   ← opens the My meals modal
+│  Oats              60 g    ✕ │
+│  Blueberries       50 g    ✕ │
+│ ──────────────────────────── │   ← grey separator
+│  Usual breakfast · 3       + │   ← up to 5 greyed suggestions:
+│  Skyr             170 g    + │     your most-used foods and
+│  Coffee           200 g    + │     saved meals
+└──────────────────────────────┘
+```
+
+- **Suggestions** below the day's foods, greyed, each with **+**: up to 5, mixing saved
+  meals and the foods you log most, at your usual amount. **+** adds it to the list above;
+  the row's ✕ undoes a mistake. Anything already logged today isn't suggested.
+- **My meals** button → modal with your saved meals: one tap adds a whole meal; rename and
+  delete live here; a search field appears once there are more than ~8 meals.
+- **Save as meal**: select foods in the list → link next to "Unselect all" → name it.
+- **Learned favorites**: no star. Nutri works out what you log most and your usual amount,
+  straight from your log. They feed the suggestions now, and the chat later.
+- Phones: the same list component is used in the mobile food section, so all of this is
+  there too.
 
 ## Decisions (Jens, 2026-10-07)
 
-- One quick-add list for meals and foods together, not two.
-- Favorites are learned from the log, not starred.
-- Tapping a chip adds instantly (not via the card); undo covers a mis-tap.
-- Recipes (servings, cooked weight) and recommendations stay post-alpha
-  (`project_post_alpha_helpfulness` memory). Saved meals are not recipes: logging one adds
-  each food separately, exactly as if added one by one.
+- Saved meals: a **My meals** button + modal. Learned favorites: not in the modal; they
+  show as suggestions and feed the chat.
+- Suggestions sit in the food list, below a grey separator: up to 5, saved meals included.
+- A tap adds instantly; the item's own ✕ is the undo.
+- **Build the system and the manual flow first; how the chat uses it is discussed after.**
+- Recipes (servings, cooked weight) and recommendations stay post-alpha. Saved meals are not
+  recipes: logging one adds each food separately, as if added one by one.
 
 ## What's there now (verified 2026-10-07 by reading the code)
 
@@ -69,28 +81,28 @@ New UI in total: the chip row, the More… list, a **Save meal** card button, an
   separate chip unless it's logged on its own too.
 - **Check:** unit tests for ranking and usual amount; integration test against real rows.
 
-## Step 2 — Quick add
+## Step 2 — Suggestions and My meals
 
-- **2.1** `GET /api/quick-add` (withAuth): the ranked list, chips first.
+- **2.1** `GET /api/quick-add` (withAuth): ranked suggestions (top 5, excluding what's
+  already logged on the day) and the saved meals.
 - **2.2** `meals/sync` `addMany` takes an optional `savedMealId`: the meal's use count and
   last-used time go up in the same request (only for the caller's own meal).
-- **2.3** Chip row above the chat input in `FoodLogChat.tsx`: ~6 chips (meals show
-  "· 3"), then **More…**. Horizontal scroll on a phone.
-- **2.4** Tap → adds instantly through the same path as **Add foods**
-  (`handleAddFoodsFromChat`, optimistic) → "Added Coffee · Undo" line in the chat thread.
-  Undo removes exactly the items that tap added (their ids come back from the add).
-- **2.5** **More…**: the full list. Saved meals get rename and delete there.
-- **2.6** Refresh the row after anything is added, so ranks follow use.
-- **Check:** integration test: a tap adds the right items at the usual amount and bumps
-  the meal's count; undo removes exactly those items. Jens looks at the row.
+- **2.3** Suggestions under the day's foods in the food list, greyed, with **+**. Built as
+  one component used both beside the chat and in the mobile food section.
+- **2.4** **+** adds through the same path as **Add foods** (optimistic, one sync call).
+- **2.5** **My meals** button → modal: saved meals with their foods, add, rename, delete;
+  search once there are more than ~8.
+- **2.6** Suggestions refresh after anything is added or removed.
+- **Check:** integration test: adding a suggestion logs the right items at the usual amount
+  and bumps the meal's count. Jens looks at it.
 
 ## Step 3 — Save as meal, by hand
 
-- **3.1** In the Today list, when items are selected: a **Save as meal** link next to
+- **3.1** In the food list, when items are selected: a **Save as meal** link next to
   "Unselect all" → inline name field → saves those items with their logged grams/labels.
 - **Check:** saved meal equals the selected items. Jens looks at it.
 
-## Step 4 — The chat knows your usuals
+## Step 4 — The chat knows your usuals *(after discussion — not part of the first build)*
 
 - **4.1** Each turn, the server adds a short context block to the conversation: top ~15
   usual foods (name, id, usual amount) and the saved meals (name, items). Built
@@ -116,5 +128,5 @@ New UI in total: the chip row, the More… list, a **Save meal** card button, an
 
 ## Order
 
-0 → 1 → 2 → 3 → 4 → 5. Steps 2 and 3 are what you see; 4 is what makes the chat feel like
-it knows you. Each step is checked and committed on its own.
+0 → 1 → 2 → 3, then 5 for those. Step 4 waits until how the chat uses this has been
+discussed. Each step is checked and committed on its own.
