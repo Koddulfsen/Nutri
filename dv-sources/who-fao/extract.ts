@@ -42,7 +42,7 @@ const out: SourceValue[] = [];
 const BOTH: Sex[] = ['MALE', 'FEMALE'];
 const PREG: Age = [216, null];
 
-function add(p: { compound: string; type: DvValueType; sexes: Sex[]; stage?: LifeStage; age: Age; cell: Cell; unit: string; note?: string | null; from: string; perKg?: boolean }) {
+function add(p: { compound: string; type: DvValueType; sexes: Sex[]; stage?: LifeStage; age: Age; cell: Cell; unit: string; note?: string | null; from: string; perKg?: boolean; averagingDays?: number }) {
   if (p.cell == null) return;
   const [value, vmin, vmax] = Array.isArray(p.cell) ? [Number(((p.cell[0] + p.cell[1]) / 2).toFixed(4)), p.cell[0], p.cell[1]] : [p.cell, null, null];
   for (const sex of p.sexes) {
@@ -50,7 +50,7 @@ function add(p: { compound: string; type: DvValueType; sexes: Sex[]; stage?: Lif
       compound: p.compound, valueType: p.type, sex, lifeStage: p.stage ?? 'NONE', ageMinMonths: p.age[0], ageMaxMonths: p.age[1],
       activityLevel: null, dietaryContext: null, value, valueMin: vmin, valueMax: vmax, unit: p.unit,
       isPercentOfEnergy: false, isProvisional: false, supplementalOnly: false,
-      perKgBodyWeight: p.perKg ?? false, note: p.note ?? null, from: p.from,
+      perKgBodyWeight: p.perKg ?? false, averagingDays: p.averagingDays ?? 1, note: p.note ?? null, from: p.from,
     });
   }
 }
@@ -347,6 +347,49 @@ function add(p: { compound: string; type: DvValueType; sexes: Sex[]; stage?: Lif
       }
     });
   }
+}
+
+
+// ───────────── JECFA: contaminant tolerable intakes ─────────────
+//
+// The Joint FAO/WHO Expert Committee on Food Additives. Its values live under WHO_FAO because that is
+// whose committee it is. Full reasoning, sources and verbatim quotes: dv-sources/jecfa-contaminants/NOTES.md
+//
+// Only cadmium is stored, and the reason is the committee's own:
+//
+//   Lead and inorganic arsenic have no tolerable intake at all. JECFA withdrew lead's PTWI of 25 µg/kg bw
+//   at the 73rd meeting and inorganic arsenic's PTWI of 15 µg/kg bw at the 72nd, both because no threshold
+//   could be identified. What exists instead is a benchmark dose for a margin-of-exposure calculation.
+//   A percentage bar would require inventing a limit the science declines to set, so these two show
+//   "No DV" like any other compound without one (Jens, 2026-10-07).
+//
+//   Mercury has two JECFA values and neither can be applied to what we store. The 72nd meeting report is
+//   explicit that the inorganic PTWI "was considered applicable to dietary exposure to total mercury from
+//   foods other than fish and shellfish. For dietary exposure to mercury from these foods the previously
+//   established PTWI for methyl mercury should be applied." We hold ONE total-mercury figure per food
+//   across all food types, so the inorganic value would understate fish and the methylmercury value would
+//   overstate everything else. Splitting it is a food-data change, not a DV one.
+{
+  const from = 'JECFA 73rd meeting (2010), WHO Food Additives Series 64, cadmium evaluation section 10';
+  add({
+    compound: 'Cadmium',
+    type: 'PTMI',
+    sexes: BOTH,
+    age: [0, null],
+    cell: 25,
+    unit: 'µg',
+    perKg: true,
+    // A PTMI is monthly on purpose. Cadmium's half-life in the kidney runs to decades, and the committee
+    // moved off a weekly basis for exactly that reason: "owing to cadmium's exceptionally long half-life,
+    // considered that a monthly value was more appropriate. The PTWI of 7 μg/kg bw was therefore withdrawn."
+    averagingDays: 30,
+    note:
+      'Provisional tolerable monthly intake, per kg of body weight. "The PTMI established was 25 μg/kg bw." ' +
+      'Monthly rather than weekly on purpose — cadmium\'s half-life in the kidney is measured in decades, so ' +
+      'the committee withdrew the 7 μg/kg bw PTWI in favour of a monthly figure. Applies to the whole ' +
+      'population; the per-kg basis is what makes it age-appropriate.',
+    from,
+  });
 }
 
 

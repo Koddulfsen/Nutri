@@ -1,0 +1,69 @@
+WHO Food Additives Series 64, "Safety evaluation of certain food additives and contaminants",
+CADMIUM (addendum), JECFA 73rd meeting (2010). Extracted with pdftotext -layout from the PDF
+beside this file. Section 10 (Evaluation) is what establishes the PTMI.
+
+the mean multiplied or divided by the maximum value. As the same maximum value
+was used for both increased and reduced individual susceptibility, the adjustment
+resulted in broadened distributions of both population variability and uncertainty
+without affecting the geometric central estimates.
+
+9.9.3 Toxicokinetic modelling
+       A one-compartment model was used to characterize the relationship
+between urinary cadmium concentration and dietary cadmium exposure (see
+section 9.1 above). This model included a statistical parameter for variation in
+apparent half-life. The calculated relationship between dietary cadmium exposure
+and urinary cadmium concentration is linear; therefore, the outcome may be
+expressed as population distribution of the ratio with confidence intervals (see
+Figure 4 in section 8.3.5 above).
+
+9.9.4 Estimating the relationship between urinary cadmium excretion and dietary
+      cadmium exposure
+       A two-dimensional Monte Carlo simulation was used to estimate the
+population percentiles with associated 5th–95th percentile confidence intervals
+from the variability and uncertainty in the breakpoint, the adjustment for
+toxicodynamic variability and the toxicokinetic model (see Figure 5 in section 8.4
+above). The dietary cadmium exposure (μg/kg bw per day) that equates to 5.24
+(5th–95th percentiles 4.94–5.57) μg of cadmium per gram creatinine in urine was
+estimated to be 1.2 (5th–95th percentiles 0.8–1.8) μg/kg bw per day at the 5th
+population percentile. This is equivalent to 36 (5th–95th percentiles 24–54) μg/kg
+bw per month. The Committee decided to use the lower bound of the confidence
+interval to account for particularly susceptible individuals so that they would remain
+below the dietary exposure at which renal pathology is indicated.
+
+10.    EVALUATION
+         Since cadmium was last considered by the Committee, there have been a
+number of new epidemiological studies that have reported cadmium-related
+biomarkers in urine following environmental exposure. The Committee noted that a
+large meta-analysis of studies that measured the dose–response relationship
+between ȕ2MG and cadmium excretion in urine was available. As the apparent half-
+life of cadmium in human kidneys is about 15 years, steady state would be achieved
+374                                                                  CADMIUM (addendum)
+
+after 45–60 years of exposure. Therefore, data relating ȕ2MG excretion in urine to
+cadmium excretion in urine for individuals who are 50 years of age and older
+provided the most reliable basis on which to determine a critical concentration of
+cadmium in the urine. An analysis of the group mean data from individuals who were
+50 years of age and older showed that the urinary excretion of less than 5.24 (5th–
+95th percentiles 4.94–5.57) μg of cadmium per gram creatinine was not associated
+with an increased excretion of ȕ2MG. Higher urinary cadmium levels were
+associated with a steep increase in ȕ2MG excretion.
+       To determine a corresponding dietary exposure that would result in a urinary
+cadmium concentration at the breakpoint of 5.24 (5th–95th percentiles 4.94–5.57)
+μg of cadmium per gram creatinine, a one-compartment toxicokinetic model was
+used. The lower bound of the 5th population percentile dietary cadmium exposure
+that equates to the breakpoint was estimated to be 0.8 μg/kg bw per day or about
+25 μg/kg bw per month.
+       The Committee noted that the existing health-based guidance value for
+cadmium was expressed on a weekly basis (PTWI), but, owing to cadmium’s
+exceptionally long half-life, considered that a monthly value was more appropriate.
+The PTWI of 7 μg/kg bw was therefore withdrawn.
+       In view of the long half-life of cadmium, daily ingestion in food has a small or
+even a negligible effect on overall exposure. In order to assess long- or short-term
+risks to health due to cadmium exposure, total or average intake should be
+assessed over months, and tolerable intake should be assessed over a period of at
+least 1 month. To encourage this view, the Committee decided to express the
+tolerable intake as a monthly value in the form of a PTMI. The PTMI established
+was 25 μg/kg bw.
+        The estimates of exposure to cadmium through the diet for all age groups,
+including consumers with high exposure and subgroups with special dietary habits
+(e.g. vegetarians), examined by the Committee at this meeting are below the PTMI.

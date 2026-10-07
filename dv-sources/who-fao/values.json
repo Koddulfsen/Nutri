@@ -206,6 +206,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Biotin (B7), Lactation"
  },
@@ -226,6 +227,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Biotin (B7), 0-6 months"
  },
@@ -246,6 +248,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Biotin (B7), 7-11 months"
  },
@@ -266,6 +269,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Biotin (B7), 1-3 years"
  },
@@ -286,6 +290,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Biotin (B7), 4-6 years"
  },
@@ -306,6 +311,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Biotin (B7), 7-9 years"
  },
@@ -326,6 +332,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Biotin (B7), Adolescent females 10-18 years"
  },
@@ -346,6 +353,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Biotin (B7), Females 19-50 years (pre-menopausal)"
  },
@@ -366,6 +374,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Biotin (B7), Females 50-65 years (menopausal)"
  },
@@ -386,6 +395,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Biotin (B7), 0-6 months"
  },
@@ -406,6 +416,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Biotin (B7), 7-11 months"
  },
@@ -426,6 +437,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Biotin (B7), 1-3 years"
  },
@@ -446,6 +458,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Biotin (B7), 4-6 years"
  },
@@ -466,6 +479,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Biotin (B7), 7-9 years"
  },
@@ -486,6 +500,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Biotin (B7), Adolescent males 10-18 years"
  },
@@ -506,6 +521,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Biotin (B7), Males 19-65 years (B6, D: 19-50 yrs)"
  },
@@ -526,6 +542,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Biotin (B7), Males 19-65 years (B6, D: 50+ yrs)"
  },
@@ -546,8 +563,51 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Biotin (B7), Pregnancy"
+ },
+ {
+  "compound": "Cadmium",
+  "valueType": "PTMI",
+  "sex": "FEMALE",
+  "lifeStage": "NONE",
+  "ageMinMonths": 0,
+  "ageMaxMonths": null,
+  "activityLevel": null,
+  "dietaryContext": null,
+  "value": 25,
+  "valueMin": null,
+  "valueMax": null,
+  "unit": "µg",
+  "isPercentOfEnergy": false,
+  "isProvisional": false,
+  "supplementalOnly": false,
+  "perKgBodyWeight": true,
+  "averagingDays": 30,
+  "note": "Provisional tolerable monthly intake, per kg of body weight. \"The PTMI established was 25 μg/kg bw.\" Monthly rather than weekly on purpose — cadmium's half-life in the kidney is measured in decades, so the committee withdrew the 7 μg/kg bw PTWI in favour of a monthly figure. Applies to the whole population; the per-kg basis is what makes it age-appropriate.",
+  "from": "JECFA 73rd meeting (2010), WHO Food Additives Series 64, cadmium evaluation section 10"
+ },
+ {
+  "compound": "Cadmium",
+  "valueType": "PTMI",
+  "sex": "MALE",
+  "lifeStage": "NONE",
+  "ageMinMonths": 0,
+  "ageMaxMonths": null,
+  "activityLevel": null,
+  "dietaryContext": null,
+  "value": 25,
+  "valueMin": null,
+  "valueMax": null,
+  "unit": "µg",
+  "isPercentOfEnergy": false,
+  "isProvisional": false,
+  "supplementalOnly": false,
+  "perKgBodyWeight": true,
+  "averagingDays": 30,
+  "note": "Provisional tolerable monthly intake, per kg of body weight. \"The PTMI established was 25 μg/kg bw.\" Monthly rather than weekly on purpose — cadmium's half-life in the kidney is measured in decades, so the committee withdrew the 7 μg/kg bw PTWI in favour of a monthly figure. Applies to the whole population; the per-kg basis is what makes it age-appropriate.",
+  "from": "JECFA 73rd meeting (2010), WHO Food Additives Series 64, cadmium evaluation section 10"
  },
  {
   "compound": "Calcium",
@@ -566,6 +626,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 1, Calcium, Lactation, 0-3 months (4-6 months equal except zinc)"
  },
@@ -586,6 +647,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 1, Calcium, Lactation, 7-12 months"
  },
@@ -606,6 +668,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "Human milk; 400 mg for infant formula.",
   "from": "Appendix 1 Table 1, Calcium, 0-6 months"
  },
@@ -626,6 +689,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 1, Calcium, 7-12 months"
  },
@@ -646,6 +710,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 1, Calcium, 1-3 years"
  },
@@ -666,6 +731,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 1, Calcium, 4-6 years"
  },
@@ -686,6 +752,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 1, Calcium, 7-9 years"
  },
@@ -706,6 +773,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "Particularly during the growth spurt.",
   "from": "Appendix 1 Table 1, Calcium, Females 10-18 years"
  },
@@ -726,6 +794,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 1, Calcium, Females 19-50 years (pre-menopausal)"
  },
@@ -746,6 +815,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 1, Calcium, Females 51-65 years (menopausal)"
  },
@@ -766,6 +836,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 1, Calcium, Females 65+ years"
  },
@@ -786,6 +857,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "Human milk; 400 mg for infant formula.",
   "from": "Appendix 1 Table 1, Calcium, 0-6 months"
  },
@@ -806,6 +878,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 1, Calcium, 7-12 months"
  },
@@ -826,6 +899,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 1, Calcium, 1-3 years"
  },
@@ -846,6 +920,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 1, Calcium, 4-6 years"
  },
@@ -866,6 +941,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 1, Calcium, 7-9 years"
  },
@@ -886,6 +962,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "Particularly during the growth spurt.",
   "from": "Appendix 1 Table 1, Calcium, Males 10-18 years"
  },
@@ -906,6 +983,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 1, Calcium, Males 19-65 years"
  },
@@ -926,6 +1004,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 1, Calcium, Males 65+ years"
  },
@@ -946,6 +1025,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 1, Calcium, Pregnancy, third trimester"
  },
@@ -3284,6 +3364,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "As dietary folate equivalents.",
   "from": "Appendix 1 Table 2, Folate (Total), Lactation"
  },
@@ -3304,6 +3385,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "As dietary folate equivalents.",
   "from": "Appendix 1 Table 2, Folate (Total), 0-6 months"
  },
@@ -3324,6 +3406,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "As dietary folate equivalents.",
   "from": "Appendix 1 Table 2, Folate (Total), 7-11 months"
  },
@@ -3344,6 +3427,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "As dietary folate equivalents.",
   "from": "Appendix 1 Table 2, Folate (Total), 1-3 years"
  },
@@ -3364,6 +3448,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "As dietary folate equivalents.",
   "from": "Appendix 1 Table 2, Folate (Total), 4-6 years"
  },
@@ -3384,6 +3469,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "As dietary folate equivalents.",
   "from": "Appendix 1 Table 2, Folate (Total), 7-9 years"
  },
@@ -3404,6 +3490,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "As dietary folate equivalents.",
   "from": "Appendix 1 Table 2, Folate (Total), Adolescent females 10-18 years"
  },
@@ -3424,6 +3511,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "As dietary folate equivalents.",
   "from": "Appendix 1 Table 2, Folate (Total), Females 19-50 years (pre-menopausal)"
  },
@@ -3444,6 +3532,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "As dietary folate equivalents.",
   "from": "Appendix 1 Table 2, Folate (Total), Females 50-65 years (menopausal)"
  },
@@ -3464,6 +3553,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "As dietary folate equivalents.",
   "from": "Appendix 1 Table 2, Folate (Total), Older females 65+ years"
  },
@@ -3484,6 +3574,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "As dietary folate equivalents.",
   "from": "Appendix 1 Table 2, Folate (Total), 0-6 months"
  },
@@ -3504,6 +3595,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "As dietary folate equivalents.",
   "from": "Appendix 1 Table 2, Folate (Total), 7-11 months"
  },
@@ -3524,6 +3616,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "As dietary folate equivalents.",
   "from": "Appendix 1 Table 2, Folate (Total), 1-3 years"
  },
@@ -3544,6 +3637,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "As dietary folate equivalents.",
   "from": "Appendix 1 Table 2, Folate (Total), 4-6 years"
  },
@@ -3564,6 +3658,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "As dietary folate equivalents.",
   "from": "Appendix 1 Table 2, Folate (Total), 7-9 years"
  },
@@ -3584,6 +3679,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "As dietary folate equivalents.",
   "from": "Appendix 1 Table 2, Folate (Total), Adolescent males 10-18 years"
  },
@@ -3604,6 +3700,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "As dietary folate equivalents.",
   "from": "Appendix 1 Table 2, Folate (Total), Males 19-65 years (B6, D: 19-50 yrs)"
  },
@@ -3624,6 +3721,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "As dietary folate equivalents.",
   "from": "Appendix 1 Table 2, Folate (Total), Males 19-65 years (B6, D: 50+ yrs)"
  },
@@ -3644,6 +3742,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "As dietary folate equivalents.",
   "from": "Appendix 1 Table 2, Folate (Total), Older males 65+ years"
  },
@@ -3664,6 +3763,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "As dietary folate equivalents.",
   "from": "Appendix 1 Table 2, Folate (Total), Pregnancy"
  },
@@ -3722,6 +3822,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": true,
+  "averagingDays": 1,
   "note": "Per kg of body weight, as published (mg/kg per day). Table 36 is printed for males and females combined. SAA is the sulfur amino acids (methionine + cysteine) and AAA the aromatic (phenylalanine + tyrosine), as the table's own column headings define them.",
   "from": "WHO TRS 935 (2007), Table 36, Histidine, 0.5 y"
  },
@@ -3742,6 +3843,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": true,
+  "averagingDays": 1,
   "note": "Per kg of body weight, as published (mg/kg per day). Table 36 is printed for males and females combined. SAA is the sulfur amino acids (methionine + cysteine) and AAA the aromatic (phenylalanine + tyrosine), as the table's own column headings define them.",
   "from": "WHO TRS 935 (2007), Table 36, Histidine, 1-2 y"
  },
@@ -3762,6 +3864,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": true,
+  "averagingDays": 1,
   "note": "Per kg of body weight, as published (mg/kg per day). Table 36 is printed for males and females combined. SAA is the sulfur amino acids (methionine + cysteine) and AAA the aromatic (phenylalanine + tyrosine), as the table's own column headings define them.",
   "from": "WHO TRS 935 (2007), Table 36, Histidine, 3-10 y"
  },
@@ -3782,6 +3885,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": true,
+  "averagingDays": 1,
   "note": "Per kg of body weight, as published (mg/kg per day). Table 36 is printed for males and females combined. SAA is the sulfur amino acids (methionine + cysteine) and AAA the aromatic (phenylalanine + tyrosine), as the table's own column headings define them.",
   "from": "WHO TRS 935 (2007), Table 36, Histidine, 11-14 y"
  },
@@ -3802,6 +3906,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": true,
+  "averagingDays": 1,
   "note": "Per kg of body weight, as published (mg/kg per day). Table 36 is printed for males and females combined. SAA is the sulfur amino acids (methionine + cysteine) and AAA the aromatic (phenylalanine + tyrosine), as the table's own column headings define them.",
   "from": "WHO TRS 935 (2007), Table 36, Histidine, 15-18 y"
  },
@@ -3822,6 +3927,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": true,
+  "averagingDays": 1,
   "note": "Per kg of body weight, as published (mg/kg per day). Table 36 is printed for males and females combined. SAA is the sulfur amino acids (methionine + cysteine) and AAA the aromatic (phenylalanine + tyrosine), as the table's own column headings define them.",
   "from": "WHO TRS 935 (2007), Table 36, Histidine, >18 y"
  },
@@ -3842,6 +3948,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": true,
+  "averagingDays": 1,
   "note": "Per kg of body weight, as published (mg/kg per day). Table 36 is printed for males and females combined. SAA is the sulfur amino acids (methionine + cysteine) and AAA the aromatic (phenylalanine + tyrosine), as the table's own column headings define them.",
   "from": "WHO TRS 935 (2007), Table 36, Histidine, 0.5 y"
  },
@@ -3862,6 +3969,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": true,
+  "averagingDays": 1,
   "note": "Per kg of body weight, as published (mg/kg per day). Table 36 is printed for males and females combined. SAA is the sulfur amino acids (methionine + cysteine) and AAA the aromatic (phenylalanine + tyrosine), as the table's own column headings define them.",
   "from": "WHO TRS 935 (2007), Table 36, Histidine, 1-2 y"
  },
@@ -3882,6 +3990,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": true,
+  "averagingDays": 1,
   "note": "Per kg of body weight, as published (mg/kg per day). Table 36 is printed for males and females combined. SAA is the sulfur amino acids (methionine + cysteine) and AAA the aromatic (phenylalanine + tyrosine), as the table's own column headings define them.",
   "from": "WHO TRS 935 (2007), Table 36, Histidine, 3-10 y"
  },
@@ -3902,6 +4011,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": true,
+  "averagingDays": 1,
   "note": "Per kg of body weight, as published (mg/kg per day). Table 36 is printed for males and females combined. SAA is the sulfur amino acids (methionine + cysteine) and AAA the aromatic (phenylalanine + tyrosine), as the table's own column headings define them.",
   "from": "WHO TRS 935 (2007), Table 36, Histidine, 11-14 y"
  },
@@ -3922,6 +4032,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": true,
+  "averagingDays": 1,
   "note": "Per kg of body weight, as published (mg/kg per day). Table 36 is printed for males and females combined. SAA is the sulfur amino acids (methionine + cysteine) and AAA the aromatic (phenylalanine + tyrosine), as the table's own column headings define them.",
   "from": "WHO TRS 935 (2007), Table 36, Histidine, 15-18 y"
  },
@@ -3942,6 +4053,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": true,
+  "averagingDays": 1,
   "note": "Per kg of body weight, as published (mg/kg per day). Table 36 is printed for males and females combined. SAA is the sulfur amino acids (methionine + cysteine) and AAA the aromatic (phenylalanine + tyrosine), as the table's own column headings define them.",
   "from": "WHO TRS 935 (2007), Table 36, Histidine, >18 y"
  },
@@ -3962,6 +4074,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": true,
+  "averagingDays": 1,
   "note": "Per kg of body weight, as published (mg/kg per day). Derived as the average requirement + 24 %, per section 8.4: \"the safe levels of intake for the indispensable amino acids are 24 % higher than the values for average requirement shown in the first column of Table 23\", the coefficient of variation being taken as 12 % — the same as for total protein. The report states the rule but does not print the resulting numbers.",
   "from": "WHO TRS 935 (2007), Table 36, Histidine, >18 y, safe level per section 8.4 (+24 %)"
  },
@@ -3982,6 +4095,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": true,
+  "averagingDays": 1,
   "note": "Per kg of body weight, as published (mg/kg per day). Derived as the average requirement + 24 %, per section 8.4: \"the safe levels of intake for the indispensable amino acids are 24 % higher than the values for average requirement shown in the first column of Table 23\", the coefficient of variation being taken as 12 % — the same as for total protein. The report states the rule but does not print the resulting numbers.",
   "from": "WHO TRS 935 (2007), Table 36, Histidine, >18 y, safe level per section 8.4 (+24 %)"
  },
@@ -4002,6 +4116,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 1, Iodine, Lactation, 0-3 months (4-6 months equal except zinc)"
  },
@@ -4022,6 +4137,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 1, Iodine, Lactation, 7-12 months"
  },
@@ -4042,6 +4158,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 1, Iodine, 7-12 months"
  },
@@ -4062,6 +4179,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 1, Iodine, 1-3 years"
  },
@@ -4082,6 +4200,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 1, Iodine, 4-6 years"
  },
@@ -4102,6 +4221,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 1, Iodine, 7-9 years"
  },
@@ -4122,6 +4242,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 1, Iodine, Females 10-11 yrs"
  },
@@ -4142,6 +4263,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 1, Iodine, Females 12+ yrs"
  },
@@ -4162,6 +4284,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 1, Iodine, Females 19-50 years (pre-menopausal)"
  },
@@ -4182,6 +4305,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 1, Iodine, Females 51-65 years (menopausal)"
  },
@@ -4202,6 +4326,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 1, Iodine, Females 65+ years"
  },
@@ -4222,6 +4347,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 1, Iodine, 7-12 months"
  },
@@ -4242,6 +4368,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 1, Iodine, 1-3 years"
  },
@@ -4262,6 +4389,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 1, Iodine, 4-6 years"
  },
@@ -4282,6 +4410,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 1, Iodine, 7-9 years"
  },
@@ -4302,6 +4431,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 1, Iodine, Males 10-11 yrs"
  },
@@ -4322,6 +4452,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 1, Iodine, Males 12+ yrs"
  },
@@ -4342,6 +4473,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 1, Iodine, Males 19-65 years"
  },
@@ -4362,6 +4494,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 1, Iodine, Males 65+ years"
  },
@@ -4382,6 +4515,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 1, Iodine, Pregnancy, first trimester"
  },
@@ -4402,6 +4536,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 1, Iodine, Pregnancy, second trimester"
  },
@@ -4422,6 +4557,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 1, Iodine, Pregnancy, third trimester"
  },
@@ -4442,6 +4578,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "12 % bioavailability. 15 %: 10, 10 %: 15, 5 %: 30 mg.",
   "from": "Appendix 1 Table 1, Iron (12% bioavailability), Lactation, 0-3 months (4-6 months equal except zinc)"
  },
@@ -4462,6 +4599,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "12 % bioavailability. 15 %: 10, 10 %: 15, 5 %: 30 mg.",
   "from": "Appendix 1 Table 1, Iron (12% bioavailability), Lactation, 7-12 months"
  },
@@ -4482,6 +4620,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "12 % bioavailability. 15 %: 6, 10 %: 9, 5 %: 19 mg. Printed in brackets: bioavailability of dietary iron varies greatly in this period.",
   "from": "Appendix 1 Table 1, Iron (12% bioavailability), 7-12 months"
  },
@@ -4502,6 +4641,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "12 % bioavailability. 15 %: 4, 10 %: 6, 5 %: 12 mg.",
   "from": "Appendix 1 Table 1, Iron (12% bioavailability), 1-3 years"
  },
@@ -4522,6 +4662,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "12 % bioavailability. 15 %: 4, 10 %: 6, 5 %: 13 mg.",
   "from": "Appendix 1 Table 1, Iron (12% bioavailability), 4-6 years"
  },
@@ -4542,6 +4683,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "12 % bioavailability. 15 %: 6, 10 %: 9, 5 %: 18 mg.",
   "from": "Appendix 1 Table 1, Iron (12% bioavailability), 7-9 years"
  },
@@ -4562,6 +4704,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "12 % bioavailability. 15 %: 22, 10 %: 33, 5 %: 65 mg. Menstruating; non-menstruating adolescents: 15 %: 9, 12 %: 12, 10 %: 14, 5 %: 28 mg.",
   "from": "Appendix 1 Table 1, Iron (12% bioavailability), Females 10-14 yrs (menstruating)"
  },
@@ -4582,6 +4725,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "12 % bioavailability. 15 %: 21, 10 %: 31, 5 %: 62 mg.",
   "from": "Appendix 1 Table 1, Iron (12% bioavailability), Females 15-18 yrs"
  },
@@ -4602,6 +4746,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "12 % bioavailability. 15 %: 20, 10 %: 29, 5 %: 59 mg.",
   "from": "Appendix 1 Table 1, Iron (12% bioavailability), Females 19-50 years (pre-menopausal)"
  },
@@ -4622,6 +4767,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "12 % bioavailability. 15 %: 8, 10 %: 11, 5 %: 23 mg.",
   "from": "Appendix 1 Table 1, Iron (12% bioavailability), Females 51-65 years (menopausal)"
  },
@@ -4642,6 +4788,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "12 % bioavailability. 15 %: 8, 10 %: 11, 5 %: 23 mg.",
   "from": "Appendix 1 Table 1, Iron (12% bioavailability), Females 65+ years"
  },
@@ -4662,6 +4809,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "12 % bioavailability. 15 %: 6, 10 %: 9, 5 %: 19 mg. Printed in brackets: bioavailability of dietary iron varies greatly in this period.",
   "from": "Appendix 1 Table 1, Iron (12% bioavailability), 7-12 months"
  },
@@ -4682,6 +4830,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "12 % bioavailability. 15 %: 4, 10 %: 6, 5 %: 12 mg.",
   "from": "Appendix 1 Table 1, Iron (12% bioavailability), 1-3 years"
  },
@@ -4702,6 +4851,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "12 % bioavailability. 15 %: 4, 10 %: 6, 5 %: 13 mg.",
   "from": "Appendix 1 Table 1, Iron (12% bioavailability), 4-6 years"
  },
@@ -4722,6 +4872,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "12 % bioavailability. 15 %: 6, 10 %: 9, 5 %: 18 mg.",
   "from": "Appendix 1 Table 1, Iron (12% bioavailability), 7-9 years"
  },
@@ -4742,6 +4893,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "12 % bioavailability. 15 %: 10, 10 %: 15, 5 %: 29 mg.",
   "from": "Appendix 1 Table 1, Iron (12% bioavailability), Males 10-14 yrs"
  },
@@ -4762,6 +4914,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "12 % bioavailability. 15 %: 12, 10 %: 19, 5 %: 38 mg.",
   "from": "Appendix 1 Table 1, Iron (12% bioavailability), Males 15-18 yrs"
  },
@@ -4782,6 +4935,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "12 % bioavailability. 15 %: 9, 10 %: 14, 5 %: 27 mg.",
   "from": "Appendix 1 Table 1, Iron (12% bioavailability), Males 19-65 years"
  },
@@ -4802,6 +4956,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "12 % bioavailability. 15 %: 9, 10 %: 14, 5 %: 27 mg.",
   "from": "Appendix 1 Table 1, Iron (12% bioavailability), Males 65+ years"
  },
@@ -4822,6 +4977,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": true,
+  "averagingDays": 1,
   "note": "Per kg of body weight, as published (mg/kg per day). Table 36 is printed for males and females combined. SAA is the sulfur amino acids (methionine + cysteine) and AAA the aromatic (phenylalanine + tyrosine), as the table's own column headings define them.",
   "from": "WHO TRS 935 (2007), Table 36, Isoleucine, 0.5 y"
  },
@@ -4842,6 +4998,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": true,
+  "averagingDays": 1,
   "note": "Per kg of body weight, as published (mg/kg per day). Table 36 is printed for males and females combined. SAA is the sulfur amino acids (methionine + cysteine) and AAA the aromatic (phenylalanine + tyrosine), as the table's own column headings define them.",
   "from": "WHO TRS 935 (2007), Table 36, Isoleucine, 1-2 y"
  },
@@ -4862,6 +5019,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": true,
+  "averagingDays": 1,
   "note": "Per kg of body weight, as published (mg/kg per day). Table 36 is printed for males and females combined. SAA is the sulfur amino acids (methionine + cysteine) and AAA the aromatic (phenylalanine + tyrosine), as the table's own column headings define them.",
   "from": "WHO TRS 935 (2007), Table 36, Isoleucine, 3-10 y"
  },
@@ -4882,6 +5040,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": true,
+  "averagingDays": 1,
   "note": "Per kg of body weight, as published (mg/kg per day). Table 36 is printed for males and females combined. SAA is the sulfur amino acids (methionine + cysteine) and AAA the aromatic (phenylalanine + tyrosine), as the table's own column headings define them.",
   "from": "WHO TRS 935 (2007), Table 36, Isoleucine, 11-14 y"
  },
@@ -4902,6 +5061,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": true,
+  "averagingDays": 1,
   "note": "Per kg of body weight, as published (mg/kg per day). Table 36 is printed for males and females combined. SAA is the sulfur amino acids (methionine + cysteine) and AAA the aromatic (phenylalanine + tyrosine), as the table's own column headings define them.",
   "from": "WHO TRS 935 (2007), Table 36, Isoleucine, 15-18 y"
  },
@@ -4922,6 +5082,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": true,
+  "averagingDays": 1,
   "note": "Per kg of body weight, as published (mg/kg per day). Table 36 is printed for males and females combined. SAA is the sulfur amino acids (methionine + cysteine) and AAA the aromatic (phenylalanine + tyrosine), as the table's own column headings define them.",
   "from": "WHO TRS 935 (2007), Table 36, Isoleucine, >18 y"
  },
@@ -4942,6 +5103,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": true,
+  "averagingDays": 1,
   "note": "Per kg of body weight, as published (mg/kg per day). Table 36 is printed for males and females combined. SAA is the sulfur amino acids (methionine + cysteine) and AAA the aromatic (phenylalanine + tyrosine), as the table's own column headings define them.",
   "from": "WHO TRS 935 (2007), Table 36, Isoleucine, 0.5 y"
  },
@@ -4962,6 +5124,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": true,
+  "averagingDays": 1,
   "note": "Per kg of body weight, as published (mg/kg per day). Table 36 is printed for males and females combined. SAA is the sulfur amino acids (methionine + cysteine) and AAA the aromatic (phenylalanine + tyrosine), as the table's own column headings define them.",
   "from": "WHO TRS 935 (2007), Table 36, Isoleucine, 1-2 y"
  },
@@ -4982,6 +5145,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": true,
+  "averagingDays": 1,
   "note": "Per kg of body weight, as published (mg/kg per day). Table 36 is printed for males and females combined. SAA is the sulfur amino acids (methionine + cysteine) and AAA the aromatic (phenylalanine + tyrosine), as the table's own column headings define them.",
   "from": "WHO TRS 935 (2007), Table 36, Isoleucine, 3-10 y"
  },
@@ -5002,6 +5166,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": true,
+  "averagingDays": 1,
   "note": "Per kg of body weight, as published (mg/kg per day). Table 36 is printed for males and females combined. SAA is the sulfur amino acids (methionine + cysteine) and AAA the aromatic (phenylalanine + tyrosine), as the table's own column headings define them.",
   "from": "WHO TRS 935 (2007), Table 36, Isoleucine, 11-14 y"
  },
@@ -5022,6 +5187,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": true,
+  "averagingDays": 1,
   "note": "Per kg of body weight, as published (mg/kg per day). Table 36 is printed for males and females combined. SAA is the sulfur amino acids (methionine + cysteine) and AAA the aromatic (phenylalanine + tyrosine), as the table's own column headings define them.",
   "from": "WHO TRS 935 (2007), Table 36, Isoleucine, 15-18 y"
  },
@@ -5042,6 +5208,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": true,
+  "averagingDays": 1,
   "note": "Per kg of body weight, as published (mg/kg per day). Table 36 is printed for males and females combined. SAA is the sulfur amino acids (methionine + cysteine) and AAA the aromatic (phenylalanine + tyrosine), as the table's own column headings define them.",
   "from": "WHO TRS 935 (2007), Table 36, Isoleucine, >18 y"
  },
@@ -5062,6 +5229,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": true,
+  "averagingDays": 1,
   "note": "Per kg of body weight, as published (mg/kg per day). Derived as the average requirement + 24 %, per section 8.4: \"the safe levels of intake for the indispensable amino acids are 24 % higher than the values for average requirement shown in the first column of Table 23\", the coefficient of variation being taken as 12 % — the same as for total protein. The report states the rule but does not print the resulting numbers.",
   "from": "WHO TRS 935 (2007), Table 36, Isoleucine, >18 y, safe level per section 8.4 (+24 %)"
  },
@@ -5082,6 +5250,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": true,
+  "averagingDays": 1,
   "note": "Per kg of body weight, as published (mg/kg per day). Derived as the average requirement + 24 %, per section 8.4: \"the safe levels of intake for the indispensable amino acids are 24 % higher than the values for average requirement shown in the first column of Table 23\", the coefficient of variation being taken as 12 % — the same as for total protein. The report states the rule but does not print the resulting numbers.",
   "from": "WHO TRS 935 (2007), Table 36, Isoleucine, >18 y, safe level per section 8.4 (+24 %)"
  },
@@ -5102,6 +5271,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": true,
+  "averagingDays": 1,
   "note": "Per kg of body weight, as published (mg/kg per day). Table 36 is printed for males and females combined. SAA is the sulfur amino acids (methionine + cysteine) and AAA the aromatic (phenylalanine + tyrosine), as the table's own column headings define them.",
   "from": "WHO TRS 935 (2007), Table 36, Leucine, 0.5 y"
  },
@@ -5122,6 +5292,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": true,
+  "averagingDays": 1,
   "note": "Per kg of body weight, as published (mg/kg per day). Table 36 is printed for males and females combined. SAA is the sulfur amino acids (methionine + cysteine) and AAA the aromatic (phenylalanine + tyrosine), as the table's own column headings define them.",
   "from": "WHO TRS 935 (2007), Table 36, Leucine, 1-2 y"
  },
@@ -5142,6 +5313,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": true,
+  "averagingDays": 1,
   "note": "Per kg of body weight, as published (mg/kg per day). Table 36 is printed for males and females combined. SAA is the sulfur amino acids (methionine + cysteine) and AAA the aromatic (phenylalanine + tyrosine), as the table's own column headings define them.",
   "from": "WHO TRS 935 (2007), Table 36, Leucine, 3-10 y"
  },
@@ -5162,6 +5334,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": true,
+  "averagingDays": 1,
   "note": "Per kg of body weight, as published (mg/kg per day). Table 36 is printed for males and females combined. SAA is the sulfur amino acids (methionine + cysteine) and AAA the aromatic (phenylalanine + tyrosine), as the table's own column headings define them.",
   "from": "WHO TRS 935 (2007), Table 36, Leucine, 11-14 y"
  },
@@ -5182,6 +5355,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": true,
+  "averagingDays": 1,
   "note": "Per kg of body weight, as published (mg/kg per day). Table 36 is printed for males and females combined. SAA is the sulfur amino acids (methionine + cysteine) and AAA the aromatic (phenylalanine + tyrosine), as the table's own column headings define them.",
   "from": "WHO TRS 935 (2007), Table 36, Leucine, 15-18 y"
  },
@@ -5202,6 +5376,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": true,
+  "averagingDays": 1,
   "note": "Per kg of body weight, as published (mg/kg per day). Table 36 is printed for males and females combined. SAA is the sulfur amino acids (methionine + cysteine) and AAA the aromatic (phenylalanine + tyrosine), as the table's own column headings define them.",
   "from": "WHO TRS 935 (2007), Table 36, Leucine, >18 y"
  },
@@ -5222,6 +5397,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": true,
+  "averagingDays": 1,
   "note": "Per kg of body weight, as published (mg/kg per day). Table 36 is printed for males and females combined. SAA is the sulfur amino acids (methionine + cysteine) and AAA the aromatic (phenylalanine + tyrosine), as the table's own column headings define them.",
   "from": "WHO TRS 935 (2007), Table 36, Leucine, 0.5 y"
  },
@@ -5242,6 +5418,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": true,
+  "averagingDays": 1,
   "note": "Per kg of body weight, as published (mg/kg per day). Table 36 is printed for males and females combined. SAA is the sulfur amino acids (methionine + cysteine) and AAA the aromatic (phenylalanine + tyrosine), as the table's own column headings define them.",
   "from": "WHO TRS 935 (2007), Table 36, Leucine, 1-2 y"
  },
@@ -5262,6 +5439,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": true,
+  "averagingDays": 1,
   "note": "Per kg of body weight, as published (mg/kg per day). Table 36 is printed for males and females combined. SAA is the sulfur amino acids (methionine + cysteine) and AAA the aromatic (phenylalanine + tyrosine), as the table's own column headings define them.",
   "from": "WHO TRS 935 (2007), Table 36, Leucine, 3-10 y"
  },
@@ -5282,6 +5460,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": true,
+  "averagingDays": 1,
   "note": "Per kg of body weight, as published (mg/kg per day). Table 36 is printed for males and females combined. SAA is the sulfur amino acids (methionine + cysteine) and AAA the aromatic (phenylalanine + tyrosine), as the table's own column headings define them.",
   "from": "WHO TRS 935 (2007), Table 36, Leucine, 11-14 y"
  },
@@ -5302,6 +5481,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": true,
+  "averagingDays": 1,
   "note": "Per kg of body weight, as published (mg/kg per day). Table 36 is printed for males and females combined. SAA is the sulfur amino acids (methionine + cysteine) and AAA the aromatic (phenylalanine + tyrosine), as the table's own column headings define them.",
   "from": "WHO TRS 935 (2007), Table 36, Leucine, 15-18 y"
  },
@@ -5322,6 +5502,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": true,
+  "averagingDays": 1,
   "note": "Per kg of body weight, as published (mg/kg per day). Table 36 is printed for males and females combined. SAA is the sulfur amino acids (methionine + cysteine) and AAA the aromatic (phenylalanine + tyrosine), as the table's own column headings define them.",
   "from": "WHO TRS 935 (2007), Table 36, Leucine, >18 y"
  },
@@ -5342,6 +5523,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": true,
+  "averagingDays": 1,
   "note": "Per kg of body weight, as published (mg/kg per day). Derived as the average requirement + 24 %, per section 8.4: \"the safe levels of intake for the indispensable amino acids are 24 % higher than the values for average requirement shown in the first column of Table 23\", the coefficient of variation being taken as 12 % — the same as for total protein. The report states the rule but does not print the resulting numbers.",
   "from": "WHO TRS 935 (2007), Table 36, Leucine, >18 y, safe level per section 8.4 (+24 %)"
  },
@@ -5362,6 +5544,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": true,
+  "averagingDays": 1,
   "note": "Per kg of body weight, as published (mg/kg per day). Derived as the average requirement + 24 %, per section 8.4: \"the safe levels of intake for the indispensable amino acids are 24 % higher than the values for average requirement shown in the first column of Table 23\", the coefficient of variation being taken as 12 % — the same as for total protein. The report states the rule but does not print the resulting numbers.",
   "from": "WHO TRS 935 (2007), Table 36, Leucine, >18 y, safe level per section 8.4 (+24 %)"
  },
@@ -5572,6 +5755,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": true,
+  "averagingDays": 1,
   "note": "Per kg of body weight, as published (mg/kg per day). Table 36 is printed for males and females combined. SAA is the sulfur amino acids (methionine + cysteine) and AAA the aromatic (phenylalanine + tyrosine), as the table's own column headings define them.",
   "from": "WHO TRS 935 (2007), Table 36, Lysine, 0.5 y"
  },
@@ -5592,6 +5776,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": true,
+  "averagingDays": 1,
   "note": "Per kg of body weight, as published (mg/kg per day). Table 36 is printed for males and females combined. SAA is the sulfur amino acids (methionine + cysteine) and AAA the aromatic (phenylalanine + tyrosine), as the table's own column headings define them.",
   "from": "WHO TRS 935 (2007), Table 36, Lysine, 1-2 y"
  },
@@ -5612,6 +5797,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": true,
+  "averagingDays": 1,
   "note": "Per kg of body weight, as published (mg/kg per day). Table 36 is printed for males and females combined. SAA is the sulfur amino acids (methionine + cysteine) and AAA the aromatic (phenylalanine + tyrosine), as the table's own column headings define them.",
   "from": "WHO TRS 935 (2007), Table 36, Lysine, 3-10 y"
  },
@@ -5632,6 +5818,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": true,
+  "averagingDays": 1,
   "note": "Per kg of body weight, as published (mg/kg per day). Table 36 is printed for males and females combined. SAA is the sulfur amino acids (methionine + cysteine) and AAA the aromatic (phenylalanine + tyrosine), as the table's own column headings define them.",
   "from": "WHO TRS 935 (2007), Table 36, Lysine, 11-14 y"
  },
@@ -5652,6 +5839,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": true,
+  "averagingDays": 1,
   "note": "Per kg of body weight, as published (mg/kg per day). Table 36 is printed for males and females combined. SAA is the sulfur amino acids (methionine + cysteine) and AAA the aromatic (phenylalanine + tyrosine), as the table's own column headings define them.",
   "from": "WHO TRS 935 (2007), Table 36, Lysine, 15-18 y"
  },
@@ -5672,6 +5860,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": true,
+  "averagingDays": 1,
   "note": "Per kg of body weight, as published (mg/kg per day). Table 36 is printed for males and females combined. SAA is the sulfur amino acids (methionine + cysteine) and AAA the aromatic (phenylalanine + tyrosine), as the table's own column headings define them.",
   "from": "WHO TRS 935 (2007), Table 36, Lysine, >18 y"
  },
@@ -5692,6 +5881,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": true,
+  "averagingDays": 1,
   "note": "Per kg of body weight, as published (mg/kg per day). Table 36 is printed for males and females combined. SAA is the sulfur amino acids (methionine + cysteine) and AAA the aromatic (phenylalanine + tyrosine), as the table's own column headings define them.",
   "from": "WHO TRS 935 (2007), Table 36, Lysine, 0.5 y"
  },
@@ -5712,6 +5902,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": true,
+  "averagingDays": 1,
   "note": "Per kg of body weight, as published (mg/kg per day). Table 36 is printed for males and females combined. SAA is the sulfur amino acids (methionine + cysteine) and AAA the aromatic (phenylalanine + tyrosine), as the table's own column headings define them.",
   "from": "WHO TRS 935 (2007), Table 36, Lysine, 1-2 y"
  },
@@ -5732,6 +5923,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": true,
+  "averagingDays": 1,
   "note": "Per kg of body weight, as published (mg/kg per day). Table 36 is printed for males and females combined. SAA is the sulfur amino acids (methionine + cysteine) and AAA the aromatic (phenylalanine + tyrosine), as the table's own column headings define them.",
   "from": "WHO TRS 935 (2007), Table 36, Lysine, 3-10 y"
  },
@@ -5752,6 +5944,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": true,
+  "averagingDays": 1,
   "note": "Per kg of body weight, as published (mg/kg per day). Table 36 is printed for males and females combined. SAA is the sulfur amino acids (methionine + cysteine) and AAA the aromatic (phenylalanine + tyrosine), as the table's own column headings define them.",
   "from": "WHO TRS 935 (2007), Table 36, Lysine, 11-14 y"
  },
@@ -5772,6 +5965,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": true,
+  "averagingDays": 1,
   "note": "Per kg of body weight, as published (mg/kg per day). Table 36 is printed for males and females combined. SAA is the sulfur amino acids (methionine + cysteine) and AAA the aromatic (phenylalanine + tyrosine), as the table's own column headings define them.",
   "from": "WHO TRS 935 (2007), Table 36, Lysine, 15-18 y"
  },
@@ -5792,6 +5986,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": true,
+  "averagingDays": 1,
   "note": "Per kg of body weight, as published (mg/kg per day). Table 36 is printed for males and females combined. SAA is the sulfur amino acids (methionine + cysteine) and AAA the aromatic (phenylalanine + tyrosine), as the table's own column headings define them.",
   "from": "WHO TRS 935 (2007), Table 36, Lysine, >18 y"
  },
@@ -5812,6 +6007,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": true,
+  "averagingDays": 1,
   "note": "Per kg of body weight, as published (mg/kg per day). Derived as the average requirement + 24 %, per section 8.4: \"the safe levels of intake for the indispensable amino acids are 24 % higher than the values for average requirement shown in the first column of Table 23\", the coefficient of variation being taken as 12 % — the same as for total protein. The report states the rule but does not print the resulting numbers.",
   "from": "WHO TRS 935 (2007), Table 36, Lysine, >18 y, safe level per section 8.4 (+24 %)"
  },
@@ -5832,6 +6028,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": true,
+  "averagingDays": 1,
   "note": "Per kg of body weight, as published (mg/kg per day). Derived as the average requirement + 24 %, per section 8.4: \"the safe levels of intake for the indispensable amino acids are 24 % higher than the values for average requirement shown in the first column of Table 23\", the coefficient of variation being taken as 12 % — the same as for total protein. The report states the rule but does not print the resulting numbers.",
   "from": "WHO TRS 935 (2007), Table 36, Lysine, >18 y, safe level per section 8.4 (+24 %)"
  },
@@ -5852,6 +6049,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 1, Magnesium, Lactation, 0-3 months (4-6 months equal except zinc)"
  },
@@ -5872,6 +6070,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 1, Magnesium, Lactation, 7-12 months"
  },
@@ -5892,6 +6091,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "Human milk; 36 mg for infant formula.",
   "from": "Appendix 1 Table 1, Magnesium, 0-6 months"
  },
@@ -5912,6 +6112,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 1, Magnesium, 7-12 months"
  },
@@ -5932,6 +6133,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 1, Magnesium, 1-3 years"
  },
@@ -5952,6 +6154,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 1, Magnesium, 4-6 years"
  },
@@ -5972,6 +6175,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 1, Magnesium, 7-9 years"
  },
@@ -5992,6 +6196,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 1, Magnesium, Females 10-18 years"
  },
@@ -6012,6 +6217,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 1, Magnesium, Females 19-50 years (pre-menopausal)"
  },
@@ -6032,6 +6238,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 1, Magnesium, Females 51-65 years (menopausal)"
  },
@@ -6052,6 +6259,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 1, Magnesium, Females 65+ years"
  },
@@ -6072,6 +6280,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "Human milk; 36 mg for infant formula.",
   "from": "Appendix 1 Table 1, Magnesium, 0-6 months"
  },
@@ -6092,6 +6301,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 1, Magnesium, 7-12 months"
  },
@@ -6112,6 +6322,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 1, Magnesium, 1-3 years"
  },
@@ -6132,6 +6343,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 1, Magnesium, 4-6 years"
  },
@@ -6152,6 +6364,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 1, Magnesium, 7-9 years"
  },
@@ -6172,6 +6385,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 1, Magnesium, Males 10-18 years"
  },
@@ -6192,6 +6406,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 1, Magnesium, Males 19-65 years"
  },
@@ -6212,6 +6427,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 1, Magnesium, Males 65+ years"
  },
@@ -6232,6 +6448,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 1, Magnesium, Pregnancy, first trimester"
  },
@@ -6252,6 +6469,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 1, Magnesium, Pregnancy, second trimester"
  },
@@ -6272,6 +6490,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 1, Magnesium, Pregnancy, third trimester"
  },
@@ -6292,6 +6511,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": true,
+  "averagingDays": 1,
   "note": "Per kg of body weight, as published (mg/kg per day). Table 36 is printed for males and females combined. SAA is the sulfur amino acids (methionine + cysteine) and AAA the aromatic (phenylalanine + tyrosine), as the table's own column headings define them.",
   "from": "WHO TRS 935 (2007), Table 36, Methionine + Cysteine, 0.5 y"
  },
@@ -6312,6 +6532,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": true,
+  "averagingDays": 1,
   "note": "Per kg of body weight, as published (mg/kg per day). Table 36 is printed for males and females combined. SAA is the sulfur amino acids (methionine + cysteine) and AAA the aromatic (phenylalanine + tyrosine), as the table's own column headings define them.",
   "from": "WHO TRS 935 (2007), Table 36, Methionine + Cysteine, 1-2 y"
  },
@@ -6332,6 +6553,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": true,
+  "averagingDays": 1,
   "note": "Per kg of body weight, as published (mg/kg per day). Table 36 is printed for males and females combined. SAA is the sulfur amino acids (methionine + cysteine) and AAA the aromatic (phenylalanine + tyrosine), as the table's own column headings define them.",
   "from": "WHO TRS 935 (2007), Table 36, Methionine + Cysteine, 3-10 y"
  },
@@ -6352,6 +6574,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": true,
+  "averagingDays": 1,
   "note": "Per kg of body weight, as published (mg/kg per day). Table 36 is printed for males and females combined. SAA is the sulfur amino acids (methionine + cysteine) and AAA the aromatic (phenylalanine + tyrosine), as the table's own column headings define them.",
   "from": "WHO TRS 935 (2007), Table 36, Methionine + Cysteine, 11-14 y"
  },
@@ -6372,6 +6595,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": true,
+  "averagingDays": 1,
   "note": "Per kg of body weight, as published (mg/kg per day). Table 36 is printed for males and females combined. SAA is the sulfur amino acids (methionine + cysteine) and AAA the aromatic (phenylalanine + tyrosine), as the table's own column headings define them.",
   "from": "WHO TRS 935 (2007), Table 36, Methionine + Cysteine, 15-18 y"
  },
@@ -6392,6 +6616,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": true,
+  "averagingDays": 1,
   "note": "Per kg of body weight, as published (mg/kg per day). Table 36 is printed for males and females combined. SAA is the sulfur amino acids (methionine + cysteine) and AAA the aromatic (phenylalanine + tyrosine), as the table's own column headings define them.",
   "from": "WHO TRS 935 (2007), Table 36, Methionine + Cysteine, >18 y"
  },
@@ -6412,6 +6637,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": true,
+  "averagingDays": 1,
   "note": "Per kg of body weight, as published (mg/kg per day). Table 36 is printed for males and females combined. SAA is the sulfur amino acids (methionine + cysteine) and AAA the aromatic (phenylalanine + tyrosine), as the table's own column headings define them.",
   "from": "WHO TRS 935 (2007), Table 36, Methionine + Cysteine, 0.5 y"
  },
@@ -6432,6 +6658,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": true,
+  "averagingDays": 1,
   "note": "Per kg of body weight, as published (mg/kg per day). Table 36 is printed for males and females combined. SAA is the sulfur amino acids (methionine + cysteine) and AAA the aromatic (phenylalanine + tyrosine), as the table's own column headings define them.",
   "from": "WHO TRS 935 (2007), Table 36, Methionine + Cysteine, 1-2 y"
  },
@@ -6452,6 +6679,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": true,
+  "averagingDays": 1,
   "note": "Per kg of body weight, as published (mg/kg per day). Table 36 is printed for males and females combined. SAA is the sulfur amino acids (methionine + cysteine) and AAA the aromatic (phenylalanine + tyrosine), as the table's own column headings define them.",
   "from": "WHO TRS 935 (2007), Table 36, Methionine + Cysteine, 3-10 y"
  },
@@ -6472,6 +6700,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": true,
+  "averagingDays": 1,
   "note": "Per kg of body weight, as published (mg/kg per day). Table 36 is printed for males and females combined. SAA is the sulfur amino acids (methionine + cysteine) and AAA the aromatic (phenylalanine + tyrosine), as the table's own column headings define them.",
   "from": "WHO TRS 935 (2007), Table 36, Methionine + Cysteine, 11-14 y"
  },
@@ -6492,6 +6721,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": true,
+  "averagingDays": 1,
   "note": "Per kg of body weight, as published (mg/kg per day). Table 36 is printed for males and females combined. SAA is the sulfur amino acids (methionine + cysteine) and AAA the aromatic (phenylalanine + tyrosine), as the table's own column headings define them.",
   "from": "WHO TRS 935 (2007), Table 36, Methionine + Cysteine, 15-18 y"
  },
@@ -6512,6 +6742,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": true,
+  "averagingDays": 1,
   "note": "Per kg of body weight, as published (mg/kg per day). Table 36 is printed for males and females combined. SAA is the sulfur amino acids (methionine + cysteine) and AAA the aromatic (phenylalanine + tyrosine), as the table's own column headings define them.",
   "from": "WHO TRS 935 (2007), Table 36, Methionine + Cysteine, >18 y"
  },
@@ -6532,6 +6763,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": true,
+  "averagingDays": 1,
   "note": "Per kg of body weight, as published (mg/kg per day). Derived as the average requirement + 24 %, per section 8.4: \"the safe levels of intake for the indispensable amino acids are 24 % higher than the values for average requirement shown in the first column of Table 23\", the coefficient of variation being taken as 12 % — the same as for total protein. The report states the rule but does not print the resulting numbers.",
   "from": "WHO TRS 935 (2007), Table 36, Methionine + Cysteine, >18 y, safe level per section 8.4 (+24 %)"
  },
@@ -6552,6 +6784,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": true,
+  "averagingDays": 1,
   "note": "Per kg of body weight, as published (mg/kg per day). Derived as the average requirement + 24 %, per section 8.4: \"the safe levels of intake for the indispensable amino acids are 24 % higher than the values for average requirement shown in the first column of Table 23\", the coefficient of variation being taken as 12 % — the same as for total protein. The report states the rule but does not print the resulting numbers.",
   "from": "WHO TRS 935 (2007), Table 36, Methionine + Cysteine, >18 y, safe level per section 8.4 (+24 %)"
  },
@@ -6572,6 +6805,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "As niacin equivalents.",
   "from": "Appendix 1 Table 2, Niacin (B3), Lactation"
  },
@@ -6592,6 +6826,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "As niacin equivalents. Preformed niacin.",
   "from": "Appendix 1 Table 2, Niacin (B3), 0-6 months"
  },
@@ -6612,6 +6847,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "As niacin equivalents.",
   "from": "Appendix 1 Table 2, Niacin (B3), 7-11 months"
  },
@@ -6632,6 +6868,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "As niacin equivalents.",
   "from": "Appendix 1 Table 2, Niacin (B3), 1-3 years"
  },
@@ -6652,6 +6889,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "As niacin equivalents.",
   "from": "Appendix 1 Table 2, Niacin (B3), 4-6 years"
  },
@@ -6672,6 +6910,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "As niacin equivalents.",
   "from": "Appendix 1 Table 2, Niacin (B3), 7-9 years"
  },
@@ -6692,6 +6931,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "As niacin equivalents.",
   "from": "Appendix 1 Table 2, Niacin (B3), Adolescent females 10-18 years"
  },
@@ -6712,6 +6952,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "As niacin equivalents.",
   "from": "Appendix 1 Table 2, Niacin (B3), Females 19-50 years (pre-menopausal)"
  },
@@ -6732,6 +6973,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "As niacin equivalents.",
   "from": "Appendix 1 Table 2, Niacin (B3), Females 50-65 years (menopausal)"
  },
@@ -6752,6 +6994,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "As niacin equivalents.",
   "from": "Appendix 1 Table 2, Niacin (B3), Older females 65+ years"
  },
@@ -6772,6 +7015,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "As niacin equivalents. Preformed niacin.",
   "from": "Appendix 1 Table 2, Niacin (B3), 0-6 months"
  },
@@ -6792,6 +7036,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "As niacin equivalents.",
   "from": "Appendix 1 Table 2, Niacin (B3), 7-11 months"
  },
@@ -6812,6 +7057,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "As niacin equivalents.",
   "from": "Appendix 1 Table 2, Niacin (B3), 1-3 years"
  },
@@ -6832,6 +7078,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "As niacin equivalents.",
   "from": "Appendix 1 Table 2, Niacin (B3), 4-6 years"
  },
@@ -6852,6 +7099,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "As niacin equivalents.",
   "from": "Appendix 1 Table 2, Niacin (B3), 7-9 years"
  },
@@ -6872,6 +7120,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "As niacin equivalents.",
   "from": "Appendix 1 Table 2, Niacin (B3), Adolescent males 10-18 years"
  },
@@ -6892,6 +7141,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "As niacin equivalents.",
   "from": "Appendix 1 Table 2, Niacin (B3), Males 19-65 years (B6, D: 19-50 yrs)"
  },
@@ -6912,6 +7162,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "As niacin equivalents.",
   "from": "Appendix 1 Table 2, Niacin (B3), Males 19-65 years (B6, D: 50+ yrs)"
  },
@@ -6932,6 +7183,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "As niacin equivalents.",
   "from": "Appendix 1 Table 2, Niacin (B3), Older males 65+ years"
  },
@@ -6952,6 +7204,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "As niacin equivalents.",
   "from": "Appendix 1 Table 2, Niacin (B3), Pregnancy"
  },
@@ -7010,6 +7263,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Pantothenic Acid (B5), Lactation"
  },
@@ -7030,6 +7284,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Pantothenic Acid (B5), 0-6 months"
  },
@@ -7050,6 +7305,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Pantothenic Acid (B5), 7-11 months"
  },
@@ -7070,6 +7326,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Pantothenic Acid (B5), 1-3 years"
  },
@@ -7090,6 +7347,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Pantothenic Acid (B5), 4-6 years"
  },
@@ -7110,6 +7368,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Pantothenic Acid (B5), 7-9 years"
  },
@@ -7130,6 +7389,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Pantothenic Acid (B5), Adolescent females 10-18 years"
  },
@@ -7150,6 +7410,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Pantothenic Acid (B5), Females 19-50 years (pre-menopausal)"
  },
@@ -7170,6 +7431,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Pantothenic Acid (B5), Females 50-65 years (menopausal)"
  },
@@ -7190,6 +7452,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Pantothenic Acid (B5), Older females 65+ years"
  },
@@ -7210,6 +7473,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Pantothenic Acid (B5), 0-6 months"
  },
@@ -7230,6 +7494,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Pantothenic Acid (B5), 7-11 months"
  },
@@ -7250,6 +7515,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Pantothenic Acid (B5), 1-3 years"
  },
@@ -7270,6 +7536,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Pantothenic Acid (B5), 4-6 years"
  },
@@ -7290,6 +7557,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Pantothenic Acid (B5), 7-9 years"
  },
@@ -7310,6 +7578,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Pantothenic Acid (B5), Adolescent males 10-18 years"
  },
@@ -7330,6 +7599,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Pantothenic Acid (B5), Males 19-65 years (B6, D: 19-50 yrs)"
  },
@@ -7350,6 +7620,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Pantothenic Acid (B5), Males 19-65 years (B6, D: 50+ yrs)"
  },
@@ -7370,6 +7641,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Pantothenic Acid (B5), Older males 65+ years"
  },
@@ -7390,6 +7662,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Pantothenic Acid (B5), Pregnancy"
  },
@@ -7410,6 +7683,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": true,
+  "averagingDays": 1,
   "note": "Per kg of body weight, as published (mg/kg per day). Table 36 is printed for males and females combined. SAA is the sulfur amino acids (methionine + cysteine) and AAA the aromatic (phenylalanine + tyrosine), as the table's own column headings define them.",
   "from": "WHO TRS 935 (2007), Table 36, Phenylalanine + Tyrosine, 0.5 y"
  },
@@ -7430,6 +7704,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": true,
+  "averagingDays": 1,
   "note": "Per kg of body weight, as published (mg/kg per day). Table 36 is printed for males and females combined. SAA is the sulfur amino acids (methionine + cysteine) and AAA the aromatic (phenylalanine + tyrosine), as the table's own column headings define them.",
   "from": "WHO TRS 935 (2007), Table 36, Phenylalanine + Tyrosine, 1-2 y"
  },
@@ -7450,6 +7725,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": true,
+  "averagingDays": 1,
   "note": "Per kg of body weight, as published (mg/kg per day). Table 36 is printed for males and females combined. SAA is the sulfur amino acids (methionine + cysteine) and AAA the aromatic (phenylalanine + tyrosine), as the table's own column headings define them.",
   "from": "WHO TRS 935 (2007), Table 36, Phenylalanine + Tyrosine, 3-10 y"
  },
@@ -7470,6 +7746,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": true,
+  "averagingDays": 1,
   "note": "Per kg of body weight, as published (mg/kg per day). Table 36 is printed for males and females combined. SAA is the sulfur amino acids (methionine + cysteine) and AAA the aromatic (phenylalanine + tyrosine), as the table's own column headings define them.",
   "from": "WHO TRS 935 (2007), Table 36, Phenylalanine + Tyrosine, 11-14 y"
  },
@@ -7490,6 +7767,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": true,
+  "averagingDays": 1,
   "note": "Per kg of body weight, as published (mg/kg per day). Table 36 is printed for males and females combined. SAA is the sulfur amino acids (methionine + cysteine) and AAA the aromatic (phenylalanine + tyrosine), as the table's own column headings define them.",
   "from": "WHO TRS 935 (2007), Table 36, Phenylalanine + Tyrosine, 15-18 y"
  },
@@ -7510,6 +7788,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": true,
+  "averagingDays": 1,
   "note": "Per kg of body weight, as published (mg/kg per day). Table 36 is printed for males and females combined. SAA is the sulfur amino acids (methionine + cysteine) and AAA the aromatic (phenylalanine + tyrosine), as the table's own column headings define them.",
   "from": "WHO TRS 935 (2007), Table 36, Phenylalanine + Tyrosine, >18 y"
  },
@@ -7530,6 +7809,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": true,
+  "averagingDays": 1,
   "note": "Per kg of body weight, as published (mg/kg per day). Table 36 is printed for males and females combined. SAA is the sulfur amino acids (methionine + cysteine) and AAA the aromatic (phenylalanine + tyrosine), as the table's own column headings define them.",
   "from": "WHO TRS 935 (2007), Table 36, Phenylalanine + Tyrosine, 0.5 y"
  },
@@ -7550,6 +7830,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": true,
+  "averagingDays": 1,
   "note": "Per kg of body weight, as published (mg/kg per day). Table 36 is printed for males and females combined. SAA is the sulfur amino acids (methionine + cysteine) and AAA the aromatic (phenylalanine + tyrosine), as the table's own column headings define them.",
   "from": "WHO TRS 935 (2007), Table 36, Phenylalanine + Tyrosine, 1-2 y"
  },
@@ -7570,6 +7851,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": true,
+  "averagingDays": 1,
   "note": "Per kg of body weight, as published (mg/kg per day). Table 36 is printed for males and females combined. SAA is the sulfur amino acids (methionine + cysteine) and AAA the aromatic (phenylalanine + tyrosine), as the table's own column headings define them.",
   "from": "WHO TRS 935 (2007), Table 36, Phenylalanine + Tyrosine, 3-10 y"
  },
@@ -7590,6 +7872,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": true,
+  "averagingDays": 1,
   "note": "Per kg of body weight, as published (mg/kg per day). Table 36 is printed for males and females combined. SAA is the sulfur amino acids (methionine + cysteine) and AAA the aromatic (phenylalanine + tyrosine), as the table's own column headings define them.",
   "from": "WHO TRS 935 (2007), Table 36, Phenylalanine + Tyrosine, 11-14 y"
  },
@@ -7610,6 +7893,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": true,
+  "averagingDays": 1,
   "note": "Per kg of body weight, as published (mg/kg per day). Table 36 is printed for males and females combined. SAA is the sulfur amino acids (methionine + cysteine) and AAA the aromatic (phenylalanine + tyrosine), as the table's own column headings define them.",
   "from": "WHO TRS 935 (2007), Table 36, Phenylalanine + Tyrosine, 15-18 y"
  },
@@ -7630,6 +7914,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": true,
+  "averagingDays": 1,
   "note": "Per kg of body weight, as published (mg/kg per day). Table 36 is printed for males and females combined. SAA is the sulfur amino acids (methionine + cysteine) and AAA the aromatic (phenylalanine + tyrosine), as the table's own column headings define them.",
   "from": "WHO TRS 935 (2007), Table 36, Phenylalanine + Tyrosine, >18 y"
  },
@@ -7650,6 +7935,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": true,
+  "averagingDays": 1,
   "note": "Per kg of body weight, as published (mg/kg per day). Derived as the average requirement + 24 %, per section 8.4: \"the safe levels of intake for the indispensable amino acids are 24 % higher than the values for average requirement shown in the first column of Table 23\", the coefficient of variation being taken as 12 % — the same as for total protein. The report states the rule but does not print the resulting numbers.",
   "from": "WHO TRS 935 (2007), Table 36, Phenylalanine + Tyrosine, >18 y, safe level per section 8.4 (+24 %)"
  },
@@ -7670,6 +7956,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": true,
+  "averagingDays": 1,
   "note": "Per kg of body weight, as published (mg/kg per day). Derived as the average requirement + 24 %, per section 8.4: \"the safe levels of intake for the indispensable amino acids are 24 % higher than the values for average requirement shown in the first column of Table 23\", the coefficient of variation being taken as 12 % — the same as for total protein. The report states the rule but does not print the resulting numbers.",
   "from": "WHO TRS 935 (2007), Table 36, Phenylalanine + Tyrosine, >18 y, safe level per section 8.4 (+24 %)"
  },
@@ -7880,6 +8167,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Riboflavin (B2), Lactation"
  },
@@ -7900,6 +8188,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Riboflavin (B2), 0-6 months"
  },
@@ -7920,6 +8209,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Riboflavin (B2), 7-11 months"
  },
@@ -7940,6 +8230,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Riboflavin (B2), 1-3 years"
  },
@@ -7960,6 +8251,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Riboflavin (B2), 4-6 years"
  },
@@ -7980,6 +8272,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Riboflavin (B2), 7-9 years"
  },
@@ -8000,6 +8293,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Riboflavin (B2), Adolescent females 10-18 years"
  },
@@ -8020,6 +8314,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Riboflavin (B2), Females 19-50 years (pre-menopausal)"
  },
@@ -8040,6 +8335,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Riboflavin (B2), Females 50-65 years (menopausal)"
  },
@@ -8060,6 +8356,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Riboflavin (B2), Older females 65+ years"
  },
@@ -8080,6 +8377,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Riboflavin (B2), 0-6 months"
  },
@@ -8100,6 +8398,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Riboflavin (B2), 7-11 months"
  },
@@ -8120,6 +8419,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Riboflavin (B2), 1-3 years"
  },
@@ -8140,6 +8440,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Riboflavin (B2), 4-6 years"
  },
@@ -8160,6 +8461,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Riboflavin (B2), 7-9 years"
  },
@@ -8180,6 +8482,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Riboflavin (B2), Adolescent males 10-18 years"
  },
@@ -8200,6 +8503,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Riboflavin (B2), Males 19-65 years (B6, D: 19-50 yrs)"
  },
@@ -8220,6 +8524,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Riboflavin (B2), Males 19-65 years (B6, D: 50+ yrs)"
  },
@@ -8240,6 +8545,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Riboflavin (B2), Older males 65+ years"
  },
@@ -8260,6 +8566,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Riboflavin (B2), Pregnancy"
  },
@@ -8394,6 +8701,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 1, Selenium, Lactation, 0-3 months (4-6 months equal except zinc)"
  },
@@ -8414,6 +8722,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 1, Selenium, Lactation, 7-12 months"
  },
@@ -8434,6 +8743,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 1, Selenium, 0-6 months"
  },
@@ -8454,6 +8764,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 1, Selenium, 7-12 months"
  },
@@ -8474,6 +8785,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 1, Selenium, 1-3 years"
  },
@@ -8494,6 +8806,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 1, Selenium, 4-6 years"
  },
@@ -8514,6 +8827,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 1, Selenium, 7-9 years"
  },
@@ -8534,6 +8848,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 1, Selenium, Females 10-18 years"
  },
@@ -8554,6 +8869,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 1, Selenium, Females 19-50 years (pre-menopausal)"
  },
@@ -8574,6 +8890,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 1, Selenium, Females 51-65 years (menopausal)"
  },
@@ -8594,6 +8911,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 1, Selenium, Females 65+ years"
  },
@@ -8614,6 +8932,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 1, Selenium, 0-6 months"
  },
@@ -8634,6 +8953,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 1, Selenium, 7-12 months"
  },
@@ -8654,6 +8974,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 1, Selenium, 1-3 years"
  },
@@ -8674,6 +8995,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 1, Selenium, 4-6 years"
  },
@@ -8694,6 +9016,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 1, Selenium, 7-9 years"
  },
@@ -8714,6 +9037,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 1, Selenium, Males 10-18 years"
  },
@@ -8734,6 +9058,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 1, Selenium, Males 19-65 years"
  },
@@ -8754,6 +9079,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 1, Selenium, Males 65+ years"
  },
@@ -8774,6 +9100,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 1, Selenium, Pregnancy, second trimester"
  },
@@ -8794,6 +9121,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 1, Selenium, Pregnancy, third trimester"
  },
@@ -8852,6 +9180,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Thiamin (B1), Lactation"
  },
@@ -8872,6 +9201,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Thiamin (B1), 0-6 months"
  },
@@ -8892,6 +9222,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Thiamin (B1), 7-11 months"
  },
@@ -8912,6 +9243,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Thiamin (B1), 1-3 years"
  },
@@ -8932,6 +9264,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Thiamin (B1), 4-6 years"
  },
@@ -8952,6 +9285,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Thiamin (B1), 7-9 years"
  },
@@ -8972,6 +9306,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Thiamin (B1), Adolescent females 10-18 years"
  },
@@ -8992,6 +9327,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Thiamin (B1), Females 19-50 years (pre-menopausal)"
  },
@@ -9012,6 +9348,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Thiamin (B1), Females 50-65 years (menopausal)"
  },
@@ -9032,6 +9369,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Thiamin (B1), Older females 65+ years"
  },
@@ -9052,6 +9390,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Thiamin (B1), 0-6 months"
  },
@@ -9072,6 +9411,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Thiamin (B1), 7-11 months"
  },
@@ -9092,6 +9432,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Thiamin (B1), 1-3 years"
  },
@@ -9112,6 +9453,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Thiamin (B1), 4-6 years"
  },
@@ -9132,6 +9474,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Thiamin (B1), 7-9 years"
  },
@@ -9152,6 +9495,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Thiamin (B1), Adolescent males 10-18 years"
  },
@@ -9172,6 +9516,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Thiamin (B1), Males 19-65 years (B6, D: 19-50 yrs)"
  },
@@ -9192,6 +9537,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Thiamin (B1), Males 19-65 years (B6, D: 50+ yrs)"
  },
@@ -9212,6 +9558,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Thiamin (B1), Older males 65+ years"
  },
@@ -9232,6 +9579,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Thiamin (B1), Pregnancy"
  },
@@ -9252,6 +9600,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": true,
+  "averagingDays": 1,
   "note": "Per kg of body weight, as published (mg/kg per day). Table 36 is printed for males and females combined. SAA is the sulfur amino acids (methionine + cysteine) and AAA the aromatic (phenylalanine + tyrosine), as the table's own column headings define them.",
   "from": "WHO TRS 935 (2007), Table 36, Threonine, 0.5 y"
  },
@@ -9272,6 +9621,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": true,
+  "averagingDays": 1,
   "note": "Per kg of body weight, as published (mg/kg per day). Table 36 is printed for males and females combined. SAA is the sulfur amino acids (methionine + cysteine) and AAA the aromatic (phenylalanine + tyrosine), as the table's own column headings define them.",
   "from": "WHO TRS 935 (2007), Table 36, Threonine, 1-2 y"
  },
@@ -9292,6 +9642,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": true,
+  "averagingDays": 1,
   "note": "Per kg of body weight, as published (mg/kg per day). Table 36 is printed for males and females combined. SAA is the sulfur amino acids (methionine + cysteine) and AAA the aromatic (phenylalanine + tyrosine), as the table's own column headings define them.",
   "from": "WHO TRS 935 (2007), Table 36, Threonine, 3-10 y"
  },
@@ -9312,6 +9663,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": true,
+  "averagingDays": 1,
   "note": "Per kg of body weight, as published (mg/kg per day). Table 36 is printed for males and females combined. SAA is the sulfur amino acids (methionine + cysteine) and AAA the aromatic (phenylalanine + tyrosine), as the table's own column headings define them.",
   "from": "WHO TRS 935 (2007), Table 36, Threonine, 11-14 y"
  },
@@ -9332,6 +9684,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": true,
+  "averagingDays": 1,
   "note": "Per kg of body weight, as published (mg/kg per day). Table 36 is printed for males and females combined. SAA is the sulfur amino acids (methionine + cysteine) and AAA the aromatic (phenylalanine + tyrosine), as the table's own column headings define them.",
   "from": "WHO TRS 935 (2007), Table 36, Threonine, 15-18 y"
  },
@@ -9352,6 +9705,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": true,
+  "averagingDays": 1,
   "note": "Per kg of body weight, as published (mg/kg per day). Table 36 is printed for males and females combined. SAA is the sulfur amino acids (methionine + cysteine) and AAA the aromatic (phenylalanine + tyrosine), as the table's own column headings define them.",
   "from": "WHO TRS 935 (2007), Table 36, Threonine, >18 y"
  },
@@ -9372,6 +9726,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": true,
+  "averagingDays": 1,
   "note": "Per kg of body weight, as published (mg/kg per day). Table 36 is printed for males and females combined. SAA is the sulfur amino acids (methionine + cysteine) and AAA the aromatic (phenylalanine + tyrosine), as the table's own column headings define them.",
   "from": "WHO TRS 935 (2007), Table 36, Threonine, 0.5 y"
  },
@@ -9392,6 +9747,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": true,
+  "averagingDays": 1,
   "note": "Per kg of body weight, as published (mg/kg per day). Table 36 is printed for males and females combined. SAA is the sulfur amino acids (methionine + cysteine) and AAA the aromatic (phenylalanine + tyrosine), as the table's own column headings define them.",
   "from": "WHO TRS 935 (2007), Table 36, Threonine, 1-2 y"
  },
@@ -9412,6 +9768,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": true,
+  "averagingDays": 1,
   "note": "Per kg of body weight, as published (mg/kg per day). Table 36 is printed for males and females combined. SAA is the sulfur amino acids (methionine + cysteine) and AAA the aromatic (phenylalanine + tyrosine), as the table's own column headings define them.",
   "from": "WHO TRS 935 (2007), Table 36, Threonine, 3-10 y"
  },
@@ -9432,6 +9789,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": true,
+  "averagingDays": 1,
   "note": "Per kg of body weight, as published (mg/kg per day). Table 36 is printed for males and females combined. SAA is the sulfur amino acids (methionine + cysteine) and AAA the aromatic (phenylalanine + tyrosine), as the table's own column headings define them.",
   "from": "WHO TRS 935 (2007), Table 36, Threonine, 11-14 y"
  },
@@ -9452,6 +9810,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": true,
+  "averagingDays": 1,
   "note": "Per kg of body weight, as published (mg/kg per day). Table 36 is printed for males and females combined. SAA is the sulfur amino acids (methionine + cysteine) and AAA the aromatic (phenylalanine + tyrosine), as the table's own column headings define them.",
   "from": "WHO TRS 935 (2007), Table 36, Threonine, 15-18 y"
  },
@@ -9472,6 +9831,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": true,
+  "averagingDays": 1,
   "note": "Per kg of body weight, as published (mg/kg per day). Table 36 is printed for males and females combined. SAA is the sulfur amino acids (methionine + cysteine) and AAA the aromatic (phenylalanine + tyrosine), as the table's own column headings define them.",
   "from": "WHO TRS 935 (2007), Table 36, Threonine, >18 y"
  },
@@ -9492,6 +9852,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": true,
+  "averagingDays": 1,
   "note": "Per kg of body weight, as published (mg/kg per day). Derived as the average requirement + 24 %, per section 8.4: \"the safe levels of intake for the indispensable amino acids are 24 % higher than the values for average requirement shown in the first column of Table 23\", the coefficient of variation being taken as 12 % — the same as for total protein. The report states the rule but does not print the resulting numbers.",
   "from": "WHO TRS 935 (2007), Table 36, Threonine, >18 y, safe level per section 8.4 (+24 %)"
  },
@@ -9512,6 +9873,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": true,
+  "averagingDays": 1,
   "note": "Per kg of body weight, as published (mg/kg per day). Derived as the average requirement + 24 %, per section 8.4: \"the safe levels of intake for the indispensable amino acids are 24 % higher than the values for average requirement shown in the first column of Table 23\", the coefficient of variation being taken as 12 % — the same as for total protein. The report states the rule but does not print the resulting numbers.",
   "from": "WHO TRS 935 (2007), Table 36, Threonine, >18 y, safe level per section 8.4 (+24 %)"
  },
@@ -9798,6 +10160,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": true,
+  "averagingDays": 1,
   "note": "Per kg of body weight, as published (mg/kg per day). Table 36 is printed for males and females combined. SAA is the sulfur amino acids (methionine + cysteine) and AAA the aromatic (phenylalanine + tyrosine), as the table's own column headings define them.",
   "from": "WHO TRS 935 (2007), Table 36, Tryptophan, 0.5 y"
  },
@@ -9818,6 +10181,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": true,
+  "averagingDays": 1,
   "note": "Per kg of body weight, as published (mg/kg per day). Table 36 is printed for males and females combined. SAA is the sulfur amino acids (methionine + cysteine) and AAA the aromatic (phenylalanine + tyrosine), as the table's own column headings define them.",
   "from": "WHO TRS 935 (2007), Table 36, Tryptophan, 1-2 y"
  },
@@ -9838,6 +10202,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": true,
+  "averagingDays": 1,
   "note": "Per kg of body weight, as published (mg/kg per day). Table 36 is printed for males and females combined. SAA is the sulfur amino acids (methionine + cysteine) and AAA the aromatic (phenylalanine + tyrosine), as the table's own column headings define them.",
   "from": "WHO TRS 935 (2007), Table 36, Tryptophan, 3-10 y"
  },
@@ -9858,6 +10223,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": true,
+  "averagingDays": 1,
   "note": "Per kg of body weight, as published (mg/kg per day). Table 36 is printed for males and females combined. SAA is the sulfur amino acids (methionine + cysteine) and AAA the aromatic (phenylalanine + tyrosine), as the table's own column headings define them.",
   "from": "WHO TRS 935 (2007), Table 36, Tryptophan, 11-14 y"
  },
@@ -9878,6 +10244,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": true,
+  "averagingDays": 1,
   "note": "Per kg of body weight, as published (mg/kg per day). Table 36 is printed for males and females combined. SAA is the sulfur amino acids (methionine + cysteine) and AAA the aromatic (phenylalanine + tyrosine), as the table's own column headings define them.",
   "from": "WHO TRS 935 (2007), Table 36, Tryptophan, 15-18 y"
  },
@@ -9898,6 +10265,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": true,
+  "averagingDays": 1,
   "note": "Per kg of body weight, as published (mg/kg per day). Table 36 is printed for males and females combined. SAA is the sulfur amino acids (methionine + cysteine) and AAA the aromatic (phenylalanine + tyrosine), as the table's own column headings define them.",
   "from": "WHO TRS 935 (2007), Table 36, Tryptophan, >18 y"
  },
@@ -9918,6 +10286,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": true,
+  "averagingDays": 1,
   "note": "Per kg of body weight, as published (mg/kg per day). Table 36 is printed for males and females combined. SAA is the sulfur amino acids (methionine + cysteine) and AAA the aromatic (phenylalanine + tyrosine), as the table's own column headings define them.",
   "from": "WHO TRS 935 (2007), Table 36, Tryptophan, 0.5 y"
  },
@@ -9938,6 +10307,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": true,
+  "averagingDays": 1,
   "note": "Per kg of body weight, as published (mg/kg per day). Table 36 is printed for males and females combined. SAA is the sulfur amino acids (methionine + cysteine) and AAA the aromatic (phenylalanine + tyrosine), as the table's own column headings define them.",
   "from": "WHO TRS 935 (2007), Table 36, Tryptophan, 1-2 y"
  },
@@ -9958,6 +10328,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": true,
+  "averagingDays": 1,
   "note": "Per kg of body weight, as published (mg/kg per day). Table 36 is printed for males and females combined. SAA is the sulfur amino acids (methionine + cysteine) and AAA the aromatic (phenylalanine + tyrosine), as the table's own column headings define them.",
   "from": "WHO TRS 935 (2007), Table 36, Tryptophan, 3-10 y"
  },
@@ -9978,6 +10349,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": true,
+  "averagingDays": 1,
   "note": "Per kg of body weight, as published (mg/kg per day). Table 36 is printed for males and females combined. SAA is the sulfur amino acids (methionine + cysteine) and AAA the aromatic (phenylalanine + tyrosine), as the table's own column headings define them.",
   "from": "WHO TRS 935 (2007), Table 36, Tryptophan, 11-14 y"
  },
@@ -9998,6 +10370,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": true,
+  "averagingDays": 1,
   "note": "Per kg of body weight, as published (mg/kg per day). Table 36 is printed for males and females combined. SAA is the sulfur amino acids (methionine + cysteine) and AAA the aromatic (phenylalanine + tyrosine), as the table's own column headings define them.",
   "from": "WHO TRS 935 (2007), Table 36, Tryptophan, 15-18 y"
  },
@@ -10018,6 +10391,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": true,
+  "averagingDays": 1,
   "note": "Per kg of body weight, as published (mg/kg per day). Table 36 is printed for males and females combined. SAA is the sulfur amino acids (methionine + cysteine) and AAA the aromatic (phenylalanine + tyrosine), as the table's own column headings define them.",
   "from": "WHO TRS 935 (2007), Table 36, Tryptophan, >18 y"
  },
@@ -10038,6 +10412,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": true,
+  "averagingDays": 1,
   "note": "Per kg of body weight, as published (mg/kg per day). Derived as the average requirement + 24 %, per section 8.4: \"the safe levels of intake for the indispensable amino acids are 24 % higher than the values for average requirement shown in the first column of Table 23\", the coefficient of variation being taken as 12 % — the same as for total protein. The report states the rule but does not print the resulting numbers.",
   "from": "WHO TRS 935 (2007), Table 36, Tryptophan, >18 y, safe level per section 8.4 (+24 %)"
  },
@@ -10058,6 +10433,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": true,
+  "averagingDays": 1,
   "note": "Per kg of body weight, as published (mg/kg per day). Derived as the average requirement + 24 %, per section 8.4: \"the safe levels of intake for the indispensable amino acids are 24 % higher than the values for average requirement shown in the first column of Table 23\", the coefficient of variation being taken as 12 % — the same as for total protein. The report states the rule but does not print the resulting numbers.",
   "from": "WHO TRS 935 (2007), Table 36, Tryptophan, >18 y, safe level per section 8.4 (+24 %)"
  },
@@ -10078,6 +10454,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": true,
+  "averagingDays": 1,
   "note": "Per kg of body weight, as published (mg/kg per day). Table 36 is printed for males and females combined. SAA is the sulfur amino acids (methionine + cysteine) and AAA the aromatic (phenylalanine + tyrosine), as the table's own column headings define them.",
   "from": "WHO TRS 935 (2007), Table 36, Valine, 0.5 y"
  },
@@ -10098,6 +10475,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": true,
+  "averagingDays": 1,
   "note": "Per kg of body weight, as published (mg/kg per day). Table 36 is printed for males and females combined. SAA is the sulfur amino acids (methionine + cysteine) and AAA the aromatic (phenylalanine + tyrosine), as the table's own column headings define them.",
   "from": "WHO TRS 935 (2007), Table 36, Valine, 1-2 y"
  },
@@ -10118,6 +10496,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": true,
+  "averagingDays": 1,
   "note": "Per kg of body weight, as published (mg/kg per day). Table 36 is printed for males and females combined. SAA is the sulfur amino acids (methionine + cysteine) and AAA the aromatic (phenylalanine + tyrosine), as the table's own column headings define them.",
   "from": "WHO TRS 935 (2007), Table 36, Valine, 3-10 y"
  },
@@ -10138,6 +10517,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": true,
+  "averagingDays": 1,
   "note": "Per kg of body weight, as published (mg/kg per day). Table 36 is printed for males and females combined. SAA is the sulfur amino acids (methionine + cysteine) and AAA the aromatic (phenylalanine + tyrosine), as the table's own column headings define them.",
   "from": "WHO TRS 935 (2007), Table 36, Valine, 11-14 y"
  },
@@ -10158,6 +10538,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": true,
+  "averagingDays": 1,
   "note": "Per kg of body weight, as published (mg/kg per day). Table 36 is printed for males and females combined. SAA is the sulfur amino acids (methionine + cysteine) and AAA the aromatic (phenylalanine + tyrosine), as the table's own column headings define them.",
   "from": "WHO TRS 935 (2007), Table 36, Valine, 15-18 y"
  },
@@ -10178,6 +10559,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": true,
+  "averagingDays": 1,
   "note": "Per kg of body weight, as published (mg/kg per day). Table 36 is printed for males and females combined. SAA is the sulfur amino acids (methionine + cysteine) and AAA the aromatic (phenylalanine + tyrosine), as the table's own column headings define them.",
   "from": "WHO TRS 935 (2007), Table 36, Valine, >18 y"
  },
@@ -10198,6 +10580,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": true,
+  "averagingDays": 1,
   "note": "Per kg of body weight, as published (mg/kg per day). Table 36 is printed for males and females combined. SAA is the sulfur amino acids (methionine + cysteine) and AAA the aromatic (phenylalanine + tyrosine), as the table's own column headings define them.",
   "from": "WHO TRS 935 (2007), Table 36, Valine, 0.5 y"
  },
@@ -10218,6 +10601,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": true,
+  "averagingDays": 1,
   "note": "Per kg of body weight, as published (mg/kg per day). Table 36 is printed for males and females combined. SAA is the sulfur amino acids (methionine + cysteine) and AAA the aromatic (phenylalanine + tyrosine), as the table's own column headings define them.",
   "from": "WHO TRS 935 (2007), Table 36, Valine, 1-2 y"
  },
@@ -10238,6 +10622,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": true,
+  "averagingDays": 1,
   "note": "Per kg of body weight, as published (mg/kg per day). Table 36 is printed for males and females combined. SAA is the sulfur amino acids (methionine + cysteine) and AAA the aromatic (phenylalanine + tyrosine), as the table's own column headings define them.",
   "from": "WHO TRS 935 (2007), Table 36, Valine, 3-10 y"
  },
@@ -10258,6 +10643,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": true,
+  "averagingDays": 1,
   "note": "Per kg of body weight, as published (mg/kg per day). Table 36 is printed for males and females combined. SAA is the sulfur amino acids (methionine + cysteine) and AAA the aromatic (phenylalanine + tyrosine), as the table's own column headings define them.",
   "from": "WHO TRS 935 (2007), Table 36, Valine, 11-14 y"
  },
@@ -10278,6 +10664,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": true,
+  "averagingDays": 1,
   "note": "Per kg of body weight, as published (mg/kg per day). Table 36 is printed for males and females combined. SAA is the sulfur amino acids (methionine + cysteine) and AAA the aromatic (phenylalanine + tyrosine), as the table's own column headings define them.",
   "from": "WHO TRS 935 (2007), Table 36, Valine, 15-18 y"
  },
@@ -10298,6 +10685,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": true,
+  "averagingDays": 1,
   "note": "Per kg of body weight, as published (mg/kg per day). Table 36 is printed for males and females combined. SAA is the sulfur amino acids (methionine + cysteine) and AAA the aromatic (phenylalanine + tyrosine), as the table's own column headings define them.",
   "from": "WHO TRS 935 (2007), Table 36, Valine, >18 y"
  },
@@ -10318,6 +10706,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": true,
+  "averagingDays": 1,
   "note": "Per kg of body weight, as published (mg/kg per day). Derived as the average requirement + 24 %, per section 8.4: \"the safe levels of intake for the indispensable amino acids are 24 % higher than the values for average requirement shown in the first column of Table 23\", the coefficient of variation being taken as 12 % — the same as for total protein. The report states the rule but does not print the resulting numbers.",
   "from": "WHO TRS 935 (2007), Table 36, Valine, >18 y, safe level per section 8.4 (+24 %)"
  },
@@ -10338,6 +10727,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": true,
+  "averagingDays": 1,
   "note": "Per kg of body weight, as published (mg/kg per day). Derived as the average requirement + 24 %, per section 8.4: \"the safe levels of intake for the indispensable amino acids are 24 % higher than the values for average requirement shown in the first column of Table 23\", the coefficient of variation being taken as 12 % — the same as for total protein. The report states the rule but does not print the resulting numbers.",
   "from": "WHO TRS 935 (2007), Table 36, Valine, >18 y, safe level per section 8.4 (+24 %)"
  },
@@ -10358,6 +10748,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "Recommended safe intake (not an RNI), as retinol equivalents, not RAE.",
   "from": "Appendix 1 Table 2, Vitamin A (RE), Lactation"
  },
@@ -10378,6 +10769,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "Recommended safe intake (not an RNI), as retinol equivalents, not RAE.",
   "from": "Appendix 1 Table 2, Vitamin A (RE), 0-6 months"
  },
@@ -10398,6 +10790,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "Recommended safe intake (not an RNI), as retinol equivalents, not RAE.",
   "from": "Appendix 1 Table 2, Vitamin A (RE), 7-11 months"
  },
@@ -10418,6 +10811,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "Recommended safe intake (not an RNI), as retinol equivalents, not RAE.",
   "from": "Appendix 1 Table 2, Vitamin A (RE), 1-3 years"
  },
@@ -10438,6 +10832,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "Recommended safe intake (not an RNI), as retinol equivalents, not RAE.",
   "from": "Appendix 1 Table 2, Vitamin A (RE), 4-6 years"
  },
@@ -10458,6 +10853,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "Recommended safe intake (not an RNI), as retinol equivalents, not RAE.",
   "from": "Appendix 1 Table 2, Vitamin A (RE), 7-9 years"
  },
@@ -10478,6 +10874,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "Recommended safe intake (not an RNI), as retinol equivalents, not RAE.",
   "from": "Appendix 1 Table 2, Vitamin A (RE), Adolescent females 10-18 years"
  },
@@ -10498,6 +10895,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "Recommended safe intake (not an RNI), as retinol equivalents, not RAE.",
   "from": "Appendix 1 Table 2, Vitamin A (RE), Females 19-50 years (pre-menopausal)"
  },
@@ -10518,6 +10916,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "Recommended safe intake (not an RNI), as retinol equivalents, not RAE.",
   "from": "Appendix 1 Table 2, Vitamin A (RE), Females 50-65 years (menopausal)"
  },
@@ -10538,6 +10937,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "Recommended safe intake (not an RNI), as retinol equivalents, not RAE.",
   "from": "Appendix 1 Table 2, Vitamin A (RE), Older females 65+ years"
  },
@@ -10558,6 +10958,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "Recommended safe intake (not an RNI), as retinol equivalents, not RAE.",
   "from": "Appendix 1 Table 2, Vitamin A (RE), 0-6 months"
  },
@@ -10578,6 +10979,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "Recommended safe intake (not an RNI), as retinol equivalents, not RAE.",
   "from": "Appendix 1 Table 2, Vitamin A (RE), 7-11 months"
  },
@@ -10598,6 +11000,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "Recommended safe intake (not an RNI), as retinol equivalents, not RAE.",
   "from": "Appendix 1 Table 2, Vitamin A (RE), 1-3 years"
  },
@@ -10618,6 +11021,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "Recommended safe intake (not an RNI), as retinol equivalents, not RAE.",
   "from": "Appendix 1 Table 2, Vitamin A (RE), 4-6 years"
  },
@@ -10638,6 +11042,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "Recommended safe intake (not an RNI), as retinol equivalents, not RAE.",
   "from": "Appendix 1 Table 2, Vitamin A (RE), 7-9 years"
  },
@@ -10658,6 +11063,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "Recommended safe intake (not an RNI), as retinol equivalents, not RAE.",
   "from": "Appendix 1 Table 2, Vitamin A (RE), Adolescent males 10-18 years"
  },
@@ -10678,6 +11084,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "Recommended safe intake (not an RNI), as retinol equivalents, not RAE.",
   "from": "Appendix 1 Table 2, Vitamin A (RE), Males 19-65 years (B6, D: 19-50 yrs)"
  },
@@ -10698,6 +11105,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "Recommended safe intake (not an RNI), as retinol equivalents, not RAE.",
   "from": "Appendix 1 Table 2, Vitamin A (RE), Males 19-65 years (B6, D: 50+ yrs)"
  },
@@ -10718,6 +11126,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "Recommended safe intake (not an RNI), as retinol equivalents, not RAE.",
   "from": "Appendix 1 Table 2, Vitamin A (RE), Older males 65+ years"
  },
@@ -10738,6 +11147,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "Recommended safe intake (not an RNI), as retinol equivalents, not RAE.",
   "from": "Appendix 1 Table 2, Vitamin A (RE), Pregnancy"
  },
@@ -10758,6 +11168,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Vitamin B12 (Total), Lactation"
  },
@@ -10778,6 +11189,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Vitamin B12 (Total), 0-6 months"
  },
@@ -10798,6 +11210,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Vitamin B12 (Total), 7-11 months"
  },
@@ -10818,6 +11231,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Vitamin B12 (Total), 1-3 years"
  },
@@ -10838,6 +11252,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Vitamin B12 (Total), 4-6 years"
  },
@@ -10858,6 +11273,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Vitamin B12 (Total), 7-9 years"
  },
@@ -10878,6 +11294,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Vitamin B12 (Total), Adolescent females 10-18 years"
  },
@@ -10898,6 +11315,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Vitamin B12 (Total), Females 19-50 years (pre-menopausal)"
  },
@@ -10918,6 +11336,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Vitamin B12 (Total), Females 50-65 years (menopausal)"
  },
@@ -10938,6 +11357,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Vitamin B12 (Total), Older females 65+ years"
  },
@@ -10958,6 +11378,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Vitamin B12 (Total), 0-6 months"
  },
@@ -10978,6 +11399,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Vitamin B12 (Total), 7-11 months"
  },
@@ -10998,6 +11420,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Vitamin B12 (Total), 1-3 years"
  },
@@ -11018,6 +11441,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Vitamin B12 (Total), 4-6 years"
  },
@@ -11038,6 +11462,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Vitamin B12 (Total), 7-9 years"
  },
@@ -11058,6 +11483,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Vitamin B12 (Total), Adolescent males 10-18 years"
  },
@@ -11078,6 +11504,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Vitamin B12 (Total), Males 19-65 years (B6, D: 19-50 yrs)"
  },
@@ -11098,6 +11525,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Vitamin B12 (Total), Males 19-65 years (B6, D: 50+ yrs)"
  },
@@ -11118,6 +11546,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Vitamin B12 (Total), Older males 65+ years"
  },
@@ -11138,6 +11567,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Vitamin B12 (Total), Pregnancy"
  },
@@ -11158,6 +11588,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Vitamin B6, Lactation"
  },
@@ -11178,6 +11609,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Vitamin B6, 0-6 months"
  },
@@ -11198,6 +11630,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Vitamin B6, 7-11 months"
  },
@@ -11218,6 +11651,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Vitamin B6, 1-3 years"
  },
@@ -11238,6 +11672,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Vitamin B6, 4-6 years"
  },
@@ -11258,6 +11693,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Vitamin B6, 7-9 years"
  },
@@ -11278,6 +11714,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Vitamin B6, Adolescent females 10-18 years"
  },
@@ -11298,6 +11735,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Vitamin B6, Females 19-50 years (pre-menopausal)"
  },
@@ -11318,6 +11756,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Vitamin B6, Females 50-65 years (menopausal)"
  },
@@ -11338,6 +11777,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Vitamin B6, Older females 65+ years"
  },
@@ -11358,6 +11798,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Vitamin B6, 0-6 months"
  },
@@ -11378,6 +11819,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Vitamin B6, 7-11 months"
  },
@@ -11398,6 +11840,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Vitamin B6, 1-3 years"
  },
@@ -11418,6 +11861,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Vitamin B6, 4-6 years"
  },
@@ -11438,6 +11882,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Vitamin B6, 7-9 years"
  },
@@ -11458,6 +11903,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Vitamin B6, Adolescent males 10-18 years"
  },
@@ -11478,6 +11924,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Vitamin B6, Males 19-65 years (B6, D: 19-50 yrs)"
  },
@@ -11498,6 +11945,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Vitamin B6, Males 19-65 years (B6, D: 50+ yrs)"
  },
@@ -11518,6 +11966,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Vitamin B6, Older males 65+ years"
  },
@@ -11538,6 +11987,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Vitamin B6, Pregnancy"
  },
@@ -11558,6 +12008,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "Includes an additional 25 mg for lactation.",
   "from": "Appendix 1 Table 2, Vitamin C (Total), Lactation"
  },
@@ -11578,6 +12029,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Vitamin C (Total), 0-6 months"
  },
@@ -11598,6 +12050,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Vitamin C (Total), 7-11 months"
  },
@@ -11618,6 +12071,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Vitamin C (Total), 1-3 years"
  },
@@ -11638,6 +12092,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Vitamin C (Total), 4-6 years"
  },
@@ -11658,6 +12113,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Vitamin C (Total), 7-9 years"
  },
@@ -11678,6 +12134,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Vitamin C (Total), Adolescent females 10-18 years"
  },
@@ -11698,6 +12155,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Vitamin C (Total), Females 19-50 years (pre-menopausal)"
  },
@@ -11718,6 +12176,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Vitamin C (Total), Females 50-65 years (menopausal)"
  },
@@ -11738,6 +12197,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Vitamin C (Total), Older females 65+ years"
  },
@@ -11758,6 +12218,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Vitamin C (Total), 0-6 months"
  },
@@ -11778,6 +12239,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Vitamin C (Total), 7-11 months"
  },
@@ -11798,6 +12260,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Vitamin C (Total), 1-3 years"
  },
@@ -11818,6 +12281,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Vitamin C (Total), 4-6 years"
  },
@@ -11838,6 +12302,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Vitamin C (Total), 7-9 years"
  },
@@ -11858,6 +12323,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Vitamin C (Total), Adolescent males 10-18 years"
  },
@@ -11878,6 +12344,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Vitamin C (Total), Males 19-65 years (B6, D: 19-50 yrs)"
  },
@@ -11898,6 +12365,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Vitamin C (Total), Males 19-65 years (B6, D: 50+ yrs)"
  },
@@ -11918,6 +12386,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Vitamin C (Total), Older males 65+ years"
  },
@@ -11938,6 +12407,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Vitamin C (Total), Pregnancy"
  },
@@ -11958,6 +12428,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Vitamin D (Total), Lactation"
  },
@@ -11978,6 +12449,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Vitamin D (Total), 0-6 months"
  },
@@ -11998,6 +12470,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Vitamin D (Total), 7-11 months"
  },
@@ -12018,6 +12491,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Vitamin D (Total), 1-3 years"
  },
@@ -12038,6 +12512,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Vitamin D (Total), 4-6 years"
  },
@@ -12058,6 +12533,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Vitamin D (Total), 7-9 years"
  },
@@ -12078,6 +12554,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Vitamin D (Total), Adolescent females 10-18 years"
  },
@@ -12098,6 +12575,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Vitamin D (Total), Females 19-50 years (pre-menopausal)"
  },
@@ -12118,6 +12596,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Vitamin D (Total), Females 50-65 years (menopausal)"
  },
@@ -12138,6 +12617,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Vitamin D (Total), Older females 65+ years"
  },
@@ -12158,6 +12638,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Vitamin D (Total), 0-6 months"
  },
@@ -12178,6 +12659,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Vitamin D (Total), 7-11 months"
  },
@@ -12198,6 +12680,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Vitamin D (Total), 1-3 years"
  },
@@ -12218,6 +12701,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Vitamin D (Total), 4-6 years"
  },
@@ -12238,6 +12722,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Vitamin D (Total), 7-9 years"
  },
@@ -12258,6 +12743,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Vitamin D (Total), Adolescent males 10-18 years"
  },
@@ -12278,6 +12764,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Vitamin D (Total), Males 19-65 years (B6, D: 19-50 yrs)"
  },
@@ -12298,6 +12785,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Vitamin D (Total), Males 19-65 years (B6, D: 50+ yrs)"
  },
@@ -12318,6 +12806,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Vitamin D (Total), Older males 65+ years"
  },
@@ -12338,6 +12827,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": null,
   "from": "Appendix 1 Table 2, Vitamin D (Total), Pregnancy"
  },
@@ -12358,6 +12848,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "Acceptable intake: data insufficient for a recommendation. Human breast milk vitamin E is about 2.7 mg per 850 ml.",
   "from": "Appendix 1 Table 2, Vitamin E (Total), 0-6 months"
  },
@@ -12378,6 +12869,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "Acceptable intake: data insufficient for a recommendation.",
   "from": "Appendix 1 Table 2, Vitamin E (Total), 7-11 months"
  },
@@ -12398,6 +12890,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "Acceptable intake: data insufficient for a recommendation. Based on a proportion of the adult acceptable intake.",
   "from": "Appendix 1 Table 2, Vitamin E (Total), 1-3 years"
  },
@@ -12418,6 +12911,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "Acceptable intake: data insufficient for a recommendation. Based on a proportion of the adult acceptable intake.",
   "from": "Appendix 1 Table 2, Vitamin E (Total), 4-6 years"
  },
@@ -12438,6 +12932,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "Acceptable intake: data insufficient for a recommendation. Based on a proportion of the adult acceptable intake.",
   "from": "Appendix 1 Table 2, Vitamin E (Total), 7-9 years"
  },
@@ -12458,6 +12953,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "Acceptable intake: data insufficient for a recommendation.",
   "from": "Appendix 1 Table 2, Vitamin E (Total), Adolescent females 10-18 years"
  },
@@ -12478,6 +12974,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "Acceptable intake: data insufficient for a recommendation.",
   "from": "Appendix 1 Table 2, Vitamin E (Total), Females 19-50 years (pre-menopausal)"
  },
@@ -12498,6 +12995,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "Acceptable intake: data insufficient for a recommendation.",
   "from": "Appendix 1 Table 2, Vitamin E (Total), Females 50-65 years (menopausal)"
  },
@@ -12518,6 +13016,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "Acceptable intake: data insufficient for a recommendation.",
   "from": "Appendix 1 Table 2, Vitamin E (Total), Older females 65+ years"
  },
@@ -12538,6 +13037,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "Acceptable intake: data insufficient for a recommendation. Human breast milk vitamin E is about 2.7 mg per 850 ml.",
   "from": "Appendix 1 Table 2, Vitamin E (Total), 0-6 months"
  },
@@ -12558,6 +13058,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "Acceptable intake: data insufficient for a recommendation.",
   "from": "Appendix 1 Table 2, Vitamin E (Total), 7-11 months"
  },
@@ -12578,6 +13079,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "Acceptable intake: data insufficient for a recommendation. Based on a proportion of the adult acceptable intake.",
   "from": "Appendix 1 Table 2, Vitamin E (Total), 1-3 years"
  },
@@ -12598,6 +13100,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "Acceptable intake: data insufficient for a recommendation. Based on a proportion of the adult acceptable intake.",
   "from": "Appendix 1 Table 2, Vitamin E (Total), 4-6 years"
  },
@@ -12618,6 +13121,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "Acceptable intake: data insufficient for a recommendation. Based on a proportion of the adult acceptable intake.",
   "from": "Appendix 1 Table 2, Vitamin E (Total), 7-9 years"
  },
@@ -12638,6 +13142,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "Acceptable intake: data insufficient for a recommendation.",
   "from": "Appendix 1 Table 2, Vitamin E (Total), Adolescent males 10-18 years"
  },
@@ -12658,6 +13163,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "Acceptable intake: data insufficient for a recommendation.",
   "from": "Appendix 1 Table 2, Vitamin E (Total), Males 19-65 years (B6, D: 19-50 yrs)"
  },
@@ -12678,6 +13184,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "Acceptable intake: data insufficient for a recommendation.",
   "from": "Appendix 1 Table 2, Vitamin E (Total), Males 19-65 years (B6, D: 50+ yrs)"
  },
@@ -12698,6 +13205,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "Acceptable intake: data insufficient for a recommendation.",
   "from": "Appendix 1 Table 2, Vitamin E (Total), Older males 65+ years"
  },
@@ -12718,6 +13226,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "1 µg/kg/day of phylloquinone.",
   "from": "Appendix 1 Table 2, Vitamin K (Total), Lactation"
  },
@@ -12738,6 +13247,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "1 µg/kg/day of phylloquinone. Cannot be met by exclusively breast-fed infants; vitamin K supplementation at birth advised.",
   "from": "Appendix 1 Table 2, Vitamin K (Total), 0-6 months"
  },
@@ -12758,6 +13268,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "1 µg/kg/day of phylloquinone.",
   "from": "Appendix 1 Table 2, Vitamin K (Total), 7-11 months"
  },
@@ -12778,6 +13289,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "1 µg/kg/day of phylloquinone.",
   "from": "Appendix 1 Table 2, Vitamin K (Total), 1-3 years"
  },
@@ -12798,6 +13310,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "1 µg/kg/day of phylloquinone.",
   "from": "Appendix 1 Table 2, Vitamin K (Total), 4-6 years"
  },
@@ -12818,6 +13331,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "1 µg/kg/day of phylloquinone.",
   "from": "Appendix 1 Table 2, Vitamin K (Total), 7-9 years"
  },
@@ -12838,6 +13352,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "1 µg/kg/day of phylloquinone.",
   "from": "Appendix 1 Table 2, Vitamin K (Total), Adolescent females 10-18 years"
  },
@@ -12858,6 +13373,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "1 µg/kg/day of phylloquinone.",
   "from": "Appendix 1 Table 2, Vitamin K (Total), Females 19-50 years (pre-menopausal)"
  },
@@ -12878,6 +13394,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "1 µg/kg/day of phylloquinone.",
   "from": "Appendix 1 Table 2, Vitamin K (Total), Females 50-65 years (menopausal)"
  },
@@ -12898,6 +13415,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "1 µg/kg/day of phylloquinone.",
   "from": "Appendix 1 Table 2, Vitamin K (Total), Older females 65+ years"
  },
@@ -12918,6 +13436,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "1 µg/kg/day of phylloquinone. Cannot be met by exclusively breast-fed infants; vitamin K supplementation at birth advised.",
   "from": "Appendix 1 Table 2, Vitamin K (Total), 0-6 months"
  },
@@ -12938,6 +13457,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "1 µg/kg/day of phylloquinone.",
   "from": "Appendix 1 Table 2, Vitamin K (Total), 7-11 months"
  },
@@ -12958,6 +13478,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "1 µg/kg/day of phylloquinone.",
   "from": "Appendix 1 Table 2, Vitamin K (Total), 1-3 years"
  },
@@ -12978,6 +13499,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "1 µg/kg/day of phylloquinone.",
   "from": "Appendix 1 Table 2, Vitamin K (Total), 4-6 years"
  },
@@ -12998,6 +13520,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "1 µg/kg/day of phylloquinone.",
   "from": "Appendix 1 Table 2, Vitamin K (Total), 7-9 years"
  },
@@ -13018,6 +13541,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "1 µg/kg/day of phylloquinone.",
   "from": "Appendix 1 Table 2, Vitamin K (Total), Adolescent males 10-18 years"
  },
@@ -13038,6 +13562,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "1 µg/kg/day of phylloquinone.",
   "from": "Appendix 1 Table 2, Vitamin K (Total), Males 19-65 years (B6, D: 19-50 yrs)"
  },
@@ -13058,6 +13583,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "1 µg/kg/day of phylloquinone.",
   "from": "Appendix 1 Table 2, Vitamin K (Total), Males 19-65 years (B6, D: 50+ yrs)"
  },
@@ -13078,6 +13604,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "1 µg/kg/day of phylloquinone.",
   "from": "Appendix 1 Table 2, Vitamin K (Total), Older males 65+ years"
  },
@@ -13098,6 +13625,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "1 µg/kg/day of phylloquinone.",
   "from": "Appendix 1 Table 2, Vitamin K (Total), Pregnancy"
  },
@@ -13118,6 +13646,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "Moderate bioavailability. High 5.8, low 19 mg. 0-3 months postpartum; 4-6 months: high 5.3, moderate 8.8, low 17.5 mg.",
   "from": "Appendix 1 Table 1, Zinc (moderate bioavailability), Lactation, 0-3 months (4-6 months equal except zinc)"
  },
@@ -13138,6 +13667,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "Moderate bioavailability. High 4.3, low 14.4 mg.",
   "from": "Appendix 1 Table 1, Zinc (moderate bioavailability), Lactation, 7-12 months"
  },
@@ -13158,6 +13688,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "Human-milk fed 1.1 mg; formula-fed moderate 2.8, low 6.6 mg.",
   "from": "Appendix 1 Table 1, Zinc (human-milk fed), 0-6 months"
  },
@@ -13178,6 +13709,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "Moderate bioavailability. High 2.5, low 8.3 mg. Not applicable to infants consuming human milk only (0.8 mg for human-milk fed).",
   "from": "Appendix 1 Table 1, Zinc (moderate bioavailability), 7-12 months"
  },
@@ -13198,6 +13730,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "Moderate bioavailability. High 2.4, low 8.4 mg.",
   "from": "Appendix 1 Table 1, Zinc (moderate bioavailability), 1-3 years"
  },
@@ -13218,6 +13751,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "Moderate bioavailability. High 3.1, low 10.3 mg.",
   "from": "Appendix 1 Table 1, Zinc (moderate bioavailability), 4-6 years"
  },
@@ -13238,6 +13772,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "Moderate bioavailability. High 3.3, low 11.3 mg.",
   "from": "Appendix 1 Table 1, Zinc (moderate bioavailability), 7-9 years"
  },
@@ -13258,6 +13793,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "Moderate bioavailability. High 4.6, low 15.5 mg.",
   "from": "Appendix 1 Table 1, Zinc (moderate bioavailability), Females 10-18 years"
  },
@@ -13278,6 +13814,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "Moderate bioavailability. High 3, low 9.8 mg.",
   "from": "Appendix 1 Table 1, Zinc (moderate bioavailability), Females 19-50 years (pre-menopausal)"
  },
@@ -13298,6 +13835,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "Moderate bioavailability. High 3, low 9.8 mg.",
   "from": "Appendix 1 Table 1, Zinc (moderate bioavailability), Females 51-65 years (menopausal)"
  },
@@ -13318,6 +13856,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "Moderate bioavailability. High 3, low 9.8 mg.",
   "from": "Appendix 1 Table 1, Zinc (moderate bioavailability), Females 65+ years"
  },
@@ -13338,6 +13877,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "Human-milk fed 1.1 mg; formula-fed moderate 2.8, low 6.6 mg.",
   "from": "Appendix 1 Table 1, Zinc (human-milk fed), 0-6 months"
  },
@@ -13358,6 +13898,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "Moderate bioavailability. High 2.5, low 8.3 mg. Not applicable to infants consuming human milk only (0.8 mg for human-milk fed).",
   "from": "Appendix 1 Table 1, Zinc (moderate bioavailability), 7-12 months"
  },
@@ -13378,6 +13919,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "Moderate bioavailability. High 2.4, low 8.4 mg.",
   "from": "Appendix 1 Table 1, Zinc (moderate bioavailability), 1-3 years"
  },
@@ -13398,6 +13940,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "Moderate bioavailability. High 3.1, low 10.3 mg.",
   "from": "Appendix 1 Table 1, Zinc (moderate bioavailability), 4-6 years"
  },
@@ -13418,6 +13961,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "Moderate bioavailability. High 3.3, low 11.3 mg.",
   "from": "Appendix 1 Table 1, Zinc (moderate bioavailability), 7-9 years"
  },
@@ -13438,6 +13982,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "Moderate bioavailability. High 5.7, low 19.2 mg.",
   "from": "Appendix 1 Table 1, Zinc (moderate bioavailability), Males 10-18 years"
  },
@@ -13458,6 +14003,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "Moderate bioavailability. High 4.2, low 14 mg.",
   "from": "Appendix 1 Table 1, Zinc (moderate bioavailability), Males 19-65 years"
  },
@@ -13478,6 +14024,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "Moderate bioavailability. High 4.2, low 14 mg.",
   "from": "Appendix 1 Table 1, Zinc (moderate bioavailability), Males 65+ years"
  },
@@ -13498,6 +14045,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "Moderate bioavailability. High 3.4, low 11 mg.",
   "from": "Appendix 1 Table 1, Zinc (moderate bioavailability), Pregnancy, first trimester"
  },
@@ -13518,6 +14066,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "Moderate bioavailability. High 4.2, low 14 mg.",
   "from": "Appendix 1 Table 1, Zinc (moderate bioavailability), Pregnancy, second trimester"
  },
@@ -13538,6 +14087,7 @@
   "isProvisional": false,
   "supplementalOnly": false,
   "perKgBodyWeight": false,
+  "averagingDays": 1,
   "note": "Moderate bioavailability. High 6, low 20 mg.",
   "from": "Appendix 1 Table 1, Zinc (moderate bioavailability), Pregnancy, third trimester"
  }
