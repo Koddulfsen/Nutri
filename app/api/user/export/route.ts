@@ -22,6 +22,7 @@ import { db } from '@/db';
 import { userProfiles, userConsent, apiKeys, mealLogs, mealItems, userCustomDailyValues } from '@/db/schema';
 import { eq } from 'drizzle-orm';
 import { getUserDemographics } from '@/lib/services/daily-value-service';
+import { listSavedMeals } from '@/lib/services/saved-meals';
 
 export async function GET(request: NextRequest) {
   const supabase = await createClient();
@@ -62,6 +63,8 @@ export async function GET(request: NextRequest) {
     const customDailyValues = await db.query.userCustomDailyValues.findMany({
       where: eq(userCustomDailyValues.userId, user.id),
     });
+    // Names decrypted, like lifeStage.
+    const savedMeals = await listSavedMeals(user.id);
 
     const exportPayload = {
       exportedAt: new Date().toISOString(),
@@ -121,6 +124,13 @@ export async function GET(request: NextRequest) {
         unit: v.unit,
         note: v.note,
         createdAt: v.createdAt,
+      })),
+      savedMeals: savedMeals.map((m) => ({
+        name: m.name,
+        items: m.items.map((i) => ({ foodId: i.foodId, food: i.name, grams: i.grams, portion: i.portion })),
+        useCount: m.useCount,
+        lastUsedAt: m.lastUsedAt,
+        createdAt: m.createdAt,
       })),
       meals: meals.map((m) => ({
         date: m.date,

@@ -15,10 +15,11 @@
 
 import { NextResponse, after } from 'next/server';
 import { z } from 'zod';
-import { and, eq, inArray, or } from 'drizzle-orm';
+import { and, eq } from 'drizzle-orm';
 import { withAuth } from '@/lib/auth/with-auth';
 import { db } from '@/db';
-import { foods, mealItems, mealLogs } from '@/db/schema';
+import { mealItems, mealLogs } from '@/db/schema';
+import { allFoodsVisible } from '@/lib/services/food-visibility';
 import { createMeal } from '@/lib/services/meal-service';
 import { ensureUserProfile } from '@/lib/services/user-service';
 import { invalidateDailyTotals } from '@/lib/services/daily-totals-service';
@@ -63,21 +64,6 @@ const SyncSchema = z.object({
     ])
     .optional(),
 });
-
-/** True when every id is a food this user may log: public, or their own private one. */
-async function allFoodsVisible(userId: string, foodIds: string[]): Promise<boolean> {
-  const ids = [...new Set(foodIds)];
-  const rows = await db
-    .select({ id: foods.id })
-    .from(foods)
-    .where(
-      and(
-        inArray(foods.id, ids),
-        or(eq(foods.visibility, 'public'), and(eq(foods.visibility, 'private'), eq(foods.createdBy, userId)))
-      )
-    );
-  return rows.length === ids.length;
-}
 
 export const POST = withAuth(
   async ({ user, input }) => {
