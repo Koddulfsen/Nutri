@@ -95,6 +95,76 @@ const PRINTED: Record<string, Printed> = {
     },
     units: { 'Selenium': 'µg', 'Iodine': 'µg', 'Vitamin B12 (Total)': 'µg', 'Folate (Total)': 'µg' },
   },
+
+  INDIA: {
+    source: 'ICMR-NIN 2020 short tables (brief-note.txt), Table 3 (Males) and Table 4 (Females), "RDA 2020" column',
+    values: {
+      'Calcium': [1000, 1000],
+      'Magnesium': [440, 370],
+      'Iron (Total)': [19, 29],
+      'Zinc': [17, 13.0],
+      'Iodine': [150, 150],
+      'Thiamin (B1)': [1.8, 1.7],
+      'Riboflavin (B2)': [2.5, 2.4],
+      'Niacin (B3)': [18, 14],
+      'Vitamin B6': [2.4, 1.9],
+      'Folate (Total)': [300, 220],
+      'Vitamin B12 (Total)': [2.2, 2.2],
+      'Vitamin C (Total)': [80, 65],
+      'Vitamin A (RAE)': [1000, 840],
+    },
+    units: { 'Iodine': 'µg', 'Folate (Total)': 'µg DFE', 'Vitamin B12 (Total)': 'µg' },
+    note: 'Vitamin D is printed in IU (600), which is stored as µg; checked separately rather than here.',
+  },
+
+  WHO_FAO: {
+    source: 'FAO/WHO "Vitamin and mineral requirements in human nutrition" 2nd ed., Appendix 1 (snapshot source/y2809e0o.htm), Table 1 minerals and Table 2 vitamins, "Males 19–65 years" and "Females 19–50 years (pre-menopausal)" rows',
+    values: {
+      // Minerals. Zinc and iron are printed at several bioavailability levels, and which one is stored
+      // is a judgement recorded in the extract header, so they are checked there rather than here.
+      'Calcium': [1000, 1000],
+      'Magnesium': [260, 220],
+      'Selenium': [34, 26],
+      'Iodine': [130, 110],
+      // Vitamins.
+      'Thiamin (B1)': [1.2, 1.1],
+      'Riboflavin (B2)': [1.3, 1.1],
+      'Niacin (B3)': [16, 14],
+      'Vitamin B6': [1.3, 1.3],
+      'Pantothenic Acid (B5)': [5, 5],
+      'Biotin (B7)': [30, 30],
+      'Folate (Total)': [400, 400],
+      'Vitamin B12 (Total)': [2.4, 2.4],
+      'Vitamin C (Total)': [45, 45],
+      'Vitamin A (RE)': [600, 500],
+      'Vitamin D (Total)': [5, 5],
+      'Vitamin E (Total)': [10, 7.5],
+      'Vitamin K (Total)': [65, 55],
+    },
+    units: {
+      'Selenium': 'µg', 'Iodine': 'µg', 'Niacin (B3)': 'mg NE', 'Biotin (B7)': 'µg',
+      'Folate (Total)': 'µg DFE', 'Vitamin B12 (Total)': 'µg', 'Vitamin A (RE)': 'µg RE',
+      'Vitamin D (Total)': 'µg', 'Vitamin E (Total)': 'mg α-TE', 'Vitamin K (Total)': 'µg',
+    },
+  },
+
+  DACH: {
+    source: 'DGE/ÖGE/SGE Referenzwerte-Tool, snapshot source/dge-referenzwerte-tool-all.html, age group "25 bis unter 51 Jahre". Read by pulling the visible table cells, a different route from the extract\'s own parse, so a parsing assumption cannot hide in both',
+    values: {
+      'Calcium': [1000, 1000],
+      'Magnesium': [350, 300],
+      'Iron (Total)': [11, 16],      // females printed "Prämenopausal 16 / Postmenopausal 14"; 16 is stored for 25–50 y
+      'Iodine': [150, 150],
+      'Selenium': [70, 60],
+      'Folate (Total)': [300, 300],
+      'Thiamin (B1)': [1.2, 1.0],
+      'Riboflavin (B2)': [1.4, 1.1],
+      'Vitamin C (Total)': [110, 95],
+      'Vitamin D (Total)': [20, 20],
+      'Vitamin B12 (Total)': [4.0, 4.0],
+    },
+    units: { 'Iodine': 'µg', 'Selenium': 'µg', 'Folate (Total)': 'µg DFE', 'Vitamin D (Total)': 'µg', 'Vitamin B12 (Total)': 'µg' },
+  },
 };
 
 const only = process.argv[2];
