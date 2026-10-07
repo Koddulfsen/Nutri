@@ -217,6 +217,44 @@ const PRINTED: Record<string, Printed> = {
       'RDA 1.4/1.1 where the 2025 report prints 1.2/0.9, so our (correct) stored values would have ' +
       'looked wrong. Only the edition the data came from can check the data.',
   },
+
+  CHINA: {
+    source: 'CNS 2023 附表 3-7 (dietary mineral RNI/AI), read from the RENDERED PDF page 651 (printed p.635) — the PDF carries no extractable Chinese text — "30 岁~" row',
+    values: {
+      'Calcium': [800, 800],
+      'Phosphorus': [710, 710],
+      'Potassium': [2000, 2000],
+      'Sodium': [1500, 1500],
+      'Magnesium': [320, 320],
+      'Chloride': [2300, 2300],
+      'Iron (Total)': [12, 18],
+      'Iodine': [120, 120],
+      'Zinc': [12.0, 8.5],
+      'Selenium': [60, 60],
+      'Copper': [0.8, 0.8],
+      'Fluoride': [1.5, 1.5],
+      'Chromium': [35, 30],
+      'Manganese': [4.5, 4.0],
+      'Molybdenum': [25, 25],
+    },
+    units: { 'Iodine': 'µg', 'Selenium': 'µg', 'Chromium': 'µg', 'Molybdenum': 'µg' },
+  },
+
+  KOREA: {
+    source: 'KDRI 2020 minerals volume (03 ... 무기질.pdf), summary tables 칼슘/인/나트륨, 염소/칼륨/마그네슘 and 철/아연/구리, 30-49 세 rows, 권장섭취량 (RDA) or 충분섭취량 (AI) column. The four 정오표 (errata) were checked: the calcium entries correct an age typo and a footnote\'s wording, not the table values',
+    values: {
+      'Calcium': [800, 700],
+      'Phosphorus': [700, 700],
+      'Sodium': [1500, 1500],
+      'Chloride': [2300, 2300],
+      'Potassium': [3500, 3500],
+      'Magnesium': [370, 280],
+      'Iron (Total)': [10, 14],
+      'Zinc': [10, 8],
+      'Copper': [850, 650],
+    },
+    units: { 'Copper': 'µg' },
+  },
 };
 
 const only = process.argv[2];

@@ -19,7 +19,8 @@
     "check:auth": "tsx scripts/check-route-auth.ts",
     "check:auth:strict": "STRICT=1 tsx scripts/check-route-auth.ts",
     "test:outliers": "tsx scripts/test-outliers.ts",
-    "typecheck:scripts": "tsc --noEmit -p tsconfig.scripts.json"
+    "typecheck:scripts": "tsc --noEmit -p tsconfig.scripts.json",
+    "check:printed": "tsx scripts/dv-verify/check-against-printed.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.32.1",
