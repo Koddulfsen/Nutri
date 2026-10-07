@@ -41,6 +41,8 @@ function add(p: {
   perKg?: boolean;
   /** An absolute amount added on top, in the same unit — a per-kg base plus a stated increment. */
   plus?: number;
+  /** Period the value is averaged over: 1 daily, 7 weekly, 30 monthly. */
+  averagingDays?: number;
 }) {
   for (const sex of p.sexes ?? ['MALE', 'FEMALE']) {
     out.push({
@@ -48,7 +50,8 @@ function add(p: {
       ageMinMonths: p.age[0], ageMaxMonths: p.age[1], activityLevel: p.activity ?? null, dietaryContext: p.diet ?? null,
       value: Number(p.value.toFixed(4)), valueMin: p.min ?? null, valueMax: p.max ?? null, unit: p.unit,
       isPercentOfEnergy: p.pct ?? false, isProvisional: false, supplementalOnly: p.supplementalOnly ?? false,
-      perKgBodyWeight: p.perKg ?? false, plusAbsolute: p.plus ?? 0, note: p.note ?? null, from: p.from,
+      perKgBodyWeight: p.perKg ?? false, plusAbsolute: p.plus ?? 0, averagingDays: p.averagingDays ?? 1,
+      note: p.note ?? null, from: p.from,
     });
   }
 }
@@ -485,6 +488,49 @@ const LPI: Array<[DietaryContext, number]> = [['PHYTATE_LOW', 300], ['PHYTATE_ME
       });
     }
   }
+}
+
+
+// ───────────────────── EFSA CONTAM: contaminant tolerable intakes ─────────────────────
+//
+// The CONTAM Panel is EFSA's, so its values load under EU with the rest of EFSA's. Source and quote:
+// source/efsa-2009-cadmium-twi.txt.
+//
+// Cadmium is the only one stored, and the omissions mirror JECFA's for the same reasons:
+//
+//   Lead — EFSA concluded in 2010 that the PTWI "is no longer appropriate as there is no evidence for a
+//   threshold for critical lead-induced effects", and publishes benchmark doses with a margin-of-exposure
+//   approach instead (BMDL01 0.50 µg/kg bw/day for developmental neurotoxicity). No limit to store.
+//
+//   Inorganic arsenic — same shape. EFSA's 2024 update uses a BMDL05 of 0.06 µg/kg bw per day for skin
+//   cancer as a reference point for a margin of exposure, not a tolerable intake.
+//
+//   Mercury — EFSA sets a TWI of 1.3 µg/kg bw for methylmercury and 4 µg/kg bw for inorganic mercury,
+//   which runs into the same wall as JECFA's: merged_nutrients holds one TOTAL mercury figure per food,
+//   and the two limits apply to different foods. See dv-sources/jecfa-contaminants/NOTES.md.
+//
+// Where EFSA and JECFA differ on cadmium — 2.5 µg/kg per week against 25 µg/kg per month, which is about
+// 10.7 per week — that disagreement is the point of having two bodies, and `lib/dv/resolve.ts` keeps
+// them apart rather than averaging across averaging windows: a weekly limit and a monthly one are not
+// two opinions about the same quantity.
+{
+  add({
+    compound: 'Cadmium',
+    type: 'TWI',
+    sexes: [...M, ...F],
+    age: [0, null],
+    value: 2.5,
+    unit: 'µg',
+    perKg: true,
+    averagingDays: 7,
+    note:
+      'Tolerable weekly intake, per kg of body weight. EFSA: "The European Food Safety Authority\'s Panel ' +
+      'on contaminants in the food chain has set a reduced tolerable weekly intake (TWI) for cadmium of ' +
+      '2.5 micrograms per kilogram of body weight (µg/kg bw), based on an analysis of new data." Set in ' +
+      'the 2009 opinion (EFSA Journal 2009;7(3):980) and maintained by the 2011 statement (EFSA Journal ' +
+      '2011;9(2):1975). Applies to the whole population; the per-kg basis is what makes it age-appropriate.',
+    from: 'EFSA CONTAM Panel, cadmium TWI (2009, maintained 2011)',
+  });
 }
 
 

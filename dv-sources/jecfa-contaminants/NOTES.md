@@ -68,3 +68,35 @@ Verbatim, from each:
 
 > "The Committee established a PTWI for inorganic mercury of 4 µg/kg bw. The previous PTWI of 5 µg/kg bw
 > for total mercury, established at the sixteenth meeting, was withdrawn." — JECFA/72/SC, mercury
+
+
+---
+
+## How the two bodies' cadmium limits behave together (2026-10-07)
+
+EFSA's CONTAM Panel sets a **TWI of 2.5 µg/kg bw per week**; JECFA sets a **PTMI of 25 µg/kg bw per
+month**. On a common basis EFSA's is about 10.7 µg/kg per month — roughly 2.3× stricter — but the
+resolver does not put them on a common basis, by design: a weekly limit and a monthly one are different
+statements, and JECFA chose monthly precisely because cadmium's half-life makes a short window
+meaningless.
+
+So `resolveBar` pools only values sharing a window, and with one body in each it currently shows:
+
+```
+limit 175 µg over 7 days, from EU
+excluded: WHO_FAO — averaged over 30 days, and this bar is over 7
+```
+
+**That is safe but the tie is broken by accident.** The rule ranks windows by how many bodies back them
+and then by window length, so with one body each the shorter window wins — which happens to be the
+stricter limit, but by sort order rather than by judgement.
+
+**Open decision for Jens.** Three options, none urgent:
+
+1. Leave it. One body's limit, named, and it is the more cautious of the two.
+2. Make the tie-break deliberate: when windows have equal support, show the one that is stricter per
+   day. Same outcome here, but for a stated reason rather than by luck.
+3. Show both. Needs the bar to carry two limits, which it currently cannot.
+
+Option 2 is the smallest honest change and would survive a third body arriving with a daily RfD — which
+EPA has, so this will come up again.
