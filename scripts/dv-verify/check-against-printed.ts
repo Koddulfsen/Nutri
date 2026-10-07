@@ -165,6 +165,41 @@ const PRINTED: Record<string, Printed> = {
     },
     units: { 'Iodine': 'µg', 'Selenium': 'µg', 'Folate (Total)': 'µg DFE', 'Vitamin D (Total)': 'µg', 'Vitamin B12 (Total)': 'µg' },
   },
+
+  RUSSIA: {
+    source: 'MR 2.3.1.0253-21 (snapshot source/garant-mr-2.3.1.0253-21.html), the "Старше 18 лет" (over 18) mineral and vitamin tables, male block and female block',
+    values: {
+      'Calcium': [1000, 1000],
+      'Phosphorus': [700, 700],
+      'Magnesium': [420, 420],
+      'Potassium': [3500, 3500],
+      'Iron (Total)': [10, 18],
+      'Zinc': [12, 12],
+      'Iodine': [150, 150],
+      'Copper': [1.0, 1.0],
+      'Manganese': [2.0, 2.0],
+      'Molybdenum': [70, 70],
+      'Selenium': [70, 55],
+      'Chromium': [40, 40],
+      'Fluoride': [4.0, 4.0],
+      // Vitamins. The male and female blocks are separate tables and do NOT simply repeat: vitamin A
+      // is 900 for men and 800 for women. Transcribing the male block for both reported a false
+      // mismatch against a correct stored value — the data was right and the expectation was wrong.
+      'Niacin (B3)': [20, 20],
+      'Folate (Total)': [400, 400],
+      'Pantothenic Acid (B5)': [5.0, 5.0],
+      'Biotin (B7)': [50, 50],
+      'Vitamin A (RE)': [900, 800],
+      'Vitamin E (Total)': [15, 15],
+      'Vitamin D (Total)': [15, 15],
+      'Vitamin K (Total)': [120, 120],
+    },
+    units: {
+      'Iodine': 'µg', 'Molybdenum': 'µg', 'Selenium': 'µg', 'Chromium': 'µg', 'Biotin (B7)': 'µg',
+      'Niacin (B3)': 'mg NE', 'Folate (Total)': 'µg', 'Vitamin A (RE)': 'µg RE',
+      'Vitamin E (Total)': 'mg α-TE', 'Vitamin D (Total)': 'µg', 'Vitamin K (Total)': 'µg',
+    },
+  },
 };
 
 const only = process.argv[2];
