@@ -285,7 +285,17 @@ Checkboxes are the timeline. Update them as work lands.
 - [x] **3.3** Delete `lib/data/compounds.ts` — 26,508 stale lines *(S3)* *(done 2026-09-24)* —
       confirmed zero importers repo-wide before deleting; was gitignored, not tracked, so
       nothing to remove from git history
-- [ ] **3.4** **DECIDE:** ship the BullMQ worker or return 501 — imports currently vanish *(S4)*
+- [x] **3.4** **DECIDE:** ship the BullMQ worker or return 501 — imports currently vanish *(S4)*
+      — **decided 2026-10-07: removed entirely, not shipped.** Nothing ever started the
+      worker, so queued jobs silently vanished exactly as this item said. The only live call
+      site (`AnalysisClient.tsx`'s "import this food first" branch) could never actually run —
+      the data feeding it always marks `isImported: true`, so it was dead code regardless of
+      the queue. Deleted: `lib/queue/` (queue, worker, job types), the dead ETL orchestrator
+      pipeline it alone called (`lib/etl/orchestrator.ts` + its extractor/transformer/loader —
+      zero other callers, confirmed), `app/api/foods/import` + `app/api/foods/import/batch` +
+      `app/api/jobs/[jobId]` routes, the admin health dashboard's ETL-queue section, and the
+      `bullmq` npm dependency itself. The working, already-verified food-import path
+      (`POST /api/foods`) is a completely separate pipeline and is untouched
 - [x] **3.5** Archive ~310 one-off scripts to `scripts/archive/` *(S10)* *(done 2026-09-24)* —
       147 files moved via `git mv` (history preserved; the "~310" estimate counted both
       `scripts/` and other locations, actual top-level count was 152). Left in place:
@@ -402,7 +412,7 @@ What is actually true, as of 2026-08-11. **Add to this rather than trusting comm
 | Food import pipeline end-to-end | ✅ VERIFIED 2026-08-22 — beef liver imported from 3 sources, 241 values, cross-source compare works |
 | Outbound API failures | ✅ HANDLED for **all 14 sources** — every source fetch in `POST /api/foods` is wrapped in `withRetry` (`lib/services/http-retry.ts`): 3 attempts w/ backoff, retries connection-level + 408/429/5xx, never other 4xx, never `nonRetryable` code bugs. Applies to the staging clients too, which became network calls after the Supabase move. `describeError()` logs code/errno/syscall/address/cause/AggregateError members — previously a failed USDA call logged only `message: "Error"` and the cause was unrecoverable |
 | Partial food imports | ✅ FIXED — a source that failed still got a `food_sources` row with zero values (egg, chicken breast). Import now aborts before any write if any source fails; `food_sources` is built only from sources that returned data |
-| CNF unit labels | ⚠️ PARTLY FIXED 2026-09-30 — the §6b default-to-`g` was **not** cosmetic. Choline was stored as `g` for 96 foods while the values were milligrams (carrot 8.8, garlic 23.2, lentils 96.4 — all exact matches to USDA in mg; read as grams, beef liver would be 167 % choline by mass), so the choline bar read **1600 % for a carrot**. `scripts/fix-merged-nutrient-units.ts` relabelled 322 rows: 96 choline with evidence recorded, and 226 zeros whose wrong label could relabel a real total. **Root cause not fixed**: `STANDARD_UNITS` in `nutrient-mapper.ts` still has 52 entries against 280 compounds and still falls back to `'g'`, so the next import can reintroduce it |
+| CNF unit labels | ✅ FIXED 2026-10-07 — the §6b default-to-`g` was **not** cosmetic. Choline was stored as `g` for 96 foods while the values were milligrams (carrot 8.8, garlic 23.2, lentils 96.4 — all exact matches to USDA in mg), so the choline bar read **1600 % for a carrot**. Data corrected by `scripts/fix-merged-nutrient-units.ts` (322 rows relabelled, no value touched). **Root cause now fixed too**: the unit was in `compound_sources.source_unit` all along — all 117 CNF mappings carry one — and `standardizeCNF` never asked. It now resolves caller unit → mapping unit → dictionary, and **skips with a warning rather than falling back to `'g'`**. 4 tests in `nutrient-mapper.test.ts` |
 | Food totals sum mixed units | ✅ FIXED 2026-09-30 — `aggregateTotals` added a gram to a microgram as if they were the same number, and took the total's label from whichever row sorted first, so a zero-in-grams could relabel a real quantity and multiply a day's intake by 10⁶. Now converts before adding, lets the incoming unit win while nothing real has accumulated, and refuses to merge units that are not the same quantity (µg folate vs µg DFE). `lib/nutrition/intake-to-percent.test.ts` |
 | Raw source data on disk | ✅ VERIFIED — 8 unloaded sources do contain beef liver. See §6c |
 | ~~Middleware protects pages in dev~~ | ✅ FIXED 2026-08-11 — see rows below |
