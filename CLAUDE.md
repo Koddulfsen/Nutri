@@ -401,7 +401,7 @@ What is actually true, as of 2026-08-11. **Add to this rather than trusting comm
 | Full date of birth stored | ✅ REMOVED — year+month only; API rejects a day. Age bands identical across 809 cases |
 | Upstash Redis | ✅ DISABLED in .env — 12 files used it; each call burned a 420ms timeout against a dead host |
 | getUserDemographics privilege | ✅ FIXED — was building a raw service-role Supabase client inline; now Drizzle |
-| Import queue processes jobs | ❌ FALSE — nothing consumes the queue |
+| Import queue processes jobs | ⚪ MOOT 2026-10-07 — the queue doesn't exist anymore. See 3.4: deleted rather than fixed, since the one call site was already dead code and the real, working import path (`POST /api/foods`) never used it |
 | AI routes are rate limited | ✅ FIXED 2026-09-28 — `checkAiRateLimit()` claimed "AI endpoints: 30 requests per user per hour" but **no route called it**. Now enforced on `/api/ai/log-food` (the only non-admin AI route; the other four are `requireAdmin`). Integration test: `__tests__/integration/chat-add-foods.test.ts` |
 | The chat saves what the user saw | ✅ VERIFIED 2026-09-28 — the model has no write tool; the button posts the exact items. Integration test asserts the saved rows equal the sent list (ids, grams, labels) |
 | A user can log someone else's private food | ✅ FIXED 2026-09-28 — `meals/sync` `add`/`addMany` and recipe creation only accept public foods or the caller's own private ones (was: any id that passed the FK). Test covers all three paths |
