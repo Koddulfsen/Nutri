@@ -261,6 +261,24 @@ Checkboxes are the timeline. Update them as work lands.
 - [ ] **C.8** Food coverage is now the limit, not the chat: 107 public foods. Beer, almonds,
       peanut butter, pasta, blueberries, honey, Clif bars are all missing
 
+### Phase 2c — Saved meals, learned favorites, suggestions *(plan: `docs/PLAN-SAVED-MEALS.md`, built 2026-10-07)*
+- [x] **M.0** Saved meals stored safely — `/api/saved-meals` (withAuth; replaces the unused
+      `/api/meals/templates`, removed). **Names encrypted** with the user's own key (free text,
+      treated as Article 9; ciphertext lives in the existing `name` column, no migration).
+      Delete is a real delete (was `is_active = false`). Foods must be visible to the user.
+      In the data export. Integration test `__tests__/integration/saved-meals.test.ts`
+- [x] **M.1** "Usuals" from the user's own log (`lib/services/usuals.ts`): uses, recent uses,
+      usual amount (most common grams + label pair). Nothing extra stored. Ranking unit-tested
+- [x] **M.2** Food list: up to 5 greyed suggestions with **+** (usual foods and saved meals,
+      nothing already logged that day), **My meals** modal (add / rename / delete / search),
+      in both food lists. `GET /api/quick-add`; `addMany` + `savedMealId` counts a use.
+      Integration test `__tests__/integration/quick-add.test.ts`
+- [x] **M.3** **Save as meal** for the foods selected in the list
+- [ ] **M.4** The chat uses usuals and saved meals — **to be discussed first** (Jens,
+      2026-10-07). Update the privacy draft's Anthropic paragraph when it lands
+- [ ] **M.5** Confirm-to-delete: `favorite_foods` + `/api/meals/favorites` — unused before and
+      after; favorites are learned from the log instead
+
 ### Phase 3 — Refurbish (serves Phase 2; not cosmetics)
 - [x] **3.1** Delete the dead Supabase-HTTP cluster — 5,555 lines *(S1)* *(done 2026-09-24)* —
       finished in two passes. First: deleted 6 duplicate `db/seed/*-http.ts` files with live
@@ -406,6 +424,8 @@ What is actually true, as of 2026-08-11. **Add to this rather than trusting comm
 | AI routes are rate limited | ✅ FIXED 2026-09-28 — `checkAiRateLimit()` claimed "AI endpoints: 30 requests per user per hour" but **no route called it**. Now enforced on `/api/ai/log-food` (the only non-admin AI route; the other four are `requireAdmin`). Integration test: `__tests__/integration/chat-add-foods.test.ts` |
 | The chat saves what the user saw | ✅ VERIFIED 2026-09-28 — the model has no write tool; the button posts the exact items. Integration test asserts the saved rows equal the sent list (ids, grams, labels) |
 | A user can log someone else's private food | ✅ FIXED 2026-09-28 — `meals/sync` `add`/`addMany` and recipe creation only accept public foods or the caller's own private ones (was: any id that passed the FK). Test covers all three paths |
+| Saved meals are deleted when the user deletes them, or their account | ✅ VERIFIED 2026-10-07 — the route hard-deletes (was a hidden `is_active` flag), test checks the row is gone; the FK `saved_meal_templates_user_id_user_profiles_user_id_fk` is `ON DELETE CASCADE` (read from `pg_constraint`), and account deletion deletes `user_profiles` |
+| Saved meal names are encrypted at rest | ✅ VERIFIED 2026-10-07 — AES-256-GCM with the user's DEK; integration test reads the raw column and finds no plaintext |
 | CIQUAL staging values | ✅ FIXED 2026-08-22 — importer bound columns by POSITION; 69/74 were wrong (158,267 of 174,570 values). Now matched by column title+unit, aborts if any fails. Verified against the raw spreadsheet: 8/8 nutrients exact |
 | Impossible staging values | ✅ NONE — bounds guard (`db/seed/_shared/bounds.mjs`) rejects gram proximates >110 g/100 g. Threshold is 110 not 100 because CoFID carbohydrate-as-monosaccharide legitimately reaches 105 |
 | Staging data loaded | ✅ 13/17 sources, **3,213,257 rows**, 34,754 foods (2026-08-22). Loaders live in `db/seed/<source>/import-<source>.mjs`, **not** `scripts/`. Each TRUNCATEs its own tables, so all are re-runnable |

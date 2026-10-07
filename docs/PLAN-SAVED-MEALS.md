@@ -121,8 +121,9 @@ main way to type it in.
 
 - **5.1** CLAUDE.md: tasks in §3, ledger rows for "saved meals delete for real" and "export
   includes saved meals".
-- **5.2** Privacy policy draft: the chat sends your frequent food names and amounts with
-  each message (covered by the AI-logging consent, but it should be said).
+- **5.2** Privacy policy draft: saved meals added to the data table and the deletion
+  paragraph; a line on suggestions (done 2026-10-07). **When step 4 lands**, update the
+  Anthropic paragraph: the chat will then also send your frequent food names and amounts.
 - **5.3** `favorite_foods` / `/api/meals/favorites`: unused before and after this. Goes on
   the confirm-to-delete list, not deleted here.
 

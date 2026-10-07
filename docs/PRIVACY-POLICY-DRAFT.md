@@ -18,6 +18,7 @@ We have not appointed a formal Data Protection Officer — as the controller, Je
 |---|---|---|
 | Email and password | To create and secure your account | Necessary to provide the service (contract) |
 | The foods and meals you log | The core feature of the app | Necessary to provide the service (contract) |
+| Meals you save ("My meals") — the name you give them and their foods | So you can log a meal you eat often in one tap. The name is stored encrypted, since it's free text you write | Necessary to provide the feature you asked for |
 | Birth year and month (not full date) | To personalize your daily nutrient targets by age group | Your consent — optional, the app works without it |
 | Biological sex | To personalize your daily nutrient targets | Your consent — optional |
 | Pregnancy or lactation status | To adjust your daily nutrient targets, which genuinely differ during pregnancy/lactation | **Your explicit, separate consent** — this is health data, and we ask for it on its own, never bundled with other permissions |
@@ -26,6 +27,8 @@ We have not appointed a formal Data Protection Officer — as the controller, Je
 | IP address and browser type, kept only in a truncated/pseudonymized form | To detect abuse and investigate security incidents | Our legitimate interest in keeping the service secure |
 
 We do **not** collect symptom or wellness journal data — that feature is not currently active, even though some database tables for it exist from earlier development; they are not used and nothing writes to them.
+
+The suggestions under your food list (foods you often log, at your usual amount) are worked out from your own log each time they're shown. Nothing extra is stored for them.
 
 We never ask for more than we need: for example, we ask for your birth year and month, not your exact birth date, because the exact day isn't used for anything and would only make you easier to identify.
 
@@ -41,7 +44,7 @@ We use a small number of service providers to run Nutri. We do not sell your dat
 
 We keep your data for as long as your account is active — including your full meal history, for as long as you want to look back on it. We don't quietly delete anything after a fixed period.
 
-**If you delete your account, we delete your data immediately** — your profile, meal logs, consent records, and login credentials are all removed right away, permanently, with no waiting period. This is not reversible.
+**If you delete your account, we delete your data immediately** — your profile, meal logs, saved meals, consent records, and login credentials are all removed right away, permanently, with no waiting period. This is not reversible.
 
 ## Your rights
 
