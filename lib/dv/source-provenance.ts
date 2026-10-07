@@ -31,7 +31,9 @@ export type ProvenanceClass =
 
 export type NutrientGroup =
   | 'energy' | 'protein' | 'fat' | 'carbohydrate' | 'fibre'
-  | 'vitamins' | 'minerals' | 'electrolytes' | 'upper_levels' | 'water';
+  | 'vitamins' | 'minerals' | 'electrolytes' | 'upper_levels' | 'water'
+  // Not a nutrient group: the ceilings toxicology committees set for substances nobody needs any of.
+  | 'contaminants';
 
 export interface ProvenanceEntry {
   class: ProvenanceClass;
@@ -50,6 +52,23 @@ export type SourceProvenance = {
 };
 
 export const SOURCE_PROVENANCE: Record<string, SourceProvenance> = {
+  USA_EPA: {
+    groups: {
+      contaminants: {
+        class: 'primary',
+        derivedFrom: [],
+        evidence:
+          'EPA IRIS, Cadmium (CASRN 7440-43-9), § I.A "Reference Dose for Chronic Oral Exposure (RfD)", '
+          + 'last updated 10/01/1989 (snapshot dv-sources/epa-iris/source/epa-iris-cadmium.txt): the file derives ' +
+          'the reference dose itself from a NOAEL with a composite uncertainty factor of 10, critical effect ' +
+          '"significant proteinuria", and publishes two route-specific values — 5 x 10^-4 mg/kg-day for water ' +
+          'and 1 x 10^-3 for food. No other body splits cadmium by exposure route, and none of the three ' +
+          'agrees on the number, so this is EPA\'s own judgement rather than an adoption. It is also the ' +
+          'oldest of the three by two decades and the most permissive per day.',
+      },
+    },
+  },
+
   USA_CANADA: {
     groups: {
       energy: {
@@ -820,6 +839,11 @@ export const PROVENANCE_PENDING: string[] = [];
  */
 export const ALPHA_INDEPENDENT_REGIONS = [
   'USA_CANADA', 'EU', 'WHO_FAO', 'JAPAN', 'CHINA', 'KOREA', 'UK', 'DACH', 'RUSSIA', 'INDIA',
+  // USA_EPA publishes no nutrient values at all — it is here for contaminants, where it is one of the
+  // three bodies setting a cadmium limit and derives its own. Listing it costs nothing on the nutrient
+  // side (it has no rows to contribute) and stops its contaminant values being silently filtered out
+  // as "not one of the independent sources", which would have hidden it from the spread entirely.
+  'USA_EPA',
 ] as const;
 
 /**

@@ -1,0 +1,15 @@
+US EPA Integrated Risk Information System (IRIS) — Cadmium, CASRN 7440-43-9
+https://iris.epa.gov/ChemicalLanding/&substance_nmbr=141
+Retrieved 2026-10-07.
+
+Chronic oral reference doses (RfD):
+
+  Water exposure:  5 x 10^-4 (mg/kg-day)   critical effect: "Significant proteinuria"
+  Food exposure:   1 x 10^-3 (mg/kg-day)   critical effect: "Significant proteinuria"
+
+Both derived from a NOAEL with a composite uncertainty factor of 10, confidence rated high.
+Last Updated: 10/01/1989.
+
+Only the FOOD value is stored in Nutri: it is the one that applies to dietary exposure, which is
+what this system measures. The water value is stricter and would be the wrong number to compare a
+meal against.

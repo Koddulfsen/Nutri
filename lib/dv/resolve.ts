@@ -205,6 +205,19 @@ type Entry = { region: string; value: number; unit: string; averagingDays?: numb
 
 /** Every value type that states a ceiling. BMDL is deliberately absent — it is a reference point. */
 const CEILING_TYPES = new Set<DvValueType>(['UL', 'TWI', 'TDI', 'PTMI', 'RfD']);
+
+/**
+ * Ceilings set by toxicology committees for contaminants, as opposed to a nutrient's UL.
+ *
+ * These are resolved by taking the STRICTEST rather than the median, which is the opposite of how a
+ * nutrient target is resolved and is deliberate (Jens, 2026-10-07). The asymmetry is not arbitrary: a
+ * nutrient target is an estimate of what a person needs, where the middle of expert opinion is the best
+ * guess and an outlier in either direction is probably wrong. A contaminant limit is an estimate of
+ * where harm begins, where being wrong in one direction means telling someone an exposure is acceptable
+ * when a competent authority says it is not. The costs are not symmetric, so the summary statistic
+ * should not be either.
+ */
+const CONTAMINANT_CEILINGS = new Set<DvValueType>(['TWI', 'TDI', 'PTMI', 'RfD']);
 export type CeilingKind = 'UL' | 'CDRR' | 'AMDR' | 'TWI' | 'TDI' | 'PTMI' | 'RfD';
 
 function aggregate(compound: string, all: Entry[], excluded: ResolvedBar['excluded'], what: string) {
@@ -401,8 +414,39 @@ export function resolveBar(
     const inCur = convertFor(compound, c.value, c.unit, cur.unit);
     if ('value' in inCur && inCur.value < cur.value) perRegionCeiling.set(key, c);
   }
-  const limitAgg = aggregate(compound, [...perRegionCeiling.values()], excluded, 'limit');
-  const limit = limitAgg ? { ...limitAgg, from: [...new Set([...perRegionCeiling.values()].map((c) => c.from))] } : null;
+  const ceilingList = [...perRegionCeiling.values()];
+  const contaminant = ceilingList.length > 0 && ceilingList.every((c) => CONTAMINANT_CEILINGS.has(c.from as DvValueType));
+
+  let limit: ResolvedBar['limit'] = null;
+  if (contaminant) {
+    // Strictest wins. Comparing across averaging windows is legitimate HERE in a way that averaging
+    // across them is not: a per-day equivalent is only used to decide which body's limit to show, and
+    // the limit is then presented exactly as that body publishes it — JECFA's monthly figure stays
+    // monthly, EFSA's weekly stays weekly. What is never done is adding or averaging the two.
+    const perDay = (c: Entry) => {
+      const inCanonical = convertFor(compound, c.value, c.unit, ceilingList[0].unit);
+      return ('value' in inCanonical ? inCanonical.value : c.value) / (c.averagingDays ?? 1);
+    };
+    const strictest = ceilingList.reduce((a, b) => (perDay(b) < perDay(a) ? b : a));
+    for (const c of ceilingList) {
+      if (c === strictest) continue;
+      excluded.push({
+        region: c.region, valueType: c.from, unit: c.unit,
+        reason: `a looser contaminant ceiling than ${strictest.region}'s (${perDay(c).toPrecision(3)} vs ${perDay(strictest).toPrecision(3)} per day); the strictest is used, not the median`,
+      });
+    }
+    limit = {
+      value: Number(strictest.value.toFixed(4)),
+      unit: strictest.unit,
+      averagingDays: strictest.averagingDays ?? 1,
+      sources: [strictest.region],
+      spread: [strictest.value, strictest.value],
+      from: [strictest.from],
+    };
+  } else {
+    const limitAgg = aggregate(compound, ceilingList, excluded, 'limit');
+    limit = limitAgg ? { ...limitAgg, from: [...new Set(ceilingList.map((c) => c.from))] } : null;
+  }
 
   const suppAgg = aggregate(compound, suppCeilings, excluded, 'supplement limit');
 

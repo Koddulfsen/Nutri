@@ -5,6 +5,15 @@
 import type { SourceMeta } from '../../../lib/dv/source-values';
 
 export const SOURCES: Record<string, SourceMeta> = {
+  USA_EPA: {
+    region: 'USA_EPA',
+    slug: 'epa-iris',
+    authorityName: 'US EPA Integrated Risk Information System (IRIS)',
+    versionYear: 1989,
+    url: 'https://iris.epa.gov/',
+    note: 'Contaminant reference doses only, not nutrient requirements — a separate body from the IOM/NAM behind USA_CANADA. Chronic oral RfDs, which are daily values per kg of body weight. The assessments are old: cadmium dates from 1989 and is the oldest of the three bodies holding a cadmium limit.',
+    retrievedDate: '2026-10-07',
+  },
   USA_CANADA: {
     region: 'USA_CANADA',
     slug: 'nih-dri',

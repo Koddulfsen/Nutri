@@ -108,6 +108,10 @@ export const sourceRegionEnum = pgEnum('source_region_enum', [
   'POLAND',     // NIZP-PZH Normy żywienia 2020
   'BELGIUM',    // Superior Health Council 2016
   'TURKIYE',    // TÜBER 2022
+  // A toxicology programme rather than a nutrition body: EPA's IRIS sets contaminant reference doses,
+  // and is deliberately separate from USA_CANADA, which is the IOM/NAM nutrient DRIs. Two different
+  // committees of the same country, and counting them as one body would understate the disagreement.
+  'USA_EPA',    // US EPA Integrated Risk Information System
 ]);
 
 /**

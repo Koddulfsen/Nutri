@@ -312,18 +312,22 @@ describe('contaminant values', () => {
       row({ region: 'EU', valueType: 'TWI', value: 2.5, unit: 'µg', perKgBodyWeight: true, averagingDays: 7 }),
       row({ region: 'WHO_FAO', valueType: 'TWI', value: 1.75, unit: 'µg', perKgBodyWeight: true, averagingDays: 7 }),
     ], {}, { weightKg: 70 });
-    expect(bar.limit).toMatchObject({ value: 148.75, unit: 'µg', averagingDays: 7 });
+    // The strictest of the two, not their median — see "contaminant ceilings take the strictest" below.
+    expect(bar.limit).toMatchObject({ value: 122.5, unit: 'µg', averagingDays: 7 });
     expect(bar.limit?.from).toEqual(['TWI']);
   });
 
   it('never pools a weekly limit with a daily one', () => {
     const bar = resolveBar('Cadmium', [
-      row({ region: 'EU', valueType: 'TWI', value: 175, unit: 'µg', averagingDays: 7 }),
-      row({ region: 'WHO_FAO', valueType: 'TWI', value: 140, unit: 'µg', averagingDays: 7 }),
-      row({ region: 'USA_CANADA', valueType: 'RfD', value: 70, unit: 'µg', averagingDays: 1 }),
+      row({ region: 'EU', valueType: 'TWI', value: 175, unit: 'µg', averagingDays: 7 }),        // 25/day
+      row({ region: 'WHO_FAO', valueType: 'TWI', value: 140, unit: 'µg', averagingDays: 7 }),   // 20/day
+      row({ region: 'USA_CANADA', valueType: 'RfD', value: 70, unit: 'µg', averagingDays: 1 }), // 70/day
     ]);
-    expect(bar.limit).toMatchObject({ value: 157.5, averagingDays: 7 });   // the two weekly bodies
-    expect(bar.excluded.some((e) => e.region === 'USA_CANADA' && /averaged over 1 days/.test(e.reason))).toBe(true);
+    // The strictest per day is WHO's 20, and it is shown as WHO publishes it — 140 over 7 days. The
+    // daily figure is compared against, never averaged into: 140 is a weekly number and 70 is a daily
+    // one, and no arithmetic turns the pair into a single statement.
+    expect(bar.limit).toMatchObject({ value: 140, averagingDays: 7, sources: ['WHO_FAO'] });
+    expect(bar.limit?.sources).toHaveLength(1);
   });
 
   it('never turns a benchmark dose into a limit — lead has no safe level', () => {
@@ -368,5 +372,49 @@ describe('a per-kg base with a stated absolute increment', () => {
     ]);
     expect(bar.goal).toBeNull();
     expect(bar.excluded[0].reason).toMatch(/per kg of body weight/);
+  });
+});
+
+describe('contaminant ceilings take the strictest, not the median', () => {
+  const tox = (region: string, value: number, type: 'TWI' | 'PTMI' | 'RfD' | 'TDI', averagingDays: number) =>
+    row({ region, valueType: type, value, unit: 'µg', averagingDays });
+
+  it('shows the strictest body rather than the middle one', () => {
+    // A median would pick 20. For a contaminant the costs are not symmetric: being wrong upward tells
+    // someone an exposure is fine when a competent authority says it is not.
+    const bar = resolveBar('Cadmium', [
+      tox('EU', 10, 'TWI', 7), tox('WHO_FAO', 20, 'TWI', 7), tox('USA_CANADA', 30, 'TWI', 7),
+    ]);
+    expect(bar.limit?.value).toBe(10);
+    expect(bar.limit?.sources).toEqual(['EU']);
+  });
+
+  it('compares across averaging windows but presents the limit as its own body publishes it', () => {
+    // EFSA 2.5/week is 0.357/day; JECFA 25/month is 0.833/day. EFSA is stricter, and its limit stays
+    // weekly rather than being converted into something EFSA never published.
+    const bar = resolveBar('Cadmium', [
+      tox('EU', 175, 'TWI', 7),        // 2.5 µg/kg x 70 kg
+      tox('WHO_FAO', 1750, 'PTMI', 30), // 25 µg/kg x 70 kg
+    ]);
+    expect(bar.limit).toMatchObject({ value: 175, averagingDays: 7, sources: ['EU'] });
+    expect(bar.excluded.some((e) => e.region === 'WHO_FAO' && /looser contaminant ceiling/.test(e.reason))).toBe(true);
+  });
+
+  it('picks a daily limit over a weekly one when the daily one is stricter per day', () => {
+    const bar = resolveBar('Cadmium', [
+      tox('EU', 175, 'TWI', 7),          // 25 per day
+      tox('USA_CANADA', 20, 'RfD', 1),   // 20 per day — stricter
+    ]);
+    expect(bar.limit).toMatchObject({ value: 20, averagingDays: 1, sources: ['USA_CANADA'] });
+  });
+
+  it('leaves a nutrient UL on the median, because a target is a different kind of estimate', () => {
+    const bar = resolveBar('Magnesium', [
+      row({ region: 'EU', valueType: 'UL', value: 250, unit: 'mg' }),
+      row({ region: 'USA_CANADA', valueType: 'UL', value: 350, unit: 'mg' }),
+      row({ region: 'JAPAN', valueType: 'UL', value: 450, unit: 'mg' }),
+    ]);
+    expect(bar.limit?.value).toBe(350);
+    expect(bar.limit?.sources).toHaveLength(3);
   });
 });
