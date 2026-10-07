@@ -200,6 +200,23 @@ const PRINTED: Record<string, Printed> = {
       'Vitamin E (Total)': 'mg α-TE', 'Vitamin D (Total)': 'µg', 'Vitamin K (Total)': 'µg',
     },
   },
+
+  JAPAN: {
+    source: 'MHLW "Dietary Reference Intakes for Japanese" 2025 report, read from RENDERED pages of mhlw-dri-2025-report.pdf (its text layer holds no extractable Japanese): vitamin A p.181, calcium p.283, vitamin B1 p.234, iron p.345, all 30–49 y rows, 推奨量 (RDA) column',
+    values: {
+      'Vitamin A (RAE)': [900, 700],
+      'Calcium': [750, 650],
+      'Thiamin (B1)': [1.2, 0.9],
+      'Iron (Total)': [7.5, 10.5],   // female: the 月経あり (menstruating) column, per the extract's recorded choice
+    },
+    units: { 'Vitamin A (RAE)': 'µg RAE' },
+    note:
+      'A deliberately small sample, and the reason is worth recording. The English 2020 edition ' +
+      '(mhlw-dri-2020-en.pdf) HAS a clean text layer and would have made this cheap — but it is a ' +
+      'different edition, and using it as the reference produces false mismatches: it prints thiamin ' +
+      'RDA 1.4/1.1 where the 2025 report prints 1.2/0.9, so our (correct) stored values would have ' +
+      'looked wrong. Only the edition the data came from can check the data.',
+  },
 };
 
 const only = process.argv[2];
