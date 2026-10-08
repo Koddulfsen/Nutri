@@ -450,6 +450,31 @@ function add(p: { compound: string; type: DvValueType; sexes: Sex[]; stage?: Lif
 }
 
 {
+  // Aluminium. Verified 2026-10-08 against the committee's own Summary and Conclusions for the 74th
+  // meeting (snapshot: dv-sources/jecfa-contaminants/source/jecfa-74th-2011-aluminium.txt), NOT against
+  // inchem.org, which still serves the 1988 value of 7 mg/kg bw and has been superseded twice since.
+  add({
+    compound: 'Aluminum',
+    type: 'TWI',
+    sexes: BOTH,
+    age: [0, null],
+    cell: 2,
+    unit: 'mg',
+    perKg: true,
+    averagingDays: 7,
+    note:
+      'Provisional tolerable weekly intake, per kg of body weight. "The Committee established a '
+      + 'provisional tolerable weekly intake (PTWI) of 2 mg/kg body weight based on a no-observed-adverse-'
+      + 'effect level (NOAEL) of 30 mg/kg body weight per day and application of a safety factor of 100. '
+      + 'The PTWI applies to all aluminium compounds in food, including food additives. The previous PTWI '
+      + 'of 1 mg/kg body weight was withdrawn." Applies to the whole population; the per-kg basis is what '
+      + 'makes it age-appropriate. Note the history, since stale copies of each step are still online: '
+      + '7 mg/kg bw (1988) -> 1 mg/kg bw (67th, 2006) -> 2 mg/kg bw (74th, 2011).',
+    from: 'JECFA 74th meeting (Rome, 14-23 June 2011), Summary and Conclusions, aluminium-containing food additives',
+  });
+}
+
+{
   const from = 'JECFA 73rd meeting (2010), WHO Food Additives Series 64, cadmium evaluation section 10';
   add({
     compound: 'Cadmium',

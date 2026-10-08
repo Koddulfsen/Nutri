@@ -561,6 +561,28 @@ const LPI: Array<[DietaryContext, number]> = [['PHYTATE_LOW', 300], ['PHYTATE_ME
 }
 
 
+{
+  add({
+    compound: 'Aluminum',
+    type: 'TWI',
+    sexes: [...M, ...F],
+    age: [0, null],
+    value: 1,
+    unit: 'mg',
+    perKg: true,
+    averagingDays: 7,
+    note:
+      'Tolerable weekly intake, per kg of body weight. EFSA: "Given the persistence of aluminium in the '
+      + 'body, the Panel found it appropriate to establish a tolerable weekly intake" and "established a TWI '
+      + 'of 1 mg/kg bw/week" (Safety of aluminium from dietary intake, AFC Panel, EFSA Journal 2008;6(7):754, '
+      + 'doi 10.2903/j.efsa.2008.754). EFSA adds that intakes "may exceed the TWI in a significant part of the '
+      + 'European population" \u2014 mean adult exposure 0.2-1.5 and children 0.7-2.3 mg/kg bw per week \u2014 so a '
+      + 'bar reading over 100 % here is expected rather than a sign of a bad number. Half JECFA\'s 2 mg/kg bw, '
+      + 'set three years earlier on the same endpoint class; the strictest-wins rule picks this one.',
+    from: 'EFSA AFC Panel, aluminium TWI (2008 opinion, EFSA Journal 2008;6(7):754)',
+  });
+}
+
 out.sort((a, b) => a.compound.localeCompare(b.compound) || a.valueType.localeCompare(b.valueType) || a.lifeStage.localeCompare(b.lifeStage) || a.sex.localeCompare(b.sex) || a.ageMinMonths - b.ageMinMonths || (a.activityLevel ?? '').localeCompare(b.activityLevel ?? '') || (a.dietaryContext ?? '').localeCompare(b.dietaryContext ?? ''));
 writeFileSync(path.join(process.cwd(), 'dv-sources', 'efsa-drv', 'values.json'), JSON.stringify(out, null, 1) + '\n');
 console.log(`Wrote ${out.length} values to dv-sources/efsa-drv/values.json`);
