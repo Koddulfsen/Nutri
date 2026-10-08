@@ -770,6 +770,14 @@ export const CORE_COMPOUNDS: Readonly<CoreCompound[]> = [
     "description": null
   },
   {
+    "id": "2ad4e224-1581-4346-be26-f3534bacb7a3",
+    "name": "Phenylalanine + Tyrosine",
+    "compound_type": "AMINO_ACID",
+    "unit": "g",
+    "parent_compound_id": null,
+    "description": null
+  },
+  {
     "id": "0eca354e-7a45-4031-b7d8-ba034295735e",
     "name": "Phenylalanine",
     "compound_type": "AMINO_ACID",

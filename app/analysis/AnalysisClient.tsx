@@ -19,9 +19,11 @@ import { AnalysisCard, balanceCards, formatPortion, type GroupHierarchy } from '
 import {
   assemblePayload,
   computeCompoundValues,
+  convertToUnit,
   portionGrams as portionGramsOf,
   type FoodVector,
 } from '@/lib/nutrition/totals';
+import { pairFor, sumPairIntake } from '@/lib/dv/compound-pairs';
 import { unpackVectors } from '@/lib/nutrition/wire';
 import MacroViz, { MacroVizPicker, loadMacroVizStyle, type MacroVizStyle, type MacroSlice } from './MacroViz';
 
@@ -1183,7 +1185,27 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
     confidenceTier: 1 | 2 | 3 | null;
   } | null => {
     // Check if we have intake data from daily totals
-    const intakeData = dailyTotals?.compounds?.find((c: any) => c.compoundId === compoundId);
+    let intakeData = dailyTotals?.compounds?.find((c: any) => c.compoundId === compoundId);
+
+    // A pair compound has no intake of its own — nothing in merged_nutrients is called
+    // "Phenylalanine + Tyrosine". Its intake is the sum of its members, which is the only form the
+    // requirement is published in: WHO TRS 935 § 8.1.6 says it is "not possible at present to set a
+    // specific value for the ability of tyrosine to spare phenylalanine intake", so the pair total is
+    // the whole figure. See lib/dv/compound-pairs.ts.
+    if (!intakeData) {
+      const pair = pairFor(allCompounds.find((c: any) => c.id === compoundId)?.name ?? '');
+      if (pair) {
+        const summed = sumPairIntake(
+          pair,
+          (name) => {
+            const id = allCompounds.find((c: any) => c.name === name)?.id;
+            return id ? dailyTotals?.compounds?.find((c: any) => c.compoundId === id) : null;
+          },
+          convertToUnit
+        );
+        if (summed) intakeData = { compoundId, name: pair.pair, confidence: null, ...summed };
+      }
+    }
 
     // Check if this compound has a DV defined (from separate DV fetch)
     const dvData = compoundDVs[compoundId];
