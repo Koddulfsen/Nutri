@@ -228,7 +228,15 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
   const [compoundDVs, setCompoundDVs] = useState<Record<string, {
     value: number; unit: string; source: string;
     upperLimit?: number | null; upperLimitUnit?: string | null;
+    /** True when `value` is a ceiling to stay under, not a target to reach (cadmium, mercury, retinol...). */
+    limitOnly?: boolean;
+    /** For energy only: which activity level the target was read at, and whether the user stated it. */
+    activityBasis?: { level: 'SEDENTARY' | 'MODERATE' | 'ACTIVE' | 'VERY_ACTIVE'; source: 'stated' | 'default' } | null;
   }>>({});
+
+  // Focused when the user clicks "assuming moderate activity · change" on the energy stat, so the fix for an
+  // assumed target is one click from where the assumption is shown.
+  const activitySelectRef = useRef<HTMLSelectElement>(null);
 
   // Meal management state
   const [editingMealId, setEditingMealId] = useState<string | null>(null);
@@ -1535,6 +1543,23 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
                   const fatData     = fatCompound     ? getNutrientValue(fatCompound.id)     : null;
 
                   const kcal    = energyData?.amount  ? Math.round(energyData.amount)  : null;
+
+                  // Targets for the two hero stats, resolved like every other bar (lib/dv/resolve.ts): energy
+                  // from 9 bodies' EER tables at this age, sex and activity; water from 6 bodies.
+                  const kcalGoal = energyData?.dailyValue?.value ?? null;
+                  const waterDv = waterData?.dailyValue ?? null;
+                  // Intake is in grams, the target in litres. Water's density is 1 g/mL, which is the same
+                  // assumption `waterMl` below already makes by rounding grams straight into millilitres.
+                  const waterGoalMl = waterDv
+                    ? Math.round(waterDv.unit?.toLowerCase() === 'l' ? waterDv.value * 1000 : waterDv.value)
+                    : null;
+                  // Energy is the one target that depends on activity, and nobody has set theirs yet — every
+                  // profile has activity_level NULL — so the resolver reads it at moderate and says so here.
+                  // Showing an assumption as a personal target would be a promise the number cannot keep: the
+                  // difference between sedentary and very active is about 1,070 kcal.
+                  const energyActivityBasis = energyCompound
+                    ? (compoundDVs[energyCompound.id]?.activityBasis ?? null)
+                    : null;
                   const waterG  = waterData?.amount   ?? null;
                   const waterMl = waterG !== null ? Math.round(waterG) : null;
 
@@ -1550,7 +1575,7 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
                         <div className="mv-section-head">
                           <MacroVizPicker style={macroVizStyle} onChange={setMacroVizStyle} />
                         </div>
-                        <MacroViz style={macroVizStyle} macros={macros} kcal={kcal} />
+                        <MacroViz style={macroVizStyle} macros={macros} kcal={kcal} kcalGoal={kcalGoal} />
                       </div>
                       <div className="mv-hero-col">
                         <div className="hero-stat">
@@ -1559,6 +1584,16 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
                           </svg>
                           <p className="hero-stat-num">{kcal ?? '--'}</p>
                           <p className="hero-stat-label">kcal</p>
+                          {kcalGoal != null && <p className="hero-stat-goal">of {Math.round(kcalGoal)}</p>}
+                          {energyActivityBasis?.source === 'default' && (
+                            <button
+                              type="button"
+                              className="hero-stat-assumed"
+                              onClick={() => activitySelectRef.current?.focus()}
+                            >
+                              assuming moderate activity · change
+                            </button>
+                          )}
                         </div>
                         <div className="hero-stat">
                           <svg className="hero-stat-icon" width="20" height="20" viewBox="0 0 20 20" fill="none">
@@ -1572,6 +1607,9 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
                               : '--'}
                           </p>
                           <p className="hero-stat-label">water</p>
+                          {waterGoalMl != null && (
+                            <p className="hero-stat-goal">of {(waterGoalMl / 1000).toFixed(1)} L</p>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -1621,6 +1659,7 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
                       <span className="picker-label">Activity</span>
                       <select
                         className="activity-select"
+                        ref={activitySelectRef}
                         value={activityLevel}
                         onChange={(e) => setActivityLevel(e.target.value as typeof activityLevel)}
                       >
@@ -2844,6 +2883,31 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
         .an-page :global(.macro-label),
         .an-page :global(.macro-ring-unit) { color: rgba(46, 26, 14, 0.6); }
         .an-page :global(.macro-ring-val) { color: #2e1a0e; }
+        /* The target under a hero number: present but quieter than the amount, which is the thing being read. */
+        .an-page :global(.hero-stat-goal) {
+          font-family: var(--font-data);
+          font-size: 13px;
+          line-height: 1;
+          margin: 4px 0 0;
+          color: rgba(46, 26, 14, 0.5);
+        }
+        /* Shown only while the energy target rests on an assumed activity level. It is a button because it
+           fixes the assumption — it focuses the activity picker — not decoration. */
+        .an-page :global(.hero-stat-assumed) {
+          display: block;
+          margin: 6px auto 0;
+          padding: 0;
+          border: 0;
+          background: none;
+          font-family: var(--font-body);
+          font-size: 11px;
+          line-height: 1.3;
+          color: rgba(46, 26, 14, 0.45);
+          text-decoration: underline;
+          text-underline-offset: 2px;
+          cursor: pointer;
+        }
+        .an-page :global(.hero-stat-assumed:hover) { color: var(--coral); }
 
         /* Compound rows */
         .an-page :global(.nutrient-categories) { color: #2e1a0e; }

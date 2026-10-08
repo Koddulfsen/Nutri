@@ -222,7 +222,7 @@ function GaugeArcs({ macros }: { macros: MacroSlice[] }) {
 }
 
 /* ═══ O — one ring, macro composition (default) ═══ */
-function SplitRing({ macros, kcal }: { macros: MacroSlice[]; kcal: number | null }) {
+function SplitRing({ macros, kcal, kcalGoal }: { macros: MacroSlice[]; kcal: number | null; kcalGoal?: number | null }) {
   const r = 82;
   const C = 2 * Math.PI * r;
   const gap = macros.length > 1 ? 6 : 0; // px gap between segments
@@ -254,6 +254,10 @@ function SplitRing({ macros, kcal }: { macros: MacroSlice[]; kcal: number | null
         <div className="mv-split-center">
           <span className="mv-split-kcal">{kcal ?? '--'}</span>
           <span className="mv-split-kcal-label">kcal</span>
+          {/* The energy target, resolved from the EER tables of 9 independent bodies at the user's age, sex
+              and activity (lib/dv/resolve.ts). Absent until 2026-10-08, when those rows were first read.
+              Sits under the label, not between it and the number (Jens, 2026-10-08). */}
+          {kcalGoal != null && <span className="mv-split-kcal-goal">of {Math.round(kcalGoal)}</span>}
         </div>
       </div>
       <div className="mv-split-legend">
@@ -272,6 +276,13 @@ function SplitRing({ macros, kcal }: { macros: MacroSlice[]; kcal: number | null
         .mv-split-center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         .mv-split-kcal { font-family: var(--font-display); font-size: 46px; line-height: 1; color: #2e1a0e; }
         .mv-split-kcal-label { ${LABEL_CSS} margin-top: 4px; }
+        .mv-split-kcal-goal {
+          font-family: var(--font-data);
+          font-size: 14px;
+          line-height: 1;
+          margin-top: 6px;
+          color: rgba(46, 26, 14, 0.5);
+        }
         .mv-split-legend { display: flex; justify-content: center; flex-wrap: wrap; gap: 10px 26px; margin-top: 24px; }
         .mv-split-legend-item { display: flex; align-items: center; gap: 7px; font-family: var(--font-body); font-size: 13.5px; color: rgba(46, 26, 14, 0.65); }
         .mv-split-legend-label { text-transform: uppercase; letter-spacing: 0.04em; font-size: 12px; color: rgba(46, 26, 14, 0.5); }
@@ -377,7 +388,7 @@ function FlatTiles({ macros }: { macros: MacroSlice[] }) {
 }
 
 /* ═══ Dispatcher ═══ */
-export default function MacroViz({ style, macros, kcal }: { style: MacroVizStyle; macros: MacroSlice[]; kcal: number | null }) {
+export default function MacroViz({ style, macros, kcal, kcalGoal }: { style: MacroVizStyle; macros: MacroSlice[]; kcal: number | null; kcalGoal?: number | null }) {
   switch (style) {
     case 'M': return <BarRows macros={macros} />;
     case 'N': return <GaugeArcs macros={macros} />;
@@ -386,6 +397,6 @@ export default function MacroViz({ style, macros, kcal }: { style: MacroVizStyle
     case 'R': return <FlatTiles macros={macros} />;
     case 'O':
     default:
-      return <SplitRing macros={macros} kcal={kcal} />;
+      return <SplitRing macros={macros} kcal={kcal} kcalGoal={kcalGoal} />;
   }
 }
