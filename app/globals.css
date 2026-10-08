@@ -5350,18 +5350,26 @@ nav a:hover {
 }
 .chat-aside-item {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   gap: 10px;
-  padding: 10px 0;
+  padding: 7px 0;
   border-bottom: 1px solid rgba(46, 26, 14, 0.08);
-  font-size: 17px;
+  font-size: 15px;
   line-height: 1.35;
 }
 .chat-aside-item:last-child { border-bottom: none; }
-.chat-aside-name { flex: 1; min-width: 0; }
+/* One line per food, so every row is the same height; the full name is in the
+   row's title (hover). */
+.chat-aside-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 .chat-aside-meta {
   white-space: nowrap;
-  font-size: 15px;
+  font-size: 13px;
   color: rgba(46, 26, 14, 0.55);
 }
 .chat-aside-remove {
@@ -5761,17 +5769,17 @@ nav a:hover {
   gap: 10px;
   padding: 5px 0;
   color: rgba(46, 26, 14, 0.5);
-  font-size: 16px;
+  font-size: 14px;
   line-height: 1.3;
 }
 .qa-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.qa-count { font-size: 14px; }
+.qa-count { font-size: 13px; }
 .qa-meta {
   max-width: 45%;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-size: 14px;
+  font-size: 12px;
 }
 .qa-add {
   flex-shrink: 0;

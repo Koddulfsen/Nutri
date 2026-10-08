@@ -138,7 +138,7 @@ export function FoodSuggestions({
           const key = s.kind === 'food' ? s.foodId : s.id;
           return (
             <li key={`${s.kind}-${key}`} className="qa-row">
-              <span className="qa-name">
+              <span className="qa-name" title={s.name}>
                 {s.name}
                 {s.kind === 'meal' && <span className="qa-count"> · {s.items.length}</span>}
               </span>

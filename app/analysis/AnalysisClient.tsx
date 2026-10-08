@@ -1357,7 +1357,7 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
                                   onClick={() => toggleItemSelection(item.id)}
                                   onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleItemSelection(item.id); } }}
                                 >
-                                  <span className="chat-aside-name">{item.food?.name || 'Unknown'}</span>
+                                  <span className="chat-aside-name" title={item.food?.name || undefined}>{item.food?.name || 'Unknown'}</span>
                                   <span className="chat-aside-meta">{formatPortion(item)}</span>
                                   <button
                                     type="button"
@@ -1491,7 +1491,7 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
                       onClick={() => toggleItemSelection(item.id)}
                       onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleItemSelection(item.id); } }}
                     >
-                      <span className="food-item-name">{item.food?.name || 'Unknown'}</span>
+                      <span className="food-item-name" title={item.food?.name || undefined}>{item.food?.name || 'Unknown'}</span>
                       <span className="food-item-meta">{formatPortion(item)}</span>
                       <button
                         type="button"
@@ -3847,16 +3847,23 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
 
         /* Today: roomy full-width rows, name left, portion + remove right */
         .an-panel--foods :global(.food-item) {
-          padding: 14px 4px !important;
+          padding: 10px 4px !important;
           gap: 16px;
+          align-items: center;
         }
+        /* One line per food, same height for every row (full name in the title). */
         .an-panel--foods :global(.food-item-name) {
           flex: 1;
           min-width: 0;
+          font-size: 15px;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
         }
         .an-panel--foods :global(.food-item-meta) {
           margin-left: auto;
           white-space: nowrap;
+          font-size: 13px;
         }
 
         /* ── Personal info: one slim strip in a white box, same recipe as the
