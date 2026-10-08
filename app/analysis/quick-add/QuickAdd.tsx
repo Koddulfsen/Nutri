@@ -79,7 +79,9 @@ export function FoodSuggestions({
   /** The day's foods as shown right now, optimistic adds included. */
   loggedFoodIds: Set<string>;
 }) {
-  const [busy, setBusy] = useState<string | null>(null);
+  // Only the clicked row is locked while it saves; the page queues saves in
+  // order, so other rows can be added straight away.
+  const [busy, setBusy] = useState<Set<string>>(new Set());
   // Hide what's already in the list the moment it's added, by the server's own
   // rule (a food once logged, a meal once all its foods are), instead of
   // waiting for the refetch. The refetch then only fills the freed slot.
@@ -90,7 +92,7 @@ export function FoodSuggestions({
 
   async function add(s: SuggestionJson) {
     const key = s.kind === 'food' ? s.foodId : s.id;
-    setBusy(key);
+    setBusy((b) => new Set(b).add(key));
     try {
       if (s.kind === 'food') {
         await onAdd([{ foodId: s.foodId, name: s.name, grams: s.grams, portion: s.portion }]);
@@ -104,7 +106,11 @@ export function FoodSuggestions({
       // The page shows the error and restores the list; nothing to add here.
     } finally {
       // No refresh here: the day's foods changed, so useQuickAdd refetches.
-      setBusy(null);
+      setBusy((b) => {
+        const next = new Set(b);
+        next.delete(key);
+        return next;
+      });
     }
   }
 
@@ -126,7 +132,7 @@ export function FoodSuggestions({
                 type="button"
                 className="qa-add"
                 onClick={() => add(s)}
-                disabled={busy !== null}
+                disabled={busy.has(key)}
                 aria-label={`Add ${s.name}`}
               >
                 +

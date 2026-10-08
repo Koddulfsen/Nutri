@@ -912,6 +912,8 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
         ? [{ ...mealsNow[0], items: [...(mealsNow[0].items || []), ...optimisticItems] }, ...mealsNow.slice(1)]
         : [{ id: 'optimistic-meal', mealType: 'Today', items: optimisticItems }];
     setMeals(mealsAfterAdd);
+    // Set now, not on the next render: a second quick add must build on this one.
+    mealsRef.current = mealsAfterAdd;
     recalcLocally(mealsAfterAdd, selectedItemIdsRef.current);
 
     try {
