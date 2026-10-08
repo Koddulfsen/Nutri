@@ -4249,6 +4249,36 @@ nav a:hover {
   transition: width 300ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+/* ── Limit-only bars ──────────────────────────────────────────────────────────
+   A ceiling with no target behind it (cadmium, mercury, retinol, cholesterol).
+   It means the OPPOSITE of every other bar here: an empty bar is the good case
+   and a full one is at the published limit. So the track is plain rather than a
+   gradient, and the fill grows from the left as headroom is used, instead of a
+   veil retreating from the right. The label says "of limit" (see CompoundCards)
+   so a full bar can never be read as a completed goal. */
+.dv-bar--limit {
+  background: var(--border);
+}
+.dv-bar-limit-fill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  background: var(--accent);
+  transition: width 300ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+.dv-bar--limit-over .dv-bar-limit-fill {
+  background: var(--accent-text);
+}
+/* The label sits over a mostly-empty track, so it needs the page's text colour,
+   not the white that works on a filled gradient. */
+.dv-bar--limit .dv-percent-label {
+  color: var(--text-2);
+}
+.dv-bar--limit-over .dv-percent-label {
+  color: var(--text-1);
+}
+
 /* Police tape diagonal stripe pattern for inactive bars */
 .dv-bar.police-tape,
 .header-bar.police-tape {

@@ -203,7 +203,12 @@ describe('assemblePayload', () => {
     const calcium = p.compounds.find((c) => c.compoundId === 'calcium')!;
     expect(calcium.rdaPercent).toBeCloseTo(11.3, 9);
     expect(calcium.zone).toBe('low');
-    expect(calcium.dailyValue).toEqual({ value: 1, unit: 'g', source: 'average', upperLimit: 2.5, upperLimitUnit: 'g' });
+    // limitOnly false is part of the contract, not noise: it is what tells the bar this 1 g is a target to
+    // reach rather than a ceiling to stay under, and the two render as opposites.
+    expect(calcium.dailyValue).toEqual({
+      value: 1, unit: 'g', source: 'average', upperLimit: 2.5, upperLimitUnit: 'g',
+      limitOnly: false, perDayFrom: null, sourceCount: 0,
+    });
   });
 
   it('keeps zone unknown when units are not comparable', () => {

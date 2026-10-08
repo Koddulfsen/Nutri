@@ -183,6 +183,18 @@ export function calculatePercentDV(intake: number, dailyValue: number): DvStatus
 }
 
 /**
+ * Percent of a CEILING, and where that falls. Separate from calculatePercentDV because the zones are not the
+ * same question: 8 % of an iron target is a deficiency, while 8 % of a cadmium limit is simply fine. Nothing
+ * here ever returns 'deficient' or 'low' — there is no such thing as too little of a contaminant.
+ */
+export function calculatePercentOfLimit(intake: number, limit: number): DvStatus {
+  if (limit <= 0) return { percent: 0, status: 'optimal' };
+  const percent = (intake / limit) * 100;
+  const status: DvStatus['status'] = percent > 100 ? 'excess' : percent >= 50 ? 'high' : 'optimal';
+  return { percent, status };
+}
+
+/**
  * Convert a nutrient amount between unit systems. Returns null when units aren't
  * comparable (e.g. mg vs IU, kcal vs mg). Handles common mass conversions only —
  * good enough for the alpha; energy/IU/kJ stay null.
@@ -214,6 +226,18 @@ export interface DvValue {
   spread?: [number, number] | null;
   /** A ceiling that applies only to supplements or fortified foods — never to be compared with intake from food. */
   supplementLimit?: { value: number; unit: string; sourceCount: number } | null;
+  /**
+   * True when `value` is a CEILING to stay under rather than a target to reach — a compound no body sets a
+   * requirement for (cadmium, mercury, retinol, nicotinamide). The percentage then means "share of the limit
+   * used", and more is worse, so the zones invert: a low number is the good case, never a deficiency.
+   */
+  limitOnly?: boolean;
+  /**
+   * Set when the body published the ceiling over a longer window than a day and `value` is that figure divided
+   * down. Carried so the label can say so: EFSA's cadmium TWI is a WEEKLY tolerable intake, and no body sets a
+   * daily cadmium ceiling, so a bare daily number would state something nobody published.
+   */
+  perDayFrom?: { averagingDays: number; publishedValue: number } | null;
 }
 
 export type DvZone = 'deficient' | 'low' | 'optimal' | 'high' | 'excess' | 'unknown';
@@ -246,7 +270,9 @@ export function assemblePayload(args: {
         // Convert intake to DV unit if they differ (mg <-> µg, mg <-> g).
         const intakeInDvUnit = convertToUnit(c.amount, c.unit, dv.unit);
         if (intakeInDvUnit != null) {
-          const percentResult = calculatePercentDV(intakeInDvUnit, dv.value);
+          const percentResult = dv.limitOnly
+            ? calculatePercentOfLimit(intakeInDvUnit, dv.value)
+            : calculatePercentDV(intakeInDvUnit, dv.value);
           rdaPercent = percentResult.percent;
           zone = percentResult.status;
         }
@@ -267,6 +293,9 @@ export function assemblePayload(args: {
               source: dv.source,
               upperLimit: dv.upperLimit ?? null,
               upperLimitUnit: dv.upperLimitUnit ?? null,
+              limitOnly: dv.limitOnly ?? false,
+              perDayFrom: dv.perDayFrom ?? null,
+              sourceCount: dv.sourceCount ?? 0,
             }
           : null,
         showProgressBar: true,

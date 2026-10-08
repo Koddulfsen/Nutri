@@ -179,7 +179,7 @@ function DvBar({
   dailyValue,
 }: {
   rdaPercent: number | null;
-  dailyValue: { value: number; upperLimit?: number | null } | null;
+  dailyValue: { value: number; upperLimit?: number | null; limitOnly?: boolean } | null;
 }) {
   if (!dailyValue) {
     return (
@@ -192,6 +192,26 @@ function DvBar({
   }
 
   const pct = rdaPercent ?? 0;
+
+  // A ceiling with no target behind it (cadmium, mercury, retinol, cholesterol...). The bar means the opposite
+  // of every other bar on this page, so it must not look the same: it fills toward the limit instead of toward
+  // a goal, and the label says "of limit" so a full bar is never mistaken for a completed target. Styling is
+  // `--coral` tints like everything else (see CLAUDE.md §8) — only the direction of "good" changes.
+  if (dailyValue.limitOnly) {
+    const usedPct = Math.min(100, pct);
+    const over = pct > 100;
+    return (
+      <div className="dv-bar-wrapper active">
+        <div className={`dv-bar dv-bar--limit${over ? ' dv-bar--limit-over' : ''}`}>
+          <div className="dv-bar-limit-fill" style={{ width: `${usedPct}%` }} />
+          <span className="dv-percent-label">
+            {pct < 1 && pct > 0 ? '<1' : Math.round(pct)}% of limit
+          </span>
+        </div>
+      </div>
+    );
+  }
+
   const fillPct = Math.min(100, pct);
 
   // UL overlay: only when UL exists AND intake exceeds the target.

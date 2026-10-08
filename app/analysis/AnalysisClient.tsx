@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import type { User } from '@supabase/supabase-js';
 import { apiUrl } from '@/lib/utils/base-path';
@@ -930,14 +930,14 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
     }
   };
 
-  // Suggestions + My meals for the food lists. Keyed on the day's items, so
-  // they follow every add and remove.
-  // Keyed on food ids, not item ids: an optimistic item and the real one that
-  // replaces it share a food id, so one add causes one refetch, not two.
-  const loggedFoodIdList: string[] = meals.flatMap((m: any) => (m.items || []).map((i: any) => i.foodId));
-  const quickAddLogKey = [...loggedFoodIdList].sort().join(',');
-  const loggedFoodIds = new Set(loggedFoodIdList);
-  const quickAdd = useQuickAdd(selectedDate, quickAddLogKey, !!user && !mealsLoading);
+  // Suggestions + My meals for the food lists. The pool is fetched once; which
+  // suggestions show is worked out from the foods on screen (optimistic adds
+  // included), so adding and removing never waits on a request.
+  const loggedFoodIds = useMemo(
+    () => new Set<string>(meals.flatMap((m: any) => (m.items || []).map((i: any) => i.foodId))),
+    [meals]
+  );
+  const quickAdd = useQuickAdd(!!user);
   const selectedForMeal = meals
     .flatMap((m: any) => m.items || [])
     .filter((i: any) => selectedItemIds.includes(i.id))
@@ -3077,6 +3077,27 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
         }
         .an-page :global(.dv-bar-overflow) {
           background: var(--coral-dark) !important;
+        }
+        /* Limit-only bars in the Petal White palette: pale track, coral fill
+           growing left to right, coral-dark once past the published limit. */
+        .an-page :global(.dv-bar.dv-bar--limit) {
+          background: #f2e7e2 !important;
+        }
+        .an-page :global(.dv-bar-limit-fill) {
+          background: linear-gradient(
+            to right,
+            color-mix(in srgb, var(--coral) 45%, #ffffff) 0%,
+            var(--coral) 100%
+          ) !important;
+        }
+        .an-page :global(.dv-bar--limit-over) :global(.dv-bar-limit-fill) {
+          background: var(--coral-dark) !important;
+        }
+        .an-page :global(.dv-bar--limit) :global(.dv-percent-label) {
+          color: rgba(46, 26, 14, 0.62) !important;
+        }
+        .an-page :global(.dv-bar--limit-over) :global(.dv-percent-label) {
+          color: #fff9f7 !important;
         }
         .an-page :global(.dv-bar.police-tape),
         .an-page :global(.header-bar.police-tape) {

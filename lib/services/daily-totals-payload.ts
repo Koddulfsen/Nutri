@@ -48,6 +48,27 @@ async function lookupDvs(
           spread: row.targetSpread,
           supplementLimit: row.supplementLimit,
         });
+      } else if (row.upperLimit != null && row.upperLimitUnit) {
+        // A ceiling with no target behind it. Until 2026-10-08 this branch did not exist, so every compound no
+        // body sets a requirement for — cadmium, mercury, retinol, nicotinamide, cholesterol, boron, nickel and
+        // four more — was dropped here and rendered "No DV" despite having a verified, resolved limit. The bar
+        // is goal-shaped (its width is the target), so a limit-only compound had nothing to be a fraction OF.
+        //
+        // `limitOnly` tells the UI the number is a ceiling and the percentage counts headroom used, not progress.
+        //
+        // The division is Jens's call (2026-10-08): the page is one day and the contaminant limits are weekly, so
+        // the weekly figure is divided down to sit beside everything else. `perDayFrom` keeps what was actually
+        // published, because NO body sets a daily cadmium or mercury ceiling — presenting the quotient without
+        // saying it is a quotient would state something nobody published.
+        const days = row.averagingDays && row.averagingDays > 1 ? row.averagingDays : 1;
+        dvValues.set(id, {
+          value: row.upperLimit / days,
+          unit: row.upperLimitUnit,
+          source: 'limit',
+          sourceCount: row.upperLimitSourceCount,
+          limitOnly: true,
+          perDayFrom: days > 1 ? { averagingDays: days, publishedValue: row.upperLimit } : null,
+        });
       }
     });
   } else {
