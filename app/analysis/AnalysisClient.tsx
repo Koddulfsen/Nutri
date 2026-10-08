@@ -602,10 +602,6 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
 
       const data = await res.json();
       setDailyTotals(data);
-      // Debug: show key macros
-      const protein = data.compounds?.find((c: any) => c.name === 'Protein');
-      const fat = data.compounds?.find((c: any) => c.name === 'Total Fat');
-      const carbs = data.compounds?.find((c: any) => c.name === 'Total Carbohydrate');
     } catch (error) {
       console.error('❌ Failed to fetch daily totals:', error);
     } finally {
@@ -1524,7 +1520,12 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
                   const energyCompound  = allCompounds.find(c => c.name === 'Energy');
                   const waterCompound   = allCompounds.find(c => c.name === 'Water');
                   const proteinCompound = allCompounds.find(c => c.name === 'Protein');
-                  const carbCompound    = allCompounds.find(c => c.name === 'Total Carbohydrate');
+                  // 'Total Carbohydrate' was a name no compound has ever had, so this was undefined and the
+                  // ring drew carbs as "--g" with a hole where its arc belonged. The compound is 'Carbohydrates'
+                  // — as lib/data/core-compounds.ts, app/api/foods/route.ts and the admin pages all already
+                  // spelled it. Total carbohydrate, matching what Cronometer calls Carbs; the fibre-subtracted
+                  // figure is a separate compound ('Carbohydrates (Excluding Fiber)').
+                  const carbCompound    = allCompounds.find(c => c.name === 'Carbohydrates');
                   const fatCompound     = allCompounds.find(c => c.name === 'Total Fat');
 
                   const energyData  = energyCompound  ? getNutrientValue(energyCompound.id)  : null;
