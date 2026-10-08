@@ -350,6 +350,50 @@ function add(p: { compound: string; type: DvValueType; sexes: Sex[]; stage?: Lif
 }
 
 
+// ───────────── WHO TRS 935: the sulfur amino acid pair, split into its members ─────────────
+//
+// Table 36 publishes SAA and AAA as pairs, because the body interconverts within each: cysteine is
+// made from methionine, tyrosine from phenylalanine. For ONE of those pairs the report goes further
+// and publishes the members separately; for the other it says in as many words that it cannot.
+//
+// SULFUR (§ 8.1.7) — split published. The committee considered exactly the question of whether the
+// pair can be divided and decided it can:
+//
+//   "it was decided to assume that cysteine intake could not entirely reduce the requirement for
+//    methionine, and that there should be separate recommendations for methionine and cysteine ...
+//    the dietary requirement for methionine plus cysteine will be the obligatory oxidative losses
+//    (methionine plus cysteine), i.e. 10.4 mg/kg per day methionine and 4.1 mg/kg per day cysteine
+//    = 14.5 mg/kg per day total sulfur amino acids rounded to 15 mg/kg per day"
+//
+// and its recommendation table prints the three lines: Methionine 10.4, Cysteine 4.1, Total sulfur
+// amino acids 15. So these are published values, not a split we invented. Note the ratio is about
+// 72:28, NOT half and half — Cronometer shows each member at half the pair, which overstates
+// cysteine's requirement by roughly 1.8x and understates methionine's (checked 2026-10-08 by solving
+// their displayed amount/percent back to a target).
+//
+// AROMATIC (§ 8.1.6) — no split, by the report's own statement: "It is not possible at present to set
+// a specific value for the ability of tyrosine to spare phenylalanine intake." Phenylalanine and
+// tyrosine therefore keep no individual value here, and the pair is the only thing with a target.
+// Anything per-member for that pair would be invention.
+//
+// ADULTS ONLY. The 10.4/4.1 derivation is the adult obligatory oxidative loss, and 10.4 + 4.1 = 14.5
+// rounds to the 15 mg/kg that Table 36 prints for >18 y — it reconstructs that row and no other. The
+// report does not split the higher SAA figures for infants and children, so neither do we.
+{
+  const T = 'WHO TRS 935 (2007), § 8.1.7';
+  const PER_KG = 'Per kg of body weight, as published (mg/kg per day).';
+  const ADULT: Age = [228, null];
+  for (const [compound, v] of [['Methionine', 10.4], ['Cysteine', 4.1]] as Array<[string, number]>) {
+    add({ compound, type: 'EAR', sexes: BOTH, age: ADULT, cell: v, unit: 'mg', perKg: true,
+      note: `${PER_KG} The obligatory oxidative loss, which § 8.1.7 publishes per member: "10.4 mg/kg per day methionine and 4.1 mg/kg per day cysteine = 14.5 mg/kg per day total sulfur amino acids rounded to 15 mg/kg per day". The committee decided "there should be separate recommendations for methionine and cysteine" rather than only a pair figure. Adults only — the report derives this split for the adult requirement, and it reconstructs Table 36's >18 y SAA value of 15.`,
+      from: `${T}, ${compound}, >18 y` });
+    add({ compound, type: 'RDA', sexes: BOTH, age: ADULT, cell: Number((v * 1.24).toFixed(4)), unit: 'mg', perKg: true,
+      note: `${PER_KG} Safe level: the average requirement + 24 %, the same § 8.4 rule already applied to every other amino acid here (coefficient of variation 12 %). The report states the rule but prints no per-member safe level. The two sum to 17.98 mg/kg against the pair's 18.6, because the pair is derived from Table 36's ROUNDED 15 while the members carry the unrounded 14.5 the section states ("14.5 ... rounded to 15 mg/kg per day"). The 4 % gap is the report's own rounding, not a drift between two of our numbers.`,
+      from: `${T}, ${compound}, >18 y, safe level per § 8.4 (+24 %)` });
+  }
+}
+
+
 // ───────────── JECFA: contaminant tolerable intakes ─────────────
 //
 // The Joint FAO/WHO Expert Committee on Food Additives. Its values live under WHO_FAO because that is

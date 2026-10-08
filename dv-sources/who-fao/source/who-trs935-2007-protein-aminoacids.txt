@@ -1731,3 +1731,76 @@ a
 
 
 cvr 15.5mm spine.indd 2                                                                                                                                                                                         11/13/07 8:20:54 AM
+
+════════════════════════════════════════════════════════════════════════════════
+APPENDED 2026-10-08 — the two passages that decide whether a pair may be split.
+pdftotext of the WHO IRIS PDF of TRS 935, the same report as the pages above.
+════════════════════════════════════════════════════════════════════════════════
+
+──── § 8.1.7 Sulfur amino acids — A SPLIT IS PUBLISHED (10.4 + 4.1 = 15) ────
+
+supplied by methionine catabolism. Although this is not known with certainty, the onward metabolism of methionine to cysteine and to taurine is
+regulated, appears functionally important, and is limited or compromised in
+
+145
+
+several circumstances, such as poor B-vitamin status, infancy and alcohol
+consumption (71). Furthermore, there are conflicting studies on the ability of
+cysteine intake to reduce the requirement for methionine. Sparing was
+demonstrated in a study using the indicator amino acid approach, and with a
+diet containing sulfur amino acids in a ratio of 5:1 cysteine to methionine
+(72). However, two other studies employing the 13C direct amino acid oxidation method suggested that sparing might not occur at intake ratios nearer
+to unity (73, 74). This is the ratio that would be more likely to occur with
+normal diets. Finally in an indicator amino acid balance study with graded
+levels of cysteine intake (0, 5 and 12 mg cysteine/kg per day) there seemed
+to be a sparing effect of cysteine on the methionine requirement. However,
+the effect could not be quantified with any certainty (75). For this reason it
+was decided to assume that cysteine intake could not entirely reduce the requirement for methionine, and that there should be separate recommendations
+for methionine and cysteine. Given these arguments, values for the total sulfur
+amino acid requirement are calculated on the assumption that methionine acts
+as a continuous source of sulfur for cysteine formation under steady-state
+conditions, but cannot supply the entire demand for cysteine. Thus the dietary
+requirement for methionine plus cysteine will be the obligatory oxidative
+losses (methionine plus cysteine), i.e. 10.4 mg/kg per day methionine and
+4.1 mg/kg per day cysteine =14.5 mg/kg per day total sulfur amino acids
+rounded to 15 mg/kg per day. This value is similar to total sulfur amino acid
+requirement values obtained by the indicator amino acid balance method, and
+is therefore suggested for the total sulfur amino acid requirement.
+It is clear that considerable uncertainty exists about the sparing effect of cysteine on the methionine requirement, and it is suggested that this should be a
+subject of future research.
+8.1.8 Histidine
+
+
+──── § 8.1.7 recommendation table, as printed ────
+
+24-hour multi-level intakes
+Obligatory amino acid losses
+Recommendation (see assumptions in text)
+Methionine
+Cysteine
+Total sulfur amino acids
+
+10.4
+4.1
+
+──── § 8.1.6 Aromatic amino acids — NO SPLIT IS POSSIBLE ────
+
+the presence of generous tyrosine, derived by break-point analysis of amino
+acid oxidation measured with [13C]phenylalanine (56), suggests sparing by
+tyrosine. A direct measurement of the magnitude of sparing of phenylalanine
+by tyrosine was made by the indicator amino acid oxidation method using
+[13C]lysine in the fed state only (57). At an intake of phenylalanine of 9
+mg/kg per day, a break-point in the lysine oxidation curve was demonstrated
+at a tyrosine intake of 6 mg/kg per day, and this was taken to imply a combined
+aromatic amino acid requirement of 15 mg/kg per day. However, the phenylalanine intake of 9 mg/kg per day used in this study was based on the
+estimated phenylalanine requirement in the presence of generous tyrosine
+derived from the earlier study (56), which, in the context of more recent isotopic measurements yielding values for the combined requirement in the
+range 19–39 mg/kg per day (51–53, 58, 59), might have been an underestimate. If so, it is possible that the phenylalanine intake in the study of Roberts
+et al. (57) would have been suboptimal, and would therefore have restricted
+the utilization of tyrosine and lowered the apparent combined requirement.
+There is thus considerable uncertainty, but taking all the above into account
+the recommended best estimate of total aromatic amino acid requirement is
+set at 25 mg/kg per day. It is not possible at present to set a specific value for
+the ability of tyrosine to spare phenylalanine intake.
+
+142
