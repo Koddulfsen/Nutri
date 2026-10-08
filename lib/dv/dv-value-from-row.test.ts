@@ -18,7 +18,7 @@ const row = (over: Partial<DvLookupRow>): DvLookupRow => ({
   upperLimit: null, upperLimitUnit: null, upperLimitSourceCount: 0,
   targetSources: [], targetSpread: null, diseaseFloor: null, supplementLimit: null,
   formLimits: [], energyShare: null, range: null, averagingDays: 1, referencePoints: [],
-  weightBasis: null, ...over,
+  weightBasis: null, activityBasis: null, ...over,
 });
 
 describe('a target wins when there is one', () => {

@@ -83,6 +83,7 @@ export const UNIT_SCALES: Record<string, { dim: string; scale: number }> = {
   mg: { dim: 'mass', scale: 1e-3 },
   ug: { dim: 'mass', scale: 1e-6 },
   ng: { dim: 'mass', scale: 1e-9 },
+  mj: { dim: 'energy', scale: 1e3 },
   kj: { dim: 'energy', scale: 1 },
   kcal: { dim: 'energy', scale: 4.184 },
   l: { dim: 'volume', scale: 1 },

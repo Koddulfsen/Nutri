@@ -39,6 +39,21 @@ export interface DvRow {
   averagingDays?: number;
   /** An absolute amount on top of `value`, in the same unit — a per-kg base plus a stated increment. */
   plusAbsolute?: number;
+  /**
+   * The habitual activity level this value is for. Only energy varies by it: EER is the one value type where a
+   * body publishes several numbers for the same age and sex. Null means the body published a single figure with
+   * no activity breakdown — see ACTIVITY_FALLBACK in the EER block for how those are counted.
+   */
+  activityLevel?: ActivityLevel | null;
+}
+
+export type ActivityLevel = 'SEDENTARY' | 'MODERATE' | 'ACTIVE' | 'VERY_ACTIVE';
+
+/** Which activity level an energy target was read at, and where that came from. */
+export interface ActivityBasis {
+  level: ActivityLevel;
+  /** 'stated' when the user gave one; 'default' when MODERATE was assumed because they had not. */
+  source: 'stated' | 'default';
 }
 
 export type DvValueType =
@@ -111,6 +126,11 @@ export interface ResolvedBar {
   referencePoints: Array<Aggregate & { valueType: 'BMDL'; endpoints: string[] }>;
   /** The body weight per-kg values were resolved against, when any were. */
   weightBasis: WeightBasis | null;
+  /**
+   * Which activity level the energy target was read at, and whether the user said so or it was assumed.
+   * Null for every compound but energy — nothing else varies by activity.
+   */
+  activityBasis: ActivityBasis | null;
   /** Every row that did not contribute, and why. */
   excluded: Array<{ region: string; valueType: string; unit: string; reason: string }>;
 }
@@ -128,6 +148,12 @@ export interface ResolveOptions {
   /** Simpler form of the above: one weight for every body. */
   referenceWeightKg?: number | null;
   referenceWeightNote?: string;
+  /**
+   * The user's habitual activity level. Energy is the only target that depends on it, and the difference is not
+   * small: a 30-year-old man's EER runs 2,050-2,950 kcal across China's three levels alone. Null means they have
+   * not said, and the resolver falls back to MODERATE and reports that it did, rather than guessing silently.
+   */
+  activityLevel?: ActivityLevel | null;
 }
 
 const ALPHA = new Set<string>(ALPHA_INDEPENDENT_REGIONS);
@@ -344,11 +370,14 @@ export function resolveBar(
   // Benchmark doses are separated before anything else: they are reference points for a margin-of-
   // exposure calculation, not ceilings, and nothing downstream should be able to mistake one for a limit.
   const bmdlRows = scaled.filter((r) => r.valueType === 'BMDL');
+  // Energy is the one target that depends on activity, so it cannot go through the same per-body vote as the
+  // rest: a single body publishes three or four numbers for the same age and sex. Collected here, resolved below.
+  const eerRows: DvRow[] = [];
   const rows: DvRow[] = [];
   for (const r of scaled.filter((r) => r.valueType !== 'BMDL')) {
     if (!ALPHA.has(r.region)) { excluded.push({ region: r.region, valueType: r.valueType, unit: r.unit, reason: 'not one of the independent sources' }); continue; }
     if (r.valueType === 'EAR') { excluded.push({ region: r.region, valueType: r.valueType, unit: r.unit, reason: 'an average requirement is not a personal target' }); continue; }
-    if (r.valueType === 'EER') { excluded.push({ region: r.region, valueType: r.valueType, unit: r.unit, reason: 'energy is resolved separately (depends on activity)' }); continue; }
+    if (r.valueType === 'EER') { eerRows.push(r); continue; }
     if (/\//.test(parseUnit(r.unit).magnitude)) { excluded.push({ region: r.region, valueType: r.valueType, unit: r.unit, reason: 'per-energy unit: needs the user\'s energy intake to become an amount' }); continue; }
     rows.push(r);
   }
@@ -406,7 +435,60 @@ export function resolveBar(
   const goalAgg = aggregate(compound, goalEntries, excluded, 'goal');
   const diseaseFloor = aggregate(compound, floors, excluded, 'disease floor');
   const goalTypes = new Set([...perRegionGoal.values()].map((g) => g.type));
-  const goal = goalAgg ? { ...goalAgg, type: (goalTypes.size === 1 ? [...goalTypes][0] : 'MIXED') as 'RDA' | 'AI' | 'MIXED' } : null;
+  let goal = goalAgg ? { ...goalAgg, type: (goalTypes.size === 1 ? [...goalTypes][0] : 'MIXED') as 'RDA' | 'AI' | 'MIXED' } : null;
+
+  // ── Energy ───────────────────────────────────────────────────────────────────────────────────────
+  //
+  // 1,491 EER rows from 19 bodies sat unused until 2026-10-08: this function dropped every one of them
+  // with the note "energy is resolved separately (depends on activity)", and nothing, anywhere, did
+  // that. So /analysis printed the kcal eaten with nothing to compare it against.
+  //
+  // Energy cannot go through the vote above because activity is a real second axis: one body publishes
+  // three or four numbers for the same age and sex, and they are far apart — China's 30-year-old man
+  // ranges 2,050 to 2,950 kcal. Averaging across a body's own activity levels would invent a person who
+  // is simultaneously sedentary and athletic. So the activity level is chosen FIRST, and only then is
+  // there one value per body to take a median of, exactly like every other target.
+  let activityBasis: ActivityBasis | null = null;
+  if (eerRows.length > 0) {
+    const asked = opts.activityLevel ?? null;
+    // Falling back rather than refusing: a target that assumes moderate activity is far more useful than
+    // no target, and the basis is reported so the UI can say which it used and invite a correction.
+    const level: ActivityLevel = asked ?? 'MODERATE';
+    activityBasis = { level, source: asked ? 'stated' : 'default' };
+
+    const perRegionEer = new Map<string, Entry>();
+    for (const r of eerRows) {
+      // A body that publishes ONE figure with no activity breakdown (Korea, the UK) has assumed some
+      // habitual level of its own. Counting it at every level would make it vote for "sedentary" with a
+      // number it never meant, so it votes only at MODERATE — the assumption closest to the reference
+      // adult those tables describe — and is recorded as excluded elsewhere, with the reason.
+      if (r.activityLevel == null) {
+        if (level !== 'MODERATE') {
+          excluded.push({ region: r.region, valueType: r.valueType, unit: r.unit,
+            reason: `published without an activity breakdown, so it is counted only at moderate activity, not at ${level.toLowerCase().replace('_', ' ')}` });
+          continue;
+        }
+      } else if (r.activityLevel !== level) {
+        excluded.push({ region: r.region, valueType: r.valueType, unit: r.unit,
+          reason: `for ${r.activityLevel.toLowerCase().replace('_', ' ')} activity, not ${level.toLowerCase().replace('_', ' ')}` });
+        continue;
+      }
+      // One vote per body. A body should not have two rows for one activity level at one age and sex; if
+      // it does, the lower is kept so the target is never inflated by a duplicate nobody has looked at.
+      const prev = perRegionEer.get(r.region);
+      if (prev) {
+        const here = convertFor(compound, r.value, r.unit, prev.unit);
+        if ('value' in here && here.value >= prev.value) continue;
+      }
+      perRegionEer.set(r.region, { region: r.region, value: r.value, unit: r.unit });
+    }
+
+    const eerAgg = aggregate(compound, [...perRegionEer.values()], excluded, 'energy requirement');
+    // EER is its own value type, neither an RDA nor an AI: it is the intake predicted to MAINTAIN weight,
+    // not one set to cover 97.5 % of a population. 'MIXED' is the honest label among the three the goal
+    // type allows — see ResolvedBar.goal.
+    if (eerAgg) goal = { ...eerAgg, type: 'MIXED' as const };
+  }
 
   // One ceiling per body — the strictest it sets — then the median of those. Strictness is only
   // meaningful within one averaging window: 2.5 µg/kg per week is not "looser" than 1 µg/kg per day,
@@ -493,6 +575,6 @@ export function resolveBar(
 
   return {
     compound, goal, diseaseFloor, limit, range, energyShare, supplementLimit: suppAgg, formLimits,
-    referencePoints, weightBasis: weightUsed, excluded,
+    referencePoints, weightBasis: weightUsed, activityBasis, excluded,
   };
 }

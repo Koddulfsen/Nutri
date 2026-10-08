@@ -42,6 +42,9 @@ const FetchDailyValuesSchema = z.object({
   // and use the new age-range-based DV query (the picker on /analysis sends these).
   age: z.number().int().min(0).max(120).optional(),
   sex: z.enum(['MALE', 'FEMALE']).optional(),
+  // Energy is the only target that depends on activity. Omitted, the resolver reads energy at MODERATE and
+  // reports that it assumed, through activityBasis.
+  activityLevel: z.enum(['SEDENTARY', 'MODERATE', 'ACTIVE', 'VERY_ACTIVE']).optional(),
 });
 
 /**
@@ -194,7 +197,7 @@ export async function POST(request: NextRequest) {
     // Mode 1: Fetch daily values (batch) - uses compoundIds array
     const fetchResult = FetchDailyValuesSchema.safeParse(body);
     if (fetchResult.success) {
-      const { compoundIds, includeDisplaySettings, age, sex } = fetchResult.data;
+      const { compoundIds, includeDisplaySettings, age, sex, activityLevel } = fetchResult.data;
 
       logger.debug(
         {
@@ -213,7 +216,7 @@ export async function POST(request: NextRequest) {
       if (age !== undefined && sex !== undefined) {
         // New path: age/sex from caller, age-range-based lookup
         const lookup = await getDailyValuesBatchByDemographics({
-          compoundIds, ageYears: age, sex,
+          compoundIds, ageYears: age, sex, activityLevel,
         });
         lookup.forEach((row, compoundId) => {
           // This is the map the BROWSER draws bars from: /analysis recomputes a day locally after every
@@ -253,6 +256,7 @@ export async function POST(request: NextRequest) {
             averagingDays: row.averagingDays,
             referencePoints: row.referencePoints,
             weightBasis: row.weightBasis,
+            activityBasis: row.activityBasis,
           };
         });
       } else {

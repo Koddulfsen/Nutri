@@ -688,6 +688,12 @@ export interface BatchDvByDemographicsArgs {
    * reference-weight fallback is G1 of dv-sources/DV-ACCURACY-TASKS.md and is not built yet.
    */
   weightKg?: number | null;
+  /**
+   * The user's habitual activity level, when they have given one. Energy is the only target that depends on it,
+   * and strongly: a 30-year-old man's EER spans 2,050-2,950 kcal across China's three levels. Without it the
+   * resolver reads energy at MODERATE and says so through `activityBasis`, rather than dropping the target.
+   */
+  activityLevel?: ActivityLevel | null;
 }
 
 export interface DvLookupRow {
@@ -721,6 +727,11 @@ export interface DvLookupRow {
   referencePoints: Array<{ value: number; unit: string; sourceCount: number }>;
   /** The body weight per-kg values were resolved against, and whether it was theirs or a default. */
   weightBasis: { kg: number; source: 'measured' | 'reference'; note?: string } | null;
+  /**
+   * For energy only: which activity level the target was read at, and whether the user stated it or MODERATE
+   * was assumed. The UI needs this to avoid presenting an assumed target as a personal one.
+   */
+  activityBasis: { level: ActivityLevel; source: 'stated' | 'default' } | null;
 }
 
 /**
@@ -737,7 +748,7 @@ export interface DvLookupRow {
 export async function getDailyValuesBatchByDemographics(
   args: BatchDvByDemographicsArgs
 ): Promise<Map<string, DvLookupRow>> {
-  const { compoundIds, ageYears, sex, weightKg } = args;
+  const { compoundIds, ageYears, sex, weightKg, activityLevel } = args;
   const results = new Map<string, DvLookupRow>();
   if (compoundIds.length === 0) return results;
 
@@ -778,6 +789,7 @@ export async function getDailyValuesBatchByDemographics(
       supplementalOnly: referenceDailyValues.supplementalOnly,
       perKgBodyWeight: referenceDailyValues.perKgBodyWeight,
       averagingDays: referenceDailyValues.averagingDays,
+      activityLevel: referenceDailyValues.activityLevel,
     })
     .from(referenceDailyValues)
     .where(
@@ -811,6 +823,7 @@ export async function getDailyValuesBatchByDemographics(
         supplementalOnly: r.supplementalOnly ?? false,
         perKgBodyWeight: r.perKgBodyWeight ?? false,
         averagingDays: r.averagingDays ?? 1,
+        activityLevel: (r.activityLevel as ActivityLevel | null) ?? null,
       },
     ]);
   }
@@ -824,12 +837,13 @@ export async function getDailyValuesBatchByDemographics(
         upperLimit: null, upperLimitUnit: null, upperLimitSourceCount: 0,
         targetSources: [], targetSpread: null, diseaseFloor: null, supplementLimit: null,
         formLimits: [], energyShare: null, range: null, averagingDays: 1, referencePoints: [], weightBasis: null,
+        activityBasis: null,
       });
       continue;
     }
     const formRows: Record<string, DvRow[]> = {};
     for (const link of formLinksOf(name)) formRows[link.form] = byCompoundName.get(link.form) ?? [];
-    const bar = resolveBar(name, own, formRows, { weightKg, referenceWeightFor: referenceFor });
+    const bar = resolveBar(name, own, formRows, { weightKg, referenceWeightFor: referenceFor, activityLevel });
 
     // Only surface a limit the caller can compare with the target: a % -of-energy ceiling cannot be read against a
     // target in grams, and a form limit counts a different thing (preformed vitamin A, not total). Those are carried
@@ -857,6 +871,7 @@ export async function getDailyValuesBatchByDemographics(
       averagingDays: bar.goal?.averagingDays ?? bar.limit?.averagingDays ?? 1,
       referencePoints: bar.referencePoints.map((r) => ({ value: r.value, unit: r.unit, sourceCount: r.sources.length })),
       weightBasis: bar.weightBasis,
+      activityBasis: bar.activityBasis,
     });
   }
 

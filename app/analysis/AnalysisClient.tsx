@@ -339,9 +339,11 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
   }, [profileLoaded, sex, debouncedAge, activityLevel]);
 
   // Fetch DVs for all compounds, refetch when picker age/sex changes
-  // Daily values for the picker's age and sex. Remembered per combination, so
-  // going back to one already used needs no request. Anything else the picker
-  // sends in future (activity level, ...) must go into `dvKey` too.
+  // Daily values for the picker's age, sex and activity level. Remembered per combination, so going back
+  // to one already used needs no request. Activity joined age and sex on 2026-10-08, when the energy
+  // target started being resolved: it is the only target that varies by activity, and it varies a lot
+  // (2,050-2,950 kcal across China's three levels alone), so it has to be part of the cache key or the
+  // picker would hand back another level's number.
   const dvCacheRef = useRef<Map<string, Record<string, any>>>(new Map());
   const latestDvKeyRef = useRef('');
   const dvLoadedOnceRef = useRef(false);
@@ -351,7 +353,7 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
       if (initialCompounds.length === 0) return;
 
       const sexParam = sex === 'male' ? 'MALE' : 'FEMALE';
-      const dvKey = `${debouncedAge}:${sexParam}`;
+      const dvKey = `${debouncedAge}:${sexParam}:${activityLevel}`;
       latestDvKeyRef.current = dvKey;
 
       // A new set of daily values; after the first one, the totals need
@@ -377,6 +379,7 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
             compoundIds,
             age: debouncedAge,
             sex: sexParam,
+            activityLevel,
           }),
         });
         if (res.ok) {
@@ -393,7 +396,7 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
       }
     }
     fetchCompoundDVs();
-  }, [initialCompounds, debouncedAge, sex]);
+  }, [initialCompounds, debouncedAge, sex, activityLevel]);
 
   // The picker changed the daily values: recalculate the totals here, from the
   // nutrient numbers already held, instead of asking the server again. Falls
