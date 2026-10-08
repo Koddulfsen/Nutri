@@ -11,8 +11,12 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { apiUrl } from '@/lib/utils/base-path';
-import type { Suggestion } from '@/lib/services/usuals';
-import type { SavedMeal } from '@/lib/services/saved-meals';
+import {
+  rankSuggestions,
+  type RankableMeal,
+  type Suggestion,
+  type UsualFood,
+} from '@/lib/services/suggestion-ranking';
 
 /** What the page needs to add foods: same path as the chat's Add foods. */
 export type AddFoods = (
@@ -21,23 +25,27 @@ export type AddFoods = (
 ) => Promise<void>;
 
 /** Saved meals as the API sends them (dates as strings). */
-export type MealJson = Omit<SavedMeal, 'lastUsedAt' | 'createdAt'> & { lastUsedAt: string | null; createdAt: string };
-export type SuggestionJson =
-  | Extract<Suggestion, { kind: 'food' }>
-  | (Omit<Extract<Suggestion, { kind: 'meal' }>, 'items'> & { items: MealJson['items'] });
+export type MealJson = RankableMeal & { lastUsedAt: string | null; createdAt: string };
 
 export interface QuickAddState {
-  suggestions: SuggestionJson[];
+  /** The user's most-used foods, with usual amounts. */
+  foods: UsualFood[];
   meals: MealJson[];
+  /** Fetch the pool again — after a saved meal is created, renamed or deleted. */
   refresh: () => void;
 }
 
+const SHOWN = 5;
+
 /**
- * One fetch for the day, shared by both food lists. `logKey` changes whenever
- * the day's foods do, so suggestions follow what was just added or removed.
+ * The pool suggestions are picked from, fetched once and shared by both food
+ * lists. Adding and removing foods doesn't touch it: which 5 to show is worked
+ * out in the browser from the list on screen (FoodSuggestions), so it's instant
+ * and can't race the save. One more use of a food during a visit barely moves
+ * its rank, so the pool doesn't need to follow every add.
  */
-export function useQuickAdd(date: string, logKey: string, enabled: boolean): QuickAddState {
-  const [suggestions, setSuggestions] = useState<SuggestionJson[]>([]);
+export function useQuickAdd(enabled: boolean): QuickAddState {
+  const [foods, setFoods] = useState<UsualFood[]>([]);
   const [meals, setMeals] = useState<MealJson[]>([]);
   const [tick, setTick] = useState(0);
   const refresh = useCallback(() => setTick((t) => t + 1), []);
@@ -45,11 +53,11 @@ export function useQuickAdd(date: string, logKey: string, enabled: boolean): Qui
   useEffect(() => {
     if (!enabled) return;
     let cancelled = false;
-    fetch(apiUrl(`/api/quick-add?date=${date}`))
+    fetch(apiUrl('/api/quick-add'))
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
         if (cancelled || !data) return;
-        setSuggestions(data.suggestions ?? []);
+        setFoods(data.foods ?? []);
         setMeals(data.meals ?? []);
       })
       .catch(() => {
@@ -58,13 +66,18 @@ export function useQuickAdd(date: string, logKey: string, enabled: boolean): Qui
     return () => {
       cancelled = true;
     };
-  }, [date, logKey, tick, enabled]);
+  }, [tick, enabled]);
 
-  return { suggestions, meals, refresh };
+  return { foods, meals, refresh };
 }
 
 function mealSummary(items: MealJson['items']) {
   return items.map((i) => i.name.split(',')[0]).join(', ');
+}
+
+function localToday() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 }
 
 // ── Suggestions under the list
@@ -82,15 +95,20 @@ export function FoodSuggestions({
   // Only the clicked row is locked while it saves; the page queues saves in
   // order, so other rows can be added straight away.
   const [busy, setBusy] = useState<Set<string>>(new Set());
-  // Hide what's already in the list the moment it's added, by the server's own
-  // rule (a food once logged, a meal once all its foods are), instead of
-  // waiting for the refetch. The refetch then only fills the freed slot.
-  const visible = state.suggestions.filter((s) =>
-    s.kind === 'food' ? !loggedFoodIds.has(s.foodId) : !s.items.every((i) => loggedFoodIds.has(i.foodId))
+  const visible = useMemo(
+    () =>
+      rankSuggestions({
+        foods: state.foods,
+        meals: state.meals,
+        loggedToday: loggedFoodIds,
+        today: localToday(),
+        limit: SHOWN,
+      }),
+    [state.foods, state.meals, loggedFoodIds]
   );
   if (visible.length === 0) return null;
 
-  async function add(s: SuggestionJson) {
+  async function add(s: Suggestion) {
     const key = s.kind === 'food' ? s.foodId : s.id;
     setBusy((b) => new Set(b).add(key));
     try {
@@ -105,7 +123,6 @@ export function FoodSuggestions({
     } catch {
       // The page shows the error and restores the list; nothing to add here.
     } finally {
-      // No refresh here: the day's foods changed, so useQuickAdd refetches.
       setBusy((b) => {
         const next = new Set(b);
         next.delete(key);

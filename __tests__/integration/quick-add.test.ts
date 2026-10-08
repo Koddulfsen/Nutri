@@ -3,7 +3,8 @@
  * database, through the real routes.
  *
  *  - The usual amount is the most common grams + label the food was logged with.
- *  - Ranking follows use; foods already logged that day aren't suggested.
+ *  - The server's pool, ranked the way the browser ranks it, follows use; foods
+ *    already in the day's list aren't suggested.
  *  - Logging a saved meal (addMany + savedMealId) counts one use of it — only
  *    for the caller's own meal.
  *
@@ -38,6 +39,7 @@ vi.mock('next/server', async (importOriginal) => ({
 const { POST: syncPOST } = await import('@/app/api/meals/sync/route');
 const { GET: quickAddGET } = await import('@/app/api/quick-add/route');
 const savedMeals = await import('@/app/api/saved-meals/route');
+const { rankSuggestions } = await import('@/lib/services/suggestion-ranking');
 
 function req(method: string, path: string, body?: unknown) {
   return new NextRequest(`http://localhost${path}`, {
@@ -47,9 +49,10 @@ function req(method: string, path: string, body?: unknown) {
   });
 }
 
-// Far from any real day.
-const TODAY = '2001-06-30';
-const daysAgo = (n: number) => new Date(Date.UTC(2001, 5, 30 - n)).toISOString().slice(0, 10);
+// The pool counts back from the real today, so the log has to be recent. These
+// rows belong to throwaway users and are deleted in afterAll.
+const TODAY = new Date().toISOString().slice(0, 10);
+const daysAgo = (n: number) => new Date(Date.now() - n * 86_400_000).toISOString().slice(0, 10);
 
 let F: { id: string; name: string }[] = [];
 
@@ -69,10 +72,15 @@ async function log(date: string, items: Array<[number, number, string]>, savedMe
   expect(res.status).toBe(200);
 }
 
-async function quickAdd() {
-  const res = await quickAddGET(req('GET', `/api/quick-add?date=${TODAY}`));
+/** The server's pool, ranked the way the browser ranks it. */
+async function quickAdd(loggedToday: string[] = []) {
+  const res = await quickAddGET(req('GET', '/api/quick-add'));
   expect(res.status).toBe(200);
-  return res.json();
+  const pool = await res.json();
+  return {
+    ...pool,
+    suggestions: rankSuggestions({ foods: pool.foods, meals: pool.meals, loggedToday: new Set(loggedToday), today: TODAY, limit: 5 }),
+  };
 }
 
 beforeAll(async () => {
@@ -111,10 +119,9 @@ describe('suggestions', () => {
     expect(suggestions[1]).toMatchObject({ grams: 120, portion: '1 medium' });
   });
 
-  it("leaves out what's already logged that day", async () => {
-    await log(TODAY, [[0, 200, '1 glass']]);
-    const { suggestions } = await quickAdd();
-    expect(suggestions.map((s: { foodId: string }) => s.foodId)).not.toContain(F[0].id);
+  it("leaves out what's already in the day's list", async () => {
+    const { suggestions } = await quickAdd([F[0].id]);
+    expect(suggestions.map((s: { kind: string; foodId?: string }) => s.foodId)).toEqual([F[1].id, F[2].id]);
   });
 
   it('includes saved meals, counts a use when one is logged, and never counts another user\'s', async () => {

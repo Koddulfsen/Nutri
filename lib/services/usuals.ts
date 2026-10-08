@@ -1,37 +1,27 @@
 /**
- * What Nutri remembers about a user's eating: the foods they log most, their
- * usual amount of each, and their saved meals — ranked into a few suggestions.
- *
- * Foods are worked out from the user's own log every time; nothing extra is
+ * What Nutri remembers about a user's eating: the foods they log most and their
+ * usual amount of each, read from their own log every time — nothing extra is
  * stored, so deleting entries (or the account) removes them from here too.
- * Saved meals come from lib/services/saved-meals.ts.
+ *
+ * The server sends a pool of candidates once; the browser picks the few to show
+ * (lib/services/suggestion-ranking.ts), so adding and removing foods never waits
+ * on a request.
  */
 
 import { sql } from 'drizzle-orm';
 import { db } from '@/db';
 import { visibleFoods } from '@/lib/services/food-visibility';
-import { listSavedMeals, type SavedMeal } from '@/lib/services/saved-meals';
+import { listSavedMeals } from '@/lib/services/saved-meals';
+import type { UsualFood } from '@/lib/services/suggestion-ranking';
+
+export type { UsualFood };
 
 /** How far back the log is read. */
 const LOOKBACK_DAYS = 90;
 /** Uses in this window decide the order. */
 const RECENT_DAYS = 30;
-
-export interface UsualFood {
-  foodId: string;
-  name: string;
-  /** Usual amount: the most common grams + label the user logged it with. */
-  grams: number;
-  portion: string;
-  uses: number;
-  recentUses: number;
-  /** YYYY-MM-DD */
-  lastUsed: string;
-}
-
-export type Suggestion =
-  | { kind: 'food'; foodId: string; name: string; grams: number; portion: string }
-  | { kind: 'meal'; id: string; name: string; items: SavedMeal['items'] };
+/** Enough that 5 remain after a full day's foods are left out. */
+const POOL_FOODS = 25;
 
 export async function getUsualFoods(userId: string, today: string): Promise<UsualFood[]> {
   const rows = (await db.execute(sql`
@@ -71,65 +61,12 @@ export async function getUsualFoods(userId: string, today: string): Promise<Usua
 }
 
 /**
- * Pick the suggestions: foods and saved meals in one list, by uses in the last
- * 30 days, then by most recent use. A saved meal counts its uses only while it
- * has been used in the last 30 days (its count isn't kept per day). Anything
- * already logged on the day is left out — a meal once all its foods are.
+ * The candidates for the food list's suggestions: the user's most-used foods
+ * (by uses in the last 30 days, then most recent) and all their saved meals.
  */
-export function rankSuggestions(input: {
-  foods: UsualFood[];
-  meals: SavedMeal[];
-  loggedToday: Set<string>;
-  today: string;
-  limit: number;
-}): Suggestion[] {
-  const { foods, meals, loggedToday, today, limit } = input;
-  const recentCutoff = new Date(`${today}T00:00:00Z`).getTime() - RECENT_DAYS * 86_400_000;
-
-  const scored: Array<{ score: number; last: number; s: Suggestion }> = [];
-  for (const f of foods) {
-    if (loggedToday.has(f.foodId)) continue;
-    scored.push({
-      score: f.recentUses,
-      last: new Date(`${f.lastUsed}T00:00:00Z`).getTime(),
-      s: { kind: 'food', foodId: f.foodId, name: f.name, grams: f.grams, portion: f.portion },
-    });
-  }
-  for (const m of meals) {
-    if (m.items.length === 0 || m.items.every((i) => loggedToday.has(i.foodId))) continue;
-    const last = m.lastUsedAt ? m.lastUsedAt.getTime() : m.createdAt.getTime();
-    scored.push({
-      score: m.lastUsedAt && m.lastUsedAt.getTime() > recentCutoff ? m.useCount : 0,
-      last,
-      s: { kind: 'meal', id: m.id, name: m.name, items: m.items },
-    });
-  }
-
-  return scored
-    .sort((a, b) => b.score - a.score || b.last - a.last)
-    .slice(0, limit)
-    .map((x) => x.s);
-}
-
-/** Suggestions for one day, plus all saved meals (for My meals). */
-export async function getQuickAdd(userId: string, date: string, limit = 5) {
-  const [foods, meals, logged] = await Promise.all([
-    getUsualFoods(userId, date),
-    listSavedMeals(userId),
-    db.execute(sql`
-      SELECT DISTINCT i.food_id
-      FROM meal_items i JOIN meal_logs l ON l.id = i.meal_log_id
-      WHERE l.user_id = ${userId} AND l.is_active AND l.date = ${date}::date
-    `) as unknown as Promise<Array<{ food_id: string }>>,
-  ]);
-  return {
-    suggestions: rankSuggestions({
-      foods,
-      meals,
-      loggedToday: new Set(logged.map((r) => r.food_id)),
-      today: date,
-      limit,
-    }),
-    meals,
-  };
+export async function getQuickAddPool(userId: string) {
+  const today = new Date().toISOString().slice(0, 10);
+  const [foods, meals] = await Promise.all([getUsualFoods(userId, today), listSavedMeals(userId)]);
+  foods.sort((a, b) => b.recentUses - a.recentUses || b.lastUsed.localeCompare(a.lastUsed));
+  return { foods: foods.slice(0, POOL_FOODS), meals };
 }

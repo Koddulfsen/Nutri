@@ -1,6 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { rankSuggestions, type UsualFood } from './usuals';
-import type { SavedMeal } from './saved-meals';
+import { rankSuggestions, type RankableMeal, type UsualFood } from './suggestion-ranking';
 
 const TODAY = '2026-10-07';
 
@@ -14,7 +13,7 @@ const food = (id: string, recentUses: number, lastUsed: string): UsualFood => ({
   lastUsed,
 });
 
-const meal = (id: string, useCount: number, lastUsedAt: string | null, foodIds: string[]): SavedMeal => ({
+const meal = (id: string, useCount: number, lastUsedAt: string | null, foodIds: string[]): RankableMeal => ({
   id,
   name: id,
   items: foodIds.map((f) => ({ foodId: f, name: f, grams: 50, portion: '50 g' })),
@@ -68,6 +67,17 @@ describe('rankSuggestions', () => {
       limit: 5,
     });
     expect(ids(out)).toEqual(['half-eaten', 'skyr']);
+  });
+
+  it('reads dates that crossed JSON as strings, as the browser gets them', () => {
+    const out = rankSuggestions({
+      foods: [food('a', 1, '2026-10-01')],
+      meals: [{ ...meal('breakfast', 2, '2026-10-06', ['x']), lastUsedAt: '2026-10-06T08:00:00.000Z', createdAt: '2026-09-01T08:00:00.000Z' }],
+      loggedToday: new Set(),
+      today: TODAY,
+      limit: 5,
+    });
+    expect(ids(out)).toEqual(['breakfast', 'a']);
   });
 
   it('shows a newly saved, never-used meal after used things', () => {
