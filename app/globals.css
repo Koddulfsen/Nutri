@@ -5715,6 +5715,11 @@ nav a:hover {
   padding-top: 6px;
   box-shadow: inset 0 2px 0 rgba(46, 26, 14, 0.12);
 }
+/* Beside the chat the list is a flex column: take the free space above, so the
+   suggestions stay at the bottom whether the day has no foods or ten. (The
+   empty text's own auto margin used to do this by accident, so they jumped up
+   as soon as the first food arrived.) */
+.chat-aside .qa-suggestions { margin-top: auto; }
 .qa-list {
   list-style: none;
   margin: 0;
@@ -5724,7 +5729,7 @@ nav a:hover {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 9px 0;
+  padding: 5px 0;
   color: rgba(46, 26, 14, 0.5);
   font-size: 16px;
   line-height: 1.3;
