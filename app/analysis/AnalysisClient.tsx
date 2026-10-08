@@ -930,7 +930,11 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
 
   // Suggestions + My meals for the food lists. Keyed on the day's items, so
   // they follow every add and remove.
-  const quickAddLogKey = meals.flatMap((m: any) => (m.items || []).map((i: any) => i.id)).join(',');
+  // Keyed on food ids, not item ids: an optimistic item and the real one that
+  // replaces it share a food id, so one add causes one refetch, not two.
+  const loggedFoodIdList: string[] = meals.flatMap((m: any) => (m.items || []).map((i: any) => i.foodId));
+  const quickAddLogKey = [...loggedFoodIdList].sort().join(',');
+  const loggedFoodIds = new Set(loggedFoodIdList);
   const quickAdd = useQuickAdd(selectedDate, quickAddLogKey, !!user && !mealsLoading);
   const selectedForMeal = meals
     .flatMap((m: any) => m.items || [])
@@ -1367,7 +1371,7 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
                             </ul>
                           );
                         })()}
-                        {!mealsLoading && <FoodSuggestions state={quickAdd} onAdd={handleAddFoodsFromChat} />}
+                        {!mealsLoading && <FoodSuggestions state={quickAdd} onAdd={handleAddFoodsFromChat} loggedFoodIds={loggedFoodIds} />}
                       </>
                     );
 
@@ -1501,7 +1505,7 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
                 </ul>
               );
             })()}
-            {!mealsLoading && <FoodSuggestions state={quickAdd} onAdd={handleAddFoodsFromChat} />}
+            {!mealsLoading && <FoodSuggestions state={quickAdd} onAdd={handleAddFoodsFromChat} loggedFoodIds={loggedFoodIds} />}
           </section>{/* end foods panel */}
 
           {/* ── PANEL — today's food list ── */}

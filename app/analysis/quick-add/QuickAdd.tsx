@@ -69,9 +69,24 @@ function mealSummary(items: MealJson['items']) {
 
 // ── Suggestions under the list
 
-export function FoodSuggestions({ state, onAdd }: { state: QuickAddState; onAdd: AddFoods }) {
+export function FoodSuggestions({
+  state,
+  onAdd,
+  loggedFoodIds,
+}: {
+  state: QuickAddState;
+  onAdd: AddFoods;
+  /** The day's foods as shown right now, optimistic adds included. */
+  loggedFoodIds: Set<string>;
+}) {
   const [busy, setBusy] = useState<string | null>(null);
-  if (state.suggestions.length === 0) return null;
+  // Hide what's already in the list the moment it's added, by the server's own
+  // rule (a food once logged, a meal once all its foods are), instead of
+  // waiting for the refetch. The refetch then only fills the freed slot.
+  const visible = state.suggestions.filter((s) =>
+    s.kind === 'food' ? !loggedFoodIds.has(s.foodId) : !s.items.every((i) => loggedFoodIds.has(i.foodId))
+  );
+  if (visible.length === 0) return null;
 
   async function add(s: SuggestionJson) {
     const key = s.kind === 'food' ? s.foodId : s.id;
@@ -88,15 +103,15 @@ export function FoodSuggestions({ state, onAdd }: { state: QuickAddState; onAdd:
     } catch {
       // The page shows the error and restores the list; nothing to add here.
     } finally {
+      // No refresh here: the day's foods changed, so useQuickAdd refetches.
       setBusy(null);
-      state.refresh();
     }
   }
 
   return (
     <div className="qa-suggestions" aria-label="Suggestions">
       <ul className="qa-list">
-        {state.suggestions.map((s) => {
+        {visible.map((s) => {
           const key = s.kind === 'food' ? s.foodId : s.id;
           return (
             <li key={`${s.kind}-${key}`} className="qa-row">
