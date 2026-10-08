@@ -1575,7 +1575,7 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
                         <div className="mv-section-head">
                           <MacroVizPicker style={macroVizStyle} onChange={setMacroVizStyle} />
                         </div>
-                        <MacroViz style={macroVizStyle} macros={macros} kcal={kcal} kcalGoal={kcalGoal} />
+                        <MacroViz style={macroVizStyle} macros={macros} kcal={kcal} />
                       </div>
                       <div className="mv-hero-col">
                         <div className="hero-stat">
