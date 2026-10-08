@@ -450,6 +450,45 @@ function add(p: { compound: string; type: DvValueType; sexes: Sex[]; stage?: Lif
 }
 
 {
+  // Tin (inorganic). Verified 2026-10-08 against WHO Technical Report Series 930, the 64th meeting's own
+  // report (snapshot: dv-sources/jecfa-contaminants/source/jecfa-64th-2005-tin.txt).
+  //
+  // STORED WITH A CAVEAT THE COMMITTEE ITSELF RAISED. The PTWI is current — it was reviewed at the 64th
+  // meeting and maintained — but in the same report JECFA writes that "the basis for the PMTDI and PTWI
+  // established at its twenty-sixth and thirty-third meetings was unclear and these values may have been
+  // derived from intakes associated with acute effects", and calls for the long-term toxicokinetics to be
+  // reassessed. So this is a chronic-looking limit that the body suspects came from acute data. It is
+  // stored because it is what JECFA currently publishes, not because the derivation is sound, and the note
+  // carries the doubt rather than hiding it.
+  //
+  // Note also what JECFA deliberately did NOT set: an acute reference dose, "because whether irritation of
+  // the gastrointestinal tract occurs ... depends on the concentration and nature of tin in the product
+  // rather than on the dose ingested on a body weight basis". Its advice about canned food (>150 mg/kg in
+  // beverages, >250 mg/kg in foods) is a CONCENTRATION limit on a product and cannot be read against a
+  // day's intake — see dv-sources/HEAVY-METALS-SOURCES.md § 1.
+  add({
+    compound: 'Tin',
+    type: 'TWI',
+    sexes: BOTH,
+    age: [0, null],
+    cell: 14,
+    unit: 'mg',
+    perKg: true,
+    averagingDays: 7,
+    note:
+      'Provisional tolerable weekly intake, per kg of body weight, expressed as Sn and including tin from '
+      + 'food additive uses. "At its thirty-third meeting, the Committee converted the previously established '
+      + 'provisional maximum tolerable daily intake (PMTDI) of 2 mg/kg of body weight to a provisional '
+      + 'tolerable weekly intake (PTWI) of 14 mg/kg of body weight", reviewed and maintained at the 64th '
+      + '(2005). \u26a0 The same report records the committee\'s own doubt: "the basis for the PMTDI and PTWI '
+      + '... was unclear and these values may have been derived from intakes associated with acute effects", '
+      + 'and it asked for the long-term effects to be reassessed. Treat as the published figure, not a '
+      + 'well-founded chronic one.',
+    from: 'JECFA 64th meeting (2005), WHO Technical Report Series 930, inorganic tin (PTWI set at the 33rd meeting, maintained)',
+  });
+}
+
+{
   // Aluminium. Verified 2026-10-08 against the committee's own Summary and Conclusions for the 74th
   // meeting (snapshot: dv-sources/jecfa-contaminants/source/jecfa-74th-2011-aluminium.txt), NOT against
   // inchem.org, which still serves the 1988 value of 7 mg/kg bw and has been superseded twice since.

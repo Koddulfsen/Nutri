@@ -3,6 +3,10 @@
 Research pass, 2026-10-08, prompted by Jens noticing that only mercury, cadmium and nickel show a
 bar on the Heavy Metals card while the other six read "No DV".
 
+> **Update 2026-10-08, later the same day:** aluminium and tin have since been verified against the
+> bodies' own documents and **stored**. Antimony is verified but **not** stored — see § 6. The rest of
+> this file stands as written.
+
 **Status of every number below: NOT YET ADOPTED.** Only the rows marked ✅ VERIFIED were read from
 the body's own document in this session. Everything else is a lead, taken from a secondary source,
 and must be transcribed from the primary document and put through `npm run check:printed` before it
@@ -88,3 +92,25 @@ a quote and a locator, each value transcribed from the body's own printed docume
 `scripts/dv-verify/check-against-printed.ts`. The contaminant types already exist in the enum
 (`TWI`/`TDI`/`PTMI`/`RfD`/`BMDL`) and `CONTAMINANT_CEILINGS` already resolves them by strictest, so no
 schema work is expected — only transcription and verification.
+
+
+---
+
+## 6. Run state after the first pass (2026-10-08)
+
+| Metal | Outcome |
+|---|---|
+| **Aluminum** | ✅ **STORED.** JECFA PTWI **2 mg/kg bw/week** (74th meeting 2011, read from the committee's own Summary and Conclusions) and EFSA TWI **1 mg/kg bw/week** (EFSA Journal 2008;6(7):754). EFSA wins on strictest: **70 mg/week at 70 kg**. Expect bars over 100 % — EFSA says in the same opinion that intakes "may exceed the TWI in a significant part of the European population" |
+| **Tin** | ✅ **STORED, with the committee's own doubt attached.** JECFA PTWI **14 mg/kg bw/week** (set at the 33rd meeting, reviewed and maintained at the 64th, TRS 930). But the same report says "the basis for the PMTDI and PTWI ... was unclear and these values may have been derived from intakes associated with acute effects" and asks for a reassessment. Stored because it is what JECFA currently publishes, not because it is well founded; the note on the value carries the quote |
+| **Antimony** | 🟡 **VERIFIED, NOT STORED.** WHO's own fact sheet gives a **TDI of 6 µg/kg bw/day**, "based on a NOAEL of 6.0 mg/kg body weight per day ... using an uncertainty factor of 1000". The TDI is the **whole-diet** figure — the 20 µg/L drinking-water guideline is derived from it by allocating only 10 % to water — so it is the right shape for a food bar. Two reasons it is not in: (1) it comes from WHO's **Guidelines for Drinking-water Quality**, a different expert process from JECFA, so it needs its own source region and provenance entry rather than being filed under `WHO_FAO` — the same work `USA_EPA` needed; (2) the assessment is from **2003**, WHO notes the value "could be highly conservative", and a UK COT draft (April 2025, explicitly not citable) proposes 20 µg/kg bw/day instead. Worth doing, but it is a decision about adding a body, not a transcription |
+| **Lead, Arsenic** | Unchanged — no limit exists, by the committees' own conclusion |
+| **Uranium** | Unchanged — skipped, no food data |
+| **Nickel** | Unchanged — still IOM's UL alone. EFSA's 2020 TDI (13 µg/kg bw/day 🔍) would make it two bodies |
+
+### What this pass taught about sourcing
+
+**inchem.org is a stale archive and cost real time twice.** It still serves aluminium's 1988 PTWI of
+7 mg/kg bw — superseded in 2006 (1 mg/kg) and again in 2011 (2 mg/kg) — and it misled the cadmium work
+earlier in the same session. Use the committee's own meeting reports (`iris.who.int`, the TRS series)
+or WHO's live JECFA database. Both aluminium and tin here were read from the primary PDFs, which are
+snapshotted under `dv-sources/jecfa-contaminants/source/`.

@@ -1,0 +1,72 @@
+WHO Technical Report Series 930 — JECFA 64th meeting (Rome, 8-17 Feb 2005), tin section.
+Downloaded from iris.who.int 2026-10-08. Extracted with pdftotext -layout.
+
+                       Explanation
+                       Inorganic tin is found in food in the +2 and +4 oxidation states; it may
+                       occur in cationic form (stannous and stannic compounds) or as anions
+                       (stannites or stannates). Inorganic tin was evaluated by the Commit-
+                       tee at its fourteenth, fifteenth, twenty-second, twenty-sixth, thirty-
+                       third and fifty-fifth meetings (Annex 1, references 22, 26, 47, 59, 83
+                       and 149). At its thirty-third meeting, the Committee converted the
+                       previously established provisional maximum tolerable daily intake
+                       (PMTDI) of 2 mg/kg of body weight to a provisional tolerable weekly
+                       intake (PTWI) of 14 mg/kg of body weight. At these meetings, the
+                       Committee reviewed data from short- and long-term dietary studies
+                       and noted that inorganic tin compounds generally have low systemic
+                       toxicity in animals because of limited absorption from the gastrointes-
+                       tinal tract, low accumulation in tissues, and rapid passage through the
+                       gastrointestinal tract. Insoluble tin compounds are less toxic than
+                       soluble tin salts.
+                       At its Thirty-first Session, CCFAC asked the Committee to review
+                       information on the toxicity of inorganic tin in order to establish
+                       an ARfD (23). At its fifty-fifth meeting (Annex 1, reference 149),
+                       the Committee considered studies of the acute toxic effects seen after
+                       consumption of foods containing high concentrations of inorganic
+                       compounds of tin. It concluded that the acute toxicity of inorganic tin
+                       in animals and humans, however, results from irritation of the mucosa
+                       of the gastrointestinal tract, which may lead to vomiting, diarrhoea,
+                       anorexia, depression, ataxia, and muscular weakness. There was
+E                      no clear dose–response relationship, and the vehicle in which the
+
+                 40
+
+
+
+
+    Untitled-4                       40                                12/20/05, 19:53
+             tin was administered may have affected its toxicity. The Committee
+             concluded that insufficient data were available to establish an
+             ARfD for inorganic tin. At that meeting, the PTWI previously
+             established for compounds containing inorganic tin was not recon-
+             sidered and was retained at its current value. The Committee did not
+             consider studies on organic tin compounds, since it had concluded at
+             its twenty-second meeting (Annex 1, reference 47) that these com-
+             pounds, which differ considerably from inorganic tin compounds with
+             respect to toxicity, should be considered separately.
+             At its Thirty-fifth session, CCFAC (22) decided to ask the Committee
+             to evaluate current levels of inorganic tin in “canned food other than
+             beverages” and “canned beverages”, and to determine an ARfD,
+             since new data would become available. At its Thirty-sixth session (8),
+             CCFAC asked the Committee, when possible, to take population
+             sensitivity into consideration when considering the new data and to
+             assess the likelihood of the occurrence of effects at the proposed draft
+             MLs (200 mg/kg in canned beverages and 250 mg/kg in canned foods
+             other than beverages).
+
+---- the committee's own doubt about the basis of the value ----
+
+             posed standard for canned beverages (200 mg/kg) may lead to adverse
+             reactions. No information was available as to whether there are sub-
+             populations that are particularly sensitive for such adverse reactions.
+             The Committee reiterated its advice that consumers should not store
+             food and beverages in opened tinplated cans.
+             In addition, the Committee noted that the basis for the PMTDI and
+             PTWI established at its twenty-sixth and thirty-third meetings was
+             unclear and these values may have been derived from intakes associ-
+             ated with acute effects. The Committee concluded that it was desir-
+             able to (re)assess the toxicokinetics and effects of inorganic tin after
+             long-term exposure to dietary doses of inorganic tin at concentrations
+             that did not elicit acute effects.
+             An addendum to the toxicological monograph was prepared.
+
+
