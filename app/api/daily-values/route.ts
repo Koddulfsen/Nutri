@@ -12,6 +12,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { createClient } from '@/lib/supabase/server';
+import { dvValueFromRow } from '@/lib/dv/dv-value-from-row';
 import {
   getDailyValuesBatch,
   getDailyValuesBatchByDemographics,
@@ -215,23 +216,35 @@ export async function POST(request: NextRequest) {
           compoundIds, ageYears: age, sex,
         });
         lookup.forEach((row, compoundId) => {
-          if (row.target == null) return;
+          // This is the map the BROWSER draws bars from: /analysis recomputes a day locally after every
+          // add and remove (recalcLocally) and reads the bar's value straight out of this object. So it
+          // has to agree with the server-rendered payload exactly, and until 2026-10-08 it did not —
+          // `if (row.target == null) return` dropped the eleven ceiling-only compounds here, so their
+          // bars went blank the moment a food was added even though the server-rendered load had them.
+          // The amounts kept updating (those come from the local totals, not from here), which is why
+          // the symptom was bars-only. Shared rule, one place: lib/dv/dv-value-from-row.ts.
+          const dv = dvValueFromRow(row);
+          if (!dv) return;
           valuesObject[compoundId] = {
             compoundId,
-            value: row.target,
-            unit: row.targetUnit,
+            value: dv.value,
+            unit: dv.unit,
             valueType: row.targetType,
-            source: 'average',
-            sourceCount: row.targetSourceCount,
-            upperLimit: row.upperLimit,
-            upperLimitUnit: row.upperLimitUnit,
-            upperLimitSourceCount: row.upperLimitSourceCount,
+            source: dv.source,
+            sourceCount: dv.sourceCount,
+            limitOnly: dv.limitOnly ?? false,
+            perDayFrom: dv.perDayFrom ?? null,
+            // A limit-only bar must not also carry an upperLimit: the target bar reads that as "overflow
+            // past the goal", and here the limit IS the bar.
+            upperLimit: dv.limitOnly ? null : row.upperLimit,
+            upperLimitUnit: dv.limitOnly ? null : row.upperLimitUnit,
+            upperLimitSourceCount: dv.limitOnly ? 0 : row.upperLimitSourceCount,
             // The rest of the resolved bar (lib/dv/resolve.ts). Each answers a different question from the target,
             // so none of them may be folded into it: which bodies set it and how far apart they are, the intake for
             // lower chronic-disease risk, a ceiling that only applies to supplements, ceilings on a FORM of the
             // nutrient, values published as a share of energy, and a published range.
-            sources: row.targetSources,
-            spread: row.targetSpread,
+            sources: dv.sources ?? [],
+            spread: dv.spread ?? null,
             diseaseFloor: row.diseaseFloor,
             supplementLimit: row.supplementLimit,
             formLimits: row.formLimits,
