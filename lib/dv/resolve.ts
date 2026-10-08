@@ -100,8 +100,13 @@ export interface ResolvedBar {
   formLimits: Array<Aggregate & { compound: string; countsParentTotal: boolean; unitNote?: string }>;
   /**
    * Reference points, which are NOT limits. A BMDL is the dose you divide an exposure into to get a
-   * margin; lead and inorganic arsenic have one precisely because JECFA and EFSA withdrew their
-   * tolerable intakes after finding no threshold. Showing one as a limit would invent a safe level.
+   * margin, and showing one as a limit would invent a safe level the science declines to set.
+   *
+   * ⚠️ Nothing is stored here yet. `SELECT count(*) ... WHERE value_type = 'BMDL'` returns 0 (checked
+   * 2026-10-08). The intended occupants are lead and inorganic arsenic, which have a BMDL precisely
+   * because JECFA and EFSA withdrew their tolerable intakes after finding no threshold — but neither
+   * has been transcribed, so both compounds have no rows at all and read "No DV". This field is the
+   * mechanism waiting for the data, not a description of it.
    */
   referencePoints: Array<Aggregate & { valueType: 'BMDL'; endpoints: string[] }>;
   /** The body weight per-kg values were resolved against, when any were. */
