@@ -1,0 +1,31 @@
+ATSDR Minimal Risk Levels, July 2025 table — the rows for metals Nutri tracks.
+Downloaded from atsdr.cdc.gov/mrls/pdfs/ATSDR-MRLs-July-2025-H.pdf, extracted with pdftotext -layout.
+
+Legend from the table's own footer:
+  "* Total Factors: Final value of all uncertainty and modifying factors, multiplied together"
+  "For Duration, Acute = 1 to 14 days, Intermediate = 15 to 364 days, and Chronic = 1 year or longer"
+  "Total number of MRLs: 484 / 175 Inhalation, 305 Oral, and 4 External Radiation MRLs"
+
+                             Dura-                        Total                       Cover      CAS
+Name                   Route tion     MRL               Factors*   Endpoint Status    Date       Number
+
+
+
+ALUMINUM               Oral   Int.    1 mg/kg/day             30   Neurol.    Final   09/08    7429-90-5
+                              Chr.    1 mg/kg/day             90   Neurol.
+
+
+ARSENIC                          Oral   Acute   0.005 mg/kg/day       10    Gastro.    Final   08/07    7440-38-2
+                                        Chr.    0.0003 mg/kg/day       3    Dermal
+
+
+CADMIUM                              Inh.   Acute   0.00003 mg/m3         300   Resp.      Final   09/12    7440-43-9
+                                            Chr.    0.00001 mg/m3           9   Renal
+                                     Oral   Int.    0.0005 mg/kg/day      100   Musculo.
+                                            Chr.    0.0001 mg/kg/day        3   Renal
+
+
+TIN, INORGANIC                       Oral   Int.    0.3 mg/kg/day         100   Hemato.    Final   08/05    7440-31-5
+
+TIN, DIBUTYL-, DICHLORIDE            Oral   Int.    0.005 mg/kg/day      1000   Immuno.    Final   08/05     683-18-1
+

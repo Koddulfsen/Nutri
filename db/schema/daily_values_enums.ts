@@ -118,6 +118,12 @@ export const sourceRegionEnum = pgEnum('source_region_enum', [
   // per-litre guideline value is DERIVED from one by allocating a share (10 % for antimony) to water —
   // so the TDI itself is the right shape for a food bar even though the programme is about water.
   'WHO_GDWQ',   // WHO Guidelines for Drinking-water Quality
+  // A third toxicology programme, and a third one that is NOT the nutrition body of the same country:
+  // ATSDR's Minimal Risk Levels are its own derivations, with their own uncertainty factors, and they
+  // differ from EPA's RfDs for the same substance — cadmium is 0.1 µg/kg/day at a factor of 3 here
+  // against EPA's 1.0 at a factor of 10. Only its CHRONIC ORAL rows are usable: the same table carries
+  // acute (1-14 days) and intermediate (15-364 days) values that are not daily limits.
+  'USA_ATSDR',  // US ATSDR Minimal Risk Levels
 ]);
 
 /**

@@ -5,6 +5,15 @@
 import type { SourceMeta } from '../../../lib/dv/source-values';
 
 export const SOURCES: Record<string, SourceMeta> = {
+  USA_ATSDR: {
+    region: 'USA_ATSDR',
+    slug: 'atsdr-mrl',
+    authorityName: 'US ATSDR Minimal Risk Levels',
+    versionYear: 2025,
+    url: 'https://www.atsdr.cdc.gov/mrls/',
+    note: 'Contaminant minimal risk levels only. A separate body from USA_EPA: ATSDR derives its own MRLs with its own uncertainty factors, and for cadmium reaches a figure ten times stricter than EPA\'s RfD. ONLY chronic oral MRLs are stored — the same published table carries acute (1-14 days) and intermediate (15-364 days) rows, which are not daily limits and are typically several times looser.',
+    retrievedDate: '2026-10-09',
+  },
   WHO_GDWQ: {
     region: 'WHO_GDWQ',
     slug: 'who-gdwq',

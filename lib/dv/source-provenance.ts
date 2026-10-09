@@ -52,6 +52,30 @@ export type SourceProvenance = {
 };
 
 export const SOURCE_PROVENANCE: Record<string, SourceProvenance> = {
+  USA_ATSDR: {
+    groups: {
+      contaminants: {
+        class: 'primary',
+        derivedFrom: [],
+        evidence:
+          'ATSDR Minimal Risk Levels, July 2025 table (snapshot dv-sources/atsdr-mrl/source/'
+          + 'atsdr-mrl-july-2025-metals.txt). The table is ATSDR deriving its own values, not restating '
+          + "another body's: it carries a per-value uncertainty column, defined in its own footer as "
+          + '"* Total Factors: Final value of all uncertainty and modifying factors, multiplied together", '
+          + 'together with a per-value critical endpoint, duration and status. For cadmium ATSDR publishes '
+          + '0.0001 mg/kg/day at a total factor of 3 on a renal endpoint, where EPA IRIS publishes '
+          + '1 x 10^-3 mg/kg-day at a composite factor of 10 on "significant proteinuria" — a tenfold '
+          + 'difference in value, a different factor and a different stated endpoint, which a body '
+          + 'adopting EPA could not produce. '
+          + 'LIMIT OF THIS EVIDENCE, stated rather than glossed: the per-substance derivation worksheets '
+          + '(Appendix A of each Toxicological Profile) could not be retrieved on 2026-10-09 — '
+          + 'atsdr.cdc.gov serves HTML in place of its PDFs and the NCBI Bookshelf mirror is CAPTCHA-gated. '
+          + 'So independence rests on the published table and the divergence from EPA, not on reading the '
+          + 'derivations. If a worksheet later shows ATSDR adapting EPA for a given substance, that '
+          + "substance's class must change.",
+      },
+    },
+  },
   WHO_GDWQ: {
     groups: {
       contaminants: {
@@ -864,6 +888,7 @@ export const ALPHA_INDEPENDENT_REGIONS = [
   // derives its own tolerable intakes, and it publishes no nutrient values at all — so listing it costs
   // nothing on the nutrient side and stops its contaminant values being filtered out as a copy.
   'WHO_GDWQ',
+  'USA_ATSDR',
 ] as const;
 
 /**
