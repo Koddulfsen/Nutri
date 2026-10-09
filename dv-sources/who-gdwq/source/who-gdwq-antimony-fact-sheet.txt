@@ -1,0 +1,109 @@
+                             GUIDELINES FOR DRINKING-WATER QUALITY
+
+
+
+Antimony
+Elemental antimony forms very hard alloys with copper, lead and tin. Antimony com-
+pounds have various therapeutic uses. Antimony is used in solders as a replacement
+for lead, but there is little evidence of any significant contribution to drinking-water
+concentrations from this source. Total exposure from environmental sources, food
+and drinking-water is very low compared with occupational exposure.
+
+Guideline value             0.02 mg/l (20 µg/l)
+Occurrence                  Concentrations in groundwater less than 0.001 µg/l; concentrations in
+                            surface water less than 0.2 µg/l; concentrations in drinking-water appear
+                            to be less than 5 µg/l
+Tolerable daily intake (TDI) 6 µg/kg body weight, based on a NOAEL of 6.0 mg/kg body weight per
+                             day for decreased body weight gain and reduced food and water intake
+                             in a 90-day study in which rats were administered potassium antimony
+                             tartrate in drinking-water, using an uncertainty factor of 1000 (100 for
+                             interspecies and intraspecies variation, 10 for the short duration of the
+                             study)
+Limit of detection          0.01 µg/l by electrothermal atomic absorption spectrometry (AAS); 0.1–1
+                            µg/l by inductively coupled plasma mass spectrometry (ICP-MS); 0.8 µg/l
+                            by graphite furnace AAS; 5 µg/l by hydride generation AAS
+Treatment performance       Conventional treatment processes do not remove antimony. However,
+                            antimony is not normally a raw water contaminant. As the most common
+                            source of antimony in drinking-water appears to be dissolution from
+                            metal plumbing and fittings, control of antimony from such sources
+                            would be by product control.
+Guideline value derivation
+• allocation to water      10% of TDI
+• weight                   60 kg adult
+• consumption              2 litres/day
+Assessment date             2003
+Principal reference         WHO (2003) Antimony in drinking-water
+
+
+     There has been a significant increase in the toxicity data available since the previ-
+ous review, although much of it pertains to the intraperitoneal route of exposure. The
+form of antimony in drinking-water is a key determinant of the toxicity, and it would
+appear that antimony leached from antimony-containing materials would be in the
+form of the antimony(V) oxo-anion, which is the less toxic form. The subchronic tox-
+icity of antimony trioxide is lower than that of potassium antimony tartrate, which is
+the most soluble form. Antimony trioxide, owing to its low bioavailability, is ­genotoxic
+only in some in vitro tests, but not in vivo, whereas soluble antimony(III) salts exert
+genotoxic effects in vitro and in vivo. Animal experiments from which the carcino-
+genic potential of soluble or insoluble antimony compounds may be quantified are
+not available. IARC has concluded that antimony trioxide is possibly carcinogenic to
+humans (Group 2B) on the basis of an inhalation study in rats, but that antimony
+trisulfide was not classifiable as to its carcinogenicity to humans (Group 3). However,
+
+
+                                                  314
+                                           12. CHEMICAL FACT SHEETS
+
+
+
+chronic oral uptake of potassium antimony tartrate may not be associated with an
+additional carcinogenic risk, as antimony after inhalation exposure was carcinogenic
+only in the lung but not in other organs and is known to cause direct lung damage fol-
+lowing chronic inhalation as a consequence of overload with insoluble particulates. Al-
+though there is some evidence for the carcinogenicity of certain antimony c­ompounds
+by inhalation, there are no data to indicate carcinogenicity by the oral route.
+
+Arsenic1
+Arsenic is found widely in Earth’s crust in oxidation states of –3, 0, +3 and +5, often as
+sulfides or metal arsenides or arsenates. In water, it is mostly present as arsenate (+5),
+but in anaerobic conditions, it is likely to be present as arsenite (+3). It is usually present
+in natural waters at concentrations of less than 1–2 µg/l. However, in waters, particu-
+larly groundwaters, where there are sulfide mineral deposits and sedimentary d­eposits
+deriving from volcanic rocks, the concentrations can be significantly e­levated.
+     Arsenic is found in the diet, particularly in fish and shellfish, in which it is found
+mainly in the less toxic organic form. There are only limited data on the proportion of
+inorganic arsenic in food, but these indicate that approximately 25% is present in the
+inorganic form, depending on the type of food. Apart from occupational exposure,
+the most important routes of exposure are through food and drinking-water, includ-
+ing beverages that are made from drinking-water. Where the concentration of arsenic
+in drinking-water is 10 µg/l or greater, this will be the dominant source of intake. In
+circumstances where soups or similar dishes are a staple part of the diet, the drinking-
+water contribution through preparation of food will be even greater.
+
+Provisional guideline value 0.01 mg/l (10 µg/l)
+                                  The guideline value is designated as provisional on the basis of
+                                  treatment performance and analytical achievability.
+Occurrence                        Levels in natural waters generally range between 1 and 2 µg/l, although
+                                  concentrations may be elevated (up to 12 mg/l) in areas containing natural
+                                  sources
+Basis of guideline value          There remains considerable uncertainty over the actual risks at low
+derivation                        concentrations, and available data on mode of action do not provide a
+                                  biological basis for using either linear or non-linear extrapolation. In view
+                                  of the practical difficulties in removing arsenic from drinking-water, as
+                                  well as the practical quantification limit in the region of 1–10 µg/l, the
+                                  guideline value of 10 µg/l is retained and designated as provisional.
+Limit of detection                0.1 µg/l by ICP-MS; 2 µg/l by hydride generation AAS or flame AAS
+Treatment performance             It is technically feasible to achieve arsenic concentrations of 5 µg/l or
+                                  lower using any of several possible treatment methods. However, this
+                                  requires careful process optimization and control, and a more reasonable
+                                  expectation is that 10 µg/l should be achievable by conventional
+                                  treatment (e.g. coagulation).
+
+
+
+1
+     s arsenic is one of the chemicals of greatest health concern in some natural waters, its chemical fact sheet
+    A
+    has been expanded.
+
+                                                        315
+

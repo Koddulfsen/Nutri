@@ -52,6 +52,22 @@ export type SourceProvenance = {
 };
 
 export const SOURCE_PROVENANCE: Record<string, SourceProvenance> = {
+  WHO_GDWQ: {
+    groups: {
+      contaminants: {
+        class: 'primary',
+        derivedFrom: [],
+        evidence:
+          'WHO Guidelines for Drinking-water Quality, antimony chemical fact sheet, § "Tolerable daily intake (TDI)" '
+          + '(snapshot dv-sources/who-gdwq/source/who-gdwq-antimony-fact-sheet.txt): the sheet derives the tolerable '
+          + 'intake itself rather than citing another body — "6 µg/kg body weight, based on a NOAEL of 6.0 mg/kg body '
+          + 'weight per day for decreased body weight gain and reduced food and water intake in a 90-day study in which '
+          + 'rats were administered potassium antimony tartrate in drinking-water, using an uncertainty factor of 1000" '
+          + '— naming its own critical effect, study and uncertainty factor, with assessment date 2003 and principal '
+          + 'reference "WHO (2003) Antimony in drinking-water". JECFA has no antimony value, so this is not a copy of one.',
+      },
+    },
+  },
   USA_EPA: {
     groups: {
       contaminants: {
@@ -844,6 +860,10 @@ export const ALPHA_INDEPENDENT_REGIONS = [
   // side (it has no rows to contribute) and stops its contaminant values being silently filtered out
   // as "not one of the independent sources", which would have hidden it from the spread entirely.
   'USA_EPA',
+  // Same reasoning as USA_EPA: WHO's drinking-water panel is a different expert process from JECFA, it
+  // derives its own tolerable intakes, and it publishes no nutrient values at all — so listing it costs
+  // nothing on the nutrient side and stops its contaminant values being filtered out as a copy.
+  'WHO_GDWQ',
 ] as const;
 
 /**

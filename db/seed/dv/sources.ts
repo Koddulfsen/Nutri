@@ -5,6 +5,15 @@
 import type { SourceMeta } from '../../../lib/dv/source-values';
 
 export const SOURCES: Record<string, SourceMeta> = {
+  WHO_GDWQ: {
+    region: 'WHO_GDWQ',
+    slug: 'who-gdwq',
+    authorityName: 'WHO Guidelines for Drinking-water Quality',
+    versionYear: 2003,
+    url: 'https://www.who.int/publications/i/item/9789240045064',
+    note: 'Contaminant tolerable intakes only. A different WHO expert process from JECFA (WHO_FAO here), so it is a separate body rather than a second vote for the same one. The per-litre guideline values are not stored and are not usable as daily values — only the TDI behind them, which is a whole-diet figure per kg of body weight.',
+    retrievedDate: '2026-10-09',
+  },
   USA_EPA: {
     region: 'USA_EPA',
     slug: 'epa-iris',

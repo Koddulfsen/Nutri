@@ -112,6 +112,12 @@ export const sourceRegionEnum = pgEnum('source_region_enum', [
   // and is deliberately separate from USA_CANADA, which is the IOM/NAM nutrient DRIs. Two different
   // committees of the same country, and counting them as one body would understate the disagreement.
   'USA_EPA',    // US EPA Integrated Risk Information System
+  // Also a toxicology programme, and also NOT the same body as the food one that shares its initials:
+  // WHO's Guidelines for Drinking-water Quality are produced by a different expert process from JECFA,
+  // which is WHO_FAO here. Its tolerable intakes are whole-diet figures per kg of body weight — the
+  // per-litre guideline value is DERIVED from one by allocating a share (10 % for antimony) to water —
+  // so the TDI itself is the right shape for a food bar even though the programme is about water.
+  'WHO_GDWQ',   // WHO Guidelines for Drinking-water Quality
 ]);
 
 /**

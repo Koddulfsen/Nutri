@@ -562,6 +562,37 @@ const LPI: Array<[DietaryContext, number]> = [['PHYTATE_LOW', 300], ['PHYTATE_ME
 
 
 {
+  // Nickel. EFSA is the only body with a modern dietary value — the IOM's UL of 1 mg/day (stored under
+  // USA_CANADA) is a nutrient upper level from 2001, so this makes nickel a two-body compound rather
+  // than a one-body one, and the two are close: 13 µg/kg bw x 70 kg = 0.91 mg against the IOM's 1 mg.
+  //
+  // This REPLACES EFSA's own 2015 TDI of 2.8 µg/kg bw per day, which is still widely quoted. The 2020
+  // opinion raised it almost fivefold on a higher benchmark dose from the same critical effect, so a
+  // secondary source citing 2.8 is simply out of date.
+  add({
+    compound: 'Nickel',
+    type: 'TDI',
+    sexes: [...M, ...F],
+    age: [0, null],
+    value: 13,
+    unit: '\u00b5g',
+    perKg: true,
+    averagingDays: 1,
+    note:
+      'Tolerable daily intake, per kg of body weight. "An increased incidence of post-implantation loss '
+      + 'in rats was identified as the critical effect" and "a BMDL10 of 1.3 mg Ni/kg body weight (bw) per '
+      + 'day was selected as the reference point ... for the establishment of a tolerable daily intake '
+      + '(TDI) of 13 \u00b5g/kg bw", applying "the default uncertainty factor of 100 to account for intra- and '
+      + 'interspecies differences" (EFSA CONTAM Panel, Update of the risk assessment of nickel in food and '
+      + 'drinking water, EFSA Journal 2020;18(11):6268). EFSA notes the 95th-percentile chronic exposure '
+      + 'was "below the TDI in adolescents and in all adult age groups" but "generally exceeded the TDI in '
+      + 'toddlers and in other children, as well as in infants in some surveys". Supersedes EFSA\'s 2015 '
+      + 'TDI of 2.8 \u00b5g/kg bw per day.',
+    from: 'EFSA CONTAM Panel, nickel TDI (2020 opinion, EFSA Journal 2020;18(11):6268)',
+  });
+}
+
+{
   add({
     compound: 'Aluminum',
     type: 'TWI',
