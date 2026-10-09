@@ -114,3 +114,81 @@ schema work is expected — only transcription and verification.
 earlier in the same session. Use the committee's own meeting reports (`iris.who.int`, the TRS series)
 or WHO's live JECFA database. Both aluminium and tin here were read from the primary PDFs, which are
 snapshotted under `dv-sources/jecfa-contaminants/source/`.
+
+
+---
+
+## 7. The ATSDR list, curated (2026-10-09) — FOR DISCUSSION, NOTHING ADOPTED
+
+Source: ATSDR *Minimal Risk Levels*, July 2025 table (484 MRLs: 175 inhalation, 305 oral, 4 external
+radiation), read as a primary document. Snapshot of the metal rows:
+`dv-sources/jecfa-contaminants/source/atsdr-mrl-2025-aluminum.txt` holds aluminium; the full table was
+parsed from the published PDF.
+
+**The table's own duration definitions, which decide everything below:**
+
+> "For Duration, Acute = 1 to 14 days, Intermediate = 15 to 364 days, and Chronic = 1 year or longer"
+
+Only **Chronic** answers the question a daily value asks. An Intermediate MRL is a limit for up to a
+year of exposure and is typically several times looser; using one as a daily target would be wrong in
+a way nothing downstream could detect.
+
+### Every row ATSDR has for our nine metals
+
+| Metal | Oral MRLs ATSDR publishes | Usable (chronic oral)? |
+|---|---|---|
+| **Aluminum** | Int. 1 mg/kg/day (UF 30) · **Chr. 1 mg/kg/day** (UF 90, neurological) | ✅ yes |
+| **Arsenic** | Acute 0.005 mg/kg/day (UF 10) · **Chr. 0.0003 mg/kg/day** (UF 3, dermal) | ✅ yes |
+| **Cadmium** | Int. 0.0005 mg/kg/day (UF 100) · **Chr. 0.0001 mg/kg/day** (UF 3, renal) | ✅ yes |
+| **Tin, inorganic** | Int. 0.3 mg/kg/day only | ❌ no chronic value |
+| **Uranium, soluble salts** | Acute 0.002 · Int. 0.0002 mg/kg/day | ❌ no chronic value |
+| **Mercury** | none — inhalation only (Chr. 0.3 µg/m³) | ❌ nothing oral |
+| **Nickel** | none — inhalation only | ❌ nothing oral |
+| **Lead** | **no MRL at all**, any route | ❌ — and consistent with the other bodies |
+| **Antimony** | **no MRL at all**, any route | ❌ |
+
+So of nine metals, ATSDR offers exactly **three** usable values. Two of them force a decision.
+
+### Decision 1 — cadmium would get **3.6× stricter**
+
+Everything converted to a per-day, per-kg basis:
+
+| Body | Cadmium, per kg per day |
+|---|---|
+| **ATSDR** | **0.1 µg** ← strictest by far |
+| EFSA | 0.357 µg |
+| JECFA | 0.833 µg |
+| US EPA | 1.0 µg |
+
+Under the strictest-wins rule ATSDR would take over, and the displayed limit would fall from
+**175 µg/week to about 49 µg/week** at 70 kg. Every cadmium bar in the app roughly quadruples.
+
+Points for: it is a chronic oral value from a body that derived it itself, and strictest-wins exists
+precisely so the most protective published figure governs. Points against: it is the one value that
+would change what users already see, and its uncertainty factor is 3 against EFSA's much larger
+margins — a low factor on a low number means ATSDR read the underlying study as closer to certain,
+which is a judgement, not a measurement.
+
+### Decision 2 — arsenic would get a bar where two bodies refused to set one
+
+ATSDR publishes a chronic oral MRL of **0.3 µg/kg/day** (dermal endpoint, UF 3). JECFA withdrew its
+arsenic PTWI and EFSA publishes only a BMDL, both because **no threshold could be identified**.
+
+This is not a gap ATSDR fills — it is a disagreement about whether a threshold exists at all. Adding
+it would give arsenic a reassuring percentage bar that two other bodies have explicitly declined to
+provide. That is a judgement about what the app asserts, not a sourcing question, which is why it is
+here rather than in the code.
+
+### Decision 3 — aluminium changes nothing
+
+ATSDR's 1 mg/kg/day is **7× looser** than EFSA's 0.143 and 3.5× looser than JECFA's 0.286. It would be
+excluded as the loosest and the displayed value would not move. Worth adding only for the honesty of
+showing a third body in `excluded`.
+
+### Before any of it: is ATSDR an independent body?
+
+Unchecked. MRLs come from ATSDR's own Toxicological Profiles and look like independent derivations —
+its cadmium uncertainty factor of 3 differs from EPA's composite 10, and its endpoints differ — but
+`dv-sources/PROVENANCE.md` requires this to be established from the documents, not inferred. If ATSDR
+turns out to adapt EPA's work it is not a second vote, and 12 of our 22 nutrient sources were excluded
+from targets on exactly that test.
