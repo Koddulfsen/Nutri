@@ -26,6 +26,8 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { apiUrl } from '@/lib/utils/base-path';
+import { readConsentRequired, type ConsentKey } from '@/lib/consent';
+import ConsentPrompt from '@/app/components/consent/ConsentPrompt';
 
 type LifeStage = 'NONE' | 'PREGNANT_T1' | 'PREGNANT_T2' | 'PREGNANT_T3' | 'LACTATING_0_6M' | 'LACTATING_7_12M';
 
@@ -70,6 +72,8 @@ export default function BodyProfile({ onChange, showLifeStage = true }: Props) {
   const [loaded, setLoaded] = useState(false);
   const [saving, setSaving] = useState<null | 'weight' | 'lifeStage'>(null);
   const [notice, setNotice] = useState<string | null>(null);
+  // A save the server refused for want of a consent, kept so it can be retried once the user allows it.
+  const [ask, setAsk] = useState<{ consent: ConsentKey; field: 'weight' | 'lifeStage'; body: Record<string, unknown> } | null>(null);
 
   useEffect(() => {
     (async () => {
@@ -93,6 +97,7 @@ export default function BodyProfile({ onChange, showLifeStage = true }: Props) {
     async (field: 'weight' | 'lifeStage', body: Record<string, unknown>) => {
       setSaving(field);
       setNotice(null);
+      setAsk(null);
       try {
         const res = await fetch(apiUrl('/api/user/demographics'), {
           method: 'PATCH',
@@ -100,9 +105,11 @@ export default function BodyProfile({ onChange, showLifeStage = true }: Props) {
           body: JSON.stringify(body),
         });
         if (res.status === 403) {
-          // The consent gate. Saying which switch, and where, beats a generic failure.
+          // The consent gate. Ask for that one consent here, and retry the save once it is given.
           const data = await res.json().catch(() => ({}));
-          setNotice(data.message ?? 'This needs its own permission in Settings › Privacy.');
+          const missing = readConsentRequired(data);
+          if (missing) setAsk({ consent: missing, field, body });
+          else setNotice(data.message ?? 'This needs its own permission in Settings \u203a Privacy.');
           return false;
         }
         if (!res.ok) {
@@ -183,6 +190,23 @@ export default function BodyProfile({ onChange, showLifeStage = true }: Props) {
             half in the third trimester.
           </p>
         </>
+      )}
+
+      {ask && (
+        <ConsentPrompt
+          consent={ask.consent}
+          onAllowed={async () => {
+            const retry = ask;
+            setAsk(null);
+            const ok = await save(retry.field, retry.body);
+            if (ok && retry.field === 'lifeStage') setLifeStage(retry.body.lifeStage as LifeStage);
+          }}
+          onDismiss={() => {
+            // Nothing was saved, so don't leave an unsaved weight looking like a stored one.
+            if (ask.field === 'weight') setWeight('');
+            setAsk(null);
+          }}
+        />
       )}
 
       {notice && <p className="bp-notice" role="status">{notice}</p>}

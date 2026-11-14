@@ -1,161 +1,68 @@
 /**
- * Consent Management API - FS-4 Security & Compliance System
+ * Consent API
  *
- * GET /api/consent - Get user's consent status
- * POST /api/consent - Update consent preferences
+ * GET  /api/consent — the user's current consents
+ * POST /api/consent — grant or withdraw one or more consents
  *
- * GDPR Compliance: Article 7 (Granular Consent Management)
- * Rate Limit: 10 req/15min
- *
- * Created: 2025-11-10
+ * Only consents that gate something real are exposed (see lib/consent). Each change goes through the
+ * DAL, which audit-logs the before and after.
  */
 
-import { NextRequest, NextResponse } from 'next/server';
-import { getUserConsent, updateUserConsent } from '@/lib/dal/consent';
+import { NextResponse } from 'next/server';
+import { z } from 'zod';
+import { withAuth } from '@/lib/auth/with-auth';
+import { ensureUserConsent, updateUserConsent } from '@/lib/dal/consent';
 import { invalidateDemographicsCache } from '@/lib/services/daily-value-service';
-import { createClient } from '@/lib/supabase/server';
-import { getRequestMetadata } from '@/lib/security/audit-logger';
+import { CONSENT_KEYS, type ConsentKey } from '@/lib/consent';
 
-/**
- * GET /api/consent
- *
- * Retrieve user's current consent preferences
- */
-export async function GET(request: NextRequest) {
-  try {
-    // Verify authentication
-    const supabase = await createClient();
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+type ConsentFlags = Record<ConsentKey, boolean>;
 
-    if (authError || !user) {
-      return NextResponse.json(
-        { error: 'Unauthorized: Authentication required' },
-        { status: 401 }
-      );
-    }
-
-    // Get consent via DAL (includes authorization check + audit logging)
-    const consent = await getUserConsent(user.id);
-
-    return NextResponse.json({
-      userId: consent.userId,
-      newsletter: consent.newsletter,
-      pushNotifications: consent.pushNotifications,
-      research: consent.research,
-      analytics: consent.analytics,
-      thirdParty: consent.thirdParty,
-      sensitiveHealthData: consent.sensitiveHealthData,
-      bodyMeasurements: consent.bodyMeasurements,
-      aiProcessing: consent.aiProcessing,
-      createdAt: consent.createdAt.toISOString(),
-      updatedAt: consent.updatedAt.toISOString()
-    });
-  } catch (error) {
-    console.error('GET /api/consent error:', error);
-
-    if (error instanceof Error && error.message.includes('Unauthorized')) {
-      return NextResponse.json(
-        { error: error.message },
-        { status: 403 }
-      );
-    }
-
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
-  }
+function flagsOf(consent: ConsentFlags): ConsentFlags {
+  return {
+    aiProcessing: consent.aiProcessing,
+    bodyMeasurements: consent.bodyMeasurements,
+    sensitiveHealthData: consent.sensitiveHealthData,
+  };
 }
 
-/**
- * POST /api/consent
- *
- * Update user's consent preferences
- *
- * Request Body:
- * {
- *   newsletter?: boolean,
- *   pushNotifications?: boolean,
- *   research?: boolean,
- *   analytics?: boolean,
- *   thirdParty?: boolean
- * }
- */
-export async function POST(request: NextRequest) {
-  try {
-    // Verify authentication
-    const supabase = await createClient();
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+export const GET = withAuth(async ({ user }) => {
+  const consent = await ensureUserConsent(user.id);
+  return NextResponse.json({
+    ...flagsOf(consent),
+    updatedAt: consent.updatedAt.toISOString(),
+  });
+});
 
-    if (authError || !user) {
-      return NextResponse.json(
-        { error: 'Unauthorized: Authentication required' },
-        { status: 401 }
-      );
-    }
+const UpdateSchema = z
+  .object({
+    aiProcessing: z.boolean().optional(),
+    bodyMeasurements: z.boolean().optional(),
+    sensitiveHealthData: z.boolean().optional(),
+  })
+  .strict()
+  .refine((value) => CONSENT_KEYS.some((key) => value[key] !== undefined), {
+    message: 'At least one consent must be provided',
+  });
 
-    // Parse request body
-    const body = await request.json();
+export const POST = withAuth(
+  async ({ user, input }) => {
+    // A user with no consent row yet (a profile older than the wiring) gets one before the update.
+    await ensureUserConsent(user.id);
+    const updated = await updateUserConsent(user.id, input);
 
-    // Validate consent updates (only allow boolean values for known consent types)
-    const validKeys = ['newsletter', 'pushNotifications', 'research', 'analytics', 'thirdParty', 'sensitiveHealthData', 'aiProcessing', 'bodyMeasurements'];
-    const updates: Record<string, boolean> = {};
-
-    for (const key of validKeys) {
-      if (key in body && typeof body[key] === 'boolean') {
-        updates[key] = body[key];
-      }
-    }
-
-    if (Object.keys(updates).length === 0) {
-      return NextResponse.json(
-        { error: 'Invalid request: At least one consent type must be provided' },
-        { status: 400 }
-      );
-    }
-
-    // Update consent via DAL (includes authorization check + audit logging)
-    const updated = await updateUserConsent(user.id, updates);
-
-    // Demographics are cached for five minutes, and body weight is only returned while its consent
-    // stands — so a withdrawal has to reach the read path now, not eventually. Dropping the cache is
-    // best-effort by construction (it is a Map delete), and must never be able to fail the write that
+    // Demographics are cached for five minutes, and body weight and life stage are only returned while
+    // their consent stands — so a withdrawal has to reach the read path now, not eventually. Dropping the
+    // cache is best-effort by construction (it is a Map delete) and must never fail the write that
     // already landed.
     invalidateDemographicsCache(user.id);
-
-    // TODO: Trigger cleanup jobs for withdrawn consents
-    // - If newsletter withdrawn: Remove from mailing list immediately
-    // - If analytics withdrawn: Schedule 7-day cleanup job
-    // - If thirdParty withdrawn: Notify partners, schedule 30-day cleanup
 
     return NextResponse.json({
       success: true,
       consent: {
-        userId: updated.userId,
-        newsletter: updated.newsletter,
-        pushNotifications: updated.pushNotifications,
-        research: updated.research,
-        analytics: updated.analytics,
-        thirdParty: updated.thirdParty,
-        sensitiveHealthData: updated.sensitiveHealthData,
-        bodyMeasurements: updated.bodyMeasurements,
-        aiProcessing: updated.aiProcessing,
-        updatedAt: updated.updatedAt.toISOString()
-      }
+        ...flagsOf(updated),
+        updatedAt: updated.updatedAt.toISOString(),
+      },
     });
-  } catch (error) {
-    console.error('POST /api/consent error:', error);
-
-    if (error instanceof Error && error.message.includes('Unauthorized')) {
-      return NextResponse.json(
-        { error: error.message },
-        { status: 403 }
-      );
-    }
-
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
-  }
-}
+  },
+  { schema: UpdateSchema }
+);

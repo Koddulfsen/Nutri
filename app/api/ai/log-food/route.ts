@@ -18,7 +18,8 @@ import { withAuth } from '@/lib/auth/with-auth';
 import { isAnthropicConfigured } from '@/lib/ai/anthropic-client';
 import { runFoodLogChat } from '@/lib/ai/food-log-chat';
 import { ensureUserProfile } from '@/lib/services/user-service';
-import { checkConsent } from '@/lib/dal/consent';
+import { ensureUserConsent } from '@/lib/dal/consent';
+import { consentRequiredBody } from '@/lib/consent';
 import { checkAiRateLimit } from '@/lib/rate-limit';
 import { logger } from '@/lib/logger';
 
@@ -86,16 +87,11 @@ export const POST = withAuth(
     });
 
     // This sends the user's verbatim message to the Anthropic API — requires its
-    // own explicit consent, separate from general "third party" sharing.
-    const hasAiConsent = await checkConsent(userId, 'aiProcessing');
-    if (!hasAiConsent) {
-      return NextResponse.json(
-        {
-          error: 'AI processing not enabled',
-          message: 'Enable "AI-Assisted Logging" in Settings > Privacy to use the chat logger.',
-        },
-        { status: 403 }
-      );
+    // own explicit consent, separate from general "third party" sharing. The 403
+    // names the consent so the chat can ask for it on the spot and retry.
+    const consent = await ensureUserConsent(userId);
+    if (!consent.aiProcessing) {
+      return NextResponse.json(consentRequiredBody('aiProcessing'), { status: 403 });
     }
 
     const encoder = new TextEncoder();

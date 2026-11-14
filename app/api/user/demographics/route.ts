@@ -21,7 +21,8 @@ import {
   type SourcePreference,
 } from '@/lib/services/daily-value-service';
 import { logger } from '@/lib/logger';
-import { checkConsent } from '@/lib/dal/consent';
+import { ensureUserConsent } from '@/lib/dal/consent';
+import { consentRequiredBody } from '@/lib/consent';
 
 /**
  * Valid values for enums
@@ -212,15 +213,9 @@ export async function PATCH(request: NextRequest) {
     // cannot carry a second, different disclosure. Clearing the value (null) needs no consent — removing
     // data is always allowed.
     if (updates.bodyWeightKg !== undefined && updates.bodyWeightKg !== null) {
-      const hasConsent = await checkConsent(userId, 'bodyMeasurements');
-      if (!hasConsent) {
-        return NextResponse.json(
-          {
-            error: 'Consent required',
-            message: 'Enable "Body weight" in Settings > Privacy before setting this field.',
-          },
-          { status: 403 }
-        );
+      const consent = await ensureUserConsent(userId);
+      if (!consent.bodyMeasurements) {
+        return NextResponse.json(consentRequiredBody('bodyMeasurements'), { status: 403 });
       }
     }
 
@@ -228,15 +223,9 @@ export async function PATCH(request: NextRequest) {
     // Setting it to anything other than NONE requires its own explicit consent —
     // "NONE" is allowed without a consent check since it discloses nothing.
     if (updates.lifeStage && updates.lifeStage !== 'NONE') {
-      const hasConsent = await checkConsent(userId, 'sensitiveHealthData');
-      if (!hasConsent) {
-        return NextResponse.json(
-          {
-            error: 'Consent required',
-            message: 'Enable "Pregnancy / Lactation Status" in Settings > Privacy before setting this field.',
-          },
-          { status: 403 }
-        );
+      const consent = await ensureUserConsent(userId);
+      if (!consent.sensitiveHealthData) {
+        return NextResponse.json(consentRequiredBody('sensitiveHealthData'), { status: 403 });
       }
     }
 

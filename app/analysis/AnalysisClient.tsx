@@ -5,7 +5,6 @@ import { createPortal } from 'react-dom';
 import type { User } from '@supabase/supabase-js';
 import { apiUrl } from '@/lib/utils/base-path';
 import AnalysisHeader from '@/app/components/navigation/AnalysisHeader';
-import GuestAnalysisView from './GuestAnalysisView';
 import SmartAddFoodModal from '@/app/components/modals/SmartAddFoodModal';
 import FoodLogChat, { type ChatFoodToAdd } from './FoodLogChat';
 import { FoodSuggestions, MyMealsButton, SaveAsMeal, useQuickAdd } from './quick-add/QuickAdd';
@@ -53,7 +52,9 @@ interface SymptomLog {
 }
 
 interface AnalysisClientProps {
-  user: User | null;
+  user: User;
+  /** Adding a food to the shared database is an admin action; everyone else never sees the button. */
+  isAdmin: boolean;
   initialDate: string;
   initialCompounds: any[];
   initialCompoundGroups: GroupHierarchy[];
@@ -66,7 +67,7 @@ type SyncChange =
   | { type: 'addMany'; mealId: string | null; foods: { foodId: string; portionSize: number; portionType: string }[]; savedMealId?: string }
   | { type: 'remove'; mealItemId: string };
 
-export default function AnalysisClient({ user, initialDate, initialCompounds, initialCompoundGroups }: AnalysisClientProps) {
+export default function AnalysisClient({ user, isAdmin, initialDate, initialCompounds, initialCompoundGroups }: AnalysisClientProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [searchFocused, setSearchFocused] = useState(false);
@@ -946,7 +947,7 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
     () => new Set<string>(meals.flatMap((m: any) => (m.items || []).map((i: any) => i.foodId))),
     [meals]
   );
-  const quickAdd = useQuickAdd(!!user);
+  const quickAdd = useQuickAdd(true);
   const selectedForMeal = meals
     .flatMap((m: any) => m.items || [])
     .filter((i: any) => selectedItemIds.includes(i.id))
@@ -1291,10 +1292,6 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
     background: '#000',
     letterSpacing: '0.03em',
   };
-
-  if (!user) {
-    return <GuestAnalysisView />;
-  }
 
   return (
     <div className="an-page">
@@ -1796,7 +1793,7 @@ export default function AnalysisClient({ user, initialDate, initialCompounds, in
               )}
             </div>
           ))}
-          {!catalogError && (
+          {!catalogError && isAdmin && (
             <div className="search-add-unknown">
               <button
                 className="search-add-unknown-btn"

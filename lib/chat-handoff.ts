@@ -20,6 +20,7 @@
  */
 
 import { apiUrl } from '@/lib/utils/base-path';
+import { ConsentRequiredError, readConsentRequired } from '@/lib/consent';
 import type { Proposal, ProposalItem } from '@/lib/ai/food-log-chat';
 
 export type { Proposal, ProposalItem };
@@ -137,6 +138,9 @@ export async function postChat(
   });
   if (!res.ok || !res.body) {
     const data = await res.json().catch(() => ({}));
+    // A missing consent is not a failure to report: the chat asks for it and sends the message again.
+    const missing = readConsentRequired(data);
+    if (missing) throw new ConsentRequiredError(missing, data.message);
     throw new Error(data.message || data.error || `HTTP ${res.status}`);
   }
 

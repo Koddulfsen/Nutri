@@ -14,7 +14,9 @@
  */
 
 import { unstable_cache } from 'next/cache';
+import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
+import { isAdminUser } from '@/lib/auth/permissions';
 import AnalysisClient from './AnalysisClient';
 import { CORE_COMPOUNDS } from '@/lib/data/core-compounds';
 import { db } from '@/db';
@@ -125,15 +127,14 @@ export default async function AnalysisPage({ searchParams }: PageProps) {
   const supabase = await createClient();
 
   // The two slow steps don't depend on each other, so run them together.
-  // Auth is optional — guests get a limited experience backed by localStorage
   const [{ data: { user } }, compoundGroupsHierarchy] = await Promise.all([
     supabase.auth.getUser(),
     getCachedCompoundGroups(),
   ]);
 
-  // The alpha gate is gone: anyone who signs up reaches the real analysis view.
-  // Auth stays optional here by design — a guest gets the localStorage-backed
-  // experience, and `user` being null is handled downstream.
+  // Nutri is for signed-in people. Middleware already sends signed-out visitors to /login;
+  // this is the page's own guarantee, so `user` is never null below.
+  if (!user) redirect('/login');
 
   // Parse date from URL, default to today
   const params = await searchParams;
@@ -146,6 +147,7 @@ export default async function AnalysisPage({ searchParams }: PageProps) {
   return (
     <AnalysisClient
       user={user}
+      isAdmin={await isAdminUser(user)}
       initialDate={initialDate}
       initialCompounds={[...CORE_COMPOUNDS]}
       initialCompoundGroups={compoundGroupsHierarchy}

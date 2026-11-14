@@ -322,3 +322,34 @@ export async function createInitialConsent(userId: string): Promise<ConsentRecor
 
   return created[0];
 }
+
+/**
+ * Get Consent, Creating the Row if the User Has None
+ *
+ * Every new user gets a consent row (all flags false) when their profile is created, but a user whose
+ * profile predates that wiring has none, and `getUserConsent` throws for them. A missing row means
+ * nothing has been agreed to, so it is created in that state and returned.
+ *
+ * @param userId - User ID
+ * @returns The user's consent record
+ * @throws Error if unauthorized
+ */
+export async function ensureUserConsent(userId: string): Promise<ConsentRecord> {
+  try {
+    return await getUserConsent(userId);
+  } catch (error) {
+    if (!(error instanceof Error) || error.message !== 'User consent record not found') {
+      throw error;
+    }
+  }
+
+  try {
+    return await createInitialConsent(userId);
+  } catch (error) {
+    // A concurrent request created the row between our read and our insert; read theirs.
+    if (error instanceof Error && error.message === 'Consent record already exists for this user') {
+      return getUserConsent(userId);
+    }
+    throw error;
+  }
+}

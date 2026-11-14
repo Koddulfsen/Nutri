@@ -47,6 +47,7 @@ lib/
   ai/                The food-logging chat (food-log-chat.ts, prompts.ts, anthropic-client.ts)
   auth/              withAuth/withPublic wrappers, permissions, MFA, password
   security/          Encryption, per-user keys, audit logging
+  consent/           The consents Nutri asks for + their wording (one source for API, prompts, settings)
   dal/               Data-access layer for profiles, consent, audit, api keys
   food-health/       Merge logic and unit normalization
   rate-limit/        Postgres-backed rate limiter
@@ -195,13 +196,50 @@ but switched off (`RECIPES_ENABLED` in `FoodLogChat.tsx`).
 
 ## 10. Design
 
-Source of truth is `app/globals.css`: charcoal base, muted teal accent, Instrument Serif /
-DM Sans / DM Mono, square 3px corners, press-style buttons, font weight ≤ 500, no gradients, no glass.
-`/analysis` deliberately uses its own cream/coral palette scoped under `.an-page` in `AnalysisClient.tsx`.
-Stat/progress visuals use the card + ring language: white card, one shared shadow recipe, rings
-coloured only via `RING_COLORS` (never hard-coded hex). `MacroViz` has 18 switchable styles, with a
-gallery at `docs/design/macro-viz-styles.html` — add new styles there too. Don't invent one-off
-widgets or revive retired design systems (Circadian, Sandalwood).
+**Every new page and component is built in this style from the start** — don't write a page in
+default Tailwind and plan to restyle it later. Source of truth for tokens: `app/globals.css`
+(`:root`). Use the tokens (`var(--bg)`, `var(--accent)`…), never hard-coded hex. Prefer a
+page-scoped stylesheet or styled-jsx with a unique class prefix over adding to `globals.css`
+(it holds older rules that collide, e.g. two different `.success-message`).
+
+**Charcoal × teal (the default)**
+
+| Token | Role |
+|---|---|
+| `--bg` `#000` / `--bg-soft` `#080808` / `--surface` `#050505` | page / raised panel / inset input |
+| `--border` `#1e1e24` / `--border-soft` / `--divider` | lines |
+| `--text-1` `#e8e8f4` / `--text-2` / `--text-3` | primary / secondary / muted text |
+| `--accent` `#508898` / `--accent-dark` `#306070` / `--accent-soft` / `--accent-border` | interactive, press depth, tints |
+| `--accent-text` `#906070` | dusty rose, for highlighting data |
+| `--warn` `#f97316` / `--warn-soft` / `--warn-text` / `--warn-border` | errors and destructive actions |
+| `--space-xs…2xl` (4/8/16/24/36/48) | spacing scale |
+
+Fonts: Instrument Serif (`--font-display`) for headings, DM Sans (`--font-body`), DM Mono (`--font-mono`) for numbers.
+
+**Rules:** font weight ≤ 500 · max content width 720px · square corners (`border-radius: 3px`) ·
+no gradients, no glassmorphism, no decorative emoji or icons-as-decoration · header transparent.
+**Buttons** press down: `box-shadow: 0 5px 0 var(--accent-dark)`, `translateY(4px)` on `:active`.
+**Inputs** are inset (`var(--surface)` + `inset 0 2px 4px rgba(0,0,0,.5)`). **Lists** are banded
+(alternate rows `var(--bg-soft)`). Copy is plain language, no jargon, no exclamation marks.
+
+**`/analysis` is the one exception:** a cream/coral "Petal White" palette scoped under `.an-page` in
+`AnalysisClient.tsx` — `--panel #fff7f4`, `--coral #d42a55` for data (bars, rings, selected date),
+`--action #2e1a0e` (espresso) for anything pressed, ink `#2e1a0e`. Shared components that appear on
+both (e.g. `ConsentPrompt`) borrow colours with fallbacks (`var(--action, var(--accent))`) rather than
+assuming a theme.
+
+**Cards and rings** (stat/goal/progress visuals): white `#fff` card, `border-radius` 10–16px,
+`box-shadow: 0 6px 22px rgba(46,26,14,.12)` for inner tiles and `0 10px 34px rgba(46,26,14,.13)`
+for outer containers (one shadow language, reused, never invented per component). Split panels use a
+2px hairline `rgba(46,26,14,.16)`; stack to one column under 860px.
+`MacroViz` has 18 switchable styles (12 ring treatments `A`–`L`, 6 shapes `M`–`R`); default is `O`
+(one ring, split by share of calories); the choice is stored per-browser in `localStorage`
+(`nutri.macroVizStyle`). Ring colours come only from `RING_COLORS` (`--ring-1/2/3`) — never a hex
+per slice, or the re-tone knob breaks. Gallery of all 18: `docs/design/macro-viz-styles.html` — add
+a new style there as well as in code.
+
+Don't invent one-off widgets without checking this section, and don't revive retired design
+systems (Circadian, Sandalwood).
 
 ## 11. Working with Jens
 

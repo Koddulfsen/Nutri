@@ -15,6 +15,8 @@ import {
 } from '@/lib/chat-handoff';
 import { apiUrl } from '@/lib/utils/base-path';
 import { useTypewriter } from '@/lib/use-typewriter';
+import { ConsentRequiredError, type ConsentKey } from '@/lib/consent';
+import ConsentPrompt from '@/app/components/consent/ConsentPrompt';
 
 /** One food as the chat hands it to the page to save. */
 export interface ChatFoodToAdd {
@@ -69,6 +71,8 @@ export default function FoodLogChat({ date, onAddFoods, aside }: FoodLogChatProp
   const [status, setStatus] = useState(FIRST_STATUS);
   const typed = useTypewriter(!input && !sending);
   const [error, setError] = useState<string | null>(null);
+  // Set when the server refused for want of a consent: the message to resend once it is given.
+  const [consentAsk, setConsentAsk] = useState<{ consent: ConsentKey; text: string } | null>(null);
   const threadRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
@@ -98,6 +102,7 @@ export default function FoodLogChat({ date, onAddFoods, aside }: FoodLogChatProp
     firstDate.current = date;
     setMessages([]);
     setError(null);
+    setConsentAsk(null);
   }, [date]);
 
   // A message typed on the front page arrives as this chat's first message,
@@ -135,7 +140,11 @@ export default function FoodLogChat({ date, onAddFoods, aside }: FoodLogChatProp
         },
       ]);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Something went wrong.');
+      if (err instanceof ConsentRequiredError) {
+        setConsentAsk({ consent: err.consent, text });
+      } else {
+        setError(err instanceof Error ? err.message : 'Something went wrong.');
+      }
       setMessages((prev) => prev.slice(0, -1));
       setInput(text);
     } finally {
@@ -147,6 +156,7 @@ export default function FoodLogChat({ date, onAddFoods, aside }: FoodLogChatProp
     const text = (override ?? input).trim();
     if (!text || sending) return;
     setError(null);
+    setConsentAsk(null);
     const history = toHistory(messages);
     setMessages([...messages, { role: 'user', content: text }]);
     setInput('');
@@ -251,6 +261,13 @@ export default function FoodLogChat({ date, onAddFoods, aside }: FoodLogChatProp
           <div className="chat-msg chat-msg--assistant">
             <div className="chat-bubble chat-typing">{status}…</div>
           </div>
+        )}
+        {consentAsk && (
+          <ConsentPrompt
+            consent={consentAsk.consent}
+            onAllowed={() => send(consentAsk.text)}
+            onDismiss={() => setConsentAsk(null)}
+          />
         )}
         {error && <div className="chat-error">{error}</div>}
       </div>
