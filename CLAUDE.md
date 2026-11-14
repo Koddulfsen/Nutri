@@ -1,849 +1,227 @@
-# Nutri — Claude Code Instructions
+# Nutri — guide for Claude Code sessions
 
-> **Read §0 and §1 first, every session. They tell you where we are.**
-> Everything below §4 is stable reference material — consult it when relevant, not up front.
+This file holds things that stay true: what the project is, how it is built, the rules
+for working in it, and decisions already made. **Status, plans and history do not live
+here** — they go stale. Status lives in `docs/`; history lives in `git log`.
+If something below disagrees with the code, the code wins — fix this file in the same change.
 
 ---
 
-## 0. THE MISSION, AND WHAT GUARDS IT
+## 1. What Nutri is
 
 Nutri helps people understand how what they consume affects how they feel.
 
-To do that it holds the most sensitive category of data there is: **symptom diaries,
-pregnancy status, birth dates, and verbatim free text about people's bodies.** Under GDPR
-that is Article 9 special-category data. We are the custodian of it.
+You log food. Nutri breaks each food into **compounds** (vitamins, minerals, amino acids,
+contaminants, caffeine…) using a database merged from many national food-composition
+tables, then compares the day against **daily-value targets** published by health
+authorities. The longer-term goal is finding patterns between intake and how people feel.
 
-So the mission has two halves, and the second is not optional:
+To do that it holds the most sensitive kind of data there is: **health data under GDPR
+Article 9** — pregnancy/lactation status, body weight, birth year/month, and free text
+about people's bodies. The project has two jobs: build the thing, and be worthy of that data.
 
-1. Build a compound-centric food database and a tracking system that discovers patterns.
-2. **Be worthy of the data required to do it.**
+## 2. Vocabulary
 
-### What a parasite is
-
-Everything that has gone wrong in this codebase has one shape: **an unverified claim that
-got treated as a fact.**
-
-- `db/schema/audit.ts` claimed 6-year HIPAA retention. No retention code exists.
-- `db/schema/gdpr.ts` claimed foreign keys "added in migration SQL". They were never created.
-- `lib/dal/consent.ts` claimed RLS enforcement. There are zero RLS policies.
-- `lib/auth/totp.ts` claimed the MFA secret was encrypted at rest. It is plaintext.
-- `app/api/user/delete-account/route.ts` tells users their data is deleted. Nothing deletes it.
-- Four test files print `✅ passed` while asserting nothing.
-
-Dead code, ungated routes, fake tests, and lying endpoints are all the same organism. Each
-one is a claim nobody checked, load-bearing for someone's trust.
-
-**A parasite is any assertion this project makes that is not verified.** The doors in §2
-exist to keep them out. This project is built to repel them.
-
----
-
-## 1. WHERE WE ARE
-
-**Position: pre-alpha. Target: open alpha with paid accounts / crowdfunding.**
-
-```
-[███████████░░░░░░░░░░░░░░░░░░░░] Foundation ─── Hardening ─── Alpha
-                     ▲ you are here
-```
-
-| Layer | State |
+| Term | Meaning |
 |---|---|
-| Compound reference data | 280 compounds, 1,753 mappings. **DV: 28,983 rows / 23 authorities**, each re-transcribed from its source document (`scripts/dv-verify/`). Only **10 of the 22 derive their own values** and count toward a target — `dv-sources/PROVENANCE.md`. **307 rows across 5 sources are per kg of body weight** and 23 carry an increment on top (migrations 0057–0059); the resolver in `lib/dv/resolve.ts` is the single place that turns all of it into a number. Run state: `dv-sources/DV-ACCURACY-TASKS.md`, plan: `dv-sources/PLAN-BODY-WEIGHT.md` |
-| Food data | **13 of 17 sources loaded — 3.2M staging rows, 34,754 foods.** 71 foods merged and verified against reference values (2026-09-08). DUKE + FOODB held back; PHENOL unmapped |
-| Tracking / user data | Schema exists; **20 meal_logs, 2 user_profiles** — the app has been used |
-| **Authentication** | ✅ **WORKS.** Supabase Auth is live — `auth` schema present, 1 confirmed user, `/auth/v1/settings` 200, sign-in/sign-up/OAuth/reset all wired in `app/(auth)/actions.ts` |
-| Authorization | ✅ **AUDITED 2026-09-23.** Admin routes/pages gated; the app still connects as the table owner so RLS doesn't cover its own queries, but all 27 files touching user-scoped tables were checked and every one filters by the authenticated `userId` — no exploitable ownership gaps found |
-| Privacy compliance | Erasure and export both work for real (2.8 done 2026-09-23) — immediate deletion, synchronous JSON download, verified end-to-end. `life_stage` (Article 9) is encrypted at rest with its key in a separate table (2.5 done); consent has a real UI (`ConsentManager.tsx`) with 7 flags including dedicated Article 9 consents (`sensitiveHealthData`, `aiProcessing`), auto-created for every new user. DPIA and privacy policy (5.1, 5.2) still not written — see `docs/DATA-SCOPE-DECISIONS.md` |
-| Tests | ✅ Jest fully retired 2026-09-24 — 6 files ported to Vitest, 1 deleted (tested dead code). The 4 "assert-nothing" files (console.assert, never fails the process) fixed: 2 deleted (dead/phantom-module), 2 rewritten as real suites. `request-metadata.test.ts`'s 8 failures also fixed 2026-09-24 — see 2.7. Full suite: 242/243 passing (the 1 remaining failure is a live Supabase email-send rate limit hit by repeated test runs, not a code bug) |
-| Deployment | Repo `Koddulfsen/Nutri`; `origin/main` synced 2026-09-17 (`04a5c05`). No `basePath` — the app is served at the root (verified 2026-09-14: `/` 200, `/nutri` 404) |
+| **Compound** | One nutrient/substance Nutri tracks (`compounds` table), grouped in `compound_groups` |
+| **Authority / body** | A health organization that publishes daily values (EFSA, NIH, WHO/FAO, national bodies) |
+| **Daily value (DV) / target** | What an authority says a person of a given age/sex/life-stage needs (or must not exceed) |
+| **Source** | A food-composition database (USDA FDC, Canada's CNF, CIQUAL, BLS, …). 2 are live APIs (FDC, CNF); the rest are loaded locally |
+| **Staging tables** | `source_<name>_*` — raw rows from one source, untouched |
+| **Mapping** | A row in `compound_sources` saying "source X's nutrient #N is our compound Y, ×factor" |
+| **Merged nutrients** | `merged_nutrients` — one value per food × compound, combined across sources |
+| **Article 9** | GDPR's special category (health data). Needs encryption, explicit consent, and a working deletion path |
 
-**Alpha access is gated by `app/components/AlphaGate.tsx`.** Signups are open in Supabase
-(`disable_signup: false`), so anyone can create an account — but `dashboard/page.tsx` and
-`analysis/page.tsx` show the waitlist screen unless `isAdminUser()` passes. Admin is the
-`ADMIN_EMAILS` env list, not a database column. ⚠️ That gate is on **two pages only**; it has
-never been checked against every other page and API route.
-
-**The blocking dependency is no longer identity.** It is authorization: the system knows who
-you are, and then trusts each query to filter correctly.
+## 3. Where things live
 
 ```
-Identity ──→ Authorization ──→ Data protection ──→ Rights & compliance ──→ Money
-   ✅ works      ▲ you are here
+app/                 Next.js app — pages, API routes (app/api), UI (app/components)
+  analysis/          The main screen: food list, macro ring, compound cards, chat
+  admin/             Admin-only tools (gated by app/admin/layout.tsx)
+  settings/          Account settings
+  (auth)/actions.ts  Sign-in / sign-up / OAuth / reset server actions
+lib/
+  dv/                Daily-value resolution (resolve.ts is the one place targets become numbers)
+  services/          Source clients, meal/DV/symptom services, nutrient mapper
+  ai/                The food-logging chat (food-log-chat.ts, prompts.ts, anthropic-client.ts)
+  auth/              withAuth/withPublic wrappers, permissions, MFA, password
+  security/          Encryption, per-user keys, audit logging
+  dal/               Data-access layer for profiles, consent, audit, api keys
+  food-health/       Merge logic and unit normalization
+  rate-limit/        Postgres-backed rate limiter
+  supabase/          Client wrappers + dev-auth shim
+db/schema/           Drizzle schema (one file per concern; one per source's staging tables)
+db/seed/             Seeders and per-source loaders (db/seed/<source>/import-<source>.mjs)
+drizzle/             Generated migrations + journal
+dv-sources/          Daily-value source documents, extraction scripts, values, provenance
+scripts/             Live maintenance scripts; scripts/archive/ = finished one-offs
+data/                Raw source files (large, gitignored)
+docs/                Reference docs (see §12)
 ```
 
-⚠️ **This section claimed "Authentication BROKEN — no working login" until 2026-09-08.** It was
-made false by the August move to hosted Supabase, which restored `auth`, and nobody updated it.
-Every session since opened by reading that identity was dead, and Phase 2.1 still asks for a
-decision that the migration already made. Verify §1 against the database before trusting it.
+## 4. Running it
 
-Full findings: **`docs/AUDIT-2026-08-11.md`**. Read it before security work.
+- Dev server: `npx next dev -p 3003`, served at the root (`http://localhost:3003/`, no basePath).
+- Database: Supabase Postgres (eu-west-1, EU region because of Article 9 data).
+  Two URLs on purpose: `DATABASE_URL` → transaction pooler :6543 (the app);
+  `MIGRATION_DATABASE_URL` → session mode :5432 (drizzle-kit, bulk loads, psql, dumps).
+- Commands: `npm run db:generate` · `db:migrate` · `npx vitest run` · `npm run check:auth` ·
+  `npm run check:printed` · `npm run typecheck:scripts` · `npm run build:local`.
+  Many tests are integration tests and need the database reachable.
+- `DEV_AUTH_BYPASS=true` makes every request one fixed admin. Local only; the build refuses
+  to run with it on. `lib/supabase/dev-shim.ts` reimplements only part of the Supabase client
+  (e.g. no `.or()`), so with the bypass on, features can silently return nothing — turn the
+  bypass off to test anything that depends on the missing methods.
+- Admin = the `ADMIN_EMAILS` env list, never a database column.
 
----
+## 5. Working rules
 
-## 2. THE DOORS
+Each rule exists because the opposite happened here once. In short: **never let an
+unchecked claim stand as fact** — in a comment, a commit, a message to the user, or an
+endpoint's response.
 
-Named for the moment they fire, not the phase they belong to. When you are about to do the
-thing, the door applies. **These are prohibitions, not aspirations.**
+1. **Comments are not evidence.** Claims about encryption, retention, RLS, cascades or
+   "this is secure" have been false before. Verify in code or the database and say which you did.
+2. **"It works" needs a named check.** State what you ran, what it printed, and what that
+   does *not* cover. "Tests pass" and "returns 200" are not checks on their own.
+3. **New API route:** wrap it in `withAuth()` (or `withPublic()` with a written reason) from
+   `lib/auth/with-auth.ts`, validate input with Zod, run `npm run check:auth`. Authenticate with
+   `getUser()`, never `getSession()` (that only decodes a cookie the client controls). Never
+   authorize on `user_metadata` — the user can write it.
+4. **New data field:** ask what the code actually *reads* and collect the coarsest value that
+   satisfies it. Read `docs/DATA-SCOPE-DECISIONS.md` first — it records what was deliberately
+   kept or dropped. A consent flag should exist only if something real is gated by it.
+5. **Touching user data:** if it is Article 9, it needs encryption, a lawful basis and a deletion
+   path that really runs. Never send a user's free text to a third party without explicit
+   consent and a DPA.
+6. **Never promise what the code can't do.** If a screen or endpoint says "your data will be
+   deleted", code must delete it. No placeholder buttons that pretend to work.
+7. **Migrations:** compare `drizzle.__drizzle_migrations` with `drizzle/meta/_journal.json`
+   first (they have drifted before). After migrating, diff live columns against the schema —
+   expect zero drift both ways.
+8. **Deleting code:** prove nothing uses it — search app, lib, scripts, tests, configs, and
+   string-built paths — and say how you proved it. Use `git rm`, run a build after. If there is
+   any doubt, ask; remove only what is certain.
+9. **Source data:** conversion factors are applied at *read* time, so a wrong factor produces a
+   believable wrong number, not an error. Units are a trap: `µg` (U+00B5), `μg` (U+03BC), `ug`,
+   `UG` are one unit. Never default a missing unit to `g`.
+10. **Never open a browser** to look at the app — Jens checks visuals himself. Verify by what
+    the server actually serves (e.g. curl the CSS bundle). A source edit is not a shipped change:
+    Turbopack has served stale CSS after a correct edit (fix: stop the server, `rm -rf .next`,
+    restart). When "it didn't work", suspect the pipeline before re-editing.
+11. **Before starting work,** skim this file and check it against reality. If it's wrong, fix it first.
 
-### 🚪 Before you trust a comment
-A docstring is not evidence. Every claim in this codebase about encryption, retention, RLS,
-or cascades has been false at least once. Verify against code or the database, then say
-which you did. If you cannot verify it, it is CLAIMED — never VERIFIED.
+## 6. Security and privacy model
 
-### 🚪 Before you say something works
-Name the check you ran. "Tests pass" is not a check when 12 of 14 test files are broken.
-"Returns 200" is not a check when middleware is disabled in dev. State what you ran, what it
-output, and what that does *not* cover.
+- **Identity:** Supabase Auth (sign-in, sign-up, OAuth, reset in `app/(auth)/actions.ts`).
+- **Authorization:** every API route goes through `withAuth`/`withPublic`; `check:auth` enforces
+  it. Admin APIs return 403 JSON, admin pages redirect.
+- **Database role:** the app connects as the table owner, so Postgres RLS does **not** cover the
+  app's own queries (RLS policies exist for the public Supabase API only). Every user-scoped
+  query must therefore filter by the server-derived authenticated `userId` in code. Assume this
+  unless you have just verified otherwise.
+- **Encryption at rest:** AES-256-GCM with a per-user key stored in a separate table
+  (`user_encryption_keys`), so reading a profile never returns its own key. Applies to
+  `life_stage`, body weight and saved-meal names. Key rotation is not implemented and throws.
+  `biological_sex` and birth year/month are not encrypted (quasi-identifiers; see DATA-SCOPE doc).
+- **Consent:** `user_consent` has one row per user, created with every flag false. Gate a behaviour
+  with `checkConsent()`. Article 9 flags are never bundled into "accept all".
+- **Audit logging:** IPs are truncated before they are stored.
+- **Rate limiting:** Postgres-backed in `lib/rate-limit/`; fails closed. The AI chat is capped per user per hour.
+- **Erasure and export:** real, synchronous. Deletion removes the profile (cascading to meals,
+  etc.), consent, keys and the auth user. Tables without a foreign key to the profile are deleted explicitly.
+- **Dev bypass** cannot ship: `next.config.js` throws on a production build with it enabled.
 
-### 🚪 Before you add an API route
-Wrap it in `withAuth()` from `lib/auth/with-auth.ts` — or `withPublic()` with a written
-reason. No per-handler judgement calls; that is how 18 admin routes ended up unguarded.
-Then run `npm run check:auth`. Authenticate with `getUser()`, never `getSession()`
-(the latter only decodes a cookie the client controls). Validate input with Zod. Never
-authorize on `user_metadata` — the user can write it themselves.
+## 7. Data model and pipeline
 
-### 🚪 Before you collect a new field
-Ask what the code actually *reads*, not what seems useful. `birth_date` was stored for
-years while `calculateAgeGroup()` only ever read year and month — a full DOB is a strong
-quasi-identifier that, with `biological_sex` and `life_stage`, re-identifies most people
-and discloses a pregnancy. Collect the coarsest value that satisfies the actual read.
-Check `docs/DATA-SCOPE-DECISIONS.md` first — it records which fields were deliberately
-kept or dropped for alpha and why; don't re-derive or reverse those calls without knowing
-they were intentional.
+**Reference data:** `compounds` → `compound_groups`; `compound_sources` (mappings);
+`reference_daily_values` (targets, with age/sex/life-stage, stored in the authority's own native
+age ranges in months). Source documents and extraction live in `dv-sources/`; `PROVENANCE.md`
+records which authorities derived their own values versus copied another's.
 
-### 🚪 Before you touch user data
-Ask: is it Article 9? (symptoms, pregnancy/life stage, birth date, free text — yes.) If it
-is, it needs encryption, a lawful basis, and a deletion path that actually runs. Never send
-user free text to a third party without explicit consent and a DPA.
+**How targets are resolved** (`lib/dv/resolve.ts` — the single place):
+- One vote per independent authority, then the **median**.
+- Units are converted, not matched as text.
+- Per-kg-of-body-weight values resolve against the user's own weight if given, else that
+  authority's own published reference weight.
+- Energy: pick the activity level first, then one value per body, then the median.
+- Contaminant ceilings (TWI/TDI/PTMI/RfD) use the **strictest** body, not the median — a nutrient
+  target estimates a need, a ceiling estimates where harm begins. Supplement-only and
+  form-specific limits are kept out of food limits.
+- Compounds the authorities publish only as a pair (e.g. aromatic amino acids) show the pair, not invented halves.
 
-### 🚪 Before you promise the user something
-If the endpoint says "your data will be deleted", code must delete it. A promise the system
-cannot keep is worse than no feature — it is the most expensive parasite we have found.
+**Food data:** 17 source databases are staged in `source_*` tables by loaders in
+`db/seed/<source>/`. Each loader truncates its own tables, so re-running is safe; bulk loads go
+through the session port. Importing a food (`POST /api/foods`) queries the sources, maps
+nutrients (`lib/services/nutrient-mapper.ts`), and merges them (`lib/food-health/merge.ts`).
+- Merge normalizes units first and holds out values more than 100× from their peers.
+- Import aborts before writing if any requested source fails; outbound calls use `withRetry`.
+- Sources do not have parent/child food rows. DUKE (plant × part) and FOODB are held back; PHENOL has no mappings.
+- Source quirks: KFCT/MEXT need `scripts/populate-*-english-names.mjs` after import; Fineli CSVs are ISO-8859-1.
 
-### 🚪 Before you write a migration
-Check `drizzle.__drizzle_migrations` against `drizzle/meta/_journal.json`. They have been out
-of sync before (0 applied vs 44 recorded). A snapshot can also claim objects no SQL creates —
-that happened at 0043. After migrating, diff live columns against the snapshot and expect zero
-drift both directions.
+**Tracking:** `meal_logs` / `meal_items` (amounts stored in grams, with the user's own portion
+wording as a label), `saved_meal_templates`. "Usuals" and suggestions are learned from the user's
+own log (`lib/services/usuals.ts`), nothing extra stored. Symptom tables exist but are shelved
+and must stay inert (see decisions).
 
-### 🚪 Before you delete anything
-Prove nothing imports it, and say how you proved it. If you cannot prove it, it goes on the
-confirm list, not the delete list. Deletions are `git rm` — individually revertible, with
-`npm run build` as the check after each.
+**Chat logging:** `app/analysis/FoodLogChat.tsx` → `/api/ai/log-food` → `lib/ai/food-log-chat.ts`.
+The model can only *search and propose*; it has no write tool. The user presses "Add foods" and
+exactly the shown list is saved through `POST /api/meals/sync`. Auth, consent and rate limiting live in
+the route. `scripts/chat-eval/` replays sample messages against the same code. Recipes are built
+but switched off (`RECIPES_ENABLED` in `FoodLogChat.tsx`).
 
-### 🚪 Before you claim a source's data is right
-Conversion factors are applied at **read time**, so a wrong factor yields a plausible number,
-never a crash. 25 are currently wrong — see §6. Units are a trap: `µg` (U+00B5), `μg`
-(U+03BC), `ug` and `UG` are the same unit and 221 "errors" are just that.
+## 8. Known sharp edges
 
-### 🚪 Before you reach for the browser
-**Never open a browser window to look at the app.** Jens has the app in front of him and
-checks visual results himself — faster than any screenshot round-trip. No `claude-in-chrome`,
-no headless capture, no "let me just confirm how it looks."
+- Staging-table names and enum values differ in places (`source_cofid_*` vs `UK_COFID`).
+- Some source mappings have no `source_unit`; the audit scripts (`audit-source-units`,
+  `audit-magnitudes`, `audit-mapping-ids`) cover them from independent angles, because each alone has blind spots.
+- CNF mappings can't be checked against a catalogue (none is loaded).
+- Seeding: work in batches of 5, run `scripts/check-source-compound-names.ts` first, make seeds
+  idempotent (second run inserts 0), and watch for `ON CONFLICT DO NOTHING` silently skipping a
+  wrongly-claimed external ID (an X/Y mismatch in "mappings inserted").
 
-This does *not* weaken the verify-your-claims door above — it changes which check you run.
-Verify by inspecting what the server actually serves, not by trusting the source file:
+## 9. Decisions already made (don't reopen without asking Jens)
 
-```bash
-CSS=$(curl -sL http://localhost:3003/ | grep -oE 'href="[^"]*\.css[^"]*"' | head -1 | sed 's/href="//;s/"//')
-curl -s "http://localhost:3003$CSS" | grep -A12 '\.home-page'
-```
+- Alpha minimum age 16; GDPR/Norway only. Details in `docs/DATA-SCOPE-DECISIONS.md`.
+- Retention: kept while the account is active; deletion is immediate and complete, no grace period.
+- Symptom/wellness tracking is shelved — no writes, no consent entry — until it gets its own consent flow and DPIA update.
+- `life_stage` (pregnancy/lactation) is kept despite the compliance cost; it needs its own consent and encryption.
+- Body weight: optional, one current value in whole kg, no history, own consent, encrypted.
+- Recipes and branded/barcode products come after alpha.
+- Lead and inorganic arsenic show "No DV" because the committees withdrew their limits.
+- Universal "Item/Entry/Pattern" tracking model is a long-term direction only — don't start building it.
+- Only Jens signs off on consent wording, the DPIA and the privacy policy.
 
-A source edit is not a shipped change. Turbopack has served a **stale CSS bundle** after a
-correct edit — the fix was killing the dev server, `rm -rf .next`, restarting. So when Jens
-says "it didn't work", suspect the pipeline before re-editing the file. Then hand him the
-change to look at and say what you verified.
+## 10. Design
 
-### 🚪 Before you start a session
-Re-read §1. If it no longer matches reality, **fix §1 first** — a stale position marker sent
-every session hunting for an `items`/`entries` system that was never built.
+Source of truth is `app/globals.css`: charcoal base, muted teal accent, Instrument Serif /
+DM Sans / DM Mono, square 3px corners, press-style buttons, font weight ≤ 500, no gradients, no glass.
+`/analysis` deliberately uses its own cream/coral palette scoped under `.an-page` in `AnalysisClient.tsx`.
+Stat/progress visuals use the card + ring language: white card, one shared shadow recipe, rings
+coloured only via `RING_COLORS` (never hard-coded hex). `MacroViz` has 18 switchable styles, with a
+gallery at `docs/design/macro-viz-styles.html` — add new styles there too. Don't invent one-off
+widgets or revive retired design systems (Circadian, Sandalwood).
 
----
+## 11. Working with Jens
 
-## 3. BUILD ORDER
+- Plain language over jargon; explain what code actually does.
+- Commit only when asked. The git index is shared with other sessions, so commit with explicit
+  pathspecs (`git commit -- <paths>`), never include Jens's uncommitted edits, and push to
+  `origin/main` after committing.
+- Confirm before anything hard to reverse or outward-facing.
+- Report outcomes honestly: failing tests, skipped steps and unverified claims are stated, not smoothed over.
 
-Checkboxes are the timeline. Update them as work lands.
+## 12. Reference docs
 
-### Phase 1 — Contain (do first; cheap, no architecture needed)
-- [x] **1.0** Take `delete-account` + `export` offline until real *(P1, P3)* — both return 501 with an honest message; original impls preserved in comments
-- [ ] **1.1** Revoke `SUPABASE_SERVICE_ROLE_KEY` + `SUPABASE_ACCESS_TOKEN` *(owner action, A6)*
-- [x] **1.2** Remove the `NODE_ENV === 'development'` early return in `middleware.ts` *(A1)*
-- [x] **1.3** Make `DEV_AUTH_BYPASS` impossible in a production build *(A2)* — `NODE_ENV` term at all 3 call sites + build-time throw in `next.config.js`
-- [x] **1.4** `requireAdmin()` on all 18 `/api/admin/**` handlers *(A3)* — 20 handlers; verified non-admin gets 403 JSON
-- [x] **1.5** Server-side admin check in `app/admin/layout.tsx` *(A4)* — covers all 7 admin pages; verified non-admin redirects to /analysis
-- [x] **1.6** Delete the `user_metadata.admin` checks *(B1)* — 3 occurrences across 2 files
-- [x] **1.7** Strip every false compliance claim from comments *(§0)* — 16 across 11 files (HIPAA retention, phantom FKs, phantom RLS, phantom encryption, phantom DEK rotation)
-- [x] **1.8** Settle the middleware `basePath` question *(B8)* — **RESOLVED: Next strips basePath; page protection works.** Also fixed `includes` → `startsWith` on public-API matching, and added `/api/admin` to `adminPaths`
-- [x] **1.9** Triage npm vulns *(assessed)* — `xlsx` never reaches server runtime; used only by offline seed scripts on self-downloaded government files. Contained, not upgraded. Revisit if it ever parses user uploads
-
-### Phase 1b — Found mid-flight (not planned; recorded so the count is honest)
-- [x] Production build was **broken** (3 TS errors) — fixed; `npm run build:local` added
-- [x] `middleware.ts` `includes` → `startsWith` on public-API matching (latent bypass)
-- [x] Admin APIs return **403 JSON** instead of redirecting an API client to HTML
-- [x] `requireUser()` added; `foods/pending` (moderation queue) admin-gated; 4 external-API
-      proxies authenticated so anonymous callers cannot burn upstream rate limits
-- [x] Upstash Redis disabled in `.env` — **12 files** used it; each call burned a 420ms
-      timeout against a dead host
-- [x] Demographics cache invalidation could **fail a successful write** (500 after the DB
-      write landed) — now best-effort
-- [x] `getUserDemographics` built a raw **service-role** Supabase client inline, bypassing
-      the app wrapper — now Drizzle
-- [x] Full date of birth removed → year+month (verified identical across 809 age cases)
-
-### Phase 2 — Foundation
-- [x] **2.1** ~~DECIDE: auth replacement~~ — **settled by the 2026-08-22 move to hosted
-      Supabase**, which restored `auth`. Verified 2026-09-08: schema present, confirmed user,
-      login endpoint answers. No decision outstanding
-- [x] **2.2** Restore authorization at the data layer *(audited 2026-09-23)* — all 27 files
-      touching user-scoped tables (meals, symptoms, profiles, api-keys, MFA, dashboard, auth
-      callbacks) verified: every query filters by the server-derived authenticated `userId`,
-      no client-suppliable id can read/write another user's row. Two dead-code DAL files
-      (`lib/dal/api-keys.ts`, `lib/dal/consent.ts` were the exceptions — safe but unreferenced,
-      candidates for Phase 3 cleanup) and one privilege inconsistency in
-      `daily-value-service.ts` (~line 471, reads public reference data via an unnecessary
-      service-role client) were found; neither is an authorization gap
-- [x] **2.2a** Least-privilege DB role — app runs as `nutri_app` (no DDL, no BYPASSRLS, not superuser); migrations use `MIGRATION_DATABASE_URL` (owner). Default privileges cover future migration tables. **Remaining:** run `ALTER ROLE nutri NOSUPERUSER;` as a superuser (see below)
-- [x] **2.3** `withAuth(handler, { role, schema })` wrapper + CI check *(built)* — `lib/auth/with-auth.ts`, `withPublic()` for explicit public routes, lint at `scripts/check-route-auth.ts` (`npm run check:auth`). Report-only until the last 30 routes are migrated, then flip `STRICT=1` in CI
-- [x] **2.4** `getSession()` → `getUser()` *(B2)* — 36 files rewritten; zero `getSession()` left outside `middleware.ts` (deferred to 2.2, since `getUser()` adds a network call per request)
-- [x] **2.5** Apply the DEK to Article 9 columns; move the key out from under the data *(P4, P5)*
-      *(done 2026-09-23)* — `data_encryption_key` moved off `user_profiles` into its own table
-      (`user_encryption_keys`), so a profile read can never also return the key that decrypts
-      it. `user_profiles.life_stage` (pregnancy/lactation — Article 9) is now AES-256-GCM
-      ciphertext (`life_stage_encrypted`), encrypted/decrypted only in
-      `lib/services/daily-value-service.ts`. `rotateDEK` — previously a silent no-op that would
-      have orphaned encrypted data the moment it was called — now throws until it's actually
-      implemented. Verified: `psql` raw read of the column returns ciphertext, not plaintext;
-      integration test round-trips through the real read/write path
-      (`lib/services/daily-value-service.life-stage-encryption.test.ts`). See
-      `docs/DATA-SCOPE-DECISIONS.md` for why `life_stage` was kept instead of dropped
-- [x] **2.6** Fail-open trio *(A7, A8)* — Postgres rate limiter (`lib/rate-limit/`), fails **closed** on auth; MFA verify now 401 + 5/15min lockout. Session-version (A10) still open, belongs with 2.2
-- [x] **2.7** `anonymizeIP` fixed (IPv6 expansion, IPv4-mapped, 10 cases pass) and wired into **all three** audit write paths. `parseUserAgent` fixed 2026-09-24 — iPhone/iPad were misdetected as macOS (their UA says "like Mac OS X", never literally "iOS"), Android was misdetected as Linux (its UA contains "Linux"), iPad was misdetected as mobile (its UA contains "Mobile/..."). Reordered the checks; all 39 tests in `request-metadata.test.ts` pass
-- [x] **2.8** Real erasure + export jobs; add the 5 missing FKs *(P1, P2, P3)* *(done
-      2026-09-23)* — `delete-account` now performs immediate, synchronous, real deletion
-      (no grace period, per `docs/DATA-SCOPE-DECISIONS.md`): explicitly deletes
-      `user_consent`/`api_keys`/`user_encryption_keys` (none had a FK to cascade from, per
-      P2's finding — fixed via explicit deletes in the erasure transaction, not new FKs),
-      deletes `user_profiles` (cascades to meals/symptoms/custom DVs per the existing FKs),
-      then deletes the Supabase Auth user via the service-role admin API. `export` now
-      returns a real synchronous JSON download (profile, decrypted demographics, consent,
-      meals, API key metadata, custom DVs) instead of a promised email link. Both verified
-      end-to-end against a real throwaway Supabase account: created, populated (including a
-      PREGNANT `life_stage`), confirmed present, ran the exact deletion sequence, confirmed
-      every row gone including cascaded meal items, then deleted the auth user. The old
-      `deletion_requests`/`export_requests` tables (P2's other two "missing FK" rows) are
-      now unused — nothing writes to them; a future cleanup pass can drop them (§3)
-- [~] **2.9** Per-user spend budget on `/api/ai/log-food` *(B3)* — **message cap done 2026-09-28**:
-      `checkAiRateLimit()` (30/hour/user, fails closed) had existed in `lib/rate-limit/` but
-      nothing called it; now wired into the chat route, verified by integration test (429 +
-      readable message, no AI call made). Still open: a budget in money/tokens, not messages
-
-### Phase 2b — Food-logging chat *(plan: `docs/PLAN-CHAT-PIPELINE.md`, built 2026-09-28)*
-- [x] **C.0** Eval harness — `scripts/chat-eval/` (20 synthetic messages, dry run, records
-      outcome/calls/tokens/cost). Baseline → final: lists straight away 5 → 12–13 of 16 food
-      messages (varies a case or two with prompt wording; the misses are mostly foods not in
-      the DB); $0.0088 → ~$0.0045 per message, and confirming now costs no AI call at all.
-      Results per run in `scripts/chat-eval/results/`. Two-turn check: `followup-check.ts`
-- [x] **C.1** Rate limit (see 2.9) + route moved onto `withAuth()`
-- [x] **C.2** Search ranks by best match (was A–Z) — whole word › prefix › anywhere, shorter
-      names first; LIKE wildcards escaped. Also fixed: page 2+ of any search was always empty
-      (paginated in SQL, then sliced again)
-- [x] **C.3** Prompt rewritten: short, "guess, show, let them fix", ~15 lines instead of ~87
-- [x] **C.4** The AI can only **propose** (`propose_foods`); it has no writing tool. The card's
-      **Add foods** saves exactly what's shown via `POST /api/meals/sync` `addMany`, into the
-      active meal like the search bar. Saved in grams, with the portion as the label
-- [x] **C.5** Real progress (NDJSON stream of the actual steps), 4 rounds max with a
-      last-round nudge, temperature 0
-- [x] **C.6** The AI's `create_composite` tool is gone. "Save as recipe" is built and tested
-      (`POST /api/foods/recipes`, private) but **switched off for alpha**
-      (`RECIPES_ENABLED` in `FoodLogChat.tsx`). **Decided (Jens, 2026-09-28):** recipes and
-      branded products are post-alpha; branded comes with barcode scanning
-- [ ] **C.8** Food coverage is now the limit, not the chat: 107 public foods. Beer, almonds,
-      peanut butter, pasta, blueberries, honey, Clif bars are all missing
-
-### Phase 2c — Saved meals, learned favorites, suggestions *(plan: `docs/PLAN-SAVED-MEALS.md`, built 2026-10-07)*
-- [x] **M.0** Saved meals stored safely — `/api/saved-meals` (withAuth; replaces the unused
-      `/api/meals/templates`, removed). **Names encrypted** with the user's own key (free text,
-      treated as Article 9; ciphertext lives in the existing `name` column, no migration).
-      Delete is a real delete (was `is_active = false`). Foods must be visible to the user.
-      In the data export. Integration test `__tests__/integration/saved-meals.test.ts`
-- [x] **M.1** "Usuals" from the user's own log (`lib/services/usuals.ts`): uses, recent uses,
-      usual amount (most common grams + label pair). Nothing extra stored. Ranking unit-tested
-- [x] **M.2** Food list: up to 5 greyed suggestions with **+** (usual foods and saved meals,
-      nothing already logged that day), **My meals** modal (add / rename / delete / search),
-      in both food lists. `GET /api/quick-add`; `addMany` + `savedMealId` counts a use.
-      Integration test `__tests__/integration/quick-add.test.ts`
-- [x] **M.3** **Save as meal** for the foods selected in the list
-- [ ] **M.4** The chat uses usuals and saved meals — **to be discussed first** (Jens,
-      2026-10-07). Update the privacy draft's Anthropic paragraph when it lands
-- [ ] **M.5** Confirm-to-delete: `favorite_foods` + `/api/meals/favorites` — unused before and
-      after; favorites are learned from the log instead
-
-### Phase 3 — Refurbish (serves Phase 2; not cosmetics)
-- [x] **3.1** Delete the dead Supabase-HTTP cluster — 5,555 lines *(S1)* *(done 2026-09-24)* —
-      finished in two passes. First: deleted 6 duplicate `db/seed/*-http.ts` files with live
-      non-http twins (categories/research/users/validation/interactions/index) plus 2 stray
-      zero-reference scripts. Second: found and deleted a 7th duplicate missed the first time
-      (`compounds-http.ts`); ported `seed-display-settings.ts`/`seed-group-metadata.ts` from
-      the Supabase REST client to Drizzle (type-checked clean); renamed `symptoms-http.ts` →
-      `symptoms.ts` and swapped its HTTP-proxy adapter import for the direct Drizzle client
-      (it already used Drizzle syntax, just via the wrong transport) — kept as the only source
-      of symptom seed data, per `docs/DATA-SCOPE-DECISIONS.md`. With those three off it,
-      deleted `db/supabase-client.ts` and `db/drizzle-http-adapter.ts`. Two archived one-off
-      migration scripts (`scripts/archive/apply-gdpr-http.mjs`, `apply-rls.mjs`) still
-      reference the deleted adapter — left as-is: both already ran (their tables/policies are
-      confirmed live in this ledger), they're one-time scripts that will never run again
-- [x] **3.2** Move `components/calendar/` → `app/components/`, delete prototype UI *(S2)*
-      *(done 2026-09-24)* — `WeekStrip` (the only live export) moved to
-      `app/components/calendar/`; `CalendarGrid`/`CalendarPopup`/barrel deleted (zero
-      importers). Separately, the entire `components/` root prototype-UI cluster deleted:
-      13 files + backing `lib/api-stubs.ts`/`lib/types/{meal,compound,stats,index}.ts`/
-      `lib/utils/{cn,index}.ts` (~1,197 lines, zero importers confirmed for every file).
-      `lib/types/api.ts` confirmed live (4 importers) and left untouched
-- [x] **3.3** Delete `lib/data/compounds.ts` — 26,508 stale lines *(S3)* *(done 2026-09-24)* —
-      confirmed zero importers repo-wide before deleting; was gitignored, not tracked, so
-      nothing to remove from git history
-- [x] **3.4** **DECIDE:** ship the BullMQ worker or return 501 — imports currently vanish *(S4)*
-      — **decided 2026-10-07: removed entirely, not shipped.** Nothing ever started the
-      worker, so queued jobs silently vanished exactly as this item said. The only live call
-      site (`AnalysisClient.tsx`'s "import this food first" branch) could never actually run —
-      the data feeding it always marks `isImported: true`, so it was dead code regardless of
-      the queue. Deleted: `lib/queue/` (queue, worker, job types), the dead ETL orchestrator
-      pipeline it alone called (`lib/etl/orchestrator.ts` + its extractor/transformer/loader —
-      zero other callers, confirmed), `app/api/foods/import` + `app/api/foods/import/batch` +
-      `app/api/jobs/[jobId]` routes, the admin health dashboard's ETL-queue section, and the
-      `bullmq` npm dependency itself. The working, already-verified food-import path
-      (`POST /api/foods`) is a completely separate pipeline and is untouched
-- [x] **3.5** Archive ~310 one-off scripts to `scripts/archive/` *(S10)* *(done 2026-09-24)* —
-      147 files moved via `git mv` (history preserved; the "~310" estimate counted both
-      `scripts/` and other locations, actual top-level count was 152). Left in place:
-      `check-route-auth.ts`/`test-outliers.ts` (wired in `package.json`),
-      `fix-conversion-factors.ts`/`-2.ts` (still run manually per this doc),
-      `backfill-life-stage-encryption.ts` (recent). `dv-verify/`/`seed/` subdirs untouched
-- [x] **3.6** Delete Circadian + Sandalwood docs; fix the `--bg` drift *(S9)* *(done 2026-09-24)*
-      — `CIRCADIAN_DESIGN_SYSTEM.md` and `sandalwood-design-system.md` deleted, zero code
-      references confirmed first. The `--bg` drift was already resolved in `app/globals.css`
-      (`#000000`, verified) — no CSS change needed, only this doc's own stale mention
-- [x] **3.7** Rewrite `DATABASE_SETUP.md` — it predates the local-Postgres move *(done
-      2026-09-24)* — old version described creating a new Supabase project from scratch under
-      a wrong, since-abandoned repo path, claimed 11 tables (actual: 94+), and repeated 3 of
-      the exact false compliance claims §0 calls out (HIPAA retention, RLS, DEK "for E2EE").
-      Rewritten to describe the actual current local-dev-against-Supabase setup and defer to
-      this doc for anything that changes over time, instead of duplicating it
-- [~] **3.8** Split `AnalysisClient.tsx` — free extraction first *(S8)* — **free extraction
-      done 2026-09-24**: the ~290-line self-contained card-rendering block (`DvBar`,
-      `formatPortion`, `findGroup`, `buildCardRows`, `balanceCards`, `AnalysisCard`) moved to
-      `app/analysis/components/CompoundCards.tsx`, pure extraction, verified via build + dev
-      server + full test suite. File is 4,190 → 3,886 lines. **The actual split — the
-      remaining ~3,880-line component's state/effects/handlers/JSX — is not done.** That's a
-      much larger, judgment-heavy hook-extraction refactor, deliberately deferred: this file
-      is under active concurrent development (two unrelated commits landed in it from other
-      work during this same session), so attempting a large mechanical refactor now carries
-      real collision risk. Do as its own dedicated pass, not opportunistically
-- [ ] Structure verdict: **cleanup in place. Do NOT start a new folder** *(S7)*
-
-### Phase 4 — Verify
-- [x] **4.1** Port Jest→Vitest; delete the 4 fake test files *(done 2026-09-24)* — 7 legacy
-      Jest files found (not 13; re-verified by grep for `@jest/globals`/`jest.mock`), 6 ported
-      to Vitest (`profiles`, `consent`, `audit`, `api-keys` DAL tests, `audit-logger`,
-      `auth-server-actions`), 1 deleted (`lib/security/rate-limit.test.ts` — tested
-      `lib/security/rate-limit.ts`, which had zero live importers, fully superseded by the
-      Postgres-backed `lib/rate-limit/index.ts`). Several ported files had real bugs, not just
-      stale syntax: `profiles`/`consent`/`audit`/`api-keys` all mocked `getSession()` when the
-      real DAL calls `getUser()` (every "success" test was silently exercising the Unauthorized
-      path); `audit-logger` asserted the pre-anonymization raw IP. The 4 "assert nothing" files
-      were `console.assert()` scripts (never fail the process) — `jwt.ts`/its test deleted
-      (zero live importers, a pre-Supabase-migration leftover per `docs/AUDIT-2026-08-11.md`
-      A5), `password.test.ts`/`totp.test.ts` rewritten as real Vitest suites (both test live,
-      security-critical code), `redis/rate-limit.test.ts` deleted (imported `@/lib/redis/rate-limit`,
-      which doesn't exist). Converting `api-keys.test.ts` surfaced a real production bug —
-      `extractKeyPrefix()` split on `_`, but base64url's alphabet includes `_`, so ~39% of
-      generated API keys threw "Invalid API key format" — fixed and covered by a 50-iteration
-      regression test using real crypto
-- [ ] **4.2** Test the security layer first — authorization, ownership, encryption round-trip,
-      deletion cascade. These are where silent failure means breach
-- [x] **4.3** Conversion factors *(done 2026-08-22)* — 23 rows fixed (17 FRIDA + 6 DUKE) via
-      `scripts/fix-conversion-factors.ts` (idempotent, `--dry-run`); checker normalization
-      extracted to `lib/food-health/units.ts`. 4 judgment calls resolved as label-only
-      (`scripts/fix-source-unit-labels.ts`). Checker now reports 0 real flags
-
-### Phase 5 — Alpha
-- [~] **5.1** DPIA — **mandatory before processing begins**, not after *(P7)* — **drafted
-      2026-09-23**, `docs/DPIA-2026-09-23.md`, researched against EDPB WP248 and Datatilsynet's
-      published guidance. Concludes residual risk is low-to-medium given mitigations already
-      shipped (2.2, 2.5, 2.8). Still needs Jens's review/sign-off and reissue if scope or scale
-      changes — not yet a final adopted document
-- [~] **5.2** Privacy policy, ToS, consent UI; Anthropic DPA *(P6, P7)* — consent UI done (2.3,
-      2.5). Privacy policy **drafted** 2026-09-23, `docs/PRIVACY-POLICY-DRAFT.md`, covers the
-      Art. 13/14 mandatory disclosure list — needs a real contact email, legal review, and
-      publishing before launch. ToS not drafted (payment/acceptable-use terms are a separate
-      document). Anthropic DPA: standard terms confirmed to exist and cover this via SCCs, but
-      **activation on this specific API account is unverified** — action item for Jens, noted
-      in both the DPIA and the privacy policy draft
-- [ ] **5.4** Payments (Stripe keys exist; integration unverified) — deferred, do later
-- [ ] **5.5** Load food data — **Duke and FooDB last** (the two parent/child sources)
-
----
-
-## 4. TRUST LEDGER
-
-What is actually true, as of 2026-08-11. **Add to this rather than trusting comments.**
-
-| Claim | Status |
+| Doc | Use |
 |---|---|
-| Schema matches DB | ✅ VERIFIED 2026-09-28 — 766/766 columns, zero drift both directions, after migrations 0057/0058/0059 |
-| Heavy metals have limits | 🟡 PARTLY 2026-10-07 — **cadmium and mercury have limits; lead and inorganic arsenic have none, and that is the committees' own doing.** Cadmium: EFSA's TWI 2.5 µg/kg bw/week, JECFA's PTMI 25 µg/kg bw/month (73rd meeting — monthly on purpose, the kidney half-life is decades), EPA IRIS's food RfD 1 µg/kg bw/day. Mercury: the **methylmercury** limit, EFSA 1.3 and JECFA 1.6 µg/kg bw/week. Mercury is stored against a total-mercury food figure deliberately — methylmercury is a subset of total mercury, so the total is an upper bound on it and the comparison can only over-state exposure, never under-state it; the looser inorganic limit (4 µg/kg bw/week) carries no such guarantee and JECFA restricts it to non-fish foods. JECFA **withdrew** the total-mercury PTWI of 5 µg/kg bw at its 72nd meeting, so no body publishes a limit for the quantity we measure. **Lead and inorganic arsenic**: JECFA withdrew both PTWIs (73rd and 72nd) because no threshold exists, so they show "No DV" (Jens, 2026-10-07). Resolution is by **strictest, not median** — see the row below. Sources and quotes: `dv-sources/jecfa-contaminants/NOTES.md`, and the comment blocks in `dv-sources/{who-fao,efsa-drv,epa-iris}/extract.ts` |
-| Every source checked against its own printed table | ✅ DONE 2026-10-07 — `npm run check:printed` (`scripts/dv-verify/check-against-printed.ts`). **All ten independent bodies**, 264 values, 0 discrepancies. This is the only check that catches a column read one position to the left; every other one proves the pipeline agrees with itself. Each body's numbers were transcribed by hand from its own document, never from our `values.json`. Japan, China and Korea needed rendered pages (no extractable CJK text); EFSA's table has rotated headers the text layer mangles. **Two false alarms, both the check's fault, not the data's**: Russia's female vitamin-A block does not repeat the male one (800 vs 900), and Japan's English 2020 edition prints different thiamin values from the 2025 report the data came from. Japan's sample is 4 compounds for that reason — the convenient edition cannot check the real one |
-| Contaminant ceilings resolve by the strictest body | ✅ VERIFIED 2026-10-07 — a nutrient target estimates what a person needs, where over and under cost about the same; a contaminant ceiling estimates where harm begins, where they do not. So `CONTAMINANT_CEILINGS` (TWI/TDI/PTMI/RfD — **not** UL, a nutrient's own ceiling, and **not** BMDL, a reference point rather than a limit) take the strictest after converting each to a per-day basis, instead of the median (Jens, 2026-10-07). The looser bodies are not dropped silently: each lands in `excluded` with its own per-day figure and the reason. Verified at 70 kg — cadmium 175 µg/week from EFSA over JECFA's 58.3/day and EPA's 70.0/day; mercury 91 µg/week from EFSA over JECFA's 1.6. 4 tests in `lib/dv/resolve.test.ts` |
-| Energy has a target | ✅ WORKS 2026-10-08 — **1,491 EER rows from 19 bodies were stored and never read.** `resolve.ts` dropped every one with the note "energy is resolved separately (depends on activity)" and nothing, anywhere, did that — grepped for a consumer, there was none — so `/analysis` printed the kcal eaten with nothing to compare it against. Energy can't use the same per-body vote as other targets, because activity is a second axis: one body publishes 3-4 numbers for one age and sex, up to 900 kcal apart. So the activity level is chosen **first**, then one value per body, then the median. Adult male 30 y: **2300 / 2700 / 2986 / 3370 kcal** across sedentary → very active (7/9/6/4 bodies); female sedentary 1800. A body publishing a single figure with no activity breakdown (Korea, UK) votes **only at moderate**, recorded in `excluded` elsewhere. Unstated activity falls back to moderate and says so via `activityBasis` (`source: 'default'`). MJ→kcal conversion added (`UNIT_SCALES` had kJ and kcal but not MJ). WHO/FAO contributes nothing for adults — its energy rows stop at 215 months because its adult figures are BMR × PAL equations, not a table. 10 tests in `lib/dv/energy.test.ts` |
-| Amino acids published as pairs | ✅ RESOLVED 2026-10-08 — the bodies publish sulfur (methionine + cysteine) and aromatic (phenylalanine + tyrosine) as **pairs**, because the body interconverts within each, so all four members read "No DV". They are **not** the same case. WHO TRS 935 **§ 8.1.7 splits sulfur** — "there should be separate recommendations for methionine and cysteine ... 10.4 mg/kg per day methionine and 4.1 mg/kg per day cysteine" — so those two now carry their own targets (902.7 and 355.9 mg at 70 kg). **§ 8.1.6 refuses to split aromatic** — "It is not possible at present to set a specific value for the ability of tyrosine to spare phenylalanine intake" — so that pair gets its own row carrying the bar against the summed intake (`lib/dv/compound-pairs.ts`), and its members keep no target. ⚠️ **Cronometer halves both pairs** (verified 2026-10-08 by solving its displayed amount against its percent: implied member ratios 0.97 and 0.96). That is invented for aromatic and wrong for sulfur, where the real ratio is ~72:28 — it overstates cysteine's requirement by ~1.8×. Evidence appended to `dv-sources/who-fao/source/`. 8 tests |
-| Cysteine and Cystine are one compound | ✅ MERGED 2026-10-08 — they were one nutrient split across two compounds by a mapping accident: FOODFILES/KFCT/MEXT publish the component as `CYS` (FOODFILES names it "Cystine") and were pointed at `Cystine`, while FRIDA's `CYS` — also named "Cystine", EuroFIR code CYS — went to `Cysteine` with FDC/BLS/CNF/FOODB/AFCD. 69 foods carried both, median ratio 1.18, 60 of 69 within 2×. `scripts/merge-cystine-into-cysteine.ts` (idempotent, dry-run by default) repointed the three mappings and folded the values: Cysteine went 102 foods / 7 mappings / max 5 sources → **103 / 10 / 7**. **DUKE deliberately kept on `Cystine`** — it is the one source publishing CYSTEINE and CYSTINE separately, so it really makes the distinction; it is alpha-excluded and unloaded, so nothing merged depends on it. Not a true re-import (`food_sources.composition` is null for these sources, so per-source values are unrecoverable offline): values were combined by a source_count-weighted mean, which reproduces the pooled mean `merge.ts` would take, its >100× outlier guard being unable to fire at a widest disagreement of 7.5× |
-| DV targets count each body once | ✅ VERIFIED 2026-09-24 — the old lookup averaged all 22 sources, counting copies as votes and using a mean. `lib/dv/resolve.ts` now keeps one vote per body, takes the median, converts units rather than matching them as text, and keeps supplement-only and form-specific limits out of the food limit. 59 tests |
-| Per-kg daily values are stored and resolved | ✅ WORKS 2026-09-28 — `per_kg_body_weight` + `plus_absolute` (migrations 0057/0058). Protein went from 6 independent bodies to 9, amino acids from 1 to 2. Each body's values resolve at **that body's own** published reference weights (EFSA's adults are 68.1/58.5 kg, the IOM's 70/57), falling back to the IOM's with the loan named |
-| Body weight is collected | ✅ WORKS — **verified 2026-10-07**, and this row said the opposite until then. The input is `app/analysis/components/BodyProfile.tsx`, rendered from `AnalysisClient.tsx:1628`; it writes through `PATCH /api/user/demographics`, which refuses a non-null weight without the **`bodyMeasurements`** consent (403) — a flag of its own, because `sensitiveHealthData` is shown to users as covering pregnancy/lactation only and cannot carry a second disclosure. The flag is a real column (`user_consent.body_measurements`, confirmed in the live DB) with its own toggle in `ConsentManager.tsx`, and the value is stored encrypted in `user_profiles.body_weight_kg_encrypted`. 317 DV rows are per kg of body weight and now resolve against the user's own figure instead of a reference adult's. ⚠️ The consent **wording** and the DPIA amendment are still Jens's to sign off — the mechanism is built and gated, the paperwork is not adopted |
-| The extracts and seed scripts are type-checked | ✅ SINCE 2026-09-28 — `npm run typecheck:scripts`. `dv-sources/`, `db/seed/` and `scripts/` are all excluded from `tsconfig.json`, so 22 transcription extracts, the DV loader and every checker had never been checked; an invalid `life_stage` reached Postgres before anything complained. Scope is the DV pipeline: widening it surfaces 12 pre-existing errors in files importing modules deleted in 3.1 |
-| `db:migrate` idempotent | ✅ VERIFIED — runs clean twice |
-| Food importers work | ✅ VERIFIED — aseanfoods loaded 517 foods / 8,510 rows |
-| Compound + DV data intact | ✅ VERIFIED — 280 / 1,807 / 16,832 |
-| Conversion factors applied at read time | ✅ VERIFIED — fixable retroactively |
-| Known-wrong conversion factors | ✅ FIXED 2026-08-22 — 23 rows (17 FRIDA + 6 DUKE); re-queried DB, second run is a no-op |
-| Conversion factors, full sweep | ✅ FIXED 2026-09-08 — 23 more rows (`scripts/fix-conversion-factors-2.ts`). MEXT/FRIDA/FINELI amino acids stored mg at factor 1.0. Both audits now report 0 wrong |
-| Merge averages across units | ✅ FIXED 2026-09-08 — it summed raw values and labelled the result with `nutrients[0].unit`. Apple tryptophan read 0.7274 g against a true ~0.003. `lib/food-health/merge.ts` normalizes first, then holds out >100x outliers; 8 vitest tests |
-| Mapping ids match the source catalogue | ✅ VERIFIED 2026-09-08 — `scripts/audit-mapping-ids.mjs`. 57 fixed; only KFCT's 88 remain dead, and that source genuinely does not publish them |
-| AFCD joins nutrients by name | ✅ FIXED 2026-09-08 — the client fell back to matching on nutrient NAME. AFCD publishes 77 names twice on different bases (amino acids as mg and mg/gN, fatty acids as g and %T), so both were attached to one compound. Index only now |
-| Merged food values | ✅ REBUILT 2026-09-08 — all 71 foods re-imported (71 ok, 0 failed). Energy is `kcal` on all 71, was `g` on 66. Values >100x apart across sources: 13.2% -> 1.8%. Magnitude audit: 32 findings -> 1 |
-| Matvaretabellen contribution | ✅ FIXED — 3 compounds -> 50 after the join fix and re-import |
-| Conversion checker false positives | ✅ FIXED — was 246 flags / ~25 real. Now **0 real flags**; 25 qualifier-only notes, 314 missing-unit, both counted separately |
-| Chatbot pipeline | ✅ VERIFIED to Anthropic — blocked only on account credits |
-| Encryption applied to health data | ✅ FIXED 2026-09-23 — `life_stage` (Article 9) is AES-256-GCM ciphertext via `encryptPHI`/`decryptPHI`, key moved to `user_encryption_keys` (separate from the data it protects). Verified by raw `psql` read (ciphertext, not plaintext) and an integration test round-tripping the real read/write path. `biological_sex`/`birth_year`/`birth_month` remain unencrypted — noted as quasi-identifiers in `docs/DATA-SCOPE-DECISIONS.md`, not yet encrypted |
-| User deletion works | ✅ FIXED 2026-09-23 — immediate real deletion, verified end-to-end against a live throwaway account (profile, consent, api keys, encryption key, meals, meal items, custom DVs all confirmed gone; auth user deleted via admin API) |
-| Data export works | ✅ FIXED 2026-09-23 — synchronous JSON download of profile/demographics/consent/meals/api-key-metadata/custom-DVs, verified against a live account |
-| RLS protects user data | ✅ ENFORCED on the public API (Supabase/PostgREST) — 10 policies; verified by planting a real `user_profiles` row and confirming an anonymous caller gets `[]`. **Not** a boundary for the app's own queries: Drizzle connects as the table owner and bypasses RLS, so application-level `userId` filtering is still the boundary there |
-| Application-level userId filtering (the actual boundary) | ✅ AUDITED 2026-09-23 — all 27 files touching meals/symptoms/profiles/api-keys/MFA/dashboard checked individually; every query filters by the server-derived `userId`, zero exploitable gaps found. Full audit is the source for CLAUDE.md task 2.2 |
-| Rate limiting protects login | ✅ VERIFIED — Postgres-backed, fails closed; 5/20 parallel hits allowed (atomic) |
-| Full IPs stored in audit log | ✅ FIXED — truncated at all 3 write boundaries (pseudonymised, still personal data) |
-| Full date of birth stored | ✅ REMOVED — year+month only; API rejects a day. Age bands identical across 809 cases |
-| Upstash Redis | ✅ DISABLED in .env — 12 files used it; each call burned a 420ms timeout against a dead host |
-| getUserDemographics privilege | ✅ FIXED — was building a raw service-role Supabase client inline; now Drizzle |
-| Import queue processes jobs | ⚪ MOOT 2026-10-07 — the queue doesn't exist anymore. See 3.4: deleted rather than fixed, since the one call site was already dead code and the real, working import path (`POST /api/foods`) never used it |
-| AI routes are rate limited | ✅ FIXED 2026-09-28 — `checkAiRateLimit()` claimed "AI endpoints: 30 requests per user per hour" but **no route called it**. Now enforced on `/api/ai/log-food` (the only non-admin AI route; the other four are `requireAdmin`). Integration test: `__tests__/integration/chat-add-foods.test.ts` |
-| The chat saves what the user saw | ✅ VERIFIED 2026-09-28 — the model has no write tool; the button posts the exact items. Integration test asserts the saved rows equal the sent list (ids, grams, labels) |
-| A user can log someone else's private food | ✅ FIXED 2026-09-28 — `meals/sync` `add`/`addMany` and recipe creation only accept public foods or the caller's own private ones (was: any id that passed the FK). Test covers all three paths |
-| Saved meals are deleted when the user deletes them, or their account | ✅ VERIFIED 2026-10-07 — the route hard-deletes (was a hidden `is_active` flag), test checks the row is gone; the FK `saved_meal_templates_user_id_user_profiles_user_id_fk` is `ON DELETE CASCADE` (read from `pg_constraint`), and account deletion deletes `user_profiles` |
-| Saved meal names are encrypted at rest | ✅ VERIFIED 2026-10-07 — AES-256-GCM with the user's DEK; integration test reads the raw column and finds no plaintext |
-| CIQUAL staging values | ✅ FIXED 2026-08-22 — importer bound columns by POSITION; 69/74 were wrong (158,267 of 174,570 values). Now matched by column title+unit, aborts if any fails. Verified against the raw spreadsheet: 8/8 nutrients exact |
-| Impossible staging values | ✅ NONE — bounds guard (`db/seed/_shared/bounds.mjs`) rejects gram proximates >110 g/100 g. Threshold is 110 not 100 because CoFID carbohydrate-as-monosaccharide legitimately reaches 105 |
-| Staging data loaded | ✅ 13/17 sources, **3,213,257 rows**, 34,754 foods (2026-08-22). Loaders live in `db/seed/<source>/import-<source>.mjs`, **not** `scripts/`. Each TRUNCATEs its own tables, so all are re-runnable |
-| KFCT / MEXT English names | ✅ POPULATED — `name_en` was 0/2733 and 0/2478 after import; `scripts/populate-{kfct,mext}-english-names.mjs` fills it (now 1694 and 2184). Import alone does NOT do this |
-| Food import pipeline end-to-end | ✅ VERIFIED 2026-08-22 — beef liver imported from 3 sources, 241 values, cross-source compare works |
-| Outbound API failures | ✅ HANDLED for **all 14 sources** — every source fetch in `POST /api/foods` is wrapped in `withRetry` (`lib/services/http-retry.ts`): 3 attempts w/ backoff, retries connection-level + 408/429/5xx, never other 4xx, never `nonRetryable` code bugs. Applies to the staging clients too, which became network calls after the Supabase move. `describeError()` logs code/errno/syscall/address/cause/AggregateError members — previously a failed USDA call logged only `message: "Error"` and the cause was unrecoverable |
-| Partial food imports | ✅ FIXED — a source that failed still got a `food_sources` row with zero values (egg, chicken breast). Import now aborts before any write if any source fails; `food_sources` is built only from sources that returned data |
-| CNF unit labels | ✅ FIXED 2026-10-07 — the §6b default-to-`g` was **not** cosmetic. Choline was stored as `g` for 96 foods while the values were milligrams (carrot 8.8, garlic 23.2, lentils 96.4 — all exact matches to USDA in mg), so the choline bar read **1600 % for a carrot**. Data corrected by `scripts/fix-merged-nutrient-units.ts` (322 rows relabelled, no value touched). **Root cause now fixed too**: the unit was in `compound_sources.source_unit` all along — all 117 CNF mappings carry one — and `standardizeCNF` never asked. It now resolves caller unit → mapping unit → dictionary, and **skips with a warning rather than falling back to `'g'`**. 4 tests in `nutrient-mapper.test.ts` |
-| Food totals sum mixed units | ✅ FIXED 2026-09-30 — `aggregateTotals` added a gram to a microgram as if they were the same number, and took the total's label from whichever row sorted first, so a zero-in-grams could relabel a real quantity and multiply a day's intake by 10⁶. Now converts before adding, lets the incoming unit win while nothing real has accumulated, and refuses to merge units that are not the same quantity (µg folate vs µg DFE). `lib/nutrition/intake-to-percent.test.ts` |
-| Raw source data on disk | ✅ VERIFIED — 8 unloaded sources do contain beef liver. See §6c |
-| ~~Middleware protects pages in dev~~ | ✅ FIXED 2026-08-11 — see rows below |
-| Tests pass | ❌ FALSE — 13/14 files fail; 4 assert nothing |
-| Routes authorize with getUser() | ✅ VERIFIED — 36 files swept; 0 getSession outside middleware |
-| Route auth is enforceable | ✅ `npm run check:auth` — 30 routes still to migrate, all reference-data reads |
-| Admin APIs require admin | ✅ VERIFIED — non-admin gets 403 JSON on all 18 |
-| Admin pages require admin | ✅ VERIFIED — non-admin redirected to /analysis |
-| Erasure/export endpoints | ✅ WORK — real, verified end-to-end 2026-09-23 (see 2.8). No longer 501 |
-| Middleware `basePath` matching | ⚪ MOOT 2026-09-14 — `basePath` removed from `next.config.js`; app now served at root |
-| Production build | ✅ VERIFIED passing — was broken (3 TS errors); fixed 2026-08-11 |
-| Middleware runs in dev | ✅ VERIFIED — short-circuit removed; headers now present in dev |
-| App runs as DB superuser | ⚠️ **REGRESSED 2026-08-22** — was `nutri_app` on local Postgres; the move to Supabase runs the app as `postgres` (table owner, full DDL, bypasses RLS). Least-privilege role needs recreating on Supabase |
-| Migration role still superuser | ⚠️ Moot on Supabase — both URLs now use `postgres`. See the row above |
-| Database location | ✅ Supabase `knwfnixfanmydbeatamu`, **eu-west-1** (EU region, Article 9 data). Migrated 2026-08-22: 94 tables, 0 restore errors, row counts verified both sides |
-| `anon` write grants | ✅ REVOKED — Supabase grants anon full DML by default; RLS deny-all was the only thing in front of it. Now revoked, incl. default privileges |
-
----
-
-## 5. DOMAIN MODEL
-
-| Group | Tables | Status |
-|---|---|---|
-| Compounds | `compounds`, `compound_groups`, `compound_sources`, `reference_daily_values` | ✅ Built + populated |
-| Foods | `foods`, `food_sources`, `merged_nutrients`, `food_components` | ✅ Built, ⬜ empty |
-| Tracking | `meal_logs`, `meal_items`, `symptom_logs`, `symptom_definitions` | ✅ Built, ⬜ empty |
-| Users | `user_profiles`, `user_consent`, `api_keys` | ✅ Built |
-
-**Note:** the universal `Item`/`Entry` tracking model is a **north star, not current work** —
-see §9. Earlier versions of this file listed it as "NOW", which sent many sessions looking
-for tables that do not exist.
-
-### Compound expansion
-```
-Entry: { item: "Lunch", value: "pizza" }
-        ↓
-Derived: { item: "Tyramine", value: 45mg }   { item: "Sodium", value: 890mg }
-```
-
-### How sources express structure — VERIFIED 2026-08-22
-
-**No source has parent/child food rows.** Every `source_*_foods` table was checked: not one
-has `parent_id`, `child_id`, or a self-reference. Earlier versions of this file said "Duke and
-FooDB use parent/child food structures" — that sends you looking for tables that don't exist.
-What actually varies is how structure is expressed *around* flat rows. Three patterns:
-
-**1. Plant × part — the only real second dimension**
-- **DUKE** — has no `foods` table at all; it has *plants*. 2,016 plants × 100 part codes =
-  68,844 rows in `source_duke_farmacy`. `PL` Plant 15,755 · `LF` Leaf 10,188 · `FR` Fruit
-  9,857 · `SD` Seed 8,739 · `SH` Shoot 6,109 · `RT` Root 5,520. Vocabulary in `data/duke/PARTS.csv`.
-- **FOODB** — same dimension via `Content.csv → orig_food_part`, but **99% of rows leave it
-  blank** (≈1,100 of 400k scanned; seed 302, fruit 276, leaf 204). Effectively ignorable.
-
-In both, the part sits on the **measurement row, not the food row**. There is no parent food
-and no child food — one food, values tagged by part.
-
-**2. Category trees** — `food_group` on the food row: ASEANFOODS, CIQUAL, UK_COFID, FINELI,
-INDB, KFCT, MATVARETABELLEN, MEXT, NEVO. FOODB and PHENOL add `food_subgroup` (2 levels).
-FOODB also has `food_type`: **Type 1 = 706** (raw/primary), **Type 2 = 264** (processed).
-These classify foods; they do not relate foods to each other.
-
-**3. Structure encoded in the name** — BLS, FRIDA, AFCD, FOODFILES. Species, organ and
-preparation comma-separated in one string (`Beef, liver, raw` · `Rind Leber, roh` ·
-`Lever, okse, rå`). Readable to a human, opaque to a parser — this is why cross-source name
-matching is hard.
-
-**For alpha: exclude DUKE only.** Its part dimension is load-bearing and it is plant-only.
-FOODB is deferred for size (271 MB), not structure.
-
-### Source inventory gaps — found 2026-08-22
-- **DUKE is missing from `api_source_enum`** despite having 155 mappings and staging tables.
-  The merge step cannot write a DUKE value until it is added.
-- **NUTRITIONIX is in the enum** but has 0 mappings, no staging tables, no raw data. Phantom.
-- **PHENOL-EXPLORER** has staging tables and 579 KB of raw data but **0 mappings** and is not
-  in the enum. An 18th source, unwired.
-- Naming mismatch: staging tables are `source_cofid_*`, the enum and mappings say `UK_COFID`.
-
----
-
-## 6. KNOWN DATA ISSUES
-
-**Fixed 2026-08-22.** The checker used to report 246 flags because it compared units as raw
-text — `µg` (U+00B5) / `μg` (U+03BC) / `ug` / `UG`, a `/100g` basis suffix, and equivalence
-qualifiers (`DFE`, `NE`, `RAE`) all read as mismatches. Normalization now lives in
-`lib/food-health/units.ts` (`parseUnit` → `{ magnitude, qualifier }`), so a wrong **factor**
-is distinguishable from a wrong **label**.
-
-Applied by `scripts/fix-conversion-factors.ts` (idempotent; supports `--dry-run`):
-
-| Group | Rows | Fix | Was |
-|---|---|---|---|
-| FRIDA amino acids `mg/100g`→`g` | 14 | ×0.001 | 1000× too high |
-| FRIDA Boron, Fluoride `µg/100g`→`mg` | 2 | ×0.001 | 1000× too high |
-| FRIDA Salt `g/100g`→`mg` | 1 | ×1000 | 1000× too low |
-| DUKE `ppm`→`g` / `mg` | 6 | ×0.0001 / ×0.1 | left at 1.0 |
-
-DUKE basis confirmed from DUKE's own data: 78 rows already at `0.0001` (g) and 44 at `0.1`
-(mg). 1 ppm = 1 mg/kg = 0.1 mg/100g = 0.0001 g/100g.
-
-**The 4 judgment calls: resolved 2026-08-22 as label-only.** Every one already had the
-correct factor of 1.0 — confirmed because every peer source maps the same compound at 1.0
-with a plain unit (e.g. 9 sources map Niacin Equivalents, 8 of them as plain `mg`). The
-labels carried the magnitude only implicitly, so `scripts/fix-source-unit-labels.ts` made it
-explicit. No values changed.
-
-| Source | Was | Now |
-|---|---|---|
-| FRIDA `Niacin Equivalents` | `NE` | `mg NE` |
-| FRIDA `Vitamin E (Total)` | `alfa-TE` | `mg alfa-TE` |
-| MATVARETABELLEN `Vitamin E (Total)` | `mg-ATE` | `mg ATE` |
-| MEXT `Ethanol` | `……g……` | `g` |
-
-`source_unit` is audit metadata — safe to relabel. Runtime maths reads `conversion_factor`,
-and the per-food `sourceUnit` the source clients return comes from each raw
-`source_*_nutrients` table, not this column. The MEXT `……` is a leader-dot artifact from the
-Japanese Standard Tables unit row; its raw table is empty, so this was read from the mapping,
-not the data.
-
-**Checker now reports 0 real flags** (from 246), with 25 qualifier-only notes and the
-missing-unit gap below.
-
-⚠️ `scripts/seed/04-vitamin-e.ts` was updated to match, but its FRIDA row uses
-`externalId: '135'` while the live row is `VITE`. Re-seeding would insert a *second* FRIDA
-Vitamin E mapping rather than update this one. Not caused by this work — worth a look.
-
-**Separately: 293 of 1,753 mappings have no `source_unit` at all** (was 314 of 1,807 — 23 were
-filled in by the second factor pass, and 54 dead mappings deleted). Not a maths error, so the
-checker counts it as `missingUnits` rather than a flag. `scripts/audit-source-units.ts` now
-covers them anyway by deriving the unit from the source's own catalogue, and reports 148 as
-blind-but-correct — but a mapping that states its unit is still better than one that does not.
-
-## 6d. STAGING LOAD — DONE 2026-08-22
-
-13 of 17 sources loaded into Supabase. **3,213,257 staging rows**, up from 9,523.
-
-| Source | Foods | Values | | Source | Foods | Values |
-|---|---|---|---|---|---|---|
-| BLS | 7,140 | 869,501 | | MATVARETABELLEN | 2,121 | 120,197 |
-| FINELI | 4,238 | 307,819 | | AFCD | 1,588 | 182,140 |
-| CIQUAL | 3,484 | 174,570 | | FRIDA | 1,370 | 137,946 |
-| UK_COFID | 2,886 | 192,760 | | INDB | 1,014 | 39,546 |
-| FOODFILES | 2,857 | 571,495 | | ASEANFOODS | 517 | 8,510 |
-| KFCT | 2,733 | 63,873 | | **Total** | **34,754** | **3.18M** |
-| MEXT | 2,478 | 237,032 | | | | |
-
-**Not loaded, on purpose:** DUKE (plant × part, alpha-excluded), FOODB (271 MB, deferred),
-PHENOL-EXPLORER (0 mappings — nothing to merge into).
-
-**How to run one:** `DATABASE_URL="$MIGRATION_DATABASE_URL" node db/seed/<src>/import-<src>.mjs`
-Route bulk loads through the **session** connection (port 5432), not the transaction pooler
-(6543). Every loader TRUNCATEs its own staging tables first, so re-running is safe.
-
-**Beef liver is now findable in all 8 expected sources** — BLS `Beef liver, raw` · CIQUAL
-`Liver, heifer, cooked` · FINELI `LIVER, BEEF` · FRIDA `Liver, ox, raw` · UK_COFID
-`Liver, ox, raw` · NEVO `Liver ox boiled` · KFCT `Beef edible offal, Liver, Raw` · MEXT
-`Beef, offal and by-products, liver, raw`.
-
-⚠️ **KFCT and MEXT need a second step.** Their importers leave `name_en` completely NULL
-(0/2733 and 0/2478), so an English search finds nothing and the source looks empty. Run
-`scripts/populate-{kfct,mext}-english-names.mjs` after importing. Coverage is partial by
-design — 1694/2733 and 2184/2478; the rest have no English name in the source.
-
----
-
-## 6b. IMPORT BUGS FOUND ON FIRST REAL FOOD (2026-08-22)
-
-First food loaded: **"Beef, liver, raw"** — 3 sources, 241 values, 136 merged nutrients
-(89 compound-linked, 47 not). Cross-source comparison works. Two bugs surfaced:
-
-**1. CNF unit labels default to `g` — 15 compounds affected.** Values are CORRECT (CNF 11
-matches FDC 11 µg); only the label is wrong. Root cause `lib/services/nutrient-mapper.ts:362`:
-
-```ts
-const standardUnit = STANDARD_UNITS[standardName] || unit || 'g';
-```
-
-`STANDARD_UNITS` has **52 entries** against **280 compounds**; everything else falls through
-to `'g'`. CNF's API sends no units, so nothing corrects it. Currently cosmetic — but
-`convertUnit()` sits directly below, so the day a unit *is* passed, µg→g divides real values
-by 1,000,000. Fix the dictionary against real multi-food data, not from one food.
-
-**2. Energy has duplicate/mislabelled rows.** ✅ **The merged value is FIXED 2026-09-08** —
-`merged_nutrients` now reads `kcal` on all 71 foods (it was `g` on 66) because the merge
-converts kJ onto kcal instead of averaging the two numbers together. Apple went from
-`70.1067 g` to `53.9528 kcal`. UK_COFID's kJ mapping also needed a x0.239 factor (§6e).
-
-**The underlying source rows are still messy** and this is worth a proper pass: CNF returns
-both 135 (kcal) and 564 (kJ) written as `Energy`, and an FDC row of 134.796 is labelled `kJ`
-while being kcal. The merge now survives that rather than curing it — a source whose label
-is wrong but whose magnitude is right passes both guards silently.
-
-Also: `merged_nutrients.unit` used to inherit whatever unit came first in the group. It now
-takes the unit most values carry, after normalization — but that is a majority vote, so on a
-compound where most sources mislabel, it still follows them.
-
----
-
-## 6c. WHICH SOURCES ACTUALLY HAVE BEEF LIVER (verified 2026-08-22)
-
-Only 3 sources answered because **14 of the 17 have zero rows loaded** — not because they
-lack the food. Verified by reading the raw files in `data/` directly (557 MB on disk).
-
-**Only 2 sources are live APIs:** FDC (`api.nal.usda.gov`) and CNF
-(`food-nutrition.canada.ca`). Every other client reads a local `source_*` table. The URLs in
-the foodb/frida/matvaretabellen/nevo clients are attribution links, not endpoints.
-
-| Status | Sources |
-|---|---|
-| ✅ Returned data | FDC (live API), CNF (live API), ASEANFOODS (517 foods loaded) |
-| 🟡 **Has beef liver, not loaded** | BLS `Rind Leber, roh` · CIQUAL `Liver, heifer/calf, cooked` · FINELI `MAKSA, NAUDAN` (786) · FRIDA `Lever, okse, rå` · KFCT `Beef edible offal, Liver, Raw` · MEXT `Beef, offal and by-products, liver, raw` · NEVO `Lever runder- rauw` (1407) · UK_COFID `Liver, ox, raw` |
-| 🟠 Has liver, but not beef | AFCD (chicken, lamb) · FOODFILES (chicken, cod) · MATVARETABELLEN (cod only) |
-| ⚪ No liver | INDB · FOODB (appears only in description text) |
-| ⬜ N/A — plant-only DBs | DUKE · PHENOL-EXPLORER |
-
-So beef liver should eventually reach **11 sources**, not 3.
-
-**Gotchas found while checking:**
-- `data/fineli/*.csv` is **ISO-8859-1**, not UTF-8 — decoding as UTF-8 throws. Finnish names
-  live in `foodname_FI.csv`; the EN file has no liver entry, so an English-only match misses it.
-- `data/ciqual/ciqual-2020-en.xls` (legacy `.xls`) needs `xlrd`; use `ciqual-2025-en.xlsx`.
-- Searching for "liver" in English misses most sources — BLS `Leber`, FRIDA/NEVO `lever`,
-  FINELI `maksa`. Name matching across sources needs per-language terms.
-- DUKE `SUPERACT.csv` and FooDB `HealthEffect.csv` contain thousands of "liver" hits that are
-  *pharmacological activity text*, not foods. Don't match on them.
-
-## 6e. SECOND FACTOR PASS — DONE 2026-09-08
-
-The August pass fixed the rows already listed in the audit. This one checked
-*every* mapping, two independent ways, because neither method is sound alone:
-
-| Script | Method | Blind spot |
-|---|---|---|
-| `audit-source-units.ts` | expected factor from `source_*_nutrients.unit` | that column lies — MEXT declares `g` for calcium while publishing beef liver at `5` |
-| `audit-magnitudes.ts` | each source vs the median of its peers on the same food | the median is wrong when most sources are wrong, as they were for amino acids |
-| `audit-mapping-ids.mjs` | every `external_id` against the source catalogue | a source with no catalogue loaded (CNF) cannot be checked at all |
-
-Trusting the label alone would have turned **13 correct MEXT factors into 1000x
-errors**. Those 13 are now suppressed per-id in the script with the evidence
-recorded — not by exempting MEXT, which would hide the next real error there.
-
-Fixed: 13 MEXT amino acids + butyric acid, 4 FRIDA amino acids, FINELI
-tryptophan (all mg stored as g); MATVARETABELLEN salt; UK_COFID energy kJ. Two
-MEXT rows went the other way — `VITA_RAE` x1000000 → x1 and `TOCPHG` x1000 → x1,
-where someone had already scaled them by trusting that junk `g`.
-
-**Still unverifiable: CNF's 117 mappings.** `source_cnf_nutrients` has 0 rows, so
-nothing can check them. Loading that catalogue is the only fix.
-
-
----
-
----
-
-## 7. PATTERNS
-
-### Database access
-```typescript
-import { db } from '@/db';                          // Drizzle — works against local Postgres
-import { createClient } from '@/lib/supabase/server'; // Supabase-shaped; dev shim in dev
-```
-**There is no RLS.** Every user-scoped query must filter by `userId` in application code.
-The DAL comments claiming RLS are false.
-
-### Local environment
-- **Supabase Postgres 17.6, eu-west-1** (project `knwfnixfanmydbeatamu`) as of 2026-08-22.
-  The old local Postgres 16 on port 5434 is still on this machine as a fallback; `.env` was
-  backed up to `.env.backup-local-*` before the switch.
-- **Two connections, on purpose:** `DATABASE_URL` → transaction pooler, port **6543** (app).
-  `MIGRATION_DATABASE_URL` → session mode, port **5432** (drizzle-kit, dumps, psql).
-  ⚠️ Both currently authenticate as `postgres`. The least-privilege split that existed
-  locally (`nutri_app`) is REGRESSED — see the trust ledger.
-- Dev server **always port 3003**: `npx next dev -p 3003`
-- App is served at the root — `http://localhost:3003/...` (no `basePath` since 2026-09; `/nutri` 404s)
-- `DEV_AUTH_BYPASS=true` makes every request one fixed admin. **Local only, never deployed.**
-
-### The dev-auth shim is incomplete
-`lib/supabase/dev-shim.ts` reimplements a subset of the Supabase client for
-`DEV_AUTH_BYPASS=true`. It does **not** implement `.or()`, which
-`lib/search/search-service.ts:181` depends on — so with the bypass on, food search
-silently returns zero results with no error. Symptom looks like missing data; cause is a
-missing method. Turn the bypass off to test anything that searches.
-
-### Code style
-TypeScript strict; Zod on every route; server components preferred; aliases `@/db`, `@/lib`,
-`@/app/components`.
-
-### Commands
-```bash
-npx next dev -p 3003     # dev server
-npm run db:generate      # generate migration
-npm run db:migrate       # apply migrations
-npm run db:studio        # Drizzle Studio
-npx vitest run           # tests (currently broken — see 4.1)
-```
-
----
-
-## 8. STABLE REFERENCE
-
-These sections were verified as still accurate and are unchanged in substance.
-
-### Compound seeding
-Work in batches of 5. Per compound: create `scripts/seed/0X-name.ts` → run it → verify against
-the doc table. Track in `docs/compound-mappings/SEEDING-PROGRESS.md`.
-Watch for silent `ON CONFLICT DO NOTHING` skips — an X/Y discrepancy in "mappings inserted"
-means an earlier compound claimed a wrong external ID.
-
-### Daily Value sourcing
-~15 authorities aggregated into personalized targets. **Every source needs age + sex minimum.**
-- `dv-sources/GUIDE.md` — step-by-step
-- `dv-sources/INDEX.md` — coverage tracker
-- Always run `scripts/check-source-compound-names.ts` **before** writing seed code
-- Always test idempotence — second run must show `Inserted: 0`
-- Store native age ranges in months; never force into enum buckets
-- All 9 columns in the `ON CONFLICT` clause
-
-### Design system — Charcoal × Cyan/Magenta
-**Source of truth: `app/globals.css`.** Circadian and Sandalwood were earlier retired design
-systems — their docs are deleted (§3.6); if either name resurfaces anywhere, that's a
-regression, not a reference to restore.
-
-| Token | Value | Role |
-|---|---|---|
-| `--bg` | `#000000` | page background *(§13 of the old file said `#0a0a0c` — globals.css wins)* |
-| `--bg-soft` | `#101014` | elevated surfaces |
-| `--surface` | `#0e0e12` | inset inputs |
-| `--border` | `#1e1e24` | default borders |
-| `--text-1` | `#e8e8f4` | primary text |
-| `--text-2` | `#8080a0` | secondary |
-| `--text-3` | `#484860` | muted |
-| `--accent` | `#508898` | muted teal — interactive |
-| `--accent-dark` | `#306070` | 3D press depth |
-| `--accent-text` | `#906070` | dusty rose — data highlight |
-
-Fonts: Instrument Serif (display), DM Sans (body), DM Mono (data).
-Buttons: square press, `border-radius: 3px`, `0 5px 0 var(--accent-dark)`.
-Inputs: inset. Rows: banded. Header: transparent.
-Rules: font weight ≤ 500; max content width 720px; no gradients, no glassmorphism, no
-decorative emoji; square corners.
-
-**`/analysis` overrides this to a cream/coral "Petal White" palette**, scoped under `.an-page`
-in `app/analysis/AnalysisClient.tsx` (search `ALPHA SKETCH (2026-08-23)`). This is intentional,
-locked 2026-08-23, and wins on that page: `--panel:#fff7f4`, `--coral:#d42a55` as the single
-data-highlight token, ink text `#2e1a0e`. `--ring-1/2/3` there resolve to `--coral` and two
-`color-mix()` tints of it, not the dark theme's cyan.
-
-### Data visualization language — cards + rings (locked 2026-09-18)
-**This is the house style for any stat/goal/progress visual on `/analysis` (and the default to
-reach for anywhere else a number needs a shape).** Jens signed off on this pass explicitly —
-don't relitigate the card treatment or invent a new one-off widget without checking here first.
-
-- **Card:** white (`#ffffff`), `border-radius: 10–16px`, `box-shadow: 0 6px 22px rgba(46, 26, 14, 0.12)`
-  (the bigger `0 10px 34px rgba(46, 26, 14, 0.13)` is for outer containers like `.chat-box`, not
-  inner tiles). Same recipe on `.chat-input`, `.ac-card`, `.hl-card` — one shadow language,
-  reused everywhere, never invented fresh per component.
-- **MacroViz** (`app/analysis/MacroViz.tsx`) is an 18-way switchable visualization component,
-  not a single hardcoded ring. 12 ring treatments (`A`–`L`: bold/floating/soft/flat/hairline/
-  compact/glow/conic-donut/double/knob/segmented-dial/halo) plus 6 alternate shapes (`M`–`R`:
-  horizontal bars/speedometer/macro-split-ring/vertical bars/dot-stepper/flat tiles). Static
-  side-by-side gallery of all 18 with descriptions: **`docs/design/macro-viz-styles.html`**
-  — open it before adding a 19th style, so it's added there too, not just in code.
-  - Default style: **`O` — one ring, macro composition** (kcal centered, one ring split into
-    coral-tint arcs by share of calories, not per-macro goal progress).
-  - User-switchable via the gear icon top-right of the Macros section header
-    (`MacroVizPicker`), persisted per-browser in `localStorage` (`nutri.macroVizStyle`) — not
-    a DB column. If this ever needs to sync across devices, that's a real schema change, not a
-    localStorage tweak.
-  - Colors always come from `RING_COLORS = ['var(--ring-1)', 'var(--ring-2)', 'var(--ring-3)']`
-    — never hardcode a hex for a macro slice; it breaks the `--coral` re-tone knob.
-- **Desktop layout:** rings/shapes on the left, kcal + water stacked on the right, split by a
-  2px hairline (`rgba(46, 26, 14, 0.16)`) — the same divider treatment as `.chat-aside`'s split
-  from the chat thread. Stacks to one column under `860px`. Selectors: `.mv-layout`,
-  `.mv-rings-col`, `.mv-divider`, `.mv-hero-col` in `AnalysisClient.tsx`.
-
----
-
-## 9. NORTH STAR (not current work)
-
-The long-term model — deliberately deferred until the alpha ships:
-
-```
-Item:    { id, name }
-Entry:   { item_id, value, timestamp }
-Pattern: { discovered }
-```
-
-Data is dumb; discovery is smart; nothing hardcoded (no fixed lag windows, threshold bins, or
-significance cutoffs); domain-agnostic. Then community and store.
-
-**Do not start building this.** It is here so the direction is legible, not so it gets worked
-on. See §1 for what is actually current.
-
----
-
-## 10. REFERENCE INDEX
-
-| Doc | Purpose |
-|---|---|
-| `docs/AUDIT-2026-08-11.md` | **Full security/privacy findings. Read before security work** |
-| `docs/DATA-SCOPE-DECISIONS.md` | **Deliberate data-minimization/retention/age/jurisdiction calls for alpha. Read before adding a field, changing retention, or touching consent** |
-| `docs/DPIA-2026-09-23.md` | Data Protection Impact Assessment draft — pending Jens's review. Reissue if scope/scale changes |
-| `docs/PRIVACY-POLICY-DRAFT.md` | Privacy policy draft — needs contact email, legal review, publishing before launch |
-| `docs/NUTRI_OVERVIEW.md` | Platform vision |
-| `docs/DATA_SOURCES.md` | The 18 food sources |
-| `docs/architecture/core-compounds-hierarchy.md` | ~213 Core compounds |
-| `dv-sources/GUIDE.md` / `INDEX.md` | DV sourcing + coverage |
-| `dv-sources/PROVENANCE.md` | **Which body actually derived each value** — run-state of the dependency audit |
-| `db/seed/SOURCING.md` | 5-gate pipeline |
+| `docs/DATA-SCOPE-DECISIONS.md` | Deliberate data-minimization/retention/age calls — read before touching fields or consent |
+| `docs/AUDIT-2026-08-11.md` | Original security audit — background for why the rules above exist |
+| `docs/DPIA-2026-09-23.md`, `docs/PRIVACY-POLICY-DRAFT.md` | Privacy paperwork (drafts) |
+| `docs/NUTRI_OVERVIEW.md`, `docs/DATA_SOURCES.md` | Vision; the food sources |
+| `docs/PLAN-CHAT-PIPELINE.md`, `docs/PLAN-SAVED-MEALS.md` | Design of the chat and saved-meals features |
+| `docs/architecture/` | Compound hierarchy and tiering |
+| `dv-sources/GUIDE.md`, `INDEX.md`, `PROVENANCE.md`, `DV-ACCURACY-TASKS.md` | Daily-value sourcing, coverage, provenance, run state |
+| `db/seed/SOURCING.md` | The 5-gate source-loading pipeline |
+| `DATABASE_SETUP.md`, `docs/DEPLOY.md` | Environment and deployment |

@@ -55,7 +55,7 @@ const PUBLIC_ROUTES: Record<string, string> = {
   // They expose NO user data, take no user-scoped parameters, and query local
   // Postgres (no external calls, no per-request cost), so anonymous access is
   // not an abuse or privacy vector. Routes that DO reach external APIs
-  // (fdc, cnf, external-search, nutrient-count) and the moderation queue
+  // (fdc, cnf, nutrient-count) and the moderation queue
   // (foods/pending) are deliberately NOT here — they are authenticated.
   //
   // If food search should require login, delete the relevant lines and add
@@ -64,7 +64,6 @@ const PUBLIC_ROUTES: Record<string, string> = {
   'app/api/compounds/[id]/route.ts': 'Public reference data — single compound.',
   'app/api/compounds/search/route.ts': 'Public reference data — compound search.',
   'app/api/compounds/categories/route.ts': 'Public reference data — compound categories.',
-  'app/api/compound-groups/route.ts': 'Public reference data — compound groups.',
   'app/api/food-categories/route.ts': 'Public reference data — food categories.',
   'app/api/foods/[foodId]/route.ts': 'Public reference data — food detail.',
   'app/api/foods/[foodId]/portions/route.ts': 'Public reference data — food portions.',
